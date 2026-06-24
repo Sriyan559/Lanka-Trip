@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductionCapacity;
+use App\Models\Quotation;
+use App\Models\RFQ;
 use App\Models\Supplier;
 use App\Models\SupplierCertificate;
 use App\Models\SupplierStrength;
@@ -65,6 +68,32 @@ class SupplierCompanyProfileApiTest extends TestCase
             'name' => 'Latest Tea',
             'created_at' => now(),
         ]);
+        $buyer = User::factory()->create(['role' => 'buyer']);
+        $rfq = RFQ::create([
+            'user_id' => $buyer->id,
+            'rfq_number' => 'RFQ-2026-000001',
+            'title' => 'Tea sourcing request',
+            'destination_country' => 'UAE',
+            'status' => 'completed',
+        ]);
+        $quotation = Quotation::create([
+            'rfq_id' => $rfq->id,
+            'supplier_id' => $supplier->id,
+            'quotation_number' => 'QT-2026-000001',
+            'total_amount' => 1000,
+            'currency' => 'USD',
+            'status' => 'accepted',
+        ]);
+        Order::create([
+            'order_number' => 'ORD-2026-000001',
+            'buyer_id' => $buyer->id,
+            'supplier_id' => $supplier->id,
+            'quotation_id' => $quotation->id,
+            'rfq_id' => $rfq->id,
+            'total_amount' => 1000,
+            'currency' => 'USD',
+            'status' => 'completed',
+        ]);
 
         $this->getJson("/api/suppliers/{$supplier->id}/company-profile")
             ->assertOk()
@@ -79,7 +108,11 @@ class SupplierCompanyProfileApiTest extends TestCase
             ->assertJsonPath('production_capacity.monthly_output', '20,000')
             ->assertJsonCount(2, 'latest_products')
             ->assertJsonPath('latest_products.0.id', $latest->id)
-            ->assertJsonPath('latest_products.1.id', $older->id);
+            ->assertJsonPath('latest_products.1.id', $older->id)
+            ->assertJsonPath('statistics.total_products', 2)
+            ->assertJsonPath('statistics.completed_orders', 1)
+            ->assertJsonPath('statistics.response_rate', null)
+            ->assertJsonPath('statistics.rfqs_handled', 1);
     }
 
     public function test_authenticated_supplier_owner_can_update_company_profile(): void

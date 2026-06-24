@@ -46,6 +46,9 @@ class SupplierProfileController extends Controller
                 'products' => fn (Builder $query) => $query
                     ->active()
                     ->whereHas('category', fn (Builder $query) => $query->active()),
+                'orders as completed_orders_count' => fn (Builder $query) => $query
+                    ->where('status', 'completed'),
+                'quotations as rfqs_handled_count',
             ])
             ->findOrFail($id);
 
@@ -71,6 +74,9 @@ class SupplierProfileController extends Controller
             'products' => fn (Builder $query) => $query
                 ->active()
                 ->whereHas('category', fn (Builder $query) => $query->active()),
+            'orders as completed_orders_count' => fn (Builder $query) => $query
+                ->where('status', 'completed'),
+            'quotations as rfqs_handled_count',
         ]);
 
         return $this->companyProfileResponse($supplier, $request);
@@ -249,6 +255,12 @@ class SupplierProfileController extends Controller
                 ? ProductionCapacityResource::make($supplier->productionCapacity)->resolve($request)
                 : null,
             'latest_products' => ProductResource::collection($supplier->products)->resolve($request),
+            'statistics' => [
+                'total_products' => (int) ($supplier->products_count ?? 0),
+                'completed_orders' => (int) ($supplier->completed_orders_count ?? 0),
+                'response_rate' => null,
+                'rfqs_handled' => (int) ($supplier->rfqs_handled_count ?? 0),
+            ],
         ]);
     }
 }
