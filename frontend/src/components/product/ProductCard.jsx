@@ -13,6 +13,9 @@ export default function ProductCard({ product }) {
     reviews = 0, image, supplier, verified = false, slug,
   } = product;
 
+  const supplierName = typeof supplier === 'string'
+    ? supplier
+    : supplier?.name || supplier?.company_name || '';
   const stars = starRating(rating);
 
   const handleAddToCart = (e) => {
@@ -86,8 +89,8 @@ export default function ProductCard({ product }) {
               Min. Order: {minOrder} {moqUnit}
             </div>
           )}
-          {supplier && (
-            <div className="text-[11px] text-gray-500 mt-1 truncate">{supplier}</div>
+          {supplierName && (
+            <div className="text-[11px] text-gray-500 mt-1 truncate">{supplierName}</div>
           )}
         </div>
       </div>

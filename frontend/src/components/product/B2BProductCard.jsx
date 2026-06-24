@@ -42,6 +42,12 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const displayPriceMin = priceMin ?? price ?? 0;
   const displayPriceMax = priceMax ?? null;
   const productHref = `/products/${id || slug}`;
+  const supplierName = typeof supplier === 'string'
+    ? supplier
+    : supplier?.name || supplier?.company_name || '';
+  const displaySupplierLocation = supplierLocation
+    || (typeof supplier === 'object' ? supplier?.location : '')
+    || '';
 
   const handleInquire = (e) => {
     e.preventDefault();
@@ -113,10 +119,10 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           )}
 
           {/* Supplier */}
-          {supplier && (
+          {supplierName && (
             <div className="text-[11px] text-gray-500 truncate mb-2 flex items-center gap-1">
               {audited && <BadgeCheck size={10} className="text-primary-600 flex-shrink-0" />}
-              {supplier}
+              {supplierName}
             </div>
           )}
 
@@ -148,7 +154,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             Send Inquiry
           </button>
           <Link
-            href={`/messages?to=${encodeURIComponent(supplier || '')}`}
+            href={`/messages?to=${encodeURIComponent(supplierName)}`}
             className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-500 hover:text-primary-700 hover:border-primary-300 transition-colors flex-shrink-0"
             title="Chat with supplier"
           >
@@ -204,11 +210,13 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
         )}
 
         {/* Supplier */}
-        {supplier && (
+        {supplierName && (
           <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
             {audited && <BadgeCheck size={11} className="text-primary-600" />}
-            <span className="font-medium text-gray-700">{supplier}</span>
-            {supplierLocation && <span className="text-gray-400">· {supplierLocation}</span>}
+            <span className="font-medium text-gray-700">{supplierName}</span>
+            {displaySupplierLocation && (
+              <span className="text-gray-400">· {displaySupplierLocation}</span>
+            )}
           </div>
         )}
 
@@ -253,7 +261,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             Send Inquiry
           </button>
           <Link
-            href={`/messages?to=${encodeURIComponent(supplier || '')}`}
+            href={`/messages?to=${encodeURIComponent(supplierName)}`}
             className="w-full px-4 py-1.5 border border-gray-200 text-gray-600 hover:text-primary-700 hover:border-primary-300 text-xs rounded-lg transition-colors text-center flex items-center justify-center gap-1"
           >
             <MessageCircle size={12} /> Chat

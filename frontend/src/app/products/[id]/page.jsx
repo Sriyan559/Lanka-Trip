@@ -37,7 +37,85 @@ const MOCK_PRODUCT = {
   category: { slug: 'tea-beverages', label: 'Tea & Beverages' },
 };
 
-const RELATED = Array.from({ length: 4 }, (_, i) => ({ ...MOCK_PRODUCT, id: i + 10, name: ['FBOP Ceylon Tea 250g','OP1 Long Leaf Tea 500g','Green Tea Organic 200g','White Tea Pearl 100g'][i], price: [9, 15, 18, 28][i] }));
+const MOCK_RELATED = Array.from({ length: 4 }, (_, i) => ({
+  ...MOCK_PRODUCT,
+  id: i + 10,
+  name: ['FBOP Ceylon Tea 250g', 'OP1 Long Leaf Tea 500g', 'Green Tea Organic 200g', 'White Tea Pearl 100g'][i],
+  price: [9, 15, 18, 28][i],
+}));
+
+function normalizeSupplier(product) {
+  const supplierSource = product?.supplier_details || product?.supplier;
+
+  if (supplierSource && typeof supplierSource === 'object') {
+    return {
+      id: supplierSource.id ?? product?.supplier_id ?? null,
+      name: supplierSource.name || supplierSource.company_name || 'Supplier information unavailable',
+      location: supplierSource.location || product?.supplierLocation || '',
+      rating: Number(supplierSource.rating || 0),
+      products: supplierSource.products
+        ?? supplierSource.products_count
+        ?? supplierSource.productsCount
+        ?? null,
+      verified: Boolean(
+        supplierSource.verified
+        || supplierSource.verification_status === 'verified'
+        || product?.verified,
+      ),
+      since: supplierSource.since || supplierSource.established_year || null,
+    };
+  }
+
+  if (typeof supplierSource === 'string' && supplierSource.trim()) {
+    return {
+      id: product?.supplier_id ?? null,
+      name: supplierSource,
+      location: product?.supplierLocation || '',
+      rating: 0,
+      products: null,
+      verified: Boolean(product?.verified),
+      since: null,
+    };
+  }
+
+  return {
+    id: product?.supplier_id ?? null,
+    name: 'Supplier information unavailable',
+    location: product?.supplierLocation || '',
+    rating: 0,
+    products: null,
+    verified: Boolean(product?.verified),
+    since: null,
+  };
+}
+
+function normalizeProduct(product) {
+  if (!product || typeof product !== 'object') return null;
+
+  const supplier = normalizeSupplier(product);
+  const images = Array.isArray(product.images)
+    ? product.images.filter((image) => typeof image === 'string' && image)
+    : [];
+
+  return {
+    ...product,
+    image: product.image || product.featured_image || '',
+    images,
+    minOrder: Number(product.minOrder ?? product.moq ?? 0),
+    moqUnit: product.moqUnit || product.unit || 'Piece',
+    rating: Number(product.rating ?? product.average_rating ?? 0),
+    reviews: Number(product.reviews ?? product.reviews_count ?? 0),
+    verified: supplier.verified,
+    supplier,
+    supplierLocation: supplier.location,
+    category: product.category
+      ? {
+          ...product.category,
+          label: product.category.label || product.category.name || 'Products',
+        }
+      : null,
+  };
+}
 
 export default function ProductDetailPage() {
   const { id }  = useParams();
@@ -55,9 +133,12 @@ export default function ProductDetailPage() {
       setLoading(true);
       try {
         const data = await productsApi.get(id);
-        setProduct(data);
+        setProduct(normalizeProduct(data));
       } catch {
-        setProduct(MOCK_PRODUCT);
+        setProduct(normalizeProduct({
+          ...MOCK_PRODUCT,
+          related_products: MOCK_RELATED,
+        }));
       } finally {
         setLoading(false);
       }
@@ -70,6 +151,10 @@ export default function ProductDetailPage() {
 
   const stars = starRating(product.rating || 0);
   const images = product.images?.length ? product.images : [product.image || 'https://placehold.co/500x500/f0fdf4/155e2c?text=Product'];
+  const supplier = product.supplier;
+  const relatedProducts = (product.related_products || MOCK_RELATED)
+    .map(normalizeProduct)
+    .filter(Boolean);
 
   return (
     <>
@@ -172,22 +257,29 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Supplier card */}
-            {product.supplier && (
-              <div className="border border-gray-100 rounded-xl p-4 bg-gray-50">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <div className="font-semibold text-sm text-gray-800">{product.supplier.name || product.supplier}</div>
-                    {product.supplier.location && (
-                      <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5"><MapPin size={11} />{product.supplier.location}</div>
-                    )}
-                  </div>
-                  {product.supplier.verified && <BadgeCheck size={18} className="text-primary-700" />}
+            <div className="border border-gray-100 rounded-xl p-4 bg-gray-50">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <div className="font-semibold text-sm text-gray-800">{supplier.name}</div>
+                  {supplier.location && (
+                    <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                      <MapPin size={11} /> {supplier.location}
+                    </div>
+                  )}
                 </div>
-                {product.supplier.id && (
-                  <a href={`/suppliers/${product.supplier.id}`} className="text-xs text-primary-700 hover:underline">View Supplier Profile →</a>
-                )}
+                {supplier.verified && <BadgeCheck size={18} className="text-primary-700" />}
               </div>
-            )}
+              {supplier.rating > 0 && (
+                <div className="text-xs text-gray-500 mb-2">
+                  Supplier rating: {supplier.rating.toFixed(1)}
+                </div>
+              )}
+              {supplier.id && (
+                <a href={`/suppliers/${supplier.id}`} className="text-xs text-primary-700 hover:underline">
+                  View Supplier Profile →
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
@@ -235,7 +327,9 @@ export default function ProductDetailPage() {
         <div>
           <h2 className="text-base font-bold text-gray-800 mb-4">Related Products</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {RELATED.map((p) => <ProductCard key={p.id} product={p} />)}
+            {relatedProducts.map((relatedProduct) => (
+              <ProductCard key={relatedProduct.id || relatedProduct.slug} product={relatedProduct} />
+            ))}
           </div>
         </div>
       </main>
