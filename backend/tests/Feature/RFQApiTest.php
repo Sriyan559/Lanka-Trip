@@ -158,6 +158,26 @@ class RFQApiTest extends TestCase
             ->assertJsonPath('data.0.status', 'open');
     }
 
+    public function test_supplier_can_view_an_open_rfq_directly(): void
+    {
+        $supplier = User::factory()->create(['role' => 'supplier']);
+        $buyer = User::factory()->create(['role' => 'buyer']);
+        $rfq = $this->createRFQ($buyer, 'Open RFQ Detail');
+        $closedRfq = $this->createRFQ($buyer, 'Closed RFQ Detail', 'closed');
+        $token = $supplier->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson("/api/supplier/rfqs/{$rfq->id}")
+            ->assertOk()
+            ->assertJsonPath('id', $rfq->id)
+            ->assertJsonPath('title', 'Open RFQ Detail')
+            ->assertJsonCount(1, 'items');
+
+        $this->withToken($token)
+            ->getJson("/api/supplier/rfqs/{$closedRfq->id}")
+            ->assertNotFound();
+    }
+
     public function test_buyer_cannot_access_supplier_rfq_listing_or_other_buyers_rfqs(): void
     {
         $buyer = User::factory()->create(['role' => 'buyer']);
@@ -166,6 +186,7 @@ class RFQApiTest extends TestCase
         $token = $buyer->createToken('test')->plainTextToken;
 
         $this->withToken($token)->getJson('/api/supplier/rfqs')->assertForbidden();
+        $this->withToken($token)->getJson("/api/supplier/rfqs/{$rfq->id}")->assertForbidden();
         $this->withToken($token)->getJson("/api/rfqs/{$rfq->id}")->assertNotFound();
         $this->withToken($token)
             ->putJson("/api/rfqs/{$rfq->id}", ['title' => 'Blocked'])
@@ -181,6 +202,7 @@ class RFQApiTest extends TestCase
         $this->putJson('/api/rfqs/1', [])->assertUnauthorized();
         $this->deleteJson('/api/rfqs/1')->assertUnauthorized();
         $this->getJson('/api/supplier/rfqs')->assertUnauthorized();
+        $this->getJson('/api/supplier/rfqs/1')->assertUnauthorized();
     }
 
     private function createRFQ(User $buyer, string $title, string $status = 'open'): RFQ

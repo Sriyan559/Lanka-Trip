@@ -8,44 +8,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
-import { quotationsApi, rfqApi } from '@/lib/api';
+import { rfqApi } from '@/lib/api';
 import QuotationWorkflow from './QuotationWorkflow';
-
-async function findSupplierRfq(rfqId) {
-  let page = 1;
-  let lastPage = 1;
-
-  do {
-    const response = await rfqApi.supplierList({ page });
-    const rfq = (response.data || []).find((item) => Number(item.id) === Number(rfqId));
-
-    if (rfq) return rfq;
-
-    lastPage = response.last_page || 1;
-    page += 1;
-  } while (page <= lastPage);
-
-  return null;
-}
-
-async function findRfqFromSupplierQuotations(rfqId) {
-  let page = 1;
-  let lastPage = 1;
-
-  do {
-    const response = await quotationsApi.supplierList({ page });
-    const quotation = (response.data || []).find(
-      (item) => Number(item.rfq_id) === Number(rfqId),
-    );
-
-    if (quotation?.rfq) return quotation.rfq;
-
-    lastPage = response.last_page || 1;
-    page += 1;
-  } while (page <= lastPage);
-
-  return null;
-}
 
 export default function RFQDetailPage({ params }) {
   const router = useRouter();
@@ -70,14 +34,7 @@ export default function RFQDetailPage({ params }) {
       }
 
       if (isSupplier) {
-        const quotedRfq = await findRfqFromSupplierQuotations(params.id);
-        const availableRfq = quotedRfq || await findSupplierRfq(params.id);
-
-        if (!availableRfq) {
-          throw new Error('This RFQ is not available to your supplier account.');
-        }
-
-        setRfq(availableRfq);
+        setRfq(await rfqApi.supplierGet(params.id));
         return;
       }
 

@@ -20,7 +20,12 @@ class RFQPolicy
     public function view(User $user, RFQ $rfq): bool
     {
         return $rfq->user_id === $user->id
-            || ($user->role === 'supplier' && $rfq->status === 'open');
+            || ($user->role === 'supplier' && (
+                $rfq->status === 'open'
+                || $rfq->quotations()
+                    ->where('supplier_id', $user->supplier?->id ?? 0)
+                    ->exists()
+            ));
     }
 
     public function create(User $user): bool

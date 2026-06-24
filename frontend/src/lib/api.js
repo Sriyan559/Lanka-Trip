@@ -217,6 +217,7 @@ export const rfqApi = {
   update:       (id, payload) => api.put(`/rfqs/${id}`, payload),
   delete:       (id)          => api.delete(`/rfqs/${id}`),
   supplierList: (params = {}) => api.get(withQuery('/supplier/rfqs', params)),
+  supplierGet:  (id)          => api.get(`/supplier/rfqs/${id}`),
 };
 
 // ──────────────────────────────────────────────

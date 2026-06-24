@@ -23,6 +23,7 @@ class QuotationResource extends JsonResource
             'shipping_terms' => $this->shipping_terms,
             'remarks' => $this->remarks,
             'status' => $this->status,
+            'order_id' => $this->whenLoaded('order', fn () => $this->order?->id),
             'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
                 'id' => $item->id,
                 'rfq_item_id' => $item->rfq_item_id,

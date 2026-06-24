@@ -61,21 +61,6 @@ function initialItems(rfq, quotation) {
   }));
 }
 
-async function loadAllSupplierQuotations() {
-  const quotations = [];
-  let page = 1;
-  let lastPage = 1;
-
-  do {
-    const response = await quotationsApi.supplierList({ page });
-    quotations.push(...(response.data || []));
-    lastPage = response.last_page || 1;
-    page += 1;
-  } while (page <= lastPage);
-
-  return quotations;
-}
-
 function QuotationCard({ quotation, rfq, buyerActions, actionId }) {
   const statusStyle = STATUS_STYLES[quotation.status] || 'bg-gray-100 text-gray-600';
 
@@ -170,11 +155,13 @@ function QuotationCard({ quotation, rfq, buyerActions, actionId }) {
       {buyerActions && quotation.status === 'accepted' && (
         <div className="flex justify-end mt-5 pt-4 border-t border-gray-100">
           <Link
-            href={`/orders/create?quotationId=${quotation.id}`}
+            href={quotation.order_id
+              ? `/orders/${quotation.order_id}`
+              : `/orders/create?quotationId=${quotation.id}`}
             className="px-5 py-2.5 bg-accent-500 text-white rounded-xl text-sm font-semibold hover:bg-accent-600 flex items-center gap-2"
           >
             <FileText size={15} />
-            Create Order
+            {quotation.order_id ? 'View Order' : 'Create Order'}
           </Link>
         </div>
       )}
@@ -409,12 +396,8 @@ export default function QuotationWorkflow({ rfq, isBuyer, isSupplier, onRefreshR
         const response = await quotationsApi.listByRfq(rfq.id);
         setQuotations(response.data || []);
       } else if (isSupplier) {
-        const supplierQuotations = await loadAllSupplierQuotations();
-        setQuotations(
-          supplierQuotations.filter(
-            (quotation) => Number(quotation.rfq_id) === Number(rfq.id),
-          ),
-        );
+        const response = await quotationsApi.supplierList({ rfq_id: rfq.id });
+        setQuotations(response.data || []);
       }
     } catch (err) {
       setError(err.message || 'Could not load quotations.');

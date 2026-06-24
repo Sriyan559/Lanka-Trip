@@ -74,6 +74,22 @@ class QuotationApiTest extends TestCase
             ->assertJsonPath('data.0.rfq.id', $rfq->id);
     }
 
+    public function test_supplier_can_filter_their_quotations_by_rfq(): void
+    {
+        [, $firstRfq] = $this->buyerAndRFQ();
+        [, $secondRfq] = $this->buyerAndRFQ();
+        [$supplierUser, $supplier] = $this->supplierUser();
+        $matching = $this->createQuotation($firstRfq, $supplier, 5000);
+        $this->createQuotation($secondRfq, $supplier, 4800);
+
+        $this->withToken($supplierUser->createToken('test')->plainTextToken)
+            ->getJson("/api/supplier/quotations?rfq_id={$firstRfq->id}")
+            ->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $matching->id);
+    }
+
     public function test_quotation_details_are_visible_to_the_rfq_owner_and_submitting_supplier(): void
     {
         [$buyer, $rfq] = $this->buyerAndRFQ();

@@ -8,16 +8,15 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Link from 'next/link';
-import { Package, Heart, FileText, MessageSquare, Settings, Bell, Star, TrendingUp, ChevronRight } from 'lucide-react';
+import { AlertCircle, Package, Heart, FileText, MessageSquare, Settings, Star, TrendingUp, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { userApi, wishlistApi, rfqApi } from '@/lib/api';
 import { initials, formatCurrency } from '@/lib/utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-
-const TABS = ['Overview', 'Orders', 'RFQs', 'Wishlist', 'Messages'];
 
 function validWishlistItems(items) {
   return Array.isArray(items)
@@ -26,52 +25,100 @@ function validWishlistItems(items) {
 }
 
 export default function DashboardPage() {
-  // ✅ FIX: uses real user from AuthContext (not hardcoded)
-  const { user, isSupplier } = useAuth();
+  const router = useRouter();
+  const {
+    user,
+    isAuthenticated,
+    isSupplier,
+    loading: authLoading,
+  } = useAuth();
 
   const [activeTab,  setActiveTab]  = useState('Overview');
   const [dashboard,  setDashboard]  = useState(null);
   const [wishlist,   setWishlist]   = useState([]);
   const [rfqs,       setRfqs]       = useState([]);
   const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState('');
+  const [reloadKey,  setReloadKey]  = useState(0);
 
   useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace('/login?redirect=%2Fdashboard');
+      return;
+    }
+
     const load = async () => {
       setLoading(true);
-      try {
-        // ✅ FIX: fetch real dashboard data from API
-        const [dash, wl, rfqList] = await Promise.allSettled([
-          userApi.dashboard(),
-          wishlistApi.get(),
-          rfqApi.list(),
-        ]);
-        if (dash.status === 'fulfilled')    setDashboard(dash.value);
-        if (wl.status === 'fulfilled')      setWishlist(validWishlistItems(wl.value?.items));
-        if (rfqList.status === 'fulfilled') setRfqs(rfqList.value?.data || []);
-      } catch {
-        // silently use empty states — data shown from auth user at minimum
-      } finally {
-        setLoading(false);
+      setError('');
+
+      const [dash, wl, rfqList] = await Promise.allSettled([
+        userApi.dashboard(),
+        isSupplier ? Promise.resolve({ items: [] }) : wishlistApi.get(),
+        isSupplier ? rfqApi.supplierList() : rfqApi.list(),
+      ]);
+
+      if (dash.status === 'fulfilled') {
+        setDashboard(dash.value);
       }
+
+      if (wl.status === 'fulfilled') {
+        setWishlist(validWishlistItems(wl.value?.items));
+      }
+
+      if (rfqList.status === 'fulfilled') {
+        setRfqs(rfqList.value?.data || []);
+      }
+
+      const failures = [dash, wl, rfqList]
+        .filter((result) => result.status === 'rejected')
+        .map((result) => result.reason?.message)
+        .filter(Boolean);
+
+      if (failures.length) {
+        setError([...new Set(failures)].join(' '));
+      }
+
+      setLoading(false);
     };
+
     load();
-  }, []);
+  }, [authLoading, isAuthenticated, isSupplier, reloadKey, router]);
 
-  const stats = [
-    { label: 'Total Orders',    value: dashboard?.orders_count   ?? '—', icon: Package,      color: 'text-blue-600',   bg: 'bg-blue-50' },
-    { label: 'Active RFQs',     value: dashboard?.rfqs_count     ?? '—', icon: FileText,     color: 'text-amber-600',  bg: 'bg-amber-50' },
-    { label: 'Wishlist Items',  value: wishlist.length           || '—', icon: Heart,        color: 'text-rose-600',   bg: 'bg-rose-50' },
-    { label: 'Messages',        value: dashboard?.messages_count ?? '—', icon: MessageSquare,color: 'text-primary-600',bg: 'bg-primary-50' },
-  ];
+  const tabs = isSupplier
+    ? ['Overview', 'Orders', 'RFQs', 'Messages']
+    : ['Overview', 'Orders', 'RFQs', 'Wishlist', 'Messages'];
 
-  const quickLinks = [
-    { label: 'Browse Products', href: '/products', icon: TrendingUp },
-    { label: 'Post an RFQ',     href: '/rfq',      icon: FileText },
-    { label: 'My Suppliers',    href: '/suppliers', icon: Star },
-    { label: 'Account Settings',href: '/settings', icon: Settings },
-  ];
+  const stats = isSupplier
+    ? [
+        { label: 'Total Orders', value: dashboard?.orders_count ?? '—', icon: Package, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Open RFQs', value: rfqs.length, icon: FileText, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { label: 'Quotations', value: dashboard?.quotations_count ?? '—', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
+        { label: 'Messages', value: dashboard?.messages_count ?? '—', icon: MessageSquare, color: 'text-primary-600', bg: 'bg-primary-50' },
+      ]
+    : [
+        { label: 'Total Orders', value: dashboard?.orders_count ?? '—', icon: Package, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Active RFQs', value: dashboard?.rfqs_count ?? '—', icon: FileText, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { label: 'Wishlist Items', value: wishlist.length, icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50' },
+        { label: 'Messages', value: dashboard?.messages_count ?? '—', icon: MessageSquare, color: 'text-primary-600', bg: 'bg-primary-50' },
+      ];
 
-  if (loading) {
+  const quickLinks = isSupplier
+    ? [
+        { label: 'Browse Products', href: '/products', icon: TrendingUp },
+        { label: 'My Orders', href: '/orders', icon: Package },
+        { label: 'Messages', href: '/messages', icon: MessageSquare },
+        { label: 'Account Settings', href: '/settings', icon: Settings },
+      ]
+    : [
+        { label: 'Browse Products', href: '/products', icon: TrendingUp },
+        { label: 'Post an RFQ', href: '/rfq', icon: FileText },
+        { label: 'My Suppliers', href: '/suppliers', icon: Star },
+        { label: 'Account Settings', href: '/settings', icon: Settings },
+      ];
+
+  if (authLoading || loading || !isAuthenticated) {
     return (
       <>
         <Header />
@@ -85,6 +132,25 @@ export default function DashboardPage() {
     <>
       <Header />
       <main className="max-w-screen-xl mx-auto px-4 py-6">
+        {error && (
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start justify-between gap-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-red-700">Some dashboard data could not be loaded.</p>
+                <p className="text-xs text-red-600 mt-1">{error}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setReloadKey((value) => value + 1)}
+              className="text-sm font-medium text-red-700 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* ── Profile header ── */}
         <div className="bg-gradient-to-r from-primary-800 to-primary-600 rounded-2xl p-6 text-white mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
@@ -126,7 +192,7 @@ export default function DashboardPage() {
 
         {/* ── Tabs ── */}
         <div className="flex items-center gap-1 border-b border-gray-200 mb-5 overflow-x-auto">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -165,24 +231,42 @@ export default function DashboardPage() {
             {/* Recent RFQs */}
             <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="font-semibold text-gray-800">Recent RFQs</h2>
-                <Link href="/rfq" className="text-xs text-primary-700 hover:underline">View All</Link>
+                <h2 className="font-semibold text-gray-800">
+                  {isSupplier ? 'Open Buyer RFQs' : 'Recent RFQs'}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('RFQs')}
+                  className="text-xs text-primary-700 hover:underline"
+                >
+                  View All
+                </button>
               </div>
               {rfqs.length === 0 ? (
                 <div className="text-center py-8">
                   <FileText size={32} className="text-gray-200 mx-auto mb-2" />
-                  <p className="text-sm text-gray-400">No RFQs yet</p>
-                  <Link href="/rfq" className="mt-3 inline-block text-sm text-primary-700 hover:underline">
-                    Post your first RFQ →
-                  </Link>
+                  <p className="text-sm text-gray-400">
+                    {isSupplier ? 'No open buyer RFQs right now' : 'No RFQs yet'}
+                  </p>
+                  {!isSupplier && (
+                    <Link href="/rfq" className="mt-3 inline-block text-sm text-primary-700 hover:underline">
+                      Post your first RFQ →
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
                   {rfqs.slice(0, 5).map((rfq) => (
-                    <div key={rfq.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                    <Link
+                      key={rfq.id}
+                      href={`/rfq/${rfq.id}`}
+                      className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-primary-50 transition-colors"
+                    >
                       <div>
                         <div className="text-sm font-medium text-gray-700">{rfq.product_name || rfq.title}</div>
-                        <div className="text-xs text-gray-400">{rfq.created_at}</div>
+                        <div className="text-xs text-gray-400">
+                          {rfq.created_at ? new Date(rfq.created_at).toLocaleDateString() : ''}
+                        </div>
                       </div>
                       <span className={`badge-pill text-[11px] ${
                         rfq.status === 'open'   ? 'bg-green-100 text-green-700' :
@@ -191,7 +275,7 @@ export default function DashboardPage() {
                       }`}>
                         {rfq.status || 'Open'}
                       </span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -257,14 +341,20 @@ export default function DashboardPage() {
         {activeTab === 'RFQs' && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <h2 className="font-semibold text-gray-800">My RFQs</h2>
-              <Link href="/rfq/new" className="px-4 py-2 bg-primary-800 text-white text-sm rounded-lg hover:bg-primary-700">
-                + New RFQ
-              </Link>
+              <h2 className="font-semibold text-gray-800">
+                {isSupplier ? 'Open Buyer RFQs' : 'My RFQs'}
+              </h2>
+              {!isSupplier && (
+                <Link href="/rfq" className="px-4 py-2 bg-primary-800 text-white text-sm rounded-lg hover:bg-primary-700">
+                  + New RFQ
+                </Link>
+              )}
             </div>
             {rfqs.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-400 text-sm">No RFQs submitted yet</p>
+                <p className="text-gray-400 text-sm">
+                  {isSupplier ? 'No open buyer RFQs right now' : 'No RFQs submitted yet'}
+                </p>
               </div>
             ) : (
               <table className="w-full text-sm">
@@ -278,10 +368,16 @@ export default function DashboardPage() {
                 <tbody className="divide-y divide-gray-50">
                   {rfqs.map((r) => (
                     <tr key={r.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{r.product_name || r.title}</td>
+                      <td className="px-4 py-3 font-medium">
+                        <Link href={`/rfq/${r.id}`} className="text-gray-800 hover:text-primary-700 hover:underline">
+                          {r.product_name || r.title}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3 text-gray-500">{r.quantity} {r.unit}</td>
-                      <td className="px-4 py-3 text-gray-400">{r.created_at}</td>
-                      <td className="px-4 py-3 text-gray-600">{r.responses_count || 0}</td>
+                      <td className="px-4 py-3 text-gray-400">
+                        {r.created_at ? new Date(r.created_at).toLocaleDateString() : ''}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">{r.responses_count ?? 0}</td>
                       <td className="px-4 py-3">
                         <span className={`badge-pill ${r.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                           {r.status || 'Open'}

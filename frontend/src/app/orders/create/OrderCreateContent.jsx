@@ -66,6 +66,11 @@ export default function OrderCreateContent() {
           throw new Error('Orders can only be created from accepted quotations.');
         }
 
+        if (response.order_id) {
+          router.replace(`/orders/${response.order_id}`);
+          return;
+        }
+
         setQuotation(response);
       } catch (err) {
         setError(err.message || 'Could not load the accepted quotation.');

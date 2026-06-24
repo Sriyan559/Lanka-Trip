@@ -157,6 +157,33 @@ class RFQController extends Controller
         return new RFQCollection($paginator);
     }
 
+    public function supplierShow(Request $request, int $id): JsonResponse
+    {
+        abort_unless($request->user()->role === 'supplier', Response::HTTP_FORBIDDEN);
+
+        $supplierId = $request->user()->supplier?->id;
+        $rfq = RFQ::query()
+            ->where(function ($query) use ($supplierId): void {
+                $query->where('status', 'open');
+
+                if ($supplierId) {
+                    $query->orWhereHas(
+                        'quotations',
+                        fn ($query) => $query->where('supplier_id', $supplierId),
+                    );
+                }
+            })
+            ->with('items')
+            ->findOrFail($id);
+
+        Gate::authorize('view', $rfq);
+        $this->attachQuotationCounts(collect([$rfq]));
+
+        return $this->successResponse(
+            RFQResource::make($rfq)->resolve($request),
+        );
+    }
+
     private function ensureBuyer(User $user): void
     {
         abort_unless($user->role === 'buyer', Response::HTTP_FORBIDDEN);

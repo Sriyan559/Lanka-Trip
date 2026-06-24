@@ -96,7 +96,7 @@ class QuotationController extends Controller
             ->findOrFail($id);
 
         $paginator = $rfq->quotations()
-            ->with(['items', 'supplier'])
+            ->with(['items', 'supplier', 'order'])
             ->latest()
             ->paginate(20)
             ->withQueryString();
@@ -110,14 +110,15 @@ class QuotationController extends Controller
     public function supplierIndex(Request $request): QuotationCollection
     {
         $supplier = $this->activeSupplier($request->user());
+        $query = $supplier->quotations()
+            ->with(['items', 'rfq.items', 'order'])
+            ->latest();
 
-        return new QuotationCollection(
-            $supplier->quotations()
-                ->with(['items', 'rfq.items'])
-                ->latest()
-                ->paginate(20)
-                ->withQueryString(),
-        );
+        if ($request->filled('rfq_id')) {
+            $query->where('rfq_id', $request->integer('rfq_id'));
+        }
+
+        return new QuotationCollection($query->paginate(20)->withQueryString());
     }
 
     public function show(Request $request, int $id): JsonResponse
@@ -332,6 +333,7 @@ class QuotationController extends Controller
             'items',
             'rfq.items',
             'supplier',
+            'order',
         ]);
         $quotation->rfq->setAttribute(
             'quotations_count',

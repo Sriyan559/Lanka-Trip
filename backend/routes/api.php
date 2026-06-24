@@ -108,6 +108,9 @@ Route::prefix('rfqs')->middleware('auth:sanctum')->group(function () {
 
 Route::get('/supplier/rfqs', [RFQController::class, 'supplierIndex'])
     ->middleware('auth:sanctum');
+Route::get('/supplier/rfqs/{id}', [RFQController::class, 'supplierShow'])
+    ->middleware('auth:sanctum')
+    ->whereNumber('id');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/dashboard', [AnalyticsController::class, 'dashboard']);
