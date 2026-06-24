@@ -8,7 +8,7 @@
  * Laravel endpoint mapping is documented per function.
  */
 
-import { api, productsApi, categoriesApi } from './api';
+import { api, productsApi, categoriesApi, ordersApi } from './api';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types (JSDoc)
@@ -126,21 +126,9 @@ export async function searchProducts(params = {}) {
 // Orders
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * POST /api/orders
- * Creates a new secured trade service order.
- * @param {Object} payload
- * @param {string} payload.email
- * @param {string} payload.shipping_address
- * @param {string} payload.billing_address
- * @param {string} [payload.vat_id]
- * @param {string} [payload.company_name]
- * @param {{ product_id: number, qty: number }[]} payload.items
- * @param {string} [payload.remark]
- */
-export async function createOrder(payload) {
-  // When Laravel is ready, this hits POST /api/orders directly.
-  return await api.post('/orders', payload);
+/** POST /api/orders — creates an order from an accepted quotation. */
+export async function createOrder(quotationId) {
+  return await ordersApi.create(quotationId);
 }
 
 /**
@@ -149,7 +137,7 @@ export async function createOrder(payload) {
  * @param {string|number} id
  */
 export async function getOrder(id) {
-  return await api.get(`/orders/${id}`);
+  return await ordersApi.get(id);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   AlertCircle,
   Check,
@@ -163,6 +164,18 @@ function QuotationCard({ quotation, rfq, buyerActions, actionId }) {
             <Check size={14} />
             Accept quotation
           </button>
+        </div>
+      )}
+
+      {buyerActions && quotation.status === 'accepted' && (
+        <div className="flex justify-end mt-5 pt-4 border-t border-gray-100">
+          <Link
+            href={`/orders/create?quotationId=${quotation.id}`}
+            className="px-5 py-2.5 bg-accent-500 text-white rounded-xl text-sm font-semibold hover:bg-accent-600 flex items-center gap-2"
+          >
+            <FileText size={15} />
+            Create Order
+          </Link>
         </div>
       )}
     </article>

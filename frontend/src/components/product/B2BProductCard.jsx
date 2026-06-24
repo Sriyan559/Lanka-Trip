@@ -12,7 +12,7 @@
  *  - Works in both grid and list view modes
  *
  * Connect to Laravel: product data comes from GET /api/products?... 
- * The onInquire callback should call POST /api/rfq or open a modal.
+ * The onInquire callback should open the inquiry/RFQ workflow.
  */
 
 import Image from 'next/image';
@@ -42,7 +42,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const displayPriceMin = priceMin ?? price ?? 0;
   const displayPriceMax = priceMax ?? null;
   const productHref = `/products/${id || slug}`;
-  const orderHref = `/orders/create?productId=${id || slug}&productName=${encodeURIComponent(name || '')}`;
 
   const handleInquire = (e) => {
     e.preventDefault();

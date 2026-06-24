@@ -4,7 +4,7 @@
  * CategoryContent — full B2B category listing page.
  *
  * Layout: left filter sidebar + right product grid/list (same as /products).
- * Clicking "Start Order" on a product card navigates to /orders/create.
+ * Product cards feed the inquiry/RFQ workflow; orders begin from accepted quotations.
  *
  * Laravel: GET /api/categories/{slug}/products?page=&sort=&...
  */

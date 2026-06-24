@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { ShoppingBasket, Star, BadgeCheck, MapPin, Package, Send, Heart, Share2, ChevronLeft } from 'lucide-react';
+import { Star, BadgeCheck, MapPin, Package, Send, Heart, Share2, ChevronLeft } from 'lucide-react';
 import { productsApi } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency, starRating } from '@/lib/utils';
@@ -161,14 +161,7 @@ export default function ProductDetailPage() {
 
             {/* CTAs */}
             <div className="flex gap-3 flex-wrap">
-              {/* Start Order — navigates to Secured Trade Order form */}
-              <a
-                href={`/orders/create?productId=${product.id}&productName=${encodeURIComponent(product.name)}&qty=${qty}`}
-                className="flex-1 min-w-[140px] py-3 bg-primary-800 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
-              >
-                <ShoppingBasket size={16} /> Start Order
-              </a>
-              <a href={`/rfq?product=${encodeURIComponent(product.name)}`}
+              <a href={`/rfq?productId=${product.id}&product=${encodeURIComponent(product.name)}&qty=${qty}&unit=${encodeURIComponent(product.moqUnit || 'Pieces')}`}
                 className="flex-1 min-w-[140px] py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors shadow-sm">
                 <Send size={16} /> Request Quote
               </a>
