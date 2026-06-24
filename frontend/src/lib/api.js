@@ -264,6 +264,21 @@ export const notificationsApi = {
 };
 
 // ──────────────────────────────────────────────
+// Messaging
+// ──────────────────────────────────────────────
+export const conversationsApi = {
+  list:   ()        => api.get('/conversations'),
+  create: (payload) => api.post('/conversations', payload),
+  get:    (id)      => api.get(`/conversations/${id}`),
+};
+
+export const messagesApi = {
+  send:     (conversationId, message) =>
+    api.post('/messages', { conversation_id: conversationId, message }),
+  markRead: (id) => api.put(`/messages/${id}/read`),
+};
+
+// ──────────────────────────────────────────────
 // Supplier company profile
 // ──────────────────────────────────────────────
 export const supplierProfileApi = {
@@ -293,7 +308,7 @@ export const userApi = {
   updateProfile:(data) => api.put('/user/profile', data),
   orders:       (params = {}) => ordersApi.list(params),
   rfqs:         (params = {}) => rfqApi.list(params),
-  messages:     ()     => api.get('/user/messages'),
+  messages:     ()     => conversationsApi.list(),
 };
 
 // ──────────────────────────────────────────────
