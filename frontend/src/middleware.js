@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { loginUrlFor } from './lib/authRedirect';
 
 const COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_COOKIE || '_el_tok';
 
@@ -18,20 +19,24 @@ const AUTH_ONLY = [
   '/register',
 ];
 
+function matchesRoute(pathname, route) {
+  return pathname === route || pathname.startsWith(`${route}/`);
+}
+
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(COOKIE_NAME)?.value;
 
   // ── Protect dashboard/cart/etc ──────────────────────────
-  const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
+  const isProtected = PROTECTED.some((route) => matchesRoute(pathname, route));
   if (isProtected && !token) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    const returnUrl = `${pathname}${request.nextUrl.search}`;
+    const loginUrl = new URL(loginUrlFor(returnUrl), request.url);
     return NextResponse.redirect(loginUrl);
   }
 
   // ── Redirect logged-in users away from login/register ──
-  const isAuthRoute = AUTH_ONLY.some((p) => pathname.startsWith(`/(auth)${p}`) || pathname === p);
+  const isAuthRoute = AUTH_ONLY.some((route) => matchesRoute(pathname, route));
   if (isAuthRoute && token) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }

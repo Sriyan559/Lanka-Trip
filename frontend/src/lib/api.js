@@ -9,9 +9,18 @@
  */
 
 import Cookies from 'js-cookie';
+import { loginUrlFor } from './authRedirect';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_COOKIE || '_el_tok';
+const PUBLIC_AUTH_ENDPOINTS = new Set([
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/logout',
+]);
+let sessionRedirectStarted = false;
 
 function withQuery(endpoint, params = {}) {
   const qs = new URLSearchParams(params).toString();
@@ -27,6 +36,24 @@ function uploadFormData(file, category) {
   }
 
   return formData;
+}
+
+function handleUnauthorized(endpoint, hadToken) {
+  if (
+    typeof window === 'undefined'
+    || !hadToken
+    || PUBLIC_AUTH_ENDPOINTS.has(endpoint)
+    || sessionRedirectStarted
+  ) {
+    return;
+  }
+
+  sessionRedirectStarted = true;
+  clearAuthToken();
+  window.dispatchEvent(new Event('auth:session-expired'));
+
+  const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.location.replace(loginUrlFor(returnUrl, 'session_expired'));
 }
 
 // ──────────────────────────────────────────────
@@ -77,13 +104,21 @@ async function request(endpoint, options = {}) {
   }
 
   if (!response.ok) {
+    if (response.status === 401) {
+      handleUnauthorized(endpoint, Boolean(token));
+    }
+
+    const errors = data?.errors && typeof data.errors === 'object'
+      ? data.errors
+      : {};
     const message =
       data?.message ||
-      (data?.errors ? Object.values(data.errors).flat().join(' ') : null) ||
+      (Object.keys(errors).length ? Object.values(errors).flat().join(' ') : null) ||
       `Request failed with status ${response.status}`;
     const error = new Error(message);
     error.status = response.status;
     error.data = data;
+    error.errors = errors;
     throw error;
   }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft, CheckCircle, Lock } from 'lucide-react';
 import { authApi } from '@/lib/api';
+import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 
 export default function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -14,6 +15,7 @@ export default function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -25,15 +27,16 @@ export default function ResetPasswordForm() {
     }
 
     if (form.password !== form.confirmation) {
-      setError('Passwords do not match.');
+      setFieldErrors({ password: ['Passwords do not match.'] });
       return;
     }
 
     if (form.password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setFieldErrors({ password: ['Password must be at least 8 characters.'] });
       return;
     }
 
+    setFieldErrors({});
     setLoading(true);
 
     try {
@@ -45,6 +48,7 @@ export default function ResetPasswordForm() {
       });
       setComplete(true);
     } catch (requestError) {
+      setFieldErrors(requestError.errors || {});
       setError(requestError.message || 'Could not reset your password.');
     } finally {
       setLoading(false);
@@ -106,13 +110,22 @@ export default function ResetPasswordForm() {
                       minLength={8}
                       required
                       value={form.password}
-                      onChange={(event) => setForm((current) => ({
-                        ...current,
-                        password: event.target.value,
-                      }))}
+                      onChange={(event) => {
+                        setError('');
+                        setFieldErrors((current) => withoutFieldError(current, 'password'));
+                        setForm((current) => ({
+                          ...current,
+                          password: event.target.value,
+                        }));
+                      }}
                       className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
                     />
                   </div>
+                  {firstFieldError(fieldErrors, 'password') && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {firstFieldError(fieldErrors, 'password')}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -127,10 +140,14 @@ export default function ResetPasswordForm() {
                       autoComplete="new-password"
                       required
                       value={form.confirmation}
-                      onChange={(event) => setForm((current) => ({
-                        ...current,
-                        confirmation: event.target.value,
-                      }))}
+                      onChange={(event) => {
+                        setError('');
+                        setFieldErrors((current) => withoutFieldError(current, 'password'));
+                        setForm((current) => ({
+                          ...current,
+                          confirmation: event.target.value,
+                        }));
+                      }}
                       className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
                     />
                   </div>

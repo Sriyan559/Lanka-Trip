@@ -162,6 +162,14 @@ export default function Header() {
     router.push(`/search?q=${encodeURIComponent(term)}`);
   };
 
+  const handleLogout = async () => {
+    setActiveMenu(null);
+    setMobileOpen(false);
+    await logout();
+    router.replace('/');
+    router.refresh();
+  };
+
   /* ── Shared hover menu wrapper ─────────────────── */
   const HoverWrapper = ({ name, children, trigger }) => (
     <div
@@ -311,7 +319,7 @@ export default function Header() {
                   ))}
                   <div className="border-t border-gray-100 mt-1 pt-1">
                     <button
-                      onClick={() => { logout(); router.push('/'); }}
+                      onClick={handleLogout}
                       className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
                       <LogOut size={14} />Sign Out
@@ -583,7 +591,7 @@ export default function Header() {
                     {label}
                   </Link>
                 ))}
-                <button onClick={() => { logout(); setMobileOpen(false); router.push('/'); }} className="block w-full text-left py-2.5 px-3 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+                <button onClick={handleLogout} className="block w-full text-left py-2.5 px-3 text-sm text-red-600 hover:bg-red-50 rounded-lg">
                   Sign Out
                 </button>
               </>

@@ -4,22 +4,26 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { authApi } from '@/lib/api';
+import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 
 export default function ForgotPasswordForm() {
   const [email,   setEmail]   = useState('');
   const [loading, setLoading] = useState(false);
   const [sent,    setSent]    = useState(false);
   const [error,   setError]   = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!email.trim()) { setError('Please enter your email address.'); return; }
+    setFieldErrors({});
     setLoading(true);
     try {
       await authApi.forgotPassword(email.trim());
       setSent(true);
     } catch (err) {
+      setFieldErrors(err.errors || {});
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -80,13 +84,22 @@ export default function ForgotPasswordForm() {
                       id="fp-email"
                       type="email"
                       value={email}
-                      onChange={(e) => { setError(''); setEmail(e.target.value); }}
+                      onChange={(e) => {
+                        setError('');
+                        setFieldErrors((current) => withoutFieldError(current, 'email'));
+                        setEmail(e.target.value);
+                      }}
                       placeholder="you@company.com"
                       required
                       autoFocus
                       className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
                     />
                   </div>
+                  {firstFieldError(fieldErrors, 'email') && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {firstFieldError(fieldErrors, 'email')}
+                    </p>
+                  )}
                 </div>
 
                 <button

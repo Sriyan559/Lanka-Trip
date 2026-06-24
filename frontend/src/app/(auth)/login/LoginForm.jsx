@@ -5,24 +5,34 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { sanitizeInternalRedirect } from '@/lib/authRedirect';
+import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 import toast from 'react-hot-toast';
 
 export default function LoginForm() {
   const router       = useRouter();
-  // ✅ FIX: useSearchParams used inside a client component wrapped by Suspense in page.jsx
   const searchParams = useSearchParams();
-  const redirectTo   = searchParams.get('redirect') || '/dashboard';
+  const redirectTo = sanitizeInternalRedirect(
+    searchParams.get('redirect'),
+    '/dashboard',
+  );
 
   const { login } = useAuth();
 
-  // ✅ FIX: WAF-safe field names — not 'password' / 'username' which may be blocked
   const [form, setForm]       = useState({ _el_id: '', _el_pw: '' });
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState(
+    searchParams.get('reason') === 'session_expired'
+      ? 'Your session expired. Please sign in again.'
+      : '',
+  );
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
+    const apiField = e.target.name === '_el_id' ? 'email' : 'password';
     setError('');
+    setFieldErrors((current) => withoutFieldError(current, apiField));
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
@@ -35,17 +45,17 @@ export default function LoginForm() {
       return;
     }
 
+    setFieldErrors({});
     setLoading(true);
     try {
-      // ✅ FIX: map WAF-safe field names back to what the Laravel API expects
-      //        and base64-encode the password to avoid WAF pattern matching
       await login({
         email:    form._el_id.trim(),
-        password: btoa(form._el_pw), // Laravel side should atob() before bcrypt compare
+        password: btoa(form._el_pw),
       });
       toast.success('Welcome back!');
-      router.push(redirectTo);
+      router.replace(redirectTo);
     } catch (err) {
+      setFieldErrors(err.errors || {});
       setError(err.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
@@ -98,6 +108,11 @@ export default function LoginForm() {
                   className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
                 />
               </div>
+              {firstFieldError(fieldErrors, 'email') && (
+                <p className="mt-1 text-xs text-red-600">
+                  {firstFieldError(fieldErrors, 'email')}
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -132,6 +147,11 @@ export default function LoginForm() {
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              {firstFieldError(fieldErrors, 'password') && (
+                <p className="mt-1 text-xs text-red-600">
+                  {firstFieldError(fieldErrors, 'password')}
+                </p>
+              )}
             </div>
 
             <button

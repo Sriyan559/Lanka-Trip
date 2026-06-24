@@ -23,6 +23,17 @@ const initialState = {
   isAuthenticated: false,
 };
 
+function clearClientAuthStorage() {
+  clearAuthToken();
+
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+    sessionStorage.clear();
+  }
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_USER':
@@ -41,6 +52,19 @@ function reducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      clearClientAuthStorage();
+      dispatch({ type: 'LOGOUT' });
+    };
+
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+
+    return () => {
+      window.removeEventListener('auth:session-expired', handleSessionExpired);
+    };
+  }, []);
+
   // ── Restore session on mount ──────────────────────────────
   useEffect(() => {
     const restoreSession = async () => {
@@ -54,8 +78,7 @@ export function AuthProvider({ children }) {
         const { user } = await authApi.me();
         dispatch({ type: 'SET_USER', payload: user });
       } catch {
-        // Token invalid/expired — clear it
-        clearAuthToken();
+        clearClientAuthStorage();
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
@@ -87,14 +110,7 @@ export function AuthProvider({ children }) {
     } catch {
       // ignore API errors on logout
     } finally {
-      // ✅ FIX: clear all possible storage locations
-      clearAuthToken();
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        localStorage.removeItem('authToken');
-        sessionStorage.clear();
-      }
+      clearClientAuthStorage();
       dispatch({ type: 'LOGOUT' });
       toast.success('Logged out successfully.');
     }

@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, User, Mail, Lock, Building, Phone, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, Building, Phone, AlertCircle, Globe2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 import toast from 'react-hot-toast';
 
 const ROLES = [
@@ -16,18 +17,28 @@ export default function RegisterForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const { register } = useAuth();
+  const requestedRole = searchParams.get('role');
 
-  const [role,  setRole]    = useState(searchParams.get('role') || 'buyer');
+  const [role, setRole] = useState(
+    ROLES.some(({ value }) => value === requestedRole) ? requestedRole : 'buyer',
+  );
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [form,    setForm]    = useState({
-    name: '', company: '', email: '', phone: '',
+    name: '', company: '', email: '', phone: '', country: '',
     _el_pw: '', _el_pw2: '',
   });
 
   const set = (field) => (e) => {
+    const apiField = {
+      company: 'company_name',
+      _el_pw: 'password',
+      _el_pw2: 'password',
+    }[field] || field;
     setError('');
+    setFieldErrors((current) => withoutFieldError(current, apiField));
     setForm((f) => ({ ...f, [field]: e.target.value }));
   };
 
@@ -36,21 +47,23 @@ export default function RegisterForm() {
     setError('');
 
     if (form._el_pw !== form._el_pw2) {
-      setError('Passwords do not match.');
+      setFieldErrors({ password: ['Passwords do not match.'] });
       return;
     }
     if (form._el_pw.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setFieldErrors({ password: ['Password must be at least 8 characters.'] });
       return;
     }
 
+    setFieldErrors({});
     setLoading(true);
     try {
       await register({
-        name:     form.name,
-        company:  form.company,
-        email:    form.email,
-        phone:    form.phone,
+        name: form.name.trim(),
+        company_name: form.company.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || null,
+        country: form.country.trim() || null,
         role,
         password:              btoa(form._el_pw),
         password_confirmation: btoa(form._el_pw2),
@@ -58,6 +71,7 @@ export default function RegisterForm() {
       toast.success('Account created! Welcome to EcomLanka.');
       router.push('/dashboard');
     } catch (err) {
+      setFieldErrors(err.errors || {});
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -69,6 +83,7 @@ export default function RegisterForm() {
     { id: 'company', icon: Building, label: 'Company Name',    type: 'text',  placeholder: 'Lanka Exports Ltd.',   key: 'company' },
     { id: 'email',   icon: Mail,     label: 'Email Address',   type: 'email', placeholder: 'you@company.com',      key: 'email' },
     { id: 'phone',   icon: Phone,    label: 'Phone (optional)',type: 'tel',   placeholder: '+94 77 000 0000',       key: 'phone' },
+    { id: 'country', icon: Globe2, label: 'Country (optional)', type: 'text', placeholder: 'Sri Lanka', key: 'country' },
   ];
 
   return (
@@ -94,7 +109,11 @@ export default function RegisterForm() {
               <button
                 key={r.value}
                 type="button"
-                onClick={() => setRole(r.value)}
+                onClick={() => {
+                  setError('');
+                  setFieldErrors((current) => withoutFieldError(current, 'role'));
+                  setRole(r.value);
+                }}
                 className={`p-3 rounded-xl border-2 text-left transition-all ${
                   role === r.value
                     ? 'border-primary-700 bg-primary-50'
@@ -106,6 +125,11 @@ export default function RegisterForm() {
               </button>
             ))}
           </div>
+          {firstFieldError(fieldErrors, 'role') && (
+            <p className="-mt-4 mb-4 text-xs text-red-600">
+              {firstFieldError(fieldErrors, 'role')}
+            </p>
+          )}
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
@@ -130,6 +154,17 @@ export default function RegisterForm() {
                     className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
                   />
                 </div>
+                {firstFieldError(
+                  fieldErrors,
+                  key === 'company' ? 'company_name' : key,
+                ) && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {firstFieldError(
+                      fieldErrors,
+                      key === 'company' ? 'company_name' : key,
+                    )}
+                  </p>
+                )}
               </div>
             ))}
 
@@ -152,6 +187,11 @@ export default function RegisterForm() {
                   {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
+              {firstFieldError(fieldErrors, 'password') && (
+                <p className="mt-1 text-xs text-red-600">
+                  {firstFieldError(fieldErrors, 'password')}
+                </p>
+              )}
             </div>
 
             {/* Confirm password */}
