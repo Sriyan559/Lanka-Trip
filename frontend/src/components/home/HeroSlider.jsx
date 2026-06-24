@@ -9,7 +9,11 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-export default function HeroSlider() {
+export default function HeroSlider({ banners }) {
+  const slides = banners ?? HERO_SLIDES;
+
+  if (!slides.length) return null;
+
   return (
     <div className="flex-1 min-w-0 rounded-xl overflow-hidden shadow-sm">
       <Swiper
@@ -17,14 +21,14 @@ export default function HeroSlider() {
         navigation
         pagination={{ clickable: true }}
         autoplay={{ delay: 4500, disableOnInteraction: false }}
-        loop
+        loop={slides.length > 1}
         className="h-[340px] md:h-[380px]"
       >
-        {HERO_SLIDES.map((slide) => (
+        {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div
               className="relative w-full h-full flex flex-col justify-center px-10"
-              style={{ background: slide.bg }}
+              style={{ background: slide.bg || '#155e2c' }}
             >
               {/* Background image */}
               <Image
@@ -43,7 +47,7 @@ export default function HeroSlider() {
                 <p className="text-white/80 text-sm mb-5">{slide.subtitle}</p>
                 <div className="flex gap-3">
                   <Link
-                    href="/search"
+                    href={slide.link || '/search'}
                     className="px-5 py-2 bg-white text-primary-800 text-sm font-semibold rounded-full hover:bg-gray-100 transition-colors"
                   >
                     Source Now

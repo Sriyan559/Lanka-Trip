@@ -5,12 +5,14 @@ import HeroSlider         from '@/components/home/HeroSlider';
 import YouMayLike         from '@/components/home/YouMayLike';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
-import CategoryGridSection from '@/components/home/CategoryGridSection';
+import HomeProductSection from '@/components/home/HomeProductSection';
+import VerifiedSuppliers  from '@/components/home/VerifiedSuppliers';
+import TrendingKeywords   from '@/components/home/TrendingKeywords';
 import EasySourcingSection from '@/components/home/EasySourcingSection';
 import SourcingSolutions  from '@/components/home/SourcingSolutions';
 import TradeShows         from '@/components/home/TradeShows';
 import FloatingActions    from '@/components/ui/FloatingActions';
-import { MOCK_HOME_SECTIONS } from '@/lib/services';
+import { getHomeSections } from '@/lib/services';
 
 export const metadata = {
   title: 'EcomLanka — Sri Lanka B2B Export Marketplace',
@@ -18,20 +20,8 @@ export const metadata = {
     'Find verified Sri Lankan exporters for tea, spices, gems, textiles and more. Source direct from certified suppliers.',
 };
 
-/**
- * HomePage — server component.
- *
- * Dynamic sections (CategoryGridSection) are driven by MOCK_HOME_SECTIONS
- * (see /src/lib/services.js). Replace with an API call once the Laravel
- * GET /api/home/sections endpoint is ready:
- *
- *   import { getHomeSections } from '@/lib/services';
- *   const sections = await getHomeSections();
- */
-export default function HomePage() {
-  // When Laravel is ready swap this line:
-  // const sections = await getHomeSections();
-  const sections = MOCK_HOME_SECTIONS;
+export default async function HomePage() {
+  const sections = await getHomeSections();
 
   return (
     <>
@@ -41,26 +31,25 @@ export default function HomePage() {
         {/* ── Hero row: [sidebar | slider | you-may-like] ────── */}
         <div className="flex gap-4">
           <CategorySidebar />
-          <HeroSlider />
-          <YouMayLike />
+          <HeroSlider banners={sections.banners} />
+          <YouMayLike recommendations={sections.recommendations} />
         </div>
+
+        <TrendingKeywords keywords={sections.trending_keywords} />
 
         {/* ── Featured service cards ─────────────────────────── */}
         <FeaturedCards />
 
         {/* ── Trending products grid ─────────────────────────── */}
-        <TrendingProducts />
+        <TrendingProducts products={sections.trending_products} />
 
-        {/* ── Dynamic category grid sections ─────────────────── */}
-        {/*
-          These sections are driven by /api/home/sections data.
-          Each section gets its own CategoryGridSection block.
-          Add more sections by appending to MOCK_HOME_SECTIONS,
-          or by returning more items from the Laravel API.
-        */}
-        {sections.map((section) => (
-          <CategoryGridSection key={section.id} section={section} />
-        ))}
+        <HomeProductSection
+          title="Featured Products"
+          products={sections.featured_products}
+          href="/products?featured=1"
+        />
+
+        <VerifiedSuppliers suppliers={sections.verified_suppliers} />
 
         {/* ── Easy Sourcing / RFQ form ───────────────────────── */}
         <EasySourcingSection />

@@ -36,6 +36,7 @@ Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 Route::get('/categories/{slug}/products', [CategoryController::class, 'products']);
 
 Route::get('/home/banners', [HomeController::class, 'banners']);
+Route::get('/home/sections', [HomeController::class, 'sections']);
 Route::get('/home/recommendations', [HomeController::class, 'recommendations']);
 Route::get('/home/featured-products', [HomeController::class, 'featuredProducts']);
 Route::get('/home/trending-products', [HomeController::class, 'trendingProducts']);

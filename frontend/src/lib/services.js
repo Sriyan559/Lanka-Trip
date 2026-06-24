@@ -9,6 +9,7 @@
  */
 
 import { api, productsApi, categoriesApi, ordersApi } from './api';
+import { HERO_SLIDES } from './constants';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types (JSDoc)
@@ -47,13 +48,30 @@ export async function getNavbarMenus() {
 // Home page
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** GET /api/home/sections — returns all dynamic homepage sections in order */
+/** GET /api/home/sections — returns all backend-driven homepage datasets */
 export async function getHomeSections() {
   try {
     const data = await api.get('/home/sections');
-    return data.sections || data;
+    return {
+      banners: data.banners || [],
+      featured_products: data.featured_products || [],
+      recommendations: data.recommendations || [],
+      trending_products: data.trending_products || [],
+      verified_suppliers: data.verified_suppliers || [],
+      trending_keywords: data.trending_keywords || [],
+    };
   } catch {
-    return MOCK_HOME_SECTIONS;
+    return {
+      banners: HERO_SLIDES,
+      featured_products: MOCK_B2B_PRODUCTS.slice(0, 6),
+      recommendations: MOCK_RECOMMENDATIONS,
+      trending_products: MOCK_TRENDING,
+      verified_suppliers: [],
+      trending_keywords: MOCK_TRENDING.slice(0, 8).map((item, index) => ({
+        id: index + 1,
+        keyword: item.label,
+      })),
+    };
   }
 }
 

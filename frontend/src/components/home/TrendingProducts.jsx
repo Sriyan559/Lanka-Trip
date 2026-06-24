@@ -6,13 +6,15 @@ import { MOCK_TRENDING } from '@/lib/services';
 /**
  * TrendingProducts — "Selected Trending Products" grid section.
  *
- * Data source: GET /api/products/trending
+ * Data source: GET /api/home/sections
  * Fallback: MOCK_TRENDING from services.js
  *
  * Click → navigates to /categories/[slug] product listing.
  */
 export default function TrendingProducts({ products }) {
-  const items = products?.length ? products : MOCK_TRENDING;
+  const items = products ?? MOCK_TRENDING;
+
+  if (!items.length) return null;
 
   return (
     <section className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
@@ -29,14 +31,14 @@ export default function TrendingProducts({ products }) {
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 md:gap-4">
         {items.map((product) => (
           <Link
-            key={product.slug}
-            href={`/categories/${product.slug}`}
+            key={product.id || product.slug}
+            href={product.id ? `/products/${product.id}` : `/categories/${product.slug}`}
             className="flex flex-col items-center gap-2 group"
           >
             <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-300 group-hover:shadow-md transition-all duration-300">
               <Image
-                src={product.image}
-                alt={product.label}
+                src={product.featured_image || product.image || `https://placehold.co/120x120/f0fdf4/155e2c?text=${encodeURIComponent((product.name || product.label).slice(0, 8))}`}
+                alt={product.name || product.label}
                 width={120}
                 height={120}
                 unoptimized
@@ -44,7 +46,7 @@ export default function TrendingProducts({ products }) {
               />
             </div>
             <span className="text-xs text-center text-gray-600 group-hover:text-primary-700 line-clamp-2 leading-tight font-medium w-full">
-              {product.label}
+              {product.name || product.label}
             </span>
           </Link>
         ))}

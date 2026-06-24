@@ -90,6 +90,51 @@ class HomeSearchApiTest extends TestCase
             ->assertJsonPath('data.1.title', 'Second Banner');
     }
 
+    public function test_home_sections_aggregate_all_homepage_content(): void
+    {
+        Banner::create([
+            'title' => 'Export Sri Lanka',
+            'image' => 'https://example.com/banner.jpg',
+            'sort_order' => 1,
+            'status' => 'active',
+        ]);
+        $category = Category::factory()->create();
+        $supplier = Supplier::factory()->create([
+            'company_name' => 'Verified Exporter',
+            'verification_status' => 'verified',
+            'status' => 'active',
+        ]);
+        Product::factory()->featured()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+            'name' => 'Featured Ceylon Tea',
+            'views_count' => 500,
+        ]);
+        TrendingKeyword::create([
+            'keyword' => 'Ceylon Tea',
+            'sort_order' => 1,
+            'status' => 'active',
+        ]);
+
+        $this->getJson('/api/home/sections')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('banners.0.title', 'Export Sri Lanka')
+            ->assertJsonPath('featured_products.0.name', 'Featured Ceylon Tea')
+            ->assertJsonPath('recommendations.0.name', 'Featured Ceylon Tea')
+            ->assertJsonPath('trending_products.0.name', 'Featured Ceylon Tea')
+            ->assertJsonPath('verified_suppliers.0.company_name', 'Verified Exporter')
+            ->assertJsonPath('trending_keywords.0.keyword', 'Ceylon Tea')
+            ->assertJsonStructure([
+                'banners',
+                'featured_products',
+                'recommendations',
+                'trending_products',
+                'verified_suppliers',
+                'trending_keywords',
+            ]);
+    }
+
     public function test_home_featured_products_return_only_active_featured_products(): void
     {
         $category = Category::factory()->create();

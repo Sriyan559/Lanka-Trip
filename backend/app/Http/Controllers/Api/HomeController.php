@@ -67,7 +67,58 @@ class HomeController extends Controller
 
     public function banners(Request $request): JsonResponse
     {
-        $banners = Cache::remember(
+        return $this->successResponse([
+            'data' => BannerResource::collection($this->homeBanners())->resolve($request),
+        ]);
+    }
+
+    public function sections(Request $request): JsonResponse
+    {
+        return $this->successResponse([
+            'banners' => BannerResource::collection($this->homeBanners())->resolve($request),
+            'featured_products' => ProductResource::collection($this->homeFeaturedProducts())->resolve($request),
+            'recommendations' => ProductResource::collection($this->homeRecommendations())->resolve($request),
+            'trending_products' => ProductResource::collection($this->homeTrendingProducts())->resolve($request),
+            'verified_suppliers' => SupplierResource::collection($this->homeVerifiedSuppliers())->resolve($request),
+            'trending_keywords' => TrendingKeywordResource::collection($this->homeTrendingKeywords())->resolve($request),
+        ]);
+    }
+
+    public function recommendations(Request $request): JsonResponse
+    {
+        return $this->productListResponse($this->homeRecommendations(), $request);
+    }
+
+    public function featuredProducts(Request $request): JsonResponse
+    {
+        return $this->productListResponse($this->homeFeaturedProducts(), $request);
+    }
+
+    public function trendingProducts(Request $request): JsonResponse
+    {
+        return $this->productListResponse($this->homeTrendingProducts(), $request);
+    }
+
+    public function verifiedSuppliers(Request $request): JsonResponse
+    {
+        return $this->successResponse([
+            'data' => SupplierResource::collection($this->homeVerifiedSuppliers())->resolve($request),
+        ]);
+    }
+
+    public function trendingKeywords(Request $request): JsonResponse
+    {
+        $keywords = $this->homeTrendingKeywords();
+
+        return $this->successResponse([
+            'data' => TrendingKeywordResource::collection($keywords)->resolve($request),
+            'keywords' => $keywords->pluck('keyword')->values()->all(),
+        ]);
+    }
+
+    private function homeBanners()
+    {
+        return Cache::remember(
             CacheKeys::versioned('banners', 'home'),
             CacheKeys::TTL_SECONDS,
             fn () => Banner::query()
@@ -76,26 +127,20 @@ class HomeController extends Controller
                 ->orderBy('id')
                 ->get(),
         );
-
-        return $this->successResponse([
-            'data' => BannerResource::collection($banners)->resolve($request),
-        ]);
     }
 
-    public function recommendations(Request $request): JsonResponse
+    private function homeRecommendations()
     {
-        $products = Cache::remember(
+        return Cache::remember(
             CacheKeys::versioned('products', 'home-recommendations'),
             CacheKeys::TTL_SECONDS,
             fn () => $this->publicProductQuery()->latest()->limit(12)->get(),
         );
-
-        return $this->productListResponse($products, $request);
     }
 
-    public function featuredProducts(Request $request): JsonResponse
+    private function homeFeaturedProducts()
     {
-        $products = Cache::remember(
+        return Cache::remember(
             CacheKeys::versioned('products', 'home-featured'),
             CacheKeys::TTL_SECONDS,
             fn () => $this->publicProductQuery()
@@ -104,13 +149,11 @@ class HomeController extends Controller
                 ->limit(12)
                 ->get(),
         );
-
-        return $this->productListResponse($products, $request);
     }
 
-    public function trendingProducts(Request $request): JsonResponse
+    private function homeTrendingProducts()
     {
-        $products = Cache::remember(
+        return Cache::remember(
             CacheKeys::versioned('products', 'home-trending'),
             CacheKeys::TTL_SECONDS,
             fn () => $this->publicProductQuery()
@@ -119,13 +162,11 @@ class HomeController extends Controller
                 ->limit(12)
                 ->get(),
         );
-
-        return $this->productListResponse($products, $request);
     }
 
-    public function verifiedSuppliers(Request $request): JsonResponse
+    private function homeVerifiedSuppliers()
     {
-        $suppliers = Cache::remember(
+        return Cache::remember(
             CacheKeys::versioned('suppliers', 'home-verified'),
             CacheKeys::TTL_SECONDS,
             fn () => Supplier::query()
@@ -141,15 +182,11 @@ class HomeController extends Controller
                 ->limit(12)
                 ->get(),
         );
-
-        return $this->successResponse([
-            'data' => SupplierResource::collection($suppliers)->resolve($request),
-        ]);
     }
 
-    public function trendingKeywords(Request $request): JsonResponse
+    private function homeTrendingKeywords()
     {
-        $keywords = Cache::remember(
+        return Cache::remember(
             CacheKeys::versioned('keywords', 'home-trending'),
             CacheKeys::TTL_SECONDS,
             fn () => TrendingKeyword::query()
@@ -158,11 +195,6 @@ class HomeController extends Controller
                 ->orderBy('keyword')
                 ->get(),
         );
-
-        return $this->successResponse([
-            'data' => TrendingKeywordResource::collection($keywords)->resolve($request),
-            'keywords' => $keywords->pluck('keyword')->values()->all(),
-        ]);
     }
 
     private function publicProductQuery(): Builder
