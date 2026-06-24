@@ -143,6 +143,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/maintenance/enable', [AdminController::class, 'enableMaintenance']);
     Route::post('/admin/maintenance/disable', [AdminController::class, 'disableMaintenance']);
 
+    Route::get('/supplier/company-profile', [SupplierProfileController::class, 'getCompanyProfile']);
     Route::put('/supplier/company-profile', [SupplierProfileController::class, 'updateCompanyProfile']);
 
     Route::get('/supplier/certificates', [SupplierProfileController::class, 'certificates']);

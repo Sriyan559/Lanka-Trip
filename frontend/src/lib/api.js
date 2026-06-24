@@ -13,6 +13,22 @@ import Cookies from 'js-cookie';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_COOKIE || '_el_tok';
 
+function withQuery(endpoint, params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return `${endpoint}${qs ? `?${qs}` : ''}`;
+}
+
+function uploadFormData(file, category) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  if (category) {
+    formData.append('category', category);
+  }
+
+  return formData;
+}
+
 // ──────────────────────────────────────────────
 // Core fetch wrapper
 // ──────────────────────────────────────────────
@@ -187,10 +203,77 @@ export const wishlistApi = {
 // RFQ (Request for Quotation)
 // ──────────────────────────────────────────────
 export const rfqApi = {
-  submit:  (data)  => api.post('/rfq', data),
-  list:    ()      => api.get('/rfq'),
-  get:     (id)    => api.get(`/rfq/${id}`),
-  respond: (id, d) => api.post(`/rfq/${id}/respond`, d),
+  list:         (params = {}) => api.get(withQuery('/rfqs', params)),
+  get:          (id)          => api.get(`/rfqs/${id}`),
+  submit:       (payload)     => api.post('/rfqs', payload),
+  update:       (id, payload) => api.put(`/rfqs/${id}`, payload),
+  delete:       (id)          => api.delete(`/rfqs/${id}`),
+  supplierList: (params = {}) => api.get(withQuery('/supplier/rfqs', params)),
+};
+
+// ──────────────────────────────────────────────
+// Quotations
+// ──────────────────────────────────────────────
+export const quotationsApi = {
+  create:       (rfqId, payload) => api.post(`/rfqs/${rfqId}/quotations`, payload),
+  listByRfq:    (rfqId, params = {}) =>
+    api.get(withQuery(`/rfqs/${rfqId}/quotations`, params)),
+  supplierList: (params = {}) => api.get(withQuery('/supplier/quotations', params)),
+  get:          (id)          => api.get(`/quotations/${id}`),
+  update:       (id, payload) => api.put(`/quotations/${id}`, payload),
+  accept:       (id)          => api.post(`/quotations/${id}/accept`),
+  reject:       (id)          => api.post(`/quotations/${id}/reject`),
+};
+
+// ──────────────────────────────────────────────
+// Orders
+// ──────────────────────────────────────────────
+export const ordersApi = {
+  list:         (params = {}) => api.get(withQuery('/orders', params)),
+  get:          (id)          => api.get(`/orders/${id}`),
+  create:       (quotationId) => api.post('/orders', { quotation_id: quotationId }),
+  updateStatus: (id, status)  => api.put(`/orders/${id}/status`, { status }),
+};
+
+// ──────────────────────────────────────────────
+// Uploads
+// ──────────────────────────────────────────────
+export const uploadApi = {
+  uploadImage:    (file, category) =>
+    api.post('/uploads/image', uploadFormData(file, category)),
+  uploadDocument: (file, category) =>
+    api.post('/uploads/document', uploadFormData(file, category)),
+  deleteUpload:   (id) => api.delete(`/uploads/${id}`),
+};
+
+// ──────────────────────────────────────────────
+// Notifications
+// ──────────────────────────────────────────────
+export const notificationsApi = {
+  list:        (params = {}) => api.get(withQuery('/notifications', params)),
+  markRead:    (id)          => api.put(`/notifications/${id}/read`),
+  markAllRead: ()            => api.put('/notifications/read-all'),
+};
+
+// ──────────────────────────────────────────────
+// Supplier company profile
+// ──────────────────────────────────────────────
+export const supplierProfileApi = {
+  publicProfile:             (id)      => api.get(`/suppliers/${id}/company-profile`),
+  getCompanyProfile:         ()        => api.get('/supplier/company-profile'),
+  updateCompanyProfile:      (payload) => api.put('/supplier/company-profile', payload),
+  listCertificates:          ()        => api.get('/supplier/certificates'),
+  createCertificate:         (payload) => api.post('/supplier/certificates', payload),
+  deleteCertificate:         (id)      => api.delete(`/supplier/certificates/${id}`),
+  listVideos:                ()        => api.get('/supplier/videos'),
+  createVideo:               (payload) => api.post('/supplier/videos', payload),
+  deleteVideo:               (id)      => api.delete(`/supplier/videos/${id}`),
+  listStrengths:             ()        => api.get('/supplier/strengths'),
+  createStrength:            (payload) => api.post('/supplier/strengths', payload),
+  deleteStrength:            (id)      => api.delete(`/supplier/strengths/${id}`),
+  getProductionCapacity:     ()        => api.get('/supplier/production-capacity'),
+  updateProductionCapacity:  (payload) =>
+    api.put('/supplier/production-capacity', payload),
 };
 
 // ──────────────────────────────────────────────
@@ -200,8 +283,8 @@ export const userApi = {
   dashboard:    ()     => api.get('/user/dashboard'),
   profile:      ()     => api.get('/user/profile'),
   updateProfile:(data) => api.put('/user/profile', data),
-  orders:       ()     => api.get('/user/orders'),
-  rfqs:         ()     => api.get('/user/rfqs'),
+  orders:       (params = {}) => ordersApi.list(params),
+  rfqs:         (params = {}) => rfqApi.list(params),
   messages:     ()     => api.get('/user/messages'),
 };
 

@@ -52,6 +52,30 @@ class SupplierProfileController extends Controller
         return $this->companyProfileResponse($supplier, $request);
     }
 
+    public function getCompanyProfile(Request $request): JsonResponse
+    {
+        $supplier = $this->ownedSupplier($request);
+
+        $supplier->load([
+            'certificates',
+            'videos',
+            'strengths',
+            'productionCapacity',
+            'products' => fn ($query) => $query
+                ->active()
+                ->whereHas('category', fn (Builder $query) => $query->active())
+                ->with(['category', 'images', 'supplier'])
+                ->latest()
+                ->limit(8),
+        ])->loadCount([
+            'products' => fn (Builder $query) => $query
+                ->active()
+                ->whereHas('category', fn (Builder $query) => $query->active()),
+        ]);
+
+        return $this->companyProfileResponse($supplier, $request);
+    }
+
     public function updateCompanyProfile(UpdateCompanyProfileRequest $request): JsonResponse
     {
         $supplier = $this->ownedSupplier($request);

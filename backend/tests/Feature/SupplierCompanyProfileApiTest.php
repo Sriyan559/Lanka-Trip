@@ -111,6 +111,35 @@ class SupplierCompanyProfileApiTest extends TestCase
         $this->assertSame(['UAE', 'Qatar'], $supplier->main_markets);
     }
 
+    public function test_authenticated_supplier_can_view_their_company_profile(): void
+    {
+        [$supplierUser, $supplier] = $this->supplierUser();
+        SupplierCertificate::create([
+            'supplier_id' => $supplier->id,
+            'certificate_name' => 'ISO 22000',
+        ]);
+        ProductionCapacity::create([
+            'supplier_id' => $supplier->id,
+            'monthly_output' => '10,000',
+            'output_unit' => 'Kg',
+        ]);
+
+        $this->withToken($supplierUser->createToken('test')->plainTextToken)
+            ->getJson('/api/supplier/company-profile')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('supplier.id', $supplier->id)
+            ->assertJsonPath('supplier.company_name', $supplier->company_name)
+            ->assertJsonPath('certificates.0.certificate_name', 'ISO 22000')
+            ->assertJsonPath('production_capacity.monthly_output', '10,000')
+            ->assertJsonStructure([
+                'videos',
+                'strengths',
+                'production_capacity',
+                'latest_products',
+            ]);
+    }
+
     public function test_supplier_can_add_and_delete_certificate(): void
     {
         [$supplierUser, $supplier] = $this->supplierUser();
@@ -246,6 +275,8 @@ class SupplierCompanyProfileApiTest extends TestCase
 
         $this->putJson('/api/supplier/company-profile', ['company_name' => 'Blocked'])
             ->assertUnauthorized();
+        $this->getJson('/api/supplier/company-profile')
+            ->assertUnauthorized();
         $this->postJson('/api/supplier/certificates', ['certificate_name' => 'Blocked'])
             ->assertUnauthorized();
         $this->postJson('/api/supplier/videos', ['title' => 'Blocked'])
@@ -257,6 +288,12 @@ class SupplierCompanyProfileApiTest extends TestCase
 
         $this->withToken($buyer->createToken('buyer')->plainTextToken)
             ->putJson('/api/supplier/company-profile', ['company_name' => 'Blocked'])
+            ->assertForbidden();
+
+        Auth::forgetGuards();
+
+        $this->withToken($buyer->createToken('buyer-profile')->plainTextToken)
+            ->getJson('/api/supplier/company-profile')
             ->assertForbidden();
 
         Auth::forgetGuards();
