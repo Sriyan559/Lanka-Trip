@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class AuthApiTest extends TestCase
@@ -136,6 +139,88 @@ class AuthApiTest extends TestCase
             ->assertJsonStructure(['token', 'user']);
 
         $this->assertDatabaseCount('personal_access_tokens', 1);
+    }
+
+    public function test_user_can_request_and_complete_a_password_reset(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create([
+            'email' => 'reset@example.com',
+            'password' => 'OriginalPassword123!',
+        ]);
+        $user->createToken('existing');
+        $resetToken = null;
+
+        $this->postJson('/api/auth/forgot-password', [
+            'email' => ' RESET@example.com ',
+        ])
+            ->assertOk()
+            ->assertExactJson([
+                'success' => true,
+                'message' => 'If an account exists for that email, a password reset link has been sent.',
+            ]);
+
+        Notification::assertSentTo(
+            $user,
+            ResetPassword::class,
+            function (ResetPassword $notification) use (&$resetToken): bool {
+                $resetToken = $notification->token;
+
+                return true;
+            },
+        );
+
+        $this->postJson('/api/auth/reset-password', [
+            'email' => 'reset@example.com',
+            'token' => $resetToken,
+            'password' => base64_encode('UpdatedPassword123!'),
+            'password_confirmation' => base64_encode('UpdatedPassword123!'),
+        ])
+            ->assertOk()
+            ->assertExactJson([
+                'success' => true,
+                'message' => 'Password reset successfully. You can now sign in.',
+            ]);
+
+        $this->assertTrue(Hash::check(
+            'UpdatedPassword123!',
+            $user->refresh()->password,
+        ));
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->assertFalse(Password::broker()->tokenExists($user, $resetToken));
+    }
+
+    public function test_forgot_password_does_not_reveal_unknown_accounts(): void
+    {
+        Notification::fake();
+
+        $this->postJson('/api/auth/forgot-password', [
+            'email' => 'missing@example.com',
+        ])
+            ->assertOk()
+            ->assertExactJson([
+                'success' => true,
+                'message' => 'If an account exists for that email, a password reset link has been sent.',
+            ]);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_password_reset_rejects_an_invalid_token(): void
+    {
+        $user = User::factory()->create(['email' => 'reset@example.com']);
+        $originalPassword = $user->password;
+
+        $this->postJson('/api/auth/reset-password', [
+            'email' => 'reset@example.com',
+            'token' => 'invalid-token',
+            'password' => 'UpdatedPassword123!',
+            'password_confirmation' => 'UpdatedPassword123!',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['token']);
+
+        $this->assertSame($originalPassword, $user->refresh()->password);
     }
 
     public function test_authenticated_user_can_get_their_profile(): void

@@ -10,7 +10,7 @@ export default function SettingsPage() {
       <Header />
       <main className="max-w-screen-xl mx-auto px-4 py-6">
         <h1 className="text-xl font-bold text-gray-800 mb-1">Account Settings</h1>
-        <p className="text-sm text-gray-400 mb-6">Manage your profile, company details, and preferences</p>
+        <p className="text-sm text-gray-400 mb-6">Manage your supported profile details and account security</p>
         <SettingsContent />
       </main>
       <Footer />

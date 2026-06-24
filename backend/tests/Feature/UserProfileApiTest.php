@@ -100,6 +100,51 @@ class UserProfileApiTest extends TestCase
         $this->assertSame('active', $user->status);
     }
 
+    public function test_authenticated_user_can_change_their_password(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'OriginalPassword123!',
+        ]);
+
+        $this->withToken($user->createToken('test')->plainTextToken)
+            ->putJson('/api/user/password', [
+                'current_password' => base64_encode('OriginalPassword123!'),
+                'password' => base64_encode('UpdatedPassword123!'),
+                'password_confirmation' => base64_encode('UpdatedPassword123!'),
+            ])
+            ->assertOk()
+            ->assertExactJson([
+                'success' => true,
+                'message' => 'Password updated successfully.',
+            ]);
+
+        $this->assertTrue(Hash::check(
+            'UpdatedPassword123!',
+            $user->refresh()->password,
+        ));
+    }
+
+    public function test_password_change_rejects_an_incorrect_current_password(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'OriginalPassword123!',
+        ]);
+
+        $this->withToken($user->createToken('test')->plainTextToken)
+            ->putJson('/api/user/password', [
+                'current_password' => 'WrongPassword123!',
+                'password' => 'UpdatedPassword123!',
+                'password_confirmation' => 'UpdatedPassword123!',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['current_password']);
+
+        $this->assertTrue(Hash::check(
+            'OriginalPassword123!',
+            $user->refresh()->password,
+        ));
+    }
+
     public function test_buyer_dashboard_returns_zero_for_modules_not_created_yet(): void
     {
         $user = User::factory()->create(['role' => 'buyer']);
@@ -181,6 +226,7 @@ class UserProfileApiTest extends TestCase
     {
         $this->getJson('/api/user/profile')->assertUnauthorized();
         $this->putJson('/api/user/profile', ['name' => 'Blocked'])->assertUnauthorized();
+        $this->putJson('/api/user/password', [])->assertUnauthorized();
         $this->getJson('/api/user/dashboard')->assertUnauthorized();
     }
 }

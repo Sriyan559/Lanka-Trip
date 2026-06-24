@@ -306,6 +306,7 @@ export const userApi = {
   dashboard:    ()     => api.get('/user/dashboard'),
   profile:      ()     => api.get('/user/profile'),
   updateProfile:(data) => api.put('/user/profile', data),
+  updatePassword:(data) => api.put('/user/password', data),
   orders:       (params = {}) => ordersApi.list(params),
   rfqs:         (params = {}) => rfqApi.list(params),
   messages:     ()     => conversationsApi.list(),

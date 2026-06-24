@@ -67,6 +67,8 @@ Route::prefix('auth')->group(function () {
     Route::middleware('throttle:auth')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     });
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -79,6 +81,7 @@ Route::prefix('user')->middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard']);
     Route::get('/profile', [UserController::class, 'profile']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::put('/password', [UserController::class, 'updatePassword']);
 });
 
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {

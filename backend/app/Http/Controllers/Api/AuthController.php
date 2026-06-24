@@ -3,18 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\SupplierResource;
 use App\Http\Resources\UserResource;
 use App\Models\Supplier;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
@@ -104,6 +109,47 @@ class AuthController extends Controller
             'token' => $user->createToken('ecomlanka-web')->plainTextToken,
             'user' => UserResource::make($user)->resolve($request),
         ], 'Logged in successfully.');
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        Password::sendResetLink($request->safe()->only('email'));
+
+        return $this->successResponse(
+            message: 'If an account exists for that email, a password reset link has been sent.',
+        );
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $status = Password::reset(
+            $request->safe()->only([
+                'email',
+                'password',
+                'password_confirmation',
+                'token',
+            ]),
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => $password,
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                $user->tokens()->delete();
+
+                event(new PasswordReset($user));
+            },
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'token' => [__($status)],
+            ]);
+        }
+
+        return $this->successResponse(
+            message: 'Password reset successfully. You can now sign in.',
+        );
     }
 
     public function logout(Request $request): JsonResponse
