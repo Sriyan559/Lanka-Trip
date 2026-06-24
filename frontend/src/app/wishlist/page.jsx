@@ -13,10 +13,16 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const MOCK_WISHLIST = [
-  { id: 1, name: 'Premium Ceylon BOPF Black Tea 500g', price: 12.5, image: 'https://placehold.co/160x160/e8f5e9/155e2c?text=Tea' },
-  { id: 4, name: 'Virgin Coconut Oil 5L',               price: 15,   image: 'https://placehold.co/160x160/fff9c4/f57f17?text=Coconut' },
-  { id: 11, name: 'Blue Sapphire 3ct (Certified)',       price: 380,  image: 'https://placehold.co/160x160/e8eaf6/1a237e?text=Gem' },
+  { id: 101, product: { id: 1, name: 'Premium Ceylon BOPF Black Tea 500g', price: 12.5, featured_image: 'https://placehold.co/160x160/e8f5e9/155e2c?text=Tea' } },
+  { id: 102, product: { id: 4, name: 'Virgin Coconut Oil 5L', price: 15, featured_image: 'https://placehold.co/160x160/fff9c4/f57f17?text=Coconut' } },
+  { id: 103, product: { id: 11, name: 'Blue Sapphire 3ct (Certified)', price: 380, featured_image: 'https://placehold.co/160x160/e8eaf6/1a237e?text=Gem' } },
 ];
+
+function validWishlistItems(items) {
+  return Array.isArray(items)
+    ? items.filter((wishlist) => wishlist?.id && wishlist?.product?.id)
+    : [];
+}
 
 export default function WishlistPage() {
   const { addItem } = useCart();
@@ -28,7 +34,7 @@ export default function WishlistPage() {
       setLoading(true);
       try {
         const data = await wishlistApi.get();
-        setItems(data.data || data.items || []);
+        setItems(validWishlistItems(data.items));
       } catch {
         setItems(MOCK_WISHLIST);
       } finally {
@@ -38,10 +44,17 @@ export default function WishlistPage() {
     load();
   }, []);
 
-  const remove = async (id) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-    try { await wishlistApi.remove(id); } catch {}
-    toast.success('Removed from wishlist');
+  const remove = async (wishlistId) => {
+    const previousItems = items;
+    setItems((current) => current.filter((wishlist) => wishlist.id !== wishlistId));
+
+    try {
+      await wishlistApi.remove(wishlistId);
+      toast.success('Removed from wishlist');
+    } catch (error) {
+      setItems(previousItems);
+      toast.error(error.message || 'Could not remove this wishlist item.');
+    }
   };
 
   return (
@@ -63,29 +76,29 @@ export default function WishlistPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 hover-lift relative group">
+            {items.map((wishlist) => (
+              <div key={wishlist.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 hover-lift relative group">
                 <button
-                  onClick={() => remove(item.id)}
+                  onClick={() => remove(wishlist.id)}
                   className="absolute top-2 right-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 z-10 shadow-sm"
                   aria-label="Remove from wishlist"
                 >
                   <Trash2 size={13} />
                 </button>
-                <Link href={`/products/${item.id}`}>
+                <Link href={`/products/${wishlist.product.id}`}>
                   <Image
-                    src={item.image || 'https://placehold.co/160x160/f0fdf4/155e2c?text=Product'}
-                    alt={item.name}
+                    src={wishlist.product.featured_image || 'https://placehold.co/160x160/f0fdf4/155e2c?text=Product'}
+                    alt={wishlist.product.name}
                     width={160}
                     height={160}
                     unoptimized
                     className="w-full aspect-square object-cover rounded-lg mb-2"
                   />
-                  <div className="text-sm font-medium text-gray-700 line-clamp-2">{item.name}</div>
-                  <div className="text-primary-700 font-bold text-sm mt-1">{formatCurrency(item.price)}</div>
+                  <div className="text-sm font-medium text-gray-700 line-clamp-2">{wishlist.product.name}</div>
+                  <div className="text-primary-700 font-bold text-sm mt-1">{formatCurrency(wishlist.product.price)}</div>
                 </Link>
                 <button
-                  onClick={() => addItem(item)}
+                  onClick={() => addItem(wishlist.product)}
                   className="mt-2 w-full py-1.5 border border-primary-700 text-primary-700 text-xs font-medium rounded-lg hover:bg-primary-700 hover:text-white transition-colors"
                 >
                   Add to Basket

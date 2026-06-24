@@ -19,6 +19,12 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const TABS = ['Overview', 'Orders', 'RFQs', 'Wishlist', 'Messages'];
 
+function validWishlistItems(items) {
+  return Array.isArray(items)
+    ? items.filter((wishlist) => wishlist?.id && wishlist?.product?.id)
+    : [];
+}
+
 export default function DashboardPage() {
   // ✅ FIX: uses real user from AuthContext (not hardcoded)
   const { user, isSupplier } = useAuth();
@@ -40,7 +46,7 @@ export default function DashboardPage() {
           rfqApi.list(),
         ]);
         if (dash.status === 'fulfilled')    setDashboard(dash.value);
-        if (wl.status === 'fulfilled')      setWishlist(wl.value?.data || []);
+        if (wl.status === 'fulfilled')      setWishlist(validWishlistItems(wl.value?.items));
         if (rfqList.status === 'fulfilled') setRfqs(rfqList.value?.data || []);
       } catch {
         // silently use empty states — data shown from auth user at minimum
@@ -230,17 +236,17 @@ export default function DashboardPage() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {wishlist.map((item) => (
-                  <Link key={item.id} href={`/products/${item.id}`} className="bg-white rounded-xl border border-gray-100 p-3 hover-lift block">
+                  <Link key={item.id} href={`/products/${item.product.id}`} className="bg-white rounded-xl border border-gray-100 p-3 hover-lift block">
                     <Image
-                      src={item.image || 'https://placehold.co/120x120/f0fdf4/155e2c?text=Product'}
-                      alt={item.name}
+                      src={item.product.featured_image || 'https://placehold.co/120x120/f0fdf4/155e2c?text=Product'}
+                      alt={item.product.name}
                       width={120}
                       height={120}
                       unoptimized
                       className="w-full aspect-square object-cover rounded-lg mb-2"
                     />
-                    <div className="text-sm font-medium text-gray-700 line-clamp-2">{item.name}</div>
-                    <div className="text-primary-700 font-bold text-sm mt-1">{formatCurrency(item.price)}</div>
+                    <div className="text-sm font-medium text-gray-700 line-clamp-2">{item.product.name}</div>
+                    <div className="text-primary-700 font-bold text-sm mt-1">{formatCurrency(item.product.price)}</div>
                   </Link>
                 ))}
               </div>

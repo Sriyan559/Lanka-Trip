@@ -80,16 +80,25 @@ class WishlistApiTest extends TestCase
             ->assertJsonPath('data.0.wishlist_id', $wishlist->id);
     }
 
-    public function test_authenticated_user_can_remove_a_product_from_their_wishlist(): void
+    public function test_authenticated_user_can_remove_a_wishlist_record(): void
     {
         [$user, $product] = $this->userAndProduct();
+        $otherUser = User::factory()->create();
+
         Wishlist::create([
+            'user_id' => $otherUser->id,
+            'product_id' => $product->id,
+        ]);
+
+        $wishlist = Wishlist::create([
             'user_id' => $user->id,
             'product_id' => $product->id,
         ]);
 
+        $this->assertNotSame($product->id, $wishlist->id);
+
         $this->withToken($user->createToken('test')->plainTextToken)
-            ->deleteJson("/api/wishlist/{$product->id}")
+            ->deleteJson("/api/wishlist/{$wishlist->id}")
             ->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('items_count', 0)
@@ -106,13 +115,13 @@ class WishlistApiTest extends TestCase
     {
         [$owner, $product] = $this->userAndProduct();
         $otherUser = User::factory()->create();
-        Wishlist::create([
+        $wishlist = Wishlist::create([
             'user_id' => $owner->id,
             'product_id' => $product->id,
         ]);
 
         $this->withToken($otherUser->createToken('test')->plainTextToken)
-            ->deleteJson("/api/wishlist/{$product->id}")
+            ->deleteJson("/api/wishlist/{$wishlist->id}")
             ->assertOk()
             ->assertJsonPath('items_count', 0);
 

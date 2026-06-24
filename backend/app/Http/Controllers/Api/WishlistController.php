@@ -38,11 +38,11 @@ class WishlistController extends Controller
         );
     }
 
-    public function destroy(Request $request, int $productId): JsonResponse
+    public function destroy(Request $request, int $wishlistId): JsonResponse
     {
         $deleted = Wishlist::query()
             ->where('user_id', $request->user()->id)
-            ->where('product_id', $productId)
+            ->whereKey($wishlistId)
             ->delete();
 
         return $this->wishlistResponse(
@@ -59,6 +59,7 @@ class WishlistController extends Controller
     ): JsonResponse {
         $items = Wishlist::query()
             ->where('user_id', $request->user()->id)
+            ->whereHas('product')
             ->with(['product.supplier'])
             ->latest()
             ->get();

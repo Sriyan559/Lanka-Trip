@@ -202,9 +202,9 @@ export const cartApi = {
 // Wishlist
 // ──────────────────────────────────────────────
 export const wishlistApi = {
-  get:    ()          => api.get('/wishlist'),
-  add:    (productId) => api.post('/wishlist', { product_id: productId }),
-  remove: (productId) => api.delete(`/wishlist/${productId}`),
+  get:    ()           => api.get('/wishlist'),
+  add:    (productId)  => api.post('/wishlist', { product_id: productId }),
+  remove: (wishlistId) => api.delete(`/wishlist/${wishlistId}`),
 };
 
 // ──────────────────────────────────────────────

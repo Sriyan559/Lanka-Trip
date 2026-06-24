@@ -92,7 +92,7 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 Route::prefix('wishlist')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [WishlistController::class, 'index']);
     Route::post('/', [WishlistController::class, 'store']);
-    Route::delete('/{productId}', [WishlistController::class, 'destroy'])->whereNumber('productId');
+    Route::delete('/{wishlistId}', [WishlistController::class, 'destroy'])->whereNumber('wishlistId');
 });
 
 Route::prefix('rfqs')->middleware('auth:sanctum')->group(function () {

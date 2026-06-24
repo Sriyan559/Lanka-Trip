@@ -15,7 +15,7 @@ class WishlistResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'product' => [
+            'product' => $product ? [
                 'id' => $product->id,
                 'name' => $product->name,
                 'slug' => $product->slug,
@@ -24,7 +24,7 @@ class WishlistResource extends JsonResource
                 'moq' => (float) $product->moq,
                 'unit' => $product->unit,
                 'supplier' => $product->supplier?->company_name,
-            ],
+            ] : null,
         ];
     }
 }
