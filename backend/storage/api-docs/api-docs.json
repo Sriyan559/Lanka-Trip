@@ -1,0 +1,4898 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "EcomLanka REST API",
+        "description": "Laravel 11 REST API for the EcomLanka Sri Lankan export marketplace. All protected endpoints use Laravel Sanctum bearer tokens and return JSON.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Current application"
+        }
+    ],
+    "paths": {
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a buyer or supplier account",
+                "operationId": "authRegister",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/RegisterRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Account and bearer token created",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "message": "Registration successful.",
+                                    "user": {
+                                        "id": 1,
+                                        "name": "Nimal Perera",
+                                        "role": "buyer"
+                                    },
+                                    "token": "1|sanctum-token"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login and create a Sanctum bearer token",
+                "operationId": "authLogin",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/LoginRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "message": "Login successful.",
+                                    "user": {
+                                        "id": 1,
+                                        "email": "buyer@ecomlanka.lk",
+                                        "role": "buyer"
+                                    },
+                                    "token": "1|sanctum-token"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Revoke the current bearer token",
+                "operationId": "authLogout",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get the authenticated user",
+                "operationId": "authMe",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/dashboard": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get role-specific dashboard counts",
+                "operationId": "userDashboard",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard counts",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "orders_count": 3,
+                                    "rfqs_count": 2,
+                                    "wishlist_count": 5,
+                                    "messages_count": 1
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/profile": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get authenticated user profile",
+                "operationId": "userProfile",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update allowed profile fields",
+                "operationId": "userProfileUpdate",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ProfileRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/cart": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get the authenticated user inquiry basket",
+                "operationId": "cartShow",
+                "responses": {
+                    "200": {
+                        "description": "Inquiry basket",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "items": [],
+                                    "items_count": 0
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Clear the inquiry basket",
+                "operationId": "cartClear",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/cart/items": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add a product to the inquiry basket",
+                "operationId": "cartItemsStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CartItemRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/cart/items/{id}": {
+            "put": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update basket item quantity or note",
+                "operationId": "cartItemsUpdate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CartUpdateRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove one basket item",
+                "operationId": "cartItemsDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/wishlist": {
+            "get": {
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "List wishlist products",
+                "operationId": "wishlistIndex",
+                "responses": {
+                    "200": {
+                        "description": "Wishlist",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "items": [],
+                                    "items_count": 0
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "Add a product to the wishlist",
+                "operationId": "wishlistStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ProductIdRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/wishlist/{productId}": {
+            "delete": {
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "Remove a product from the wishlist",
+                "operationId": "wishlistDelete",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/uploads/image": {
+            "post": {
+                "tags": [
+                    "Uploads"
+                ],
+                "summary": "Upload an image to public storage",
+                "operationId": "uploadsImage",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ImageUploadRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Image uploaded",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "upload": {
+                                        "id": 1,
+                                        "url": "http://localhost/storage/uploads/image.webp",
+                                        "path": "uploads/image.webp",
+                                        "type": "image"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/uploads/document": {
+            "post": {
+                "tags": [
+                    "Uploads"
+                ],
+                "summary": "Upload a document to public storage",
+                "operationId": "uploadsDocument",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/DocumentUploadRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/uploads/{id}": {
+            "delete": {
+                "tags": [
+                    "Uploads"
+                ],
+                "summary": "Delete an owned upload and physical file",
+                "operationId": "uploadsDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List paginated notifications and unread count",
+                "operationId": "notificationsIndex",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notifications",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "notifications": [],
+                                    "unread_count": 0,
+                                    "current_page": 1
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{id}/read": {
+            "put": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark one owned notification as read",
+                "operationId": "notificationsRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/read-all": {
+            "put": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all owned notifications as read",
+                "operationId": "notificationsReadAll",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/dashboard": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get administrator dashboard counts",
+                "operationId": "adminDashboard",
+                "responses": {
+                    "200": {
+                        "description": "Admin dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "users_count": 30,
+                                    "products_count": 120,
+                                    "orders_count": 18
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/users": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Search and filter users",
+                "operationId": "adminUsersIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "admin",
+                                "buyer",
+                                "supplier"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "inactive"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/users/{id}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Show user details",
+                "operationId": "adminUsersShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/users/{id}/status": {
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Activate or deactivate a user",
+                "operationId": "adminUsersStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/StatusRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/suppliers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Search and filter suppliers",
+                "operationId": "adminSuppliersIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "verification_status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "verified",
+                                "rejected"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "inactive"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/suppliers/{id}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Show supplier details and products",
+                "operationId": "adminSuppliersShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/suppliers/{id}/verify": {
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Set supplier verification status",
+                "operationId": "adminSuppliersVerify",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/VerificationRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/products": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Search and filter all products",
+                "operationId": "adminProductsIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "inactive"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/products/{id}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Show product details",
+                "operationId": "adminProductsShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Soft-delete a product",
+                "operationId": "adminProductsDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/products/{id}/status": {
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Activate or deactivate a product",
+                "operationId": "adminProductsStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/StatusRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/rfqs": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all RFQs",
+                "operationId": "adminRfqsIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/quotations": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all quotations",
+                "operationId": "adminQuotationsIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/orders": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all orders",
+                "operationId": "adminOrdersIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/messages": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all messages",
+                "operationId": "adminMessagesIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/horizon/status": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get Horizon worker status and configured queues",
+                "operationId": "adminHorizonStatus",
+                "responses": {
+                    "200": {
+                        "description": "Horizon status",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status": "running",
+                                    "queues": [
+                                        "default",
+                                        "notifications",
+                                        "emails"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/activity-logs": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List paginated application activity logs",
+                "operationId": "adminActivityLogs",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/system": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get production system diagnostics",
+                "operationId": "adminSystem",
+                "responses": {
+                    "200": {
+                        "description": "Runtime and infrastructure status",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "php_version": "8.3.0",
+                                    "laravel_version": "11.54.0",
+                                    "database": {
+                                        "driver": "mysql",
+                                        "status": "connected"
+                                    },
+                                    "cache": "redis",
+                                    "queue": "redis",
+                                    "redis": "connected",
+                                    "horizon": "running"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/backups": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List generated backup archives",
+                "operationId": "adminBackups",
+                "responses": {
+                    "200": {
+                        "description": "Backup archives",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "backups": [],
+                                    "total": 0
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/maintenance/enable": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Enable application maintenance mode",
+                "operationId": "adminMaintenanceEnable",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/maintenance/disable": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Disable application maintenance mode",
+                "operationId": "adminMaintenanceDisable",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/dashboard": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get overall marketplace analytics",
+                "operationId": "analyticsDashboard",
+                "responses": {
+                    "200": {
+                        "description": "Cached dashboard analytics",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "total_users": 100,
+                                    "total_buyers": 70,
+                                    "total_suppliers": 25,
+                                    "total_products": 300,
+                                    "total_orders": 50,
+                                    "total_reviews": 120
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/top-products": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get top ten products",
+                "operationId": "analyticsTopProducts",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/top-suppliers": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get top ten suppliers",
+                "operationId": "analyticsTopSuppliers",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/top-categories": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get top ten categories",
+                "operationId": "analyticsTopCategories",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/rfqs": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get RFQ status counts and latest twelve months",
+                "operationId": "analyticsRfqs",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/quotations": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get quotation status counts and latest twelve months",
+                "operationId": "analyticsQuotations",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/orders": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get order status counts and latest twelve months",
+                "operationId": "analyticsOrders",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/analytics/revenue": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get completed-order revenue analytics",
+                "operationId": "analyticsRevenue",
+                "responses": {
+                    "200": {
+                        "description": "Daily, monthly and yearly completed-order revenue",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "daily_revenue": 1000,
+                                    "monthly_revenue": 12500,
+                                    "yearly_revenue": 90000,
+                                    "currency_breakdown": {
+                                        "USD": 75000,
+                                        "LKR": 15000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Check API health",
+                "operationId": "health",
+                "responses": {
+                    "200": {
+                        "description": "API is available",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "status": "ok",
+                                    "app": "EcomLanka",
+                                    "version": "1.0.0"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "List active categories",
+                "operationId": "categoriesIndex",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/categories/trending": {
+            "get": {
+                "tags": [
+                    "Categories",
+                    "Homepage"
+                ],
+                "summary": "List trending categories",
+                "operationId": "categoriesTrending",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/categories/{slug}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Show category by slug",
+                "operationId": "categoriesShow",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "ceylon-tea"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/api/categories/{slug}/products": {
+            "get": {
+                "tags": [
+                    "Categories",
+                    "Products"
+                ],
+                "summary": "List paginated category products",
+                "operationId": "categoryProducts",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "ceylon-tea"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Search, filter and sort products",
+                "operationId": "productsIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "ceylon-tea"
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "latest",
+                                "oldest",
+                                "price_asc",
+                                "price_desc",
+                                "popular"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "name": "Pure Ceylon Black Tea",
+                                            "price": 5.25
+                                        }
+                                    ],
+                                    "current_page": 1,
+                                    "per_page": 20,
+                                    "total": 1
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/featured": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "List featured products",
+                "operationId": "productsFeatured",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/products/trending": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "List products ordered by views",
+                "operationId": "productsTrending",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/products/{id}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Show product details and related products",
+                "operationId": "productsShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/api/products/{id}/reviews": {
+            "get": {
+                "tags": [
+                    "Reviews",
+                    "Products"
+                ],
+                "summary": "List product reviews and rating aggregates",
+                "operationId": "productReviewsIndex",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Reviews",
+                    "Products"
+                ],
+                "summary": "Create or update the authenticated user product review",
+                "operationId": "productReviewsStore",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ReviewRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/suppliers": {
+            "get": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "summary": "Search and filter active suppliers",
+                "operationId": "suppliersIndex",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "verification_status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "verified",
+                                "rejected"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "business_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/suppliers/{id}": {
+            "get": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "summary": "Show supplier details and latest products",
+                "operationId": "suppliersShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/api/suppliers/{id}/products": {
+            "get": {
+                "tags": [
+                    "Suppliers",
+                    "Products"
+                ],
+                "summary": "List paginated supplier products",
+                "operationId": "supplierProducts",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/suppliers/{id}/company-profile": {
+            "get": {
+                "tags": [
+                    "Supplier Company Profile",
+                    "Suppliers"
+                ],
+                "summary": "Show full public supplier company profile",
+                "operationId": "supplierCompanyProfilePublic",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/api/suppliers/{id}/reviews": {
+            "get": {
+                "tags": [
+                    "Reviews",
+                    "Suppliers"
+                ],
+                "summary": "List supplier reviews and rating aggregates",
+                "operationId": "supplierReviewsIndex",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Reviews",
+                    "Suppliers"
+                ],
+                "summary": "Create or update the authenticated user supplier review",
+                "operationId": "supplierReviewsStore",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ReviewRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/nav/menus": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get navigation categories and menu entries",
+                "operationId": "navigationMenus",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/home/banners": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get active homepage banners",
+                "operationId": "homeBanners",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/home/recommendations": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get latest product recommendations",
+                "operationId": "homeRecommendations",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/home/featured-products": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get homepage featured products",
+                "operationId": "homeFeaturedProducts",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/home/trending-products": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get homepage trending products",
+                "operationId": "homeTrendingProducts",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/home/verified-suppliers": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get verified active suppliers",
+                "operationId": "homeVerifiedSuppliers",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/home/trending-keywords": {
+            "get": {
+                "tags": [
+                    "Homepage"
+                ],
+                "summary": "Get active trending keywords",
+                "operationId": "homeTrendingKeywords",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/search/products": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search products",
+                "operationId": "searchProducts",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Ceylon Tea"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/search/suppliers": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search suppliers",
+                "operationId": "searchSuppliers",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Exporter"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    }
+                }
+            }
+        },
+        "/api/search/global": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search products, suppliers and categories",
+                "operationId": "searchGlobal",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Cinnamon"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Global search results",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "products": [],
+                                    "suppliers": [],
+                                    "categories": []
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supplier/company-profile": {
+            "put": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Update the authenticated supplier company profile",
+                "operationId": "supplierCompanyProfileUpdate",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CompanyProfileRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/certificates": {
+            "get": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "List owned supplier certificates",
+                "operationId": "supplierCertificatesIndex",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Add a supplier certificate",
+                "operationId": "supplierCertificatesStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CertificateRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/certificates/{id}": {
+            "delete": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Delete an owned supplier certificate",
+                "operationId": "supplierCertificatesDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/videos": {
+            "get": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "List owned supplier videos",
+                "operationId": "supplierVideosIndex",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Add a supplier YouTube video",
+                "operationId": "supplierVideosStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/VideoRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/videos/{id}": {
+            "delete": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Delete an owned supplier video",
+                "operationId": "supplierVideosDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/strengths": {
+            "get": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "List owned supplier strengths",
+                "operationId": "supplierStrengthsIndex",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Add a supplier strength",
+                "operationId": "supplierStrengthsStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/StrengthRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/strengths/{id}": {
+            "delete": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Delete an owned supplier strength",
+                "operationId": "supplierStrengthsDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/production-capacity": {
+            "get": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Get owned supplier production capacity",
+                "operationId": "supplierProductionCapacityShow",
+                "responses": {
+                    "200": {
+                        "description": "Production capacity",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "production_capacity": {
+                                        "monthly_output": "50,000",
+                                        "output_unit": "Kg",
+                                        "production_lines": 6
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Supplier Company Profile"
+                ],
+                "summary": "Create or update owned supplier production capacity",
+                "operationId": "supplierProductionCapacityUpdate",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ProductionCapacityRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/rfqs": {
+            "get": {
+                "tags": [
+                    "RFQs"
+                ],
+                "summary": "List authenticated buyer RFQs",
+                "operationId": "rfqsIndex",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "RFQs"
+                ],
+                "summary": "Create an RFQ with items",
+                "operationId": "rfqsStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/RFQRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "RFQ created",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "message": "RFQ created successfully.",
+                                    "rfq": {
+                                        "id": 1,
+                                        "rfq_number": "RFQ-2026-000001",
+                                        "status": "open"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/rfqs/{id}": {
+            "get": {
+                "tags": [
+                    "RFQs"
+                ],
+                "summary": "Show an owned RFQ, items and quotation count",
+                "operationId": "rfqsShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "RFQs"
+                ],
+                "summary": "Update an owned open RFQ",
+                "operationId": "rfqsUpdate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/RFQRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "RFQs"
+                ],
+                "summary": "Soft-delete an owned RFQ",
+                "operationId": "rfqsDelete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/rfqs": {
+            "get": {
+                "tags": [
+                    "RFQs"
+                ],
+                "summary": "List open RFQs visible to suppliers",
+                "operationId": "supplierRfqs",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/rfqs/{id}/quotations": {
+            "get": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "List quotations received for an owned RFQ",
+                "operationId": "rfqQuotations",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "RFQ ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "Submit a supplier quotation for an RFQ",
+                "operationId": "quotationsStore",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "RFQ ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/QuotationRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Quotation created",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "quotation": {
+                                        "id": 1,
+                                        "quotation_number": "QT-2026-000001",
+                                        "total_amount": 5250,
+                                        "status": "pending"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/supplier/quotations": {
+            "get": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "List quotations submitted by the authenticated supplier",
+                "operationId": "supplierQuotations",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/quotations/{id}": {
+            "get": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "Show quotation details, RFQ, supplier and items",
+                "operationId": "quotationsShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "Update a pending owned supplier quotation",
+                "operationId": "quotationsUpdate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/QuotationRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/quotations/{id}/accept": {
+            "post": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "Accept a quotation as the RFQ owner",
+                "description": "Accepts the selected quotation, rejects competing quotations and completes the RFQ.",
+                "operationId": "quotationsAccept",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/quotations/{id}/reject": {
+            "post": {
+                "tags": [
+                    "Quotations"
+                ],
+                "summary": "Reject a quotation as the RFQ owner",
+                "operationId": "quotationsReject",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/conversations": {
+            "get": {
+                "tags": [
+                    "Messaging"
+                ],
+                "summary": "List conversations by latest activity",
+                "operationId": "conversationsIndex",
+                "responses": {
+                    "200": {
+                        "description": "Conversation list with latest message and unread count",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "unread_count": 2,
+                                            "last_message_at": "2026-06-24T10:00:00Z"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Messaging"
+                ],
+                "summary": "Create or return an existing conversation",
+                "operationId": "conversationsStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ConversationRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/conversations/{id}": {
+            "get": {
+                "tags": [
+                    "Messaging"
+                ],
+                "summary": "Show a participant conversation and paginated messages",
+                "operationId": "conversationsShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/messages": {
+            "post": {
+                "tags": [
+                    "Messaging"
+                ],
+                "summary": "Send a message in a participant conversation",
+                "operationId": "messagesStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/MessageRequest"
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/Created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/messages/{id}/read": {
+            "put": {
+                "tags": [
+                    "Messaging"
+                ],
+                "summary": "Mark a received message as read",
+                "operationId": "messagesRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "List role-scoped orders",
+                "operationId": "ordersIndex",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "confirmed",
+                                "production",
+                                "shipped",
+                                "completed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Create an order from an accepted quotation",
+                "operationId": "ordersStore",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OrderRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Order created",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "order": {
+                                        "id": 1,
+                                        "order_number": "ORD-2026-000001",
+                                        "status": "pending"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{id}": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Show an accessible order with related records",
+                "operationId": "ordersShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{id}/status": {
+            "put": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Move an order through an allowed status transition",
+                "operationId": "ordersUpdateStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OrderStatusRequest"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationErrorResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiSuccess": {
+                "required": [
+                    "success"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Request completed successfully.",
+                        "nullable": true
+                    }
+                },
+                "type": "object",
+                "example": {
+                    "success": true,
+                    "message": "Request completed successfully."
+                },
+                "additionalProperties": true
+            },
+            "ValidationError": {
+                "required": [
+                    "message",
+                    "errors"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The given data was invalid."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "email": [
+                                "The email field is required."
+                            ]
+                        },
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Nimal Perera"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "buyer@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "buyer",
+                        "enum": [
+                            "admin",
+                            "buyer",
+                            "supplier"
+                        ]
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+94 77 123 4567",
+                        "nullable": true
+                    },
+                    "company_name": {
+                        "type": "string",
+                        "example": "Lanka Imports",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "Sri Lanka",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active",
+                        "enum": [
+                            "active",
+                            "inactive"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "Category": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Ceylon Tea"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "ceylon-tea"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "parent_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active"
+                    }
+                },
+                "type": "object"
+            },
+            "Product": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Pure Ceylon Black Tea"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "pure-ceylon-black-tea"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.25
+                    },
+                    "moq": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "kg"
+                    },
+                    "featured_image": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/Category"
+                    },
+                    "views_count": {
+                        "type": "integer",
+                        "example": 1500
+                    },
+                    "average_rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4.8
+                    },
+                    "reviews_count": {
+                        "type": "integer",
+                        "example": 24
+                    }
+                },
+                "type": "object",
+                "additionalProperties": true
+            },
+            "Supplier": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "company_name": {
+                        "type": "string",
+                        "example": "Lanka Tea Exports"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "lanka-tea-exports"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "Sri Lanka"
+                    },
+                    "business_type": {
+                        "type": "string",
+                        "example": "Manufacturer / Exporter",
+                        "nullable": true
+                    },
+                    "verification_status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "verified",
+                            "rejected"
+                        ]
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4.9
+                    },
+                    "reviews_count": {
+                        "type": "integer",
+                        "example": 35
+                    },
+                    "products_count": {
+                        "type": "integer",
+                        "example": 12
+                    }
+                },
+                "type": "object",
+                "additionalProperties": true
+            },
+            "Pagination": {
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 42
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 3
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "Success": {
+                "description": "Successful JSON response",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ApiSuccess"
+                        }
+                    }
+                }
+            },
+            "Created": {
+                "description": "Resource created",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        },
+                        "example": {
+                            "success": true,
+                            "message": "Resource created successfully."
+                        }
+                    }
+                }
+            },
+            "Unauthorized": {
+                "description": "Missing or invalid Sanctum token",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "success": false,
+                            "message": "Unauthorized"
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "Authenticated user does not have permission",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "success": false,
+                            "message": "Forbidden"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "Resource not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "success": false,
+                            "message": "Resource not found"
+                        }
+                    }
+                }
+            },
+            "ValidationErrorResponse": {
+                "description": "Validation failed",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            }
+        },
+        "requestBodies": {
+            "RegisterRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "name",
+                                "email",
+                                "password",
+                                "password_confirmation"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Nimal Perera"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "example": "nimal@example.com"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "Password123!"
+                                },
+                                "password_confirmation": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "Password123!"
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "example": "buyer",
+                                    "enum": [
+                                        "buyer",
+                                        "supplier"
+                                    ]
+                                },
+                                "phone": {
+                                    "type": "string",
+                                    "example": "+94 77 123 4567"
+                                },
+                                "company_name": {
+                                    "type": "string",
+                                    "example": "Lanka Imports"
+                                },
+                                "country": {
+                                    "type": "string",
+                                    "example": "Sri Lanka"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "LoginRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "email",
+                                "password"
+                            ],
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "example": "buyer@ecomlanka.lk"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "Password123!"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ProfileRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Nimal Perera"
+                                },
+                                "phone": {
+                                    "type": "string",
+                                    "example": "+94 77 123 4567",
+                                    "nullable": true
+                                },
+                                "company_name": {
+                                    "type": "string",
+                                    "example": "Lanka Imports",
+                                    "nullable": true
+                                },
+                                "country": {
+                                    "type": "string",
+                                    "example": "Sri Lanka",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "CartItemRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "product_id",
+                                "quantity"
+                            ],
+                            "properties": {
+                                "product_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "quantity": {
+                                    "type": "number",
+                                    "example": 10,
+                                    "minimum": 1
+                                },
+                                "note": {
+                                    "type": "string",
+                                    "example": "Need FOB Colombo price",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "CartUpdateRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "quantity": {
+                                    "type": "number",
+                                    "example": 20,
+                                    "minimum": 1
+                                },
+                                "note": {
+                                    "type": "string",
+                                    "example": "Include export packaging",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ProductIdRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "product_id"
+                            ],
+                            "properties": {
+                                "product_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "RFQRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "title",
+                                "destination_country",
+                                "items"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "type": "string",
+                                    "example": "Need Ceylon Tea Suppliers"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Export to Dubai"
+                                },
+                                "destination_country": {
+                                    "type": "string",
+                                    "example": "UAE"
+                                },
+                                "expected_delivery_date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2026-08-01"
+                                },
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "product_id": {
+                                                "type": "integer",
+                                                "example": 1,
+                                                "nullable": true
+                                            },
+                                            "product_name": {
+                                                "type": "string",
+                                                "example": "Pure Ceylon Black Tea"
+                                            },
+                                            "quantity": {
+                                                "type": "number",
+                                                "example": 1000
+                                            },
+                                            "unit": {
+                                                "type": "string",
+                                                "example": "kg"
+                                            },
+                                            "specifications": {
+                                                "type": "string",
+                                                "example": "Premium grade",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "QuotationRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "currency",
+                                "items"
+                            ],
+                            "properties": {
+                                "currency": {
+                                    "type": "string",
+                                    "example": "USD"
+                                },
+                                "lead_time": {
+                                    "type": "string",
+                                    "example": "15 days"
+                                },
+                                "payment_terms": {
+                                    "type": "string",
+                                    "example": "30% advance"
+                                },
+                                "shipping_terms": {
+                                    "type": "string",
+                                    "example": "FOB Colombo"
+                                },
+                                "remarks": {
+                                    "type": "string",
+                                    "example": "High quality products",
+                                    "nullable": true
+                                },
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "rfq_item_id": {
+                                                "type": "integer",
+                                                "example": 1,
+                                                "nullable": true
+                                            },
+                                            "product_name": {
+                                                "type": "string",
+                                                "example": "Pure Ceylon Black Tea"
+                                            },
+                                            "quantity": {
+                                                "type": "number",
+                                                "example": 1000
+                                            },
+                                            "unit_price": {
+                                                "type": "number",
+                                                "example": 5.25
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ConversationRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "supplier_id"
+                            ],
+                            "properties": {
+                                "supplier_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "rfq_id": {
+                                    "type": "integer",
+                                    "example": 5,
+                                    "nullable": true
+                                },
+                                "quotation_id": {
+                                    "type": "integer",
+                                    "example": 2,
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "MessageRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "conversation_id",
+                                "message"
+                            ],
+                            "properties": {
+                                "conversation_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "Please send FOB Colombo price."
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "OrderRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "quotation_id"
+                            ],
+                            "properties": {
+                                "quotation_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "OrderStatusRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "status"
+                            ],
+                            "properties": {
+                                "status": {
+                                    "type": "string",
+                                    "example": "confirmed",
+                                    "enum": [
+                                        "confirmed",
+                                        "production",
+                                        "shipped",
+                                        "completed",
+                                        "cancelled"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ReviewRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "rating"
+                            ],
+                            "properties": {
+                                "rating": {
+                                    "type": "integer",
+                                    "example": 5,
+                                    "maximum": 5,
+                                    "minimum": 1
+                                },
+                                "title": {
+                                    "type": "string",
+                                    "example": "Excellent Quality",
+                                    "nullable": true
+                                },
+                                "review": {
+                                    "type": "string",
+                                    "example": "Very good products and packaging.",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "StatusRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "status"
+                            ],
+                            "properties": {
+                                "status": {
+                                    "type": "string",
+                                    "example": "active",
+                                    "enum": [
+                                        "active",
+                                        "inactive"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "VerificationRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "verification_status"
+                            ],
+                            "properties": {
+                                "verification_status": {
+                                    "type": "string",
+                                    "example": "verified",
+                                    "enum": [
+                                        "pending",
+                                        "verified",
+                                        "rejected"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "CompanyProfileRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "company_name": {
+                                    "type": "string",
+                                    "example": "Lanka Tea Exports"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "country": {
+                                    "type": "string",
+                                    "example": "Sri Lanka"
+                                },
+                                "city": {
+                                    "type": "string",
+                                    "example": "Colombo",
+                                    "nullable": true
+                                },
+                                "address": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "phone": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "format": "email"
+                                },
+                                "website": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "nullable": true
+                                },
+                                "business_type": {
+                                    "type": "string",
+                                    "example": "Manufacturer / Exporter",
+                                    "nullable": true
+                                },
+                                "established_year": {
+                                    "type": "integer",
+                                    "example": 2005,
+                                    "nullable": true
+                                },
+                                "employee_count": {
+                                    "type": "integer",
+                                    "example": 80,
+                                    "nullable": true
+                                },
+                                "factory_size": {
+                                    "type": "string",
+                                    "example": "12,000 sqft",
+                                    "nullable": true
+                                },
+                                "annual_revenue": {
+                                    "type": "number",
+                                    "example": 2500000,
+                                    "nullable": true
+                                },
+                                "export_percentage": {
+                                    "type": "number",
+                                    "example": 85,
+                                    "nullable": true
+                                },
+                                "main_markets": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "example": [
+                                        "UAE",
+                                        "Qatar"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "CertificateRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "certificate_name"
+                            ],
+                            "properties": {
+                                "certificate_name": {
+                                    "type": "string",
+                                    "example": "ISO 9001"
+                                },
+                                "certificate_number": {
+                                    "type": "string",
+                                    "example": "ISO-2026-001",
+                                    "nullable": true
+                                },
+                                "issuing_authority": {
+                                    "type": "string",
+                                    "example": "ISO",
+                                    "nullable": true
+                                },
+                                "issue_date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "nullable": true
+                                },
+                                "expiry_date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "nullable": true
+                                },
+                                "file_url": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "VideoRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "title",
+                                "video_url"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "type": "string",
+                                    "example": "Factory Tour"
+                                },
+                                "video_url": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "example": "https://www.youtube.com/watch?v=example"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "StrengthRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "strength_name"
+                            ],
+                            "properties": {
+                                "strength_name": {
+                                    "type": "string",
+                                    "example": "Custom Packaging"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ProductionCapacityRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "monthly_output": {
+                                    "type": "string",
+                                    "example": "50,000",
+                                    "nullable": true
+                                },
+                                "output_unit": {
+                                    "type": "string",
+                                    "example": "Kg",
+                                    "nullable": true
+                                },
+                                "production_lines": {
+                                    "type": "integer",
+                                    "example": 6,
+                                    "nullable": true
+                                },
+                                "lead_time": {
+                                    "type": "string",
+                                    "example": "20 days",
+                                    "nullable": true
+                                },
+                                "factory_size": {
+                                    "type": "string",
+                                    "example": "40,000 sqft",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ImageUploadRequest": {
+                "required": true,
+                "content": {
+                    "multipart/form-data": {
+                        "schema": {
+                            "required": [
+                                "file"
+                            ],
+                            "properties": {
+                                "file": {
+                                    "description": "JPG, JPEG, PNG or WEBP, maximum 5MB.",
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "category": {
+                                    "type": "string",
+                                    "example": "product_image",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "DocumentUploadRequest": {
+                "required": true,
+                "content": {
+                    "multipart/form-data": {
+                        "schema": {
+                            "required": [
+                                "file"
+                            ],
+                            "properties": {
+                                "file": {
+                                    "description": "PDF, DOC, DOCX or XLSX, maximum 20MB.",
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "category": {
+                                    "type": "string",
+                                    "example": "document",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Use the token returned by login or registration.",
+                "bearerFormat": "Sanctum token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health",
+            "description": "API availability"
+        },
+        {
+            "name": "Authentication",
+            "description": "Registration, login and authenticated identity"
+        },
+        {
+            "name": "User",
+            "description": "User profile and dashboard"
+        },
+        {
+            "name": "Categories",
+            "description": "Public export categories"
+        },
+        {
+            "name": "Products",
+            "description": "Public product catalogue"
+        },
+        {
+            "name": "Suppliers",
+            "description": "Public supplier catalogue"
+        },
+        {
+            "name": "Cart",
+            "description": "Authenticated inquiry basket"
+        },
+        {
+            "name": "Wishlist",
+            "description": "Authenticated product wishlist"
+        },
+        {
+            "name": "RFQs",
+            "description": "Buyer requests for quotation"
+        },
+        {
+            "name": "Quotations",
+            "description": "Supplier quotations"
+        },
+        {
+            "name": "Messaging",
+            "description": "Conversations and messages"
+        },
+        {
+            "name": "Homepage",
+            "description": "Homepage and navigation content"
+        },
+        {
+            "name": "Search",
+            "description": "Product, supplier and global search"
+        },
+        {
+            "name": "Uploads",
+            "description": "Image and document uploads"
+        },
+        {
+            "name": "Notifications",
+            "description": "User notifications"
+        },
+        {
+            "name": "Orders",
+            "description": "Order management"
+        },
+        {
+            "name": "Admin",
+            "description": "Administrator management APIs"
+        },
+        {
+            "name": "Supplier Company Profile",
+            "description": "Supplier company details, certificates, videos and capacity"
+        },
+        {
+            "name": "Reviews",
+            "description": "Product and supplier ratings"
+        },
+        {
+            "name": "Analytics",
+            "description": "Administrator analytics dashboards"
+        }
+    ]
+}

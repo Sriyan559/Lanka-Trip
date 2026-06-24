@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Providers;
+
+use App\Events\CatalogCacheInvalidated;
+use App\Jobs\ClearCacheJob;
+use App\Models\Banner;
+use App\Models\Category;
+use App\Models\Message;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductReview;
+use App\Models\Quotation;
+use App\Models\RFQ;
+use App\Models\Supplier;
+use App\Models\SupplierReview;
+use App\Policies\MessagePolicy;
+use App\Policies\OrderPolicy;
+use App\Policies\ProductPolicy;
+use App\Policies\QuotationPolicy;
+use App\Policies\ReviewPolicy;
+use App\Policies\RFQPolicy;
+use App\Policies\SupplierPolicy;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Gate::policy(Product::class, ProductPolicy::class);
+        Gate::policy(Supplier::class, SupplierPolicy::class);
+        Gate::policy(RFQ::class, RFQPolicy::class);
+        Gate::policy(Quotation::class, QuotationPolicy::class);
+        Gate::policy(Order::class, OrderPolicy::class);
+        Gate::policy(Message::class, MessagePolicy::class);
+        Gate::policy(ProductReview::class, ReviewPolicy::class);
+        Gate::policy(SupplierReview::class, ReviewPolicy::class);
+
+        RateLimiter::for('global', fn (Request $request) => Limit::perMinute(120)
+            ->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(5)
+            ->by($request->ip()));
+        RateLimiter::for('search', fn (Request $request) => Limit::perMinute(60)
+            ->by($request->user()?->id ?: $request->ip()));
+
+        Event::listen(
+            CatalogCacheInvalidated::class,
+            fn (CatalogCacheInvalidated $event) => ClearCacheJob::dispatch($event->groups),
+        );
+
+        $this->registerCacheInvalidation(Product::class, ['products', 'suppliers']);
+        $this->registerCacheInvalidation(Category::class, ['categories', 'products']);
+        $this->registerCacheInvalidation(Supplier::class, ['suppliers', 'products']);
+        $this->registerCacheInvalidation(Banner::class, ['banners']);
+    }
+
+    private function registerCacheInvalidation(string $model, array $groups): void
+    {
+        foreach (['created', 'updated', 'deleted'] as $event) {
+            $model::$event(fn () => event(new CatalogCacheInvalidated($groups)));
+        }
+    }
+}

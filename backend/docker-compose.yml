@@ -1,0 +1,101 @@
+services:
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - storage-data:/var/www/html/storage
+    networks:
+      - ecomlanka
+
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - app
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - storage-data:/var/www/html/storage
+    networks:
+      - ecomlanka
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-ecomlanka}
+      MYSQL_USER: ${DB_USERNAME:-ecomlanka}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-secret}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ecomlanka
+
+  redis:
+    image: redis:7.4-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - ecomlanka
+
+  queue:
+    build:
+      context: .
+    command: php artisan queue:work redis --queue=default,notifications,emails --sleep=3 --tries=3 --timeout=90
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - storage-data:/var/www/html/storage
+    restart: unless-stopped
+    networks:
+      - ecomlanka
+
+  horizon:
+    build:
+      context: .
+    command: php artisan horizon
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - storage-data:/var/www/html/storage
+    restart: unless-stopped
+    networks:
+      - ecomlanka
+
+volumes:
+  mysql-data:
+  redis-data:
+  storage-data:
+
+networks:
+  ecomlanka:
+    driver: bridge
