@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\QuotationController;
 use App\Http\Controllers\Api\RFQController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SupplierController;
+use App\Http\Controllers\Api\SupplierProductController;
 use App\Http\Controllers\Api\SupplierProfileController;
 use App\Http\Controllers\Api\SupplierReviewController;
 use App\Http\Controllers\Api\UploadController;
@@ -146,6 +147,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/supplier/company-profile', [SupplierProfileController::class, 'getCompanyProfile']);
     Route::put('/supplier/company-profile', [SupplierProfileController::class, 'updateCompanyProfile']);
+
+    Route::get('/supplier/products', [SupplierProductController::class, 'index']);
+    Route::post('/supplier/products', [SupplierProductController::class, 'store']);
+    Route::get('/supplier/products/{id}', [SupplierProductController::class, 'show'])->whereNumber('id');
+    Route::put('/supplier/products/{id}', [SupplierProductController::class, 'update'])->whereNumber('id');
+    Route::delete('/supplier/products/{id}', [SupplierProductController::class, 'destroy'])->whereNumber('id');
 
     Route::get('/supplier/certificates', [SupplierProfileController::class, 'certificates']);
     Route::post('/supplier/certificates', [SupplierProfileController::class, 'storeCertificate']);

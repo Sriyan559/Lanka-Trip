@@ -179,6 +179,14 @@ export const suppliersApi = {
   products:(id, params)  => api.get(`/suppliers/${id}/products?${new URLSearchParams(params)}`),
 };
 
+export const supplierProductsApi = {
+  list:   (params = {}) => api.get(withQuery('/supplier/products', params)),
+  create: (payload)     => api.post('/supplier/products', payload),
+  get:    (id)          => api.get(`/supplier/products/${id}`),
+  update: (id, payload) => api.put(`/supplier/products/${id}`, payload),
+  delete: (id)          => api.delete(`/supplier/products/${id}`),
+};
+
 // ──────────────────────────────────────────────
 // Cart
 // ──────────────────────────────────────────────

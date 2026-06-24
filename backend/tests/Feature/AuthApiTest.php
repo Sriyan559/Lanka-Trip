@@ -50,6 +50,68 @@ class AuthApiTest extends TestCase
 
         $this->assertTrue(Hash::check('Password123!', $user->password));
         $this->assertDatabaseCount('personal_access_tokens', 1);
+        $this->assertDatabaseCount('suppliers', 0);
+    }
+
+    public function test_supplier_registration_creates_a_pending_supplier_profile(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Saman Exporter',
+            'company' => 'Ceylon Harvest Exports',
+            'email' => 'supplier@example.com',
+            'phone' => '+94 77 555 1212',
+            'country' => 'Sri Lanka',
+            'role' => 'supplier',
+            'password' => base64_encode('Password123!'),
+            'password_confirmation' => base64_encode('Password123!'),
+        ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'supplier')
+            ->assertJsonPath('supplier.company_name', 'Ceylon Harvest Exports')
+            ->assertJsonPath('supplier.slug', 'ceylon-harvest-exports')
+            ->assertJsonPath('supplier.verification_status', 'pending')
+            ->assertJsonPath('supplier.status', 'active')
+            ->assertJsonPath('supplier.is_featured', false);
+
+        $user = User::query()->where('email', 'supplier@example.com')->firstOrFail();
+
+        $this->assertDatabaseHas('suppliers', [
+            'user_id' => $user->id,
+            'company_name' => 'Ceylon Harvest Exports',
+            'slug' => 'ceylon-harvest-exports',
+            'country' => 'Sri Lanka',
+            'email' => 'supplier@example.com',
+            'verification_status' => 'pending',
+            'is_featured' => false,
+            'status' => 'active',
+        ]);
+    }
+
+    public function test_supplier_registration_generates_a_unique_company_slug(): void
+    {
+        $payload = [
+            'name' => 'First Supplier',
+            'company' => 'Ceylon Export Company',
+            'email' => 'first@example.com',
+            'role' => 'supplier',
+            'password' => base64_encode('Password123!'),
+            'password_confirmation' => base64_encode('Password123!'),
+        ];
+
+        $this->postJson('/api/auth/register', $payload)
+            ->assertCreated()
+            ->assertJsonPath('supplier.slug', 'ceylon-export-company');
+
+        $this->postJson('/api/auth/register', [
+            ...$payload,
+            'name' => 'Second Supplier',
+            'email' => 'second@example.com',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('supplier.slug', 'ceylon-export-company-2');
     }
 
     public function test_active_user_can_login_with_a_frontend_encoded_password(): void
