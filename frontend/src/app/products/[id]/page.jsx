@@ -5,125 +5,27 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { Star, BadgeCheck, MapPin, Package, Send, Heart, Share2, ChevronLeft } from 'lucide-react';
-import { productsApi } from '@/lib/api';
-import { useCart } from '@/contexts/CartContext';
+import { Star, BadgeCheck, MapPin, Package, Send, Share2, ChevronLeft, MessageCircle } from 'lucide-react';
+import { conversationsApi, productsApi } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency, starRating } from '@/lib/utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ProductCard from '@/components/product/ProductCard';
-
-// Mock product for dev fallback
-const MOCK_PRODUCT = {
-  id: 1, name: 'Premium Ceylon BOPF Black Tea — 500g Export Pack',
-  price: 12.50, moqUnit: 'Kg', minOrder: 50,
-  rating: 4.8, reviews: 234, verified: true,
-  description: `Our premium BOPF (Broken Orange Pekoe Fannings) Ceylon black tea is sourced from the finest estates in the Nuwara Eliya and Uva regions of Sri Lanka. Known worldwide for its bright, brisk flavour and golden liquor, this tea meets international food safety standards and is suitable for export to all major markets.\n\nAvailable in: 25kg kraft bags, 12.5kg cartons, or custom packaging on request.`,
-  images: [
-    'https://placehold.co/500x500/e8f5e9/155e2c?text=Ceylon+Tea+Pack',
-    'https://placehold.co/500x500/f1f8e9/33691e?text=Tea+Leaves',
-    'https://placehold.co/500x500/e0f2f1/004d40?text=Export+Pack',
-  ],
-  supplier: { id: 1, name: 'Lanka Tea Exports (Pvt) Ltd.', location: 'Colombo, Sri Lanka', rating: 4.9, products: 38, verified: true, since: 2012 },
-  specs: [
-    { label: 'Grade',       value: 'BOPF (Broken Orange Pekoe Fannings)' },
-    { label: 'Origin',      value: 'Nuwara Eliya / Uva, Sri Lanka' },
-    { label: 'Flavour',     value: 'Bright, brisk, golden liquor' },
-    { label: 'Moisture',    value: '≤5%' },
-    { label: 'Packaging',   value: '25kg kraft bag or custom' },
-    { label: 'Shelf Life',  value: '24 months' },
-    { label: 'Cert.',       value: 'ISO 22000, Rainforest Alliance, Fair Trade' },
-    { label: 'HS Code',     value: '0902.30' },
-  ],
-  category: { slug: 'tea-beverages', label: 'Tea & Beverages' },
-};
-
-const MOCK_RELATED = Array.from({ length: 4 }, (_, i) => ({
-  ...MOCK_PRODUCT,
-  id: i + 10,
-  name: ['FBOP Ceylon Tea 250g', 'OP1 Long Leaf Tea 500g', 'Green Tea Organic 200g', 'White Tea Pearl 100g'][i],
-  price: [9, 15, 18, 28][i],
-}));
-
-function normalizeSupplier(product) {
-  const supplierSource = product?.supplier_details || product?.supplier;
-
-  if (supplierSource && typeof supplierSource === 'object') {
-    return {
-      id: supplierSource.id ?? product?.supplier_id ?? null,
-      name: supplierSource.name || supplierSource.company_name || 'Supplier information unavailable',
-      location: supplierSource.location || product?.supplierLocation || '',
-      rating: Number(supplierSource.rating || 0),
-      products: supplierSource.products
-        ?? supplierSource.products_count
-        ?? supplierSource.productsCount
-        ?? null,
-      verified: Boolean(
-        supplierSource.verified
-        || supplierSource.verification_status === 'verified'
-        || product?.verified,
-      ),
-      since: supplierSource.since || supplierSource.established_year || null,
-    };
-  }
-
-  if (typeof supplierSource === 'string' && supplierSource.trim()) {
-    return {
-      id: product?.supplier_id ?? null,
-      name: supplierSource,
-      location: product?.supplierLocation || '',
-      rating: 0,
-      products: null,
-      verified: Boolean(product?.verified),
-      since: null,
-    };
-  }
-
-  return {
-    id: product?.supplier_id ?? null,
-    name: 'Supplier information unavailable',
-    location: product?.supplierLocation || '',
-    rating: 0,
-    products: null,
-    verified: Boolean(product?.verified),
-    since: null,
-  };
-}
-
-function normalizeProduct(product) {
-  if (!product || typeof product !== 'object') return null;
-
-  const supplier = normalizeSupplier(product);
-  const images = Array.isArray(product.images)
-    ? product.images.filter((image) => typeof image === 'string' && image)
-    : [];
-
-  return {
-    ...product,
-    image: product.image || product.featured_image || '',
-    images,
-    minOrder: Number(product.minOrder ?? product.moq ?? 0),
-    moqUnit: product.moqUnit || product.unit || 'Piece',
-    rating: Number(product.rating ?? product.average_rating ?? 0),
-    reviews: Number(product.reviews ?? product.reviews_count ?? 0),
-    verified: supplier.verified,
-    supplier,
-    supplierLocation: supplier.location,
-    category: product.category
-      ? {
-          ...product.category,
-          label: product.category.label || product.category.name || 'Products',
-        }
-      : null,
-  };
-}
+import { normalizeProductDetail } from '@/lib/products';
+import WishlistButton from '@/components/product/WishlistButton';
+import { loginUrlFor } from '@/lib/authRedirect';
+import toast from 'react-hot-toast';
 
 export default function ProductDetailPage() {
   const { id }  = useParams();
   const router  = useRouter();
-  const { addItem } = useCart();
+  const { isAuthenticated, isBuyer } = useAuth();
 
   const [product,   setProduct]   = useState(null);
   const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState('');
+  const [notFound,  setNotFound]  = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [activeImg, setActiveImg] = useState(0);
   const [qty,       setQty]       = useState(1);
   const [tab,       setTab]       = useState('description');
@@ -131,30 +33,58 @@ export default function ProductDetailPage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError('');
+      setNotFound(false);
       try {
         const data = await productsApi.get(id);
-        setProduct(normalizeProduct(data));
-      } catch {
-        setProduct(normalizeProduct({
-          ...MOCK_PRODUCT,
-          related_products: MOCK_RELATED,
-        }));
+        setProduct(normalizeProductDetail(data));
+      } catch (loadError) {
+        setProduct(null);
+        if (loadError.status === 404) setNotFound(true);
+        else setError(loadError.message || 'Could not load this product.');
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [id]);
+  }, [id, reloadKey]);
 
   if (loading) return <><Header /><LoadingSpinner label="Loading product…" /><Footer /></>;
-  if (!product) return <><Header /><div className="p-20 text-center text-gray-400">Product not found.</div><Footer /></>;
+  if (notFound) return <><Header /><div className="p-20 text-center"><h1 className="text-lg font-semibold text-gray-700">Product not found</h1><p className="mt-2 text-sm text-gray-400">This product is unavailable or no longer active.</p></div><Footer /></>;
+  if (error || !product) return <><Header /><div className="p-20 text-center"><h1 className="text-lg font-semibold text-gray-700">Product could not be loaded</h1><p className="mt-2 mb-4 text-sm text-gray-400">{error}</p><button type="button" onClick={() => setReloadKey((value) => value + 1)} className="px-5 py-2 bg-primary-800 text-white text-sm font-semibold rounded-lg">Retry</button></div><Footer /></>;
 
   const stars = starRating(product.rating || 0);
-  const images = product.images?.length ? product.images : [product.image || 'https://placehold.co/500x500/f0fdf4/155e2c?text=Product'];
+  const images = product.images?.length ? product.images : [product.image];
   const supplier = product.supplier;
-  const relatedProducts = (product.related_products || MOCK_RELATED)
-    .map(normalizeProduct)
-    .filter(Boolean);
+  const relatedProducts = product.related_products || [];
+  const specificationRows = [
+    ['Packaging Details', product.packaging_details],
+    ['Supply Ability', product.supply_ability],
+    ['Minimum Order', product.minOrder ? `${product.minOrder} ${product.moqUnit}` : null],
+    ['Unit', product.moqUnit],
+  ].filter(([, value]) => value);
+
+  const handleChat = async () => {
+    if (!isAuthenticated) {
+      router.push(loginUrlFor(`/products/${id}`));
+      return;
+    }
+    if (!isBuyer) {
+      toast.error('Only buyer accounts can start supplier conversations.');
+      return;
+    }
+    if (!product.supplier_id) {
+      toast.error('Supplier information is unavailable for this product.');
+      return;
+    }
+    try {
+      const response = await conversationsApi.create({ supplier_id: product.supplier_id });
+      const conversationId = response?.conversation?.id;
+      router.push(conversationId ? `/messages?id=${conversationId}` : '/messages');
+    } catch (chatError) {
+      toast.error(chatError.message || 'Could not start this conversation.');
+    }
+  };
 
   return (
     <>
@@ -252,7 +182,8 @@ export default function ProductDetailPage() {
               </a>
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1.5"><Heart size={14} /> Wishlist</button>
+              <WishlistButton productId={product.id} showLabel className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1.5" />
+              <button type="button" onClick={handleChat} className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1.5"><MessageCircle size={14} /> Chat Supplier</button>
               <button className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1.5"><Share2 size={14} /> Share</button>
             </div>
 
@@ -302,7 +233,7 @@ export default function ProductDetailPage() {
             {tab === 'specifications' && (
               <table className="w-full text-sm">
                 <tbody className="divide-y divide-gray-50">
-                  {(product.specs || []).map(({ label, value }) => (
+                  {specificationRows.map(([label, value]) => (
                     <tr key={label}>
                       <td className="py-2.5 pr-4 font-medium text-gray-500 w-40">{label}</td>
                       <td className="py-2.5 text-gray-800">{value}</td>
@@ -313,10 +244,10 @@ export default function ProductDetailPage() {
             )}
             {tab === 'shipping' && (
               <div className="space-y-3 text-sm text-gray-600">
-                <p>🚢 Export shipping available to all major ports worldwide.</p>
-                <p>📦 FOB Colombo pricing available. CIF/CNF on request.</p>
-                <p>📄 Export documentation: Certificate of Origin, Phytosanitary cert, Bill of Lading, Commercial Invoice — all provided.</p>
-                <p>⏱️ Lead time: 2–4 weeks after order confirmation.</p>
+                <p><strong>Port:</strong> {product.port || 'Contact supplier for port details.'}</p>
+                <p><strong>Lead time:</strong> {product.lead_time || 'Contact supplier for lead time.'}</p>
+                <p><strong>Packaging:</strong> {product.packaging_details || 'Contact supplier for packaging details.'}</p>
+                <p><strong>Supply ability:</strong> {product.supply_ability || 'Contact supplier for supply availability.'}</p>
                 <p>Contact the supplier via <strong>Request Quote</strong> for specific shipping quotes.</p>
               </div>
             )}
@@ -324,14 +255,14 @@ export default function ProductDetailPage() {
         </div>
 
         {/* ── Related products ── */}
-        <div>
+        {relatedProducts.length > 0 && <div>
           <h2 className="text-base font-bold text-gray-800 mb-4">Related Products</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((relatedProduct) => (
               <ProductCard key={relatedProduct.id || relatedProduct.slug} product={relatedProduct} />
             ))}
           </div>
-        </div>
+        </div>}
       </main>
       <Footer />
     </>

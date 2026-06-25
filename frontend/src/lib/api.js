@@ -23,7 +23,13 @@ const PUBLIC_AUTH_ENDPOINTS = new Set([
 let sessionRedirectStarted = false;
 
 function withQuery(endpoint, params = {}) {
-  const qs = new URLSearchParams(params).toString();
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      query.set(key, String(value));
+    }
+  });
+  const qs = query.toString();
   return `${endpoint}${qs ? `?${qs}` : ''}`;
 }
 
@@ -184,17 +190,13 @@ export const authApi = {
 // Products
 // ──────────────────────────────────────────────
 export const productsApi = {
-  list: (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
-    return api.get(`/products${qs ? `?${qs}` : ''}`);
-  },
+  list:        (params = {}) => api.get(withQuery('/products', params)),
   get:         (id)    => api.get(`/products/${id}`),
-  search:      (q, params = {}) =>
-    api.get(`/products?search=${encodeURIComponent(q)}&${new URLSearchParams(params)}`),
+  search:      (q, params = {}) => api.get(withQuery('/search/products', { ...params, q })),
   featured:    ()      => api.get('/products/featured'),
   trending:    ()      => api.get('/products/trending'),
   byCategory:  (slug, params = {}) =>
-    api.get(`/categories/${slug}/products?${new URLSearchParams(params)}`),
+    api.get(withQuery(`/categories/${slug}/products`, params)),
 };
 
 // ──────────────────────────────────────────────
@@ -209,9 +211,9 @@ export const categoriesApi = {
 // Suppliers
 // ──────────────────────────────────────────────
 export const suppliersApi = {
-  list:    (params = {}) => api.get(`/suppliers?${new URLSearchParams(params)}`),
+  list:    (params = {}) => api.get(withQuery('/suppliers', params)),
   get:     (id)          => api.get(`/suppliers/${id}`),
-  products:(id, params)  => api.get(`/suppliers/${id}/products?${new URLSearchParams(params)}`),
+  products:(id, params = {}) => api.get(withQuery(`/suppliers/${id}/products`, params)),
 };
 
 export const supplierProductsApi = {

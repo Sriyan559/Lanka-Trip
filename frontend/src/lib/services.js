@@ -8,7 +8,7 @@
  * Laravel endpoint mapping is documented per function.
  */
 
-import { api, productsApi, categoriesApi, ordersApi } from './api';
+import { api, productsApi, ordersApi } from './api';
 import { HERO_SLIDES } from './constants';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -63,14 +63,11 @@ export async function getHomeSections() {
   } catch {
     return {
       banners: HERO_SLIDES,
-      featured_products: MOCK_B2B_PRODUCTS.slice(0, 6),
-      recommendations: MOCK_RECOMMENDATIONS,
-      trending_products: MOCK_TRENDING,
+      featured_products: [],
+      recommendations: [],
+      trending_products: [],
       verified_suppliers: [],
-      trending_keywords: MOCK_TRENDING.slice(0, 8).map((item, index) => ({
-        id: index + 1,
-        keyword: item.label,
-      })),
+      trending_keywords: [],
     };
   }
 }
@@ -81,7 +78,7 @@ export async function getTrendingProducts() {
     const data = await productsApi.trending();
     return data.data || data.products || [];
   } catch {
-    return MOCK_TRENDING;
+    return [];
   }
 }
 
@@ -90,7 +87,7 @@ export async function getRecommendations() {
   try {
     return await api.get('/home/recommendations');
   } catch {
-    return MOCK_RECOMMENDATIONS;
+    return [];
   }
 }
 
@@ -105,12 +102,7 @@ export async function getRecommendations() {
  * @param {Object} [params]
  */
 export async function getCategoryProducts(slug, params = {}) {
-  try {
-    const data = await productsApi.byCategory(slug, params);
-    return data;
-  } catch {
-    return { data: MOCK_B2B_PRODUCTS.slice(0, 12), total: 12, last_page: 1 };
-  }
+  return productsApi.byCategory(slug, params);
 }
 
 /**
@@ -119,11 +111,7 @@ export async function getCategoryProducts(slug, params = {}) {
  * @param {string|number} id
  */
 export async function getProductDetails(id) {
-  try {
-    return await productsApi.get(id);
-  } catch {
-    return null;
-  }
+  return productsApi.get(id);
 }
 
 /**
@@ -132,12 +120,7 @@ export async function getProductDetails(id) {
  * @param {Object} params
  */
 export async function searchProducts(params = {}) {
-  try {
-    const data = await productsApi.list(params);
-    return data;
-  } catch {
-    return { data: MOCK_B2B_PRODUCTS, total: MOCK_B2B_PRODUCTS.length, last_page: 2 };
-  }
+  return productsApi.list(params);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

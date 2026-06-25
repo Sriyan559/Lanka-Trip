@@ -11,8 +11,7 @@
  *  - Mobile filter drawer
  *  - Pagination
  *
- * Laravel integration: replaces MOCK_B2B_PRODUCTS with API call
- * via productsApi.list(params) — see /src/lib/api.js
+ * Laravel integration: productsApi.list(params) — see /src/lib/api.js
  */
 
 import { useState, useEffect } from 'react';
@@ -22,21 +21,15 @@ import B2BProductCard from '@/components/product/B2BProductCard';
 import Pagination from '@/components/ui/Pagination';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { productsApi } from '@/lib/api';
-import { MOCK_B2B_PRODUCTS } from '@/lib/services';
-import { SRI_LANKA_CATEGORIES } from '@/lib/constants';
+import { normalizeProductResponse } from '@/lib/products';
+import useCategories from '@/hooks/useCategories';
 
 const SORT_OPTIONS = [
   { value: 'best',       label: 'Best Match' },
   { value: 'newest',     label: 'Newest' },
-  { value: 'top',        label: 'Top Rated' },
+  { value: 'top',        label: 'Most Popular' },
   { value: 'price_asc',  label: 'Price: Low → High' },
   { value: 'price_desc', label: 'Price: High → Low' },
-];
-
-const PRODUCT_TYPES = [
-  { key: 'securedTrading', label: 'Secured Trading Service' },
-  { key: 'sampleAvailable', label: 'Sample Order Available' },
-  { key: 'audited', label: 'Audited Supplier' },
 ];
 
 const MIN_ORDER_OPTIONS = [
@@ -54,20 +47,25 @@ export default function ProductsContent() {
   const category = searchParams.get('category') || '';
   const sort     = searchParams.get('sort')     || 'best';
   const page     = Number(searchParams.get('page') || 1);
+  const urlPriceMin = searchParams.get('price_min') || '';
+  const urlPriceMax = searchParams.get('price_max') || '';
+  const urlMaxOrder = searchParams.get('max_order') || '';
 
   const [products,    setProducts]    = useState([]);
   const [totalPages,  setTotalPages]  = useState(1);
   const [total,       setTotal]       = useState(0);
   const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState('');
+  const [reloadKey,   setReloadKey]   = useState(0);
   const [view,        setView]        = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   /* Filter state */
   const [selCat,      setSelCat]      = useState(category);
-  const [priceMin,    setPriceMin]    = useState('');
-  const [priceMax,    setPriceMax]    = useState('');
-  const [maxOrder,    setMaxOrder]    = useState('');
-  const [typeFilters, setTypeFilters] = useState({ securedTrading: false, sampleAvailable: false, audited: false });
+  const [priceMin,    setPriceMin]    = useState(urlPriceMin);
+  const [priceMax,    setPriceMax]    = useState(urlPriceMax);
+  const [maxOrder,    setMaxOrder]    = useState(urlMaxOrder);
+  const { categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories } = useCategories();
 
   const pushParams = (updates) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -75,7 +73,7 @@ export default function ProductsContent() {
       if (v) p.set(k, v);
       else p.delete(k);
     });
-    p.set('page', '1');
+    if (!Object.prototype.hasOwnProperty.call(updates, 'page')) p.set('page', '1');
     router.push(`/products?${p.toString()}`);
   };
 
@@ -86,49 +84,45 @@ export default function ProductsContent() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError('');
       try {
         const data = await productsApi.list({
-          search: q, category: selCat, sort, page,
-          price_min: priceMin, price_max: priceMax,
-          max_order: maxOrder,
-          audited: typeFilters.audited ? 1 : undefined,
-          secured_trading: typeFilters.securedTrading ? 1 : undefined,
-          sample_available: typeFilters.sampleAvailable ? 1 : undefined,
+          search: q, category, sort, page,
+          price_min: urlPriceMin, price_max: urlPriceMax,
+          max_order: urlMaxOrder,
         });
-        setProducts(data.data || data.products || []);
-        setTotalPages(data.last_page || 1);
-        setTotal(data.total || 0);
-      } catch {
-        // Fallback mock data
-        let filtered = [...MOCK_B2B_PRODUCTS];
-        if (selCat)                        filtered = filtered.filter(p => p.category === selCat);
-        if (typeFilters.audited)           filtered = filtered.filter(p => p.audited);
-        if (typeFilters.securedTrading)    filtered = filtered.filter(p => p.securedTrading);
-        if (typeFilters.sampleAvailable)   filtered = filtered.filter(p => p.sampleAvailable);
-        setProducts(filtered);
-        setTotalPages(Math.ceil(filtered.length / 12) || 1);
-        setTotal(filtered.length);
+        const normalized = normalizeProductResponse(data);
+        setProducts(normalized.data);
+        setTotalPages(normalized.last_page);
+        setTotal(normalized.total);
+      } catch (loadError) {
+        setProducts([]);
+        setTotalPages(1);
+        setTotal(0);
+        setError(loadError.message || 'Could not load products.');
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [selCat, sort, page, q, priceMin, priceMax, maxOrder, typeFilters]);
+  }, [category, sort, page, q, urlPriceMin, urlPriceMax, urlMaxOrder, reloadKey]);
 
-  const toggleType = (key) => {
-    setTypeFilters(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+  useEffect(() => {
+    setSelCat(category);
+    setPriceMin(urlPriceMin);
+    setPriceMax(urlPriceMax);
+    setMaxOrder(urlMaxOrder);
+  }, [category, urlPriceMin, urlPriceMax, urlMaxOrder]);
 
   const clearFilters = () => {
     setSelCat('');
     setPriceMin('');
     setPriceMax('');
     setMaxOrder('');
-    setTypeFilters({ securedTrading: false, sampleAvailable: false, audited: false });
     router.push('/products');
   };
 
-  const hasFilters = selCat || priceMin || priceMax || maxOrder || Object.values(typeFilters).some(Boolean);
+  const hasFilters = category || urlPriceMin || urlPriceMax || urlMaxOrder;
 
   /* ── Filter sidebar content ─────────────────────────── */
   const FilterContent = () => (
@@ -153,16 +147,21 @@ export default function ProductsContent() {
           >
             All Categories
           </button>
-          {SRI_LANKA_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c.slug}
               onClick={() => { setSelCat(c.slug); pushParams({ category: c.slug }); }}
               className={`w-full text-left text-[13px] px-2 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${selCat === c.slug ? 'bg-primary-50 text-primary-800 font-semibold' : 'text-gray-600 hover:bg-gray-50'}`}
             >
-              <span className="text-sm">{c.icon}</span>
               <span className="line-clamp-1 flex-1">{c.label}</span>
             </button>
           ))}
+          {categoriesLoading && <p className="px-2 py-1.5 text-xs text-gray-400">Loading categories…</p>}
+          {categoriesError && (
+            <button type="button" onClick={retryCategories} className="px-2 py-1.5 text-xs text-red-600 hover:underline">
+              Retry categories
+            </button>
+          )}
         </div>
       </div>
 
@@ -177,7 +176,10 @@ export default function ProductsContent() {
                 name="minOrder"
                 value={opt.value}
                 checked={maxOrder === opt.value}
-                onChange={() => setMaxOrder(opt.value)}
+                onChange={() => {
+                  setMaxOrder(opt.value);
+                  pushParams({ max_order: opt.value });
+                }}
                 className="accent-primary-700 w-3.5 h-3.5"
               />
               <span className="text-[13px] text-gray-600">{opt.label}</span>
@@ -214,23 +216,6 @@ export default function ProductsContent() {
         </button>
       </div>
 
-      {/* Product Types */}
-      <div>
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Product Types</div>
-        <div className="space-y-2">
-          {PRODUCT_TYPES.map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-2.5 px-2 py-1 rounded-lg hover:bg-gray-50 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={typeFilters[key]}
-                onChange={() => toggleType(key)}
-                className="w-4 h-4 rounded accent-primary-700 border-gray-300"
-              />
-              <span className="text-[13px] text-gray-700">{label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
     </div>
   );
 
@@ -244,7 +229,7 @@ export default function ProductsContent() {
         {selCat && (
           <>
             <span>/</span>
-            <span className="text-gray-700">{SRI_LANKA_CATEGORIES.find(c => c.slug === selCat)?.label || selCat}</span>
+            <span className="text-gray-700">{categories.find(c => c.slug === selCat)?.label || selCat}</span>
           </>
         )}
         {q && (
@@ -355,7 +340,7 @@ export default function ProductsContent() {
             <div className="flex flex-wrap gap-2 mb-4">
               {selCat && (
                 <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  {SRI_LANKA_CATEGORIES.find(c => c.slug === selCat)?.label || selCat}
+                  {categories.find(c => c.slug === selCat)?.label || selCat}
                   <button onClick={() => { setSelCat(''); pushParams({ category: '' }); }}>
                     <X size={11} />
                   </button>
@@ -369,18 +354,20 @@ export default function ProductsContent() {
                   </button>
                 </span>
               )}
-              {Object.entries(typeFilters).filter(([, v]) => v).map(([k]) => (
-                <span key={k} className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  {PRODUCT_TYPES.find(t => t.key === k)?.label}
-                  <button onClick={() => toggleType(k)}><X size={11} /></button>
-                </span>
-              ))}
             </div>
           )}
 
           {/* Products grid / list */}
           {loading ? (
             <LoadingSpinner label="Finding products…" />
+          ) : error ? (
+            <div className="py-16 text-center">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Products could not be loaded</h3>
+              <p className="text-sm text-gray-400 mb-4">{error}</p>
+              <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="px-6 py-2.5 bg-primary-800 text-white text-sm font-semibold rounded-xl">
+                Retry
+              </button>
+            </div>
           ) : products.length === 0 ? (
             <div className="py-16 text-center">
               <div className="text-5xl mb-4">🔍</div>

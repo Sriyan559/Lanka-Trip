@@ -23,8 +23,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
-import { SRI_LANKA_CATEGORIES, TRENDING_SEARCHES } from '@/lib/constants';
+import { TRENDING_SEARCHES } from '@/lib/constants';
 import { initials } from '@/lib/utils';
+import useCategories from '@/hooks/useCategories';
 
 const SEARCH_TYPES = ['Products', 'Suppliers', 'Companies'];
 
@@ -111,6 +112,7 @@ export default function Header() {
   const router = useRouter();
   const { isAuthenticated, user, logout } = useAuth();
   const { count: cartCount } = useCart();
+  const { categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories } = useCategories();
 
   const [query, setQuery]         = useState('');
   const [searchType, setSearchType] = useState('Products');
@@ -417,17 +419,22 @@ export default function Header() {
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Browse All Categories</span>
               </div>
               <div className="grid grid-cols-2 gap-x-2 px-2">
-                {SRI_LANKA_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <Link
                     key={cat.slug}
                     href={`/categories/${cat.slug}`}
                     onClick={() => setActiveMenu(null)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800 group transition-colors"
                   >
-                    <span className="text-base w-5 text-center">{cat.icon}</span>
                     <span className="flex-1 text-[13px]">{cat.label}</span>
                   </Link>
                 ))}
+                {categoriesLoading && <span className="px-3 py-2 text-xs text-gray-400">Loading categories…</span>}
+                {categoriesError && (
+                  <button type="button" onClick={retryCategories} className="px-3 py-2 text-left text-xs text-red-600 hover:underline">
+                    Retry categories
+                  </button>
+                )}
               </div>
             </div>
           </HoverWrapper>
@@ -621,17 +628,22 @@ export default function Header() {
               </button>
               {mobileCatOpen && (
                 <div className="grid grid-cols-2 gap-1 mt-2 px-1">
-                  {SRI_LANKA_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <Link
                       key={cat.slug}
                       href={`/categories/${cat.slug}`}
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg"
                     >
-                      <span>{cat.icon}</span>
                       <span className="text-xs line-clamp-1">{cat.label}</span>
                     </Link>
                   ))}
+                  {categoriesLoading && <span className="px-3 py-2 text-xs text-gray-400">Loading categories…</span>}
+                  {categoriesError && (
+                    <button type="button" onClick={retryCategories} className="px-3 py-2 text-xs text-red-600 hover:underline">
+                      Retry categories
+                    </button>
+                  )}
                 </div>
               )}
             </div>

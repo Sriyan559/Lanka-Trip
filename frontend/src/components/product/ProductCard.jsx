@@ -2,16 +2,19 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBasket, Heart, Star, BadgeCheck } from 'lucide-react';
+import { ShoppingBasket, Star, BadgeCheck } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency, starRating } from '@/lib/utils';
+import { normalizeProduct } from '@/lib/products';
+import WishlistButton from './WishlistButton';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
+  const normalized = normalizeProduct(product);
   const {
     id, name, price, minOrder, moqUnit = 'Kg', rating = 0,
     reviews = 0, image, supplier, verified = false, slug,
-  } = product;
+  } = normalized;
 
   const supplierName = typeof supplier === 'string'
     ? supplier
@@ -20,7 +23,7 @@ export default function ProductCard({ product }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    addItem(product);
+    addItem(normalized);
   };
 
   return (
@@ -43,13 +46,10 @@ export default function ProductCard({ product }) {
             <BadgeCheck size={10} /> Verified
           </span>
         )}
-        <button
-          onClick={(e) => { e.preventDefault(); }}
-          aria-label="Add to wishlist"
+        <WishlistButton
+          productId={id}
           className="absolute top-2 right-2 w-7 h-7 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-        >
-          <Heart size={14} />
-        </button>
+        />
       </div>
 
       {/* Body */}

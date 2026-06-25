@@ -7,34 +7,16 @@ import B2BProductCard from '@/components/product/B2BProductCard';
 import Pagination from '@/components/ui/Pagination';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { productsApi } from '@/lib/api';
-import { SRI_LANKA_CATEGORIES } from '@/lib/constants';
-import { debounce } from '@/lib/utils';
+import { normalizeProductResponse } from '@/lib/products';
+import useCategories from '@/hooks/useCategories';
 
 const SORT_OPTIONS = [
   { value: 'relevance', label: 'Best Match' },
   { value: 'price_asc', label: 'Price: Low → High' },
   { value: 'price_desc','label': 'Price: High → Low' },
   { value: 'newest',    label: 'Newest First' },
-  { value: 'top',       label: 'Top Rated' },
+  { value: 'top',       label: 'Most Popular' },
 ];
-
-// Placeholder products for when API isn't connected
-const MOCK_PRODUCTS = Array.from({ length: 12 }, (_, i) => ({
-  id: i + 1,
-  name: ['Ceylon Premium Tea 500g', 'Blue Sapphire 2ct', 'Ceylon Cinnamon Sticks 1kg',
-         'Coconut Virgin Oil 1L', 'Hand-woven Batik Sarong', 'Natural Rubber Sheet 5kg',
-         'Ayurvedic Hair Oil 200ml', 'Spiced Black Pepper 250g', 'Handmade Ceramic Vase',
-         'Teak Wood Plank 2m', 'Gem-quality Ruby 1ct', 'Organic Turmeric Powder 500g'][i],
-  price: [12.50, 450, 8.90, 15, 35, 22, 18, 5.50, 45, 120, 380, 6.80][i],
-  moqUnit: ['Kg','ct','Kg','L','Piece','Kg','ml','Kg','Piece','m','ct','Kg'][i],
-  minOrder: [10, 1, 5, 12, 50, 100, 24, 20, 5, 10, 1, 25][i],
-  rating: [4.8, 4.5, 4.9, 4.3, 4.7, 4.2, 4.6, 4.8, 4.4, 4.1, 4.9, 4.5][i],
-  reviews: [234, 89, 412, 156, 78, 203, 91, 347, 62, 45, 127, 289][i],
-  verified: i % 3 === 0,
-  supplier: ['Lanka Tea Co.', 'Gem Palace LK', 'Spice Garden', 'Coco Lanka',
-             'Batik Art', 'Rubber Works', 'Ayur Life', 'Pepper Farm',
-             'Clay Studio', 'Timber Lanka', 'Ruby Mine', 'Turmeric Farm'][i],
-}));
 
 export default function SearchContent() {
   const searchParams = useSearchParams();
@@ -44,48 +26,65 @@ export default function SearchContent() {
   const category = searchParams.get('category') || '';
   const sort     = searchParams.get('sort')     || 'relevance';
   const page     = Number(searchParams.get('page') || 1);
+  const urlPriceMin = searchParams.get('price_min') || '';
+  const urlPriceMax = searchParams.get('price_max') || '';
 
   const [products,   setProducts]   = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [total,      setTotal]      = useState(0);
   const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState('');
+  const [reloadKey,  setReloadKey]  = useState(0);
   const [filtersOpen,setFiltersOpen]= useState(false);
 
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
-  const [verified, setVerified] = useState(false);
+  const [priceMin, setPriceMin] = useState(urlPriceMin);
+  const [priceMax, setPriceMax] = useState(urlPriceMax);
   const [selCat,   setSelCat]   = useState(category);
+  const { categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories } = useCategories();
 
   const updateQuery = useCallback((updates) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([k, v]) => {
       if (v) params.set(k, v); else params.delete(k);
     });
-    params.set('page', '1');
+    if (!Object.prototype.hasOwnProperty.call(updates, 'page')) params.set('page', '1');
     router.push(`/search?${params.toString()}`);
   }, [searchParams, router]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      setError('');
       try {
-        const params = { search: q, category: selCat, sort, page, price_min: priceMin, price_max: priceMax };
-        if (verified) params.verified = 1;
-        const data = await productsApi.search(q, params);
-        setProducts(data.data || data.products || []);
-        setTotalPages(data.last_page || data.totalPages || 1);
-        setTotal(data.total || data.count || 0);
-      } catch {
-        // Fallback to mock data in dev
-        setProducts(MOCK_PRODUCTS);
-        setTotalPages(3);
-        setTotal(36);
+        const data = await productsApi.list({
+          search: q,
+          category,
+          sort,
+          page,
+          price_min: urlPriceMin,
+          price_max: urlPriceMax,
+        });
+        const normalized = normalizeProductResponse(data);
+        setProducts(normalized.data);
+        setTotalPages(normalized.last_page);
+        setTotal(normalized.total);
+      } catch (loadError) {
+        setProducts([]);
+        setTotalPages(1);
+        setTotal(0);
+        setError(loadError.message || 'Could not load search results.');
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, [q, selCat, sort, page, priceMin, priceMax, verified]);
+  }, [q, category, sort, page, urlPriceMin, urlPriceMax, reloadKey]);
+
+  useEffect(() => {
+    setSelCat(category);
+    setPriceMin(urlPriceMin);
+    setPriceMax(urlPriceMax);
+  }, [category, urlPriceMin, urlPriceMax]);
 
   return (
     <div>
@@ -135,15 +134,21 @@ export default function SearchContent() {
                   >
                     All Categories
                   </button>
-                  {SRI_LANKA_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <button
                       key={cat.slug}
                       onClick={() => { setSelCat(cat.slug); updateQuery({ category: cat.slug }); }}
                       className={`block w-full text-left text-sm px-2 py-1 rounded ${selCat === cat.slug ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                      {cat.icon} {cat.label}
+                      {cat.label}
                     </button>
                   ))}
+                  {categoriesLoading && <p className="px-2 py-1 text-xs text-gray-400">Loading categories…</p>}
+                  {categoriesError && (
+                    <button type="button" onClick={retryCategories} className="px-2 py-1 text-xs text-red-600 hover:underline">
+                      Retry categories
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -157,14 +162,14 @@ export default function SearchContent() {
                   <input type="number" placeholder="Max" value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary-400" />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => updateQuery({ price_min: priceMin, price_max: priceMax })}
+                  className="mt-2 w-full py-1.5 bg-primary-800 text-white text-xs font-semibold rounded-lg"
+                >
+                  Apply Price
+                </button>
               </div>
-
-              {/* Verified suppliers */}
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={verified} onChange={(e) => setVerified(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-primary-700 focus:ring-primary-500" />
-                <span className="text-sm text-gray-700">Verified Suppliers Only</span>
-              </label>
             </div>
           </aside>
         )}
@@ -173,6 +178,15 @@ export default function SearchContent() {
         <div className="flex-1 min-w-0">
           {loading ? (
             <LoadingSpinner label="Searching…" />
+          ) : error ? (
+            <div className="text-center py-16">
+              <Search size={40} className="text-gray-200 mx-auto mb-4" />
+              <h3 className="text-gray-600 font-medium">Search results could not be loaded</h3>
+              <p className="text-sm text-gray-400 mt-1 mb-4">{error}</p>
+              <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="px-5 py-2 bg-primary-800 text-white text-sm font-semibold rounded-lg">
+                Retry
+              </button>
+            </div>
           ) : products.length === 0 ? (
             <div className="text-center py-16">
               <Search size={40} className="text-gray-200 mx-auto mb-4" />

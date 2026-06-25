@@ -17,12 +17,22 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle, Heart, Star, BadgeCheck, Shield } from 'lucide-react';
+import { MessageCircle, Star, BadgeCheck } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency } from '@/lib/utils';
+import { normalizeProduct } from '@/lib/products';
+import WishlistButton from './WishlistButton';
+import { conversationsApi } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { loginUrlFor } from '@/lib/authRedirect';
+import toast from 'react-hot-toast';
 
 export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const { addItem } = useCart();
+  const { isAuthenticated, isBuyer } = useAuth();
+  const router = useRouter();
+  const normalized = normalizeProduct(product);
 
   const {
     id, slug, name,
@@ -31,12 +41,8 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
     rating = 0, reviews = 0,
     image,
     supplier, supplierLocation,
-    badges = [],
     audited = false,
-    securedTrading = false,
-    sampleAvailable = false,
-    category,
-  } = product;
+  } = normalized;
 
   const displayUnit = unit || moqUnit || 'Piece';
   const displayPriceMin = priceMin ?? price ?? 0;
@@ -51,7 +57,30 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
 
   const handleInquire = (e) => {
     e.preventDefault();
-    addItem(product);
+    addItem(normalized);
+  };
+
+  const handleChat = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      router.push(loginUrlFor(`${window.location.pathname}${window.location.search}`));
+      return;
+    }
+    if (!isBuyer) {
+      toast.error('Only buyer accounts can start supplier conversations.');
+      return;
+    }
+    if (!normalized.supplier_id) {
+      toast.error('Supplier information is unavailable for this product.');
+      return;
+    }
+    try {
+      const response = await conversationsApi.create({ supplier_id: normalized.supplier_id });
+      const conversationId = response?.conversation?.id;
+      router.push(conversationId ? `/messages?id=${conversationId}` : '/messages');
+    } catch (error) {
+      toast.error(error.message || 'Could not start this conversation.');
+    }
   };
 
   /* ── Grid view (default) ──────────────────────────────── */
@@ -73,13 +102,10 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
               <BadgeCheck size={9} /> Audited
             </span>
           )}
-          <button
-            onClick={(e) => e.preventDefault()}
-            aria-label="Add to wishlist"
+          <WishlistButton
+            productId={id}
             className="absolute top-2 right-2 w-7 h-7 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
-          >
-            <Heart size={13} />
-          </button>
+          />
         </Link>
 
         {/* Body */}
@@ -108,16 +134,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           )}
 
           {/* Badges */}
-          {badges.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {badges.slice(0, 2).map((b) => (
-                <span key={b} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium">
-                  {b}
-                </span>
-              ))}
-            </div>
-          )}
-
           {/* Supplier */}
           {supplierName && (
             <div className="text-[11px] text-gray-500 truncate mb-2 flex items-center gap-1">
@@ -153,13 +169,14 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           >
             Send Inquiry
           </button>
-          <Link
-            href={`/messages?to=${encodeURIComponent(supplierName)}`}
+          <button
+            type="button"
+            onClick={handleChat}
             className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-500 hover:text-primary-700 hover:border-primary-300 transition-colors flex-shrink-0"
             title="Chat with supplier"
           >
             <MessageCircle size={14} />
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -189,26 +206,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
         </Link>
 
         {/* Badges */}
-        {badges.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {badges.map((b) => (
-              <span key={b} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium">
-                {b}
-              </span>
-            ))}
-            {securedTrading && (
-              <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
-                <Shield size={9} /> Secured Trading
-              </span>
-            )}
-            {sampleAvailable && (
-              <span className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-medium">
-                Sample Order
-              </span>
-            )}
-          </div>
-        )}
-
         {/* Supplier */}
         {supplierName && (
           <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
@@ -260,12 +257,13 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           >
             Send Inquiry
           </button>
-          <Link
-            href={`/messages?to=${encodeURIComponent(supplierName)}`}
+          <button
+            type="button"
+            onClick={handleChat}
             className="w-full px-4 py-1.5 border border-gray-200 text-gray-600 hover:text-primary-700 hover:border-primary-300 text-xs rounded-lg transition-colors text-center flex items-center justify-center gap-1"
           >
             <MessageCircle size={12} /> Chat
-          </Link>
+          </button>
         </div>
       </div>
     </div>

@@ -11,12 +11,7 @@ import { formatCurrency } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
-
-const MOCK_WISHLIST = [
-  { id: 101, product: { id: 1, name: 'Premium Ceylon BOPF Black Tea 500g', price: 12.5, featured_image: 'https://placehold.co/160x160/e8f5e9/155e2c?text=Tea' } },
-  { id: 102, product: { id: 4, name: 'Virgin Coconut Oil 5L', price: 15, featured_image: 'https://placehold.co/160x160/fff9c4/f57f17?text=Coconut' } },
-  { id: 103, product: { id: 11, name: 'Blue Sapphire 3ct (Certified)', price: 380, featured_image: 'https://placehold.co/160x160/e8eaf6/1a237e?text=Gem' } },
-];
+import { syncWishlistItems } from '@/components/product/WishlistButton';
 
 function validWishlistItems(items) {
   return Array.isArray(items)
@@ -28,28 +23,34 @@ export default function WishlistPage() {
   const { addItem } = useCart();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError('');
       try {
         const data = await wishlistApi.get();
         setItems(validWishlistItems(data.items));
-      } catch {
-        setItems(MOCK_WISHLIST);
+        syncWishlistItems(data);
+      } catch (loadError) {
+        setItems([]);
+        setError(loadError.message || 'Could not load your wishlist.');
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, []);
+  }, [reloadKey]);
 
   const remove = async (wishlistId) => {
     const previousItems = items;
     setItems((current) => current.filter((wishlist) => wishlist.id !== wishlistId));
 
     try {
-      await wishlistApi.remove(wishlistId);
+      const response = await wishlistApi.remove(wishlistId);
+      syncWishlistItems(response);
       toast.success('Removed from wishlist');
     } catch (error) {
       setItems(previousItems);
@@ -66,6 +67,15 @@ export default function WishlistPage() {
 
         {loading ? (
           <LoadingSpinner />
+        ) : error ? (
+          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+            <Heart size={48} className="text-gray-200 mx-auto mb-3" />
+            <h2 className="text-gray-600 font-medium">Wishlist could not be loaded</h2>
+            <p className="text-sm text-gray-400 mt-1 mb-4">{error}</p>
+            <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="px-5 py-2 bg-primary-800 text-white text-sm font-semibold rounded-lg">
+              Retry
+            </button>
+          </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
             <Heart size={48} className="text-gray-200 mx-auto mb-3" />

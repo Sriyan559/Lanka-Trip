@@ -1,18 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { MOCK_TRENDING } from '@/lib/services';
 
 /**
  * TrendingProducts — "Selected Trending Products" grid section.
  *
  * Data source: GET /api/home/sections
- * Fallback: MOCK_TRENDING from services.js
- *
  * Click → navigates to /categories/[slug] product listing.
  */
 export default function TrendingProducts({ products }) {
-  const items = products ?? MOCK_TRENDING;
+  const items = Array.isArray(products) ? products : [];
 
   if (!items.length) return null;
 

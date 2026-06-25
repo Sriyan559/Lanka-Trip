@@ -19,13 +19,13 @@ import B2BProductCard   from '@/components/product/B2BProductCard';
 import Pagination       from '@/components/ui/Pagination';
 import LoadingSpinner   from '@/components/ui/LoadingSpinner';
 import { productsApi }  from '@/lib/api';
-import { MOCK_B2B_PRODUCTS, MOCK_TRENDING } from '@/lib/services';
-import { SRI_LANKA_CATEGORIES } from '@/lib/constants';
+import { normalizeProductResponse } from '@/lib/products';
+import useCategories from '@/hooks/useCategories';
 
 const SORT_OPTIONS = [
   { value: 'newest',     label: 'Newest' },
   { value: 'best',       label: 'Best Match' },
-  { value: 'top',        label: 'Top Rated' },
+  { value: 'top',        label: 'Most Popular' },
   { value: 'price_asc',  label: 'Price ↑' },
   { value: 'price_desc', label: 'Price ↓' },
 ];
@@ -36,47 +36,63 @@ export default function CategoryContent({ slug }) {
 
   const page = Number(searchParams.get('page') || 1);
   const sort = searchParams.get('sort') || 'newest';
+  const urlPriceMin = searchParams.get('price_min') || '';
+  const urlPriceMax = searchParams.get('price_max') || '';
 
   const [products,    setProducts]    = useState([]);
   const [totalPages,  setTotalPages]  = useState(1);
   const [total,       setTotal]       = useState(0);
   const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState('');
+  const [reloadKey,   setReloadKey]   = useState(0);
   const [view,        setView]        = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [priceMin,    setPriceMin]    = useState('');
-  const [priceMax,    setPriceMax]    = useState('');
-  const [onlyAudited, setOnlyAudited] = useState(false);
-
-  const category = SRI_LANKA_CATEGORIES.find(c => c.slug === slug);
-  const related  = MOCK_TRENDING.slice(0, 6).filter(t => t.slug !== slug);
+  const [priceMin,    setPriceMin]    = useState(urlPriceMin);
+  const [priceMax,    setPriceMax]    = useState(urlPriceMax);
+  const [category,    setCategory]    = useState(null);
+  const { categories, error: categoriesError, retry: retryCategories } = useCategories();
+  const related = categories.filter((item) => item.slug !== slug).slice(0, 6);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError('');
       try {
         const data = await productsApi.byCategory(slug, {
           page, sort,
-          price_min: priceMin || undefined,
-          price_max: priceMax || undefined,
-          audited: onlyAudited ? 1 : undefined,
+          price_min: urlPriceMin,
+          price_max: urlPriceMax,
         });
-        setProducts(data.data || data.products || []);
-        setTotalPages(data.last_page || 1);
-        setTotal(data.total || 0);
-      } catch {
-        // Fallback: use mock products for this category
-        let items = MOCK_B2B_PRODUCTS.filter(p => p.category === slug);
-        if (!items.length) items = MOCK_B2B_PRODUCTS; // show all if no match
-        if (onlyAudited)   items = items.filter(p => p.audited);
-        setProducts(items);
-        setTotalPages(Math.ceil(items.length / 12) || 1);
-        setTotal(items.length);
+        const normalized = normalizeProductResponse(data);
+        setProducts(normalized.data);
+        setTotalPages(normalized.last_page);
+        setTotal(normalized.total);
+        setCategory(data.category || null);
+      } catch (loadError) {
+        setProducts([]);
+        setTotalPages(1);
+        setTotal(0);
+        setCategory(null);
+        setError(loadError.message || 'Could not load this category.');
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [slug, page, sort, priceMin, priceMax, onlyAudited]);
+  }, [slug, page, sort, urlPriceMin, urlPriceMax, reloadKey]);
+
+  useEffect(() => {
+    setPriceMin(urlPriceMin);
+    setPriceMax(urlPriceMax);
+  }, [urlPriceMin, urlPriceMax]);
+
+  const pushFilters = () => {
+    const p = new URLSearchParams(searchParams.toString());
+    if (priceMin) p.set('price_min', priceMin); else p.delete('price_min');
+    if (priceMax) p.set('price_max', priceMax); else p.delete('price_max');
+    p.set('page', '1');
+    router.push(`/categories/${slug}?${p.toString()}`);
+  };
 
   const pushSort = (s) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -123,23 +139,13 @@ export default function CategoryContent({ slug }) {
             className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary-400"
           />
         </div>
-      </div>
-
-      {/* Supplier type */}
-      <div>
-        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Supplier</div>
-        <label className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer">
-          <input
-            type="checkbox" checked={onlyAudited}
-            onChange={e => setOnlyAudited(e.target.checked)}
-            className="w-4 h-4 rounded accent-primary-700"
-          />
-          <span className="text-[13px] text-gray-700">Audited Supplier</span>
-        </label>
+        <button type="button" onClick={pushFilters} className="w-full py-1.5 bg-primary-800 text-white text-xs font-semibold rounded-lg">
+          Apply Price
+        </button>
       </div>
 
       {/* Related categories */}
-      {related.length > 0 && (
+      {(related.length > 0 || categoriesError) && (
         <div>
           <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Related</div>
           <div className="space-y-0.5">
@@ -150,6 +156,11 @@ export default function CategoryContent({ slug }) {
               </a>
             ))}
           </div>
+          {categoriesError && (
+            <button type="button" onClick={retryCategories} className="text-xs text-red-600 hover:underline">
+              Retry categories
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -164,12 +175,11 @@ export default function CategoryContent({ slug }) {
           <span>/</span>
           <a href="/products" className="hover:text-primary-700">Products</a>
           <span>/</span>
-          <span className="text-gray-700">{category?.label || slug}</span>
+          <span className="text-gray-700">{category?.label || category?.name || slug}</span>
         </div>
         <div className="flex items-center gap-3 mt-2 flex-wrap">
-          <span className="text-3xl">{category?.icon}</span>
           <div>
-            <h1 className="text-xl font-bold text-gray-800">{category?.label || slug}</h1>
+            <h1 className="text-xl font-bold text-gray-800">{category?.label || category?.name || slug}</h1>
             {total > 0 && (
               <p className="text-sm text-gray-400 mt-0.5">{total.toLocaleString()} products available</p>
             )}
@@ -247,9 +257,17 @@ export default function CategoryContent({ slug }) {
 
           {loading ? (
             <LoadingSpinner label="Loading products…" />
+          ) : error ? (
+            <div className="py-16 text-center">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Category could not be loaded</h3>
+              <p className="text-sm text-gray-400 mb-4">{error}</p>
+              <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="px-6 py-2.5 bg-primary-800 text-white text-sm font-semibold rounded-xl">
+                Retry
+              </button>
+            </div>
           ) : products.length === 0 ? (
             <div className="py-16 text-center">
-              <div className="text-5xl mb-4">{category?.icon || '📦'}</div>
+              <div className="text-5xl mb-4">📦</div>
               <h3 className="text-lg font-semibold text-gray-700 mb-2">No products in this category yet</h3>
               <p className="text-sm text-gray-400 mb-4">Be the first supplier to list here, or post an RFQ.</p>
               <a href="/rfq"
