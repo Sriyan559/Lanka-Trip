@@ -133,3 +133,37 @@ export async function createOrder(quotationId) {
 export async function getOrder(id) {
   return await ordersApi.get(id);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Inquiries
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/inquiries
+ * Sends a buyer inquiry about one specific product to its supplier.
+ * @param {Object} payload
+ * @param {string|number} payload.product_id
+ * @param {number|string} [payload.quantity]
+ * @param {string} payload.unit
+ * @param {string} payload.content
+ * @param {string} payload.email
+ * @param {File[]} [payload.attachments]
+ */
+export async function sendInquiry(payload) {
+  const hasFiles = payload.attachments?.length > 0;
+
+  if (hasFiles) {
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => {
+      if (key === 'attachments') {
+        value.forEach((file) => formData.append('attachments[]', file));
+      } else if (value !== undefined && value !== null && value !== '') {
+        formData.append(key, value);
+      }
+    });
+    return await api.post('/inquiries', formData);
+  }
+
+  return await api.post('/inquiries', payload);
+}
+

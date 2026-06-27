@@ -11,6 +11,13 @@ const PROTECTED = [
   '/profile',
   '/settings',
   '/messages',
+  '/checkout',
+  '/order-success',
+  '/notifications',
+  '/quotations',
+  '/compare',
+  '/supplier-dashboard',
+  '/company-verification',
 ];
 
 // Routes that should redirect authenticated users away (login/register)
