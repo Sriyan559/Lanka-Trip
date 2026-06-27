@@ -331,6 +331,7 @@ export const supplierProfileApi = {
   deleteVideo:               (id)      => api.delete(`/supplier/videos/${id}`),
   listStrengths:             ()        => api.get('/supplier/strengths'),
   createStrength:            (payload) => api.post('/supplier/strengths', payload),
+  updateStrength:            (id, payload) => api.put(`/supplier/strengths/${id}`, payload),
   deleteStrength:            (id)      => api.delete(`/supplier/strengths/${id}`),
   getProductionCapacity:     ()        => api.get('/supplier/production-capacity'),
   updateProductionCapacity:  (payload) =>

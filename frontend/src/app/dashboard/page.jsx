@@ -23,6 +23,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Pagination from '@/components/ui/Pagination';
+import SupplierProductsManager from '@/components/supplier/SupplierProductsManager';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   conversationsApi,
@@ -829,43 +830,7 @@ function DashboardContent() {
         )}
 
         {activeTab === 'products' && isSupplier && (
-          <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="font-semibold text-gray-800">My Products</h2>
-                <p className="text-xs text-gray-400 mt-1">{productMeta.total} total products</p>
-              </div>
-            </div>
-            <ModuleError title="Products unavailable" message={errors.products} onRetry={retry} />
-            {!errors.products && products.length === 0 ? (
-              <EmptyState icon={Boxes} title="No supplier products listed yet" />
-            ) : (
-              <div className="divide-y divide-gray-50 mt-3">
-                {products.map((product) => (
-                  <div key={product.id} className="py-3 flex items-center gap-3">
-                    <Image
-                      src={product.featured_image || 'https://placehold.co/80x80/f0fdf4/155e2c?text=Product'}
-                      alt={product.name || 'Product'}
-                      width={56}
-                      height={56}
-                      unoptimized
-                      className="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <Link href={`/products/${product.id}`} className="text-sm font-medium text-gray-800 hover:text-primary-700 truncate block">
-                        {product.name || 'Product'}
-                      </Link>
-                      <div className="text-xs text-gray-400 mt-1">
-                        MOQ {product.moq ?? '—'} {product.unit || ''} · {formatCurrency(product.price)}
-                      </div>
-                    </div>
-                    <StatusBadge status={product.status} />
-                  </div>
-                ))}
-              </div>
-            )}
-            <Pagination currentPage={productMeta.currentPage} totalPages={productMeta.lastPage} onPageChange={(page) => changePage('products', page)} />
-          </section>
+          <SupplierProductsManager onChanged={retry} />
         )}
 
         {activeTab === 'analytics' && (

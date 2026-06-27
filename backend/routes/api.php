@@ -170,6 +170,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/supplier/strengths', [SupplierProfileController::class, 'strengths']);
     Route::post('/supplier/strengths', [SupplierProfileController::class, 'storeStrength']);
+    Route::put('/supplier/strengths/{id}', [SupplierProfileController::class, 'updateStrength'])->whereNumber('id');
     Route::delete('/supplier/strengths/{id}', [SupplierProfileController::class, 'deleteStrength'])->whereNumber('id');
 
     Route::get('/supplier/production-capacity', [SupplierProfileController::class, 'productionCapacity']);

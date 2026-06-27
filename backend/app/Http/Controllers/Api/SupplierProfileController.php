@@ -200,6 +200,20 @@ class SupplierProfileController extends Controller
         ], 'Strength added successfully.', Response::HTTP_CREATED);
     }
 
+    public function updateStrength(StoreSupplierStrengthRequest $request, int $id): JsonResponse
+    {
+        $supplier = $this->ownedSupplier($request);
+        $strength = SupplierStrength::query()
+            ->where('supplier_id', $supplier->id)
+            ->findOrFail($id);
+
+        $strength->update($request->validated());
+
+        return $this->successResponse([
+            'strength' => SupplierStrengthResource::make($strength->refresh())->resolve($request),
+        ], 'Strength updated successfully.');
+    }
+
     public function deleteStrength(Request $request, int $id): JsonResponse
     {
         $supplier = $this->ownedSupplier($request);

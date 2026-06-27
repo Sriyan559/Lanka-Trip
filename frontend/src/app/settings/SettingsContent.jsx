@@ -1,19 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Lock, User } from 'lucide-react';
+import { Lock, Store, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { userApi } from '@/lib/api';
 import { initials } from '@/lib/utils';
+import SupplierProfileManager from '@/components/supplier/SupplierProfileManager';
 import toast from 'react-hot-toast';
 
-const TABS = [
+const BASE_TABS = [
   { key: 'profile', label: 'Profile', icon: User },
   { key: 'security', label: 'Security', icon: Lock },
 ];
 
 export default function SettingsContent() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, isSupplier } = useAuth();
   const [tab, setTab] = useState('profile');
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
@@ -31,6 +32,9 @@ export default function SettingsContent() {
 
   const inputClass = 'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-400';
   const labelClass = 'block text-sm font-medium text-gray-700 mb-1';
+  const tabs = isSupplier
+    ? [...BASE_TABS, { key: 'supplier', label: 'Supplier Profile', icon: Store }]
+    : BASE_TABS;
 
   useEffect(() => {
     if (!user) return;
@@ -98,7 +102,7 @@ export default function SettingsContent() {
     <div className="flex flex-col lg:flex-row gap-6">
       <aside className="w-full lg:w-56 flex-shrink-0">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-2 lg:sticky lg:top-20 flex lg:flex-col overflow-x-auto">
-          {TABS.map(({ key, label, icon: Icon }) => (
+          {tabs.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               type="button"
@@ -240,6 +244,10 @@ export default function SettingsContent() {
               {savingPassword ? 'Updating…' : 'Update Password'}
             </button>
           </form>
+        )}
+
+        {tab === 'supplier' && isSupplier && (
+          <SupplierProfileManager />
         )}
       </div>
     </div>
