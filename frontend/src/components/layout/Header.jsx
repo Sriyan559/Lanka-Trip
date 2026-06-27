@@ -20,9 +20,12 @@ import {
   ChevronDown, Menu, X, User, LogOut, Package, Heart,
   FileText, Settings, Globe, Shield, Phone, HelpCircle,
   Smartphone, LayoutGrid, Star, BarChart2, BadgeCheck,
+  Bell,
 } from 'lucide-react';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { notificationsApi } from '@/lib/api';
 import { TRENDING_SEARCHES } from '@/lib/constants';
 import { initials } from '@/lib/utils';
 import useCategories from '@/hooks/useCategories';
@@ -46,7 +49,7 @@ const SUPPLIER_MENU = {
         { label: 'Supplier Dashboard',   href: '/dashboard',               icon: BarChart2 },
         { label: 'Manage Products',      href: '/dashboard?tab=products',  icon: Package },
         { label: 'Trade Analytics',      href: '/dashboard?tab=analytics', icon: BarChart2 },
-        { label: 'Payment & Invoices',   href: '/dashboard?tab=payments',  icon: Shield },
+        { label: 'Orders & Payments',    href: '/dashboard?tab=orders',    icon: Shield },
       ],
     },
     {
@@ -68,7 +71,7 @@ const BUYER_MENU = {
       heading: 'Service',
       links: [
         { label: 'New Buyer Guide',          href: '/guide/buyer' },
-        { label: 'Audited Supplier Reports', href: '/suppliers?audited=1' },
+        { label: 'Verified Supplier Reports', href: '/suppliers?verified=1' },
         { label: 'Meet Suppliers',           href: '/suppliers' },
         { label: 'Secured Trading',          href: '/secured-trading' },
         { label: 'Buyer Centre',             href: '/buyer-centre' },
@@ -120,6 +123,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); // 'categories'|'supplier'|'buyer'|'help'|'apps'|'user'|'lang'
   const [mobileCatOpen, setMobileCatOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const closeTimerRef = useRef(null);
   const typeRef = useRef(null);
@@ -151,6 +155,40 @@ export default function Header() {
     setActiveMenu(null);
     setMobileOpen(false);
   }, [router]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!isAuthenticated) {
+      setUnreadNotifications(0);
+      return undefined;
+    }
+
+    const loadUnread = async () => {
+      try {
+        const response = await notificationsApi.list({ per_page: 1 });
+        if (!cancelled) {
+          setUnreadNotifications(Number(response?.unread_count || 0));
+        }
+      } catch {
+        if (!cancelled) setUnreadNotifications(0);
+      }
+    };
+
+    loadUnread();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const syncUnread = (event) => {
+      setUnreadNotifications(Number(event.detail?.count || 0));
+    };
+
+    window.addEventListener('notifications:unread', syncUnread);
+    return () => window.removeEventListener('notifications:unread', syncUnread);
+  }, []);
 
   const handleSearch = (e) => {
     e?.preventDefault();
@@ -272,6 +310,28 @@ export default function Header() {
               <MessageSquare size={19} />
               <span className="text-[10px] whitespace-nowrap">Messages</span>
             </Link>
+
+            {/* Notifications */}
+            {isAuthenticated && (
+              <HoverWrapper
+                name="notifications"
+                trigger={
+                  <button className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-gray-600 hover:text-primary-700 hover:bg-gray-50 rounded-lg transition-colors relative">
+                    <span className="relative">
+                      <Bell size={19} />
+                      {unreadNotifications > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
+                          {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[10px] whitespace-nowrap">Alerts</span>
+                  </button>
+                }
+              >
+                <NotificationCenter compact pageSize={8} />
+              </HoverWrapper>
+            )}
 
             {/* Cart */}
             <Link href="/cart" className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-gray-600 hover:text-primary-700 hover:bg-gray-50 rounded-lg transition-colors relative">
@@ -538,8 +598,8 @@ export default function Header() {
                   <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Download App</div>
                 </div>
                 {[
-                  { label: 'iOS App',     sub: 'App Store',    icon: '🍎', href: '#' },
-                  { label: 'Android App', sub: 'Google Play',  icon: '▶',  href: '#' },
+                  { label: 'iOS App',     sub: 'App Store',    icon: '🍎', href: '/apps' },
+                  { label: 'Android App', sub: 'Google Play',  icon: '▶',  href: '/apps' },
                 ].map(({ label, sub, icon, href }) => (
                   <Link key={label} href={href} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 group">
                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-lg">{icon}</div>
@@ -589,6 +649,7 @@ export default function Header() {
                 </div>
                 {[
                   { label: 'Dashboard', href: '/dashboard' },
+                  { label: 'Notifications', href: '/notifications' },
                   { label: 'My Orders', href: '/orders' },
                   { label: 'Wishlist',  href: '/wishlist' },
                   { label: 'My RFQs',  href: '/rfq' },

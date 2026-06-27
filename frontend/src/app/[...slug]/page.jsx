@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
@@ -279,12 +280,82 @@ const PAGE_CONTENT = {
       'Saved address information',
     ],
   },
+  apps: {
+    title: 'EcomLanka Apps',
+    eyebrow: 'Mobile',
+    summary: 'Mobile app distribution is being prepared. Use the responsive web marketplace for the full buyer and supplier workflow today.',
+    bullets: [
+      'Browse products and suppliers',
+      'Manage RFQs and quotations',
+      'Track orders and messages',
+      'Receive account notifications',
+    ],
+  },
+  history: {
+    title: 'Browsing History',
+    eyebrow: 'Account',
+    summary: 'Browsing history is not currently stored. Use wishlist to save products you want to revisit.',
+    bullets: [
+      'Save products to wishlist',
+      'Compare supplier profiles',
+      'Return to recent RFQs from your dashboard',
+      'Manage conversations from messages',
+    ],
+  },
+  pricing: {
+    title: 'Pricing & Membership',
+    eyebrow: 'Suppliers',
+    summary: 'Supplier membership options are managed through account onboarding and verification.',
+    bullets: [
+      'Free supplier registration',
+      'Company profile setup',
+      'Product listing management',
+      'Verification review support',
+    ],
+  },
+  'verified-supplier': {
+    title: 'Verified Supplier Badge',
+    eyebrow: 'Trust',
+    summary: 'Verified supplier status is awarded after marketplace review of company details and supporting documents.',
+    bullets: [
+      'Complete company profile',
+      'Add certificates and production details',
+      'Keep product catalog accurate',
+      'Respond promptly to RFQs',
+    ],
+  },
+  'buyer-centre': {
+    title: 'Buyer Centre',
+    eyebrow: 'Sourcing',
+    summary: 'Use buyer tools to discover products, submit RFQs, compare quotations, and create orders from accepted quotations.',
+    bullets: [
+      'Browse product listings',
+      'Post sourcing RFQs',
+      'Review supplier quotations',
+      'Create orders from accepted quotations',
+    ],
+  },
+  'trade-shows': {
+    title: 'Trade Shows',
+    eyebrow: 'Events',
+    summary: 'Explore export-focused events and marketplace trade promotion opportunities.',
+    bullets: [
+      'Industry exhibitions',
+      'Supplier showcases',
+      'Buyer networking',
+      'Export promotion programs',
+    ],
+  },
 };
 
 export default function GenericContentPage({ params }) {
   const slug = Array.isArray(params?.slug) ? params.slug.join('/') : params?.slug;
   const pageKey = slug?.split('/')[0];
-  const content = PAGE_CONTENT[pageKey] || PAGE_CONTENT.about;
+  const content = PAGE_CONTENT[slug] || PAGE_CONTENT[pageKey];
+
+  if (!content) {
+    notFound();
+  }
 
   return (
     <>

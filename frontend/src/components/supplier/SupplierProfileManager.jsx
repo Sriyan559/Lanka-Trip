@@ -12,12 +12,12 @@ import {
   Plus,
   RefreshCw,
   Trash2,
-  Upload,
   Video,
   Wrench,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { supplierProfileApi, uploadApi } from '@/lib/api';
+import FileUploadField from '@/components/ui/FileUploadField';
+import { supplierProfileApi } from '@/lib/api';
 
 const emptyCompanyForm = {
   company_name: '',
@@ -141,58 +141,6 @@ function FieldError({ errors, field }) {
   if (!message) return null;
 
   return <p className="mt-1 text-xs text-red-600">{message}</p>;
-}
-
-function UploadDocumentButton({ onUploaded, disabled }) {
-  const [uploading, setUploading] = useState(false);
-
-  const handleFile = async (event) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      toast.error('Use a PDF, DOC, DOCX, or XLSX certificate file.');
-      return;
-    }
-
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error('Certificate documents must be 20MB or smaller.');
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const upload = await uploadApi.uploadDocument(file, 'supplier_certificate');
-      onUploaded(upload.url || upload.file_url || upload.path || '');
-      toast.success('Certificate document uploaded.');
-    } catch (error) {
-      toast.error(error.message || 'Upload failed. Please retry.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <label className={`inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 ${disabled || uploading ? 'opacity-60 pointer-events-none' : 'cursor-pointer'}`}>
-      {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-      {uploading ? 'Uploading…' : 'Upload document'}
-      <input
-        type="file"
-        accept=".pdf,.doc,.docx,.xlsx"
-        className="hidden"
-        disabled={disabled || uploading}
-        onChange={handleFile}
-      />
-    </label>
-  );
 }
 
 export default function SupplierProfileManager() {
@@ -506,8 +454,12 @@ export default function SupplierProfileManager() {
               <FieldError errors={validation} field={field} />
             </div>
           ))}
-          <div className="md:col-span-2 flex flex-wrap gap-2">
-            <UploadDocumentButton
+          <div className="md:col-span-2 space-y-3">
+            <FileUploadField
+              kind="document"
+              category="supplier_certificate"
+              label="Upload certificate document"
+              value={certificateForm.file_url}
               disabled={saving === 'certificate'}
               onUploaded={(url) => setCertificateForm((current) => ({ ...current, file_url: url }))}
             />

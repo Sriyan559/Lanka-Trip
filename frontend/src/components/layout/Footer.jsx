@@ -44,13 +44,13 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-500">Free App:</span>
             <a
-              href="#"
+              href="/apps"
               className="flex items-center gap-1.5 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-gray-700"
             >
               🍎 App Store
             </a>
             <a
-              href="#"
+              href="/apps"
               className="flex items-center gap-1.5 bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-green-600"
             >
               ▶ Google Play
@@ -60,16 +60,18 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-500">Follow Us:</span>
             {[
-              { Icon: Facebook, href: '#', label: 'Facebook' },
-              { Icon: Twitter,  href: '#', label: 'Twitter'  },
-              { Icon: Instagram,href: '#', label: 'Instagram'},
-              { Icon: Youtube,  href: '#', label: 'YouTube'  },
-              { Icon: Linkedin, href: '#', label: 'LinkedIn' },
+              { Icon: Facebook, href: 'https://www.facebook.com/', label: 'Facebook' },
+              { Icon: Twitter,  href: 'https://x.com/', label: 'Twitter'  },
+              { Icon: Instagram,href: 'https://www.instagram.com/', label: 'Instagram'},
+              { Icon: Youtube,  href: 'https://www.youtube.com/', label: 'YouTube'  },
+              { Icon: Linkedin, href: 'https://www.linkedin.com/', label: 'LinkedIn' },
             ].map(({ Icon, href, label }) => (
               <a
                 key={label}
                 href={href}
                 aria-label={label}
+                target="_blank"
+                rel="noreferrer"
                 className="w-7 h-7 flex items-center justify-center rounded bg-gray-200 text-gray-600 hover:bg-primary-800 hover:text-white transition-colors"
               >
                 <Icon size={14} />

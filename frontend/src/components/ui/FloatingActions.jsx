@@ -45,7 +45,7 @@ export default function FloatingActions() {
 
       {/* App */}
       <Link
-        href="#"
+        href="/apps"
         className="flex flex-col items-center justify-center w-12 h-12 bg-white hover:bg-gray-50 text-gray-600 rounded-xl shadow-lg border border-gray-200 transition-all hover:scale-105"
         title="Download App"
       >
@@ -55,6 +55,7 @@ export default function FloatingActions() {
 
       {/* Back to top */}
       <button
+        type="button"
         onClick={scrollTop}
         className="flex flex-col items-center justify-center w-12 h-12 bg-primary-800 hover:bg-primary-700 text-white rounded-xl shadow-lg transition-all hover:scale-105"
         title="Back to top"

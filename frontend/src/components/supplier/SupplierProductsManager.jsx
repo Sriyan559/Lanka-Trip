@@ -6,10 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   Edit3,
-  ImagePlus,
   Loader2,
   PackagePlus,
-  Plus,
   RefreshCw,
   Search,
   Trash2,
@@ -17,7 +15,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Pagination from '@/components/ui/Pagination';
-import { categoriesApi, supplierProductsApi, uploadApi } from '@/lib/api';
+import FileUploadField from '@/components/ui/FileUploadField';
+import { categoriesApi, supplierProductsApi } from '@/lib/api';
 import { FALLBACK_PRODUCT_IMAGE, normalizeProductResponse, normalizeProducts } from '@/lib/products';
 import { formatCurrency } from '@/lib/utils';
 
@@ -106,7 +105,6 @@ export default function SupplierProductsManager({ onChanged }) {
   const [validation, setValidation] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -230,37 +228,6 @@ export default function SupplierProductsManager({ onChanged }) {
       toast.error(deleteError.message || 'Could not delete product.');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const uploadFeaturedImage = async (event) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error('Use a JPG, PNG, or WebP product image.');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Product images must be 5MB or smaller.');
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const upload = await uploadApi.uploadImage(file, 'product_image');
-      setForm((current) => ({
-        ...current,
-        featured_image: upload.url || upload.file_url || upload.path || current.featured_image,
-      }));
-      toast.success('Featured image uploaded.');
-    } catch (uploadError) {
-      toast.error(uploadError.message || 'Upload failed. Please retry.');
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -391,19 +358,20 @@ export default function SupplierProductsManager({ onChanged }) {
             </div>
             <div className="md:col-span-2">
               <label className={labelClass}>Featured Image</label>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input className={inputClass} value={form.featured_image} onChange={(event) => setForm((current) => ({ ...current, featured_image: event.target.value }))} />
-                <label className={`inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 ${uploading ? 'opacity-60 pointer-events-none' : 'cursor-pointer'}`}>
-                  {uploading ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
-                  {uploading ? 'Uploading…' : 'Upload'}
-                  <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={uploadFeaturedImage} disabled={uploading} />
-                </label>
-              </div>
+              <input className={`${inputClass} mb-3`} value={form.featured_image} onChange={(event) => setForm((current) => ({ ...current, featured_image: event.target.value }))} />
+              <FileUploadField
+                kind="image"
+                category="product_image"
+                label="Upload featured image"
+                value={form.featured_image}
+                disabled={saving}
+                onUploaded={(url) => setForm((current) => ({ ...current, featured_image: url }))}
+              />
               <FieldError errors={validation} field="featured_image" />
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-5">
-            <button type="submit" disabled={saving || uploading} className="px-5 py-2.5 bg-primary-800 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl disabled:opacity-60">
+            <button type="submit" disabled={saving} className="px-5 py-2.5 bg-primary-800 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl disabled:opacity-60">
               {saving ? 'Saving…' : editingProduct ? 'Update Product' : 'Create Product'}
             </button>
             <button type="button" onClick={resetForm} className="px-5 py-2.5 border border-gray-200 text-sm rounded-xl">
