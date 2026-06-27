@@ -18,6 +18,11 @@ class TrendingKeywordSeeder extends Seeder
             'Rubber Gloves',
             'Ayurvedic Oil',
             'Gem Stones',
+            'Apparel Fabric',
+            'Mixed Spices',
+            'Handmade Gifts',
+            'Export Software',
+            'Filling Machine',
         ];
 
         foreach ($keywords as $index => $keyword) {
