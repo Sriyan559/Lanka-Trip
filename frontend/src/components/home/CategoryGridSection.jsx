@@ -84,13 +84,13 @@ export default function CategoryGridSection({ section }) {
         <div className="flex-1 grid grid-cols-4 divide-x divide-y divide-gray-100">
           {items.slice(0, 8).map((item) => (
             <Link
-              key={item.slug}
-              href={`/categories/${item.slug}`}
+              key={item.id || item.slug || item.label}
+              href={item.href || `/categories/${item.slug}`}
               className="flex flex-col items-center justify-center gap-2 p-3 hover:bg-primary-50 group transition-colors"
             >
               <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-200 transition-colors flex-shrink-0">
                 <Image
-                  src={item.image}
+                  src={item.image || `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent((item.label || 'Product').slice(0, 16))}`}
                   alt={item.label}
                   width={80}
                   height={80}

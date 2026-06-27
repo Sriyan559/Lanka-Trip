@@ -142,3 +142,29 @@ Also skipped non-source files from the UI/UX folder:
 
 - Pre-existing untracked file `backend/package-lock.json` was present before the merge. It was not created by this work and should not be staged for this UI/UX commit.
 - This branch intentionally does not merge into `integration`; it is ready for review after push.
+
+## Homepage UI mismatch fixed
+
+### Issue
+
+The target project homepage had drifted from the source UI/UX composition. The target still preserved the Laravel `GET /home/sections` integration, but the middle homepage area had been changed to API-specific product-card/supplier sections instead of the source homepage's marketplace-style category grid sections.
+
+### Root cause
+
+- Source homepage design uses `CategoryGridSection` blocks after the trending product grid.
+- Target homepage had replaced those source-style blocks with `HomeProductSection` and `VerifiedSuppliers`.
+- A blind copy from the source project would have removed Laravel API integration because the source homepage still uses mock section data.
+
+### Fix applied
+
+- Restored source-style `CategoryGridSection` blocks on the target homepage.
+- Preserved target backend integration by mapping Laravel homepage data into those UI blocks:
+  - `featured_products` → Featured Export Products
+  - `trending_products` → Trending Marketplace Picks
+  - `recommendations` → Recommended for You
+- Updated `CategoryGridSection` to support explicit product links through `item.href`, so backend products navigate to `/products/{id}` instead of being forced into category routes.
+- Kept homepage header, hero, category sidebar, recommendations rail, trending keywords, RFQ/easy sourcing, sourcing solutions, trade shows, footer, notifications/auth/session logic, and floating actions intact.
+
+### API logic preserved
+
+Yes. The target homepage still calls `getHomeSections()` from `frontend/src/lib/services.js`, and no Laravel backend code was changed.

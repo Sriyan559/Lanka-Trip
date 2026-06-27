@@ -5,8 +5,7 @@ import HeroSlider         from '@/components/home/HeroSlider';
 import YouMayLike         from '@/components/home/YouMayLike';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
-import HomeProductSection from '@/components/home/HomeProductSection';
-import VerifiedSuppliers  from '@/components/home/VerifiedSuppliers';
+import CategoryGridSection from '@/components/home/CategoryGridSection';
 import TrendingKeywords   from '@/components/home/TrendingKeywords';
 import EasySourcingSection from '@/components/home/EasySourcingSection';
 import SourcingSolutions  from '@/components/home/SourcingSolutions';
@@ -20,8 +19,63 @@ export const metadata = {
     'Find verified Sri Lankan exporters for tea, spices, gems, textiles and more. Source direct from certified suppliers.',
 };
 
+const sectionImageFallback = (label = 'Sri Lanka Export') =>
+  `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent(label.slice(0, 16))}`;
+
+function productToCategoryGridItem(product) {
+  const label = product?.name || product?.label || 'Sri Lankan Export Product';
+  const categorySlug = product?.category?.slug || product?.category_slug || product?.slug || 'products';
+
+  return {
+    slug: product?.slug || String(product?.id || categorySlug),
+    label,
+    image: product?.featured_image || product?.image || product?.thumbnail || sectionImageFallback(label),
+    href: product?.id ? `/products/${product.id}` : `/categories/${categorySlug}`,
+  };
+}
+
+function buildHomeCategorySections(sections) {
+  const featuredProducts = Array.isArray(sections.featured_products) ? sections.featured_products : [];
+  const trendingProducts = Array.isArray(sections.trending_products) ? sections.trending_products : [];
+  const recommendations = Array.isArray(sections.recommendations) ? sections.recommendations : [];
+
+  return [
+    {
+      id: 'featured-products',
+      title: 'Featured Export Products',
+      promoTitle: 'Verified Sri Lankan Export Goods',
+      promoSubtitle: 'Source high-demand products from trusted suppliers',
+      promoBg: 'linear-gradient(135deg, #155e2c 0%, #16a34a 100%)',
+      promoImage: featuredProducts[0]?.featured_image || featuredProducts[0]?.image,
+      promoHref: '/products?featured=1',
+      items: featuredProducts.map(productToCategoryGridItem),
+    },
+    {
+      id: 'trending-products',
+      title: 'Trending Marketplace Picks',
+      promoTitle: 'Popular Buyer Searches',
+      promoSubtitle: 'Explore products gaining traction with global buyers',
+      promoBg: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
+      promoImage: trendingProducts[0]?.featured_image || trendingProducts[0]?.image,
+      promoHref: '/products?sort=trending',
+      items: trendingProducts.map(productToCategoryGridItem),
+    },
+    {
+      id: 'recommended-products',
+      title: 'Recommended for You',
+      promoTitle: 'More Sri Lankan Suppliers',
+      promoSubtitle: 'Discover related products and sourcing ideas',
+      promoBg: 'linear-gradient(135deg, #7c2d12 0%, #f97316 100%)',
+      promoImage: recommendations[0]?.featured_image || recommendations[0]?.image,
+      promoHref: '/products',
+      items: recommendations.map(productToCategoryGridItem),
+    },
+  ].filter((section) => section.items.length > 0);
+}
+
 export default async function HomePage() {
   const sections = await getHomeSections();
+  const categorySections = buildHomeCategorySections(sections);
 
   return (
     <>
@@ -43,13 +97,10 @@ export default async function HomePage() {
         {/* ── Trending products grid ─────────────────────────── */}
         <TrendingProducts products={sections.trending_products} />
 
-        <HomeProductSection
-          title="Featured Products"
-          products={sections.featured_products}
-          href="/products?featured=1"
-        />
-
-        <VerifiedSuppliers suppliers={sections.verified_suppliers} />
+        {/* ── Source UI/UX product category sections, backed by Laravel data ── */}
+        {categorySections.map((section) => (
+          <CategoryGridSection key={section.id} section={section} />
+        ))}
 
         {/* ── Easy Sourcing / RFQ form ───────────────────────── */}
         <EasySourcingSection />
