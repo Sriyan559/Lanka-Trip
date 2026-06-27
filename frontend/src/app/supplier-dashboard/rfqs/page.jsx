@@ -19,9 +19,57 @@ const TAB_LABELS = ['All', 'New', 'Quoted', 'Declined'];
 
 const STATUS_META = {
   new:      { color: 'text-amber-700', bg: 'bg-amber-50', label: 'New' },
+  open:     { color: 'text-amber-700', bg: 'bg-amber-50', label: 'Open' },
+  pending:  { color: 'text-amber-700', bg: 'bg-amber-50', label: 'Pending' },
   quoted:   { color: 'text-primary-700', bg: 'bg-primary-50', label: 'Quoted' },
+  accepted: { color: 'text-green-700', bg: 'bg-green-50', label: 'Accepted' },
+  rejected: { color: 'text-red-600', bg: 'bg-red-50', label: 'Rejected' },
   declined: { color: 'text-red-600',  bg: 'bg-red-50',    label: 'Declined' },
+  closed:   { color: 'text-gray-600', bg: 'bg-gray-100', label: 'Closed' },
+  expired:  { color: 'text-gray-600', bg: 'bg-gray-100', label: 'Expired' },
+  cancelled:{ color: 'text-gray-600', bg: 'bg-gray-100', label: 'Cancelled' },
+  default:  { color: 'text-gray-600', bg: 'bg-gray-100', label: 'Unknown' },
 };
+
+function statusMeta(status) {
+  const value = String(status || 'default').toLowerCase();
+  return STATUS_META[value] || {
+    ...STATUS_META.default,
+    label: value === 'default'
+      ? STATUS_META.default.label
+      : value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
+  };
+}
+
+function isActionable(status) {
+  return ['new', 'open', 'pending'].includes(String(status || '').toLowerCase());
+}
+
+function rfqProduct(rfq) {
+  return rfq.product || rfq.product_name || rfq.items?.[0]?.product_name || rfq.title || 'Requested product';
+}
+
+function rfqQuantity(rfq) {
+  const item = rfq.items?.[0];
+  const quantity = rfq.quantity ?? item?.quantity;
+  const unit = rfq.unit || item?.unit || '';
+  return quantity ? `${quantity} ${unit}`.trim() : rfq.quantity_label || 'Quantity not specified';
+}
+
+function rfqBuyer(rfq) {
+  return rfq.buyer || rfq.user?.name || rfq.buyer_name || 'Buyer';
+}
+
+function rfqCountry(rfq) {
+  return rfq.country || rfq.destination_country || rfq.user?.country || 'N/A';
+}
+
+function rfqReceived(rfq) {
+  if (rfq.received) return rfq.received;
+  if (!rfq.created_at) return '';
+  const date = new Date(rfq.created_at);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+}
 
 function QuoteModal({ rfq, onClose, onSubmit }) {
   const [price,    setPrice]    = useState('');
@@ -114,8 +162,11 @@ export default function SupplierRFQsPage() {
   }, []);
 
   const filtered = rfqs.filter((r) => {
-    const matchTab = tab === 'All' || r.status === tab.toLowerCase();
-    const matchSearch = !search || r.product.toLowerCase().includes(search.toLowerCase()) || r.buyer.toLowerCase().includes(search.toLowerCase());
+    const status = String(r.status || '').toLowerCase();
+    const product = rfqProduct(r).toLowerCase();
+    const buyer = rfqBuyer(r).toLowerCase();
+    const matchTab = tab === 'All' || status === tab.toLowerCase();
+    const matchSearch = !search || product.includes(search.toLowerCase()) || buyer.includes(search.toLowerCase());
     return matchTab && matchSearch;
   });
 
@@ -141,7 +192,7 @@ export default function SupplierRFQsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">RFQ Requests</h1>
-          <p className="text-sm text-gray-500">{rfqs.filter((r) => r.status === 'new').length} new requests waiting</p>
+          <p className="text-sm text-gray-500">{rfqs.filter((r) => isActionable(r.status)).length} new requests waiting</p>
         </div>
       </div>
 
@@ -153,7 +204,7 @@ export default function SupplierRFQsPage() {
               className={`px-3 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                 tab === t ? 'border-primary-700 text-primary-800' : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}>
-              {t} {t !== 'All' && <span className="ml-1 text-[10px] text-gray-400">({rfqs.filter((r) => r.status === t.toLowerCase()).length})</span>}
+              {t} {t !== 'All' && <span className="ml-1 text-[10px] text-gray-400">({rfqs.filter((r) => String(r.status || '').toLowerCase() === t.toLowerCase()).length})</span>}
             </button>
           ))}
         </div>
@@ -177,8 +228,13 @@ export default function SupplierRFQsPage() {
         ) : (
           <div className="divide-y divide-gray-50">
             {filtered.map((rfq) => {
-              const meta = STATUS_META[rfq.status];
+              const meta = statusMeta(rfq.status);
               const isExpanded = expanded === rfq.id;
+              const product = rfqProduct(rfq);
+              const quantity = rfqQuantity(rfq);
+              const buyer = rfqBuyer(rfq);
+              const country = rfqCountry(rfq);
+              const received = rfqReceived(rfq);
               return (
                 <div key={rfq.id} className="p-4 hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-start justify-between gap-3">
@@ -186,27 +242,27 @@ export default function SupplierRFQsPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-mono text-gray-400">{rfq.id}</span>
                         <span className={`badge-pill text-[10px] ${meta.bg} ${meta.color}`}>{meta.label}</span>
-                        {rfq.status === 'new' && (
+                        {isActionable(rfq.status) && (
                           <span className="badge-pill bg-red-500 text-white text-[10px]">
                             <Clock size={9} /> New
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-gray-800 mt-1">{rfq.product}</h3>
+                      <h3 className="font-semibold text-gray-800 mt-1">{product}</h3>
                       <div className="flex items-center gap-3 mt-1 flex-wrap">
-                        <span className="text-xs text-gray-500">📦 {rfq.quantity}</span>
-                        <span className="text-xs text-gray-500">💰 {rfq.budget}</span>
-                        <span className="text-xs text-gray-500">👤 {rfq.buyer} · {rfq.country}</span>
-                        <span className="text-xs text-gray-400">{rfq.received}</span>
+                        <span className="text-xs text-gray-500">📦 {quantity}</span>
+                        <span className="text-xs text-gray-500">💰 {rfq.budget || 'Budget not specified'}</span>
+                        <span className="text-xs text-gray-500">👤 {buyer} · {country}</span>
+                        <span className="text-xs text-gray-400">{received}</span>
                       </div>
                       {isExpanded && (
                         <p className="text-sm text-gray-600 mt-2 bg-gray-50 rounded-lg p-3">
-                          {rfq.description}
+                          {rfq.description || 'No additional description provided.'}
                         </p>
                       )}
                     </div>
                     <div className="flex flex-col gap-2 flex-shrink-0">
-                      {rfq.status === 'new' && (
+                      {isActionable(rfq.status) && (
                         <>
                           <button
                             onClick={() => setQuoting(rfq)}

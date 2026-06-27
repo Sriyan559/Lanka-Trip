@@ -41,6 +41,21 @@ const MOCK_PRODUCTS = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 const STATUS_TABS = ['All', 'Active', 'Draft', 'Out of Stock'];
+const PRODUCT_PLACEHOLDER_IMAGE = 'https://placehold.co/64x64/e8f5e9/155e2c?text=Product';
+
+function safeNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function productCategory(product) {
+  if (typeof product.category === 'string') return product.category;
+  return product.category?.name || product.category?.label || 'Uncategorized';
+}
+
+function productImage(product) {
+  return product.image || product.featured_image || product.images?.[0] || PRODUCT_PLACEHOLDER_IMAGE;
+}
 
 export default function SupplierProductsPage() {
   const [products, setProducts] = useState([]);
@@ -65,11 +80,13 @@ export default function SupplierProductsPage() {
   }, []);
 
   const filtered = products.filter((p) => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
+    const name = p.name || '';
+    const stock = safeNumber(p.stock);
+    const matchSearch = !search || name.toLowerCase().includes(search.toLowerCase());
     const matchTab = tab === 'All'
       || (tab === 'Active' && p.status === 'active')
       || (tab === 'Draft'  && p.status === 'draft')
-      || (tab === 'Out of Stock' && p.stock === 0);
+      || (tab === 'Out of Stock' && stock === 0);
     return matchSearch && matchTab;
   });
 
@@ -161,20 +178,29 @@ export default function SupplierProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {paged.map((p) => (
+                {paged.map((p) => {
+                  const name = p.name || 'Untitled product';
+                  const sku = p.sku || p.slug || `Product-${p.id}`;
+                  const category = productCategory(p);
+                  const stock = safeNumber(p.stock);
+                  const views = safeNumber(p.views ?? p.views_count);
+                  const orders = safeNumber(p.orders ?? p.orders_count);
+                  const image = productImage(p);
+
+                  return (
                   <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <Image src={p.image} alt={p.name} width={40} height={40} unoptimized className="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0" />
-                        <span className="font-medium text-gray-800 line-clamp-1 max-w-[160px]">{p.name}</span>
+                        <Image src={image} alt={name} width={40} height={40} unoptimized className="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0" />
+                        <span className="font-medium text-gray-800 line-clamp-1 max-w-[160px]">{name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-400 font-mono">{p.sku}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{p.category}</td>
-                    <td className="px-4 py-3 text-xs font-semibold text-gray-800">{formatCurrency(p.price)}</td>
-                    <td className="px-4 py-3 text-xs text-gray-600">{p.stock.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{p.views.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-xs font-medium text-gray-700">{p.orders}</td>
+                    <td className="px-4 py-3 text-xs text-gray-400 font-mono">{sku}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{category}</td>
+                    <td className="px-4 py-3 text-xs font-semibold text-gray-800">{formatCurrency(safeNumber(p.price))}</td>
+                    <td className="px-4 py-3 text-xs text-gray-600">{stock.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{views.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-xs font-medium text-gray-700">{orders.toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <button onClick={() => toggleStatus(p.id, p.status)} className="flex items-center gap-1 text-xs">
                         {p.status === 'active'
@@ -196,7 +222,8 @@ export default function SupplierProductsPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

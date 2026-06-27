@@ -126,7 +126,7 @@ export default function SupplierAnalyticsPage() {
                 {PRODUCT_PERF.map((p) => (
                   <tr key={p.name} className="hover:bg-gray-50/50 transition-colors">
                     <td className="py-2.5 text-xs text-gray-700 font-medium pr-4 line-clamp-1 max-w-[160px]">{p.name}</td>
-                    <td className="py-2.5 text-xs text-gray-500">{p.views.toLocaleString()}</td>
+                    <td className="py-2.5 text-xs text-gray-500">{(p.views ?? 0).toLocaleString()}</td>
                     <td className="py-2.5 text-xs text-gray-500">{p.orders}</td>
                     <td className="py-2.5 text-xs font-semibold text-gray-800">{formatCurrency(p.revenue)}</td>
                     <td className="py-2.5">
