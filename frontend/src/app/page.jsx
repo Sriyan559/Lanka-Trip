@@ -7,6 +7,7 @@ import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import ExportCategorySection from '@/components/home/ExportCategorySection';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
+import VerifiedSuppliers  from '@/components/home/VerifiedSuppliers';
 import TrendingKeywords   from '@/components/home/TrendingKeywords';
 import EasySourcingSection from '@/components/home/EasySourcingSection';
 import SourcingSolutions  from '@/components/home/SourcingSolutions';
@@ -105,6 +106,9 @@ export default async function HomePage() {
         {categorySections.map((section) => (
           <CategoryGridSection key={section.id} section={section} />
         ))}
+
+        {/* ── Verified supplier discovery, backed by Laravel data ── */}
+        <VerifiedSuppliers suppliers={sections.verified_suppliers} />
 
         {/* ── Easy Sourcing / RFQ form ───────────────────────── */}
         <EasySourcingSection />
