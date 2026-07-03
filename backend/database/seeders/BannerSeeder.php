@@ -27,7 +27,7 @@ class BannerSeeder extends Seeder
             [
                 'title' => 'Post RFQs and Compare Quotations',
                 'subtitle' => 'Send buying requirements and receive supplier quotations in one place.',
-                'image' => 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1600&q=80',
+                'image' => 'https://placehold.co/1600x600/e0f2fe/075985?text=Post+RFQs+and+Compare+Quotations',
                 'link' => '/rfq',
                 'sort_order' => 30,
             ],

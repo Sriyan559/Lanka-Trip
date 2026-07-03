@@ -50,7 +50,7 @@ export default function LoginForm() {
     try {
       await login({
         email:    form._el_id.trim(),
-        password: btoa(form._el_pw),
+        password: form._el_pw,
       });
       toast.success('Welcome back!');
       router.replace(redirectTo);

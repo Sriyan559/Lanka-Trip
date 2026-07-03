@@ -57,7 +57,7 @@ export const YOU_MAY_LIKE = [
   { label: 'Blue Sapphire',  count: '3,200+',  image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=160&q=80' },
   { label: 'Cinnamon',       count: '5,500+',  image: 'https://images.unsplash.com/photo-1606914469633-bd39206ea739?auto=format&fit=crop&w=160&q=80' },
   { label: 'Rubber Gloves',  count: '8,100+',  image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=160&q=80' },
-  { label: 'Coconut Oil',    count: '4,700+',  image: 'https://images.unsplash.com/photo-1581375383689-4f8f974d6b82?auto=format&fit=crop&w=160&q=80' },
+  { label: 'Coconut Oil',    count: '4,700+',  image: 'https://placehold.co/160x160/fff9c4/854d0e?text=Coconut' },
   { label: 'Batik Fabric',   count: '2,900+',  image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=160&q=80' },
 ];
 
@@ -90,7 +90,7 @@ export const FEATURED_CARDS = [
 
 export const TRENDING_PRODUCTS = [
   { slug: 'ceylon-tea',       label: 'Ceylon Tea',         image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=240&q=80' },
-  { slug: 'coconut-products', label: 'Coconut Products',   image: 'https://images.unsplash.com/photo-1581375383689-4f8f974d6b82?auto=format&fit=crop&w=240&q=80' },
+  { slug: 'coconut-products', label: 'Coconut Products',   image: 'https://placehold.co/240x240/fff9c4/854d0e?text=Coconut' },
   { slug: 'rubber-products',  label: 'Rubber & Latex',     image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=240&q=80' },
   { slug: 'gems-sapphire',    label: 'Gems & Sapphires',   image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=240&q=80' },
   { slug: 'cinnamon',         label: 'Cinnamon & Spices',  image: 'https://images.unsplash.com/photo-1606914469633-bd39206ea739?auto=format&fit=crop&w=240&q=80' },
