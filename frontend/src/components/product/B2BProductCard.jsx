@@ -223,7 +223,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
         </div>
 
         {/* CTA buttons */}
-        <div className="px-3.5 pb-3.5 flex gap-2">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 px-3.5 pb-3.5">
           <Link
             href={productHref}
             className="flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition-colors hover:border-primary-300 hover:text-primary-800"
@@ -239,7 +239,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           <button
             type="button"
             onClick={handleChat}
-            className="hidden w-9 h-9 sm:flex items-center justify-center border border-gray-200 rounded-lg text-gray-500 hover:text-primary-700 hover:border-primary-300 transition-colors flex-shrink-0"
+            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-primary-300 hover:text-primary-700 sm:flex"
             title="Chat with supplier"
           >
             <MessageCircle size={14} />
@@ -350,23 +350,23 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           </div>
           <div className="text-xs text-gray-400">/{displayUnit}</div>
         </div>
-        <div className="flex flex-col gap-1.5 mt-3 sm:w-auto">
+        <div className="mt-3 grid grid-cols-1 gap-1.5 min-[420px]:grid-cols-3 sm:flex sm:w-auto sm:flex-col">
           <Link
             href={productHref}
-            className="w-full px-4 py-2 border border-gray-200 text-gray-700 hover:text-primary-800 hover:border-primary-300 text-xs font-semibold rounded-lg transition-colors text-center flex items-center justify-center gap-1 sm:py-1.5"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-center text-xs font-semibold text-gray-700 transition-colors hover:border-primary-300 hover:text-primary-800 sm:py-1.5"
           >
             <Eye size={12} /> View details
           </Link>
           <button
             onClick={handleInquire}
-            className="w-full px-4 py-2 bg-primary-800 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap sm:py-1.5"
+            className="w-full whitespace-nowrap rounded-lg bg-primary-800 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-700 sm:py-1.5"
           >
             Send Inquiry
           </button>
           <button
             type="button"
             onClick={handleChat}
-            className="w-full px-4 py-1.5 border border-gray-200 text-gray-600 hover:text-primary-700 hover:border-primary-300 text-xs rounded-lg transition-colors text-center flex items-center justify-center gap-1"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-center text-xs text-gray-600 transition-colors hover:border-primary-300 hover:text-primary-700 sm:py-1.5"
           >
             <MessageCircle size={12} /> Chat
           </button>
