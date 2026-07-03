@@ -50,6 +50,153 @@ const EXPORT_CATEGORY_FOCUS = [
   { label: 'Food & Agriculture', keywords: ['food', 'agriculture', 'seafood', 'fisheries'], summary: 'Agri exports, seafood, processed foods', fallback: '/search?q=Food%20Agriculture' },
 ];
 
+const MARKETPLACE_CATEGORY_GROUPS = [
+  {
+    label: 'Agriculture & Food',
+    keywords: ['agriculture', 'food', 'seafood', 'fisheries'],
+    summary: 'Tea, spices, coconut, seafood, produce and processed food exports',
+    fallback: '/search?q=Agriculture%20Food',
+    columns: [
+      { heading: 'Sri Lankan Exports', links: ['Ceylon Tea', 'Spices & Cinnamon', 'Coconut Products', 'Processed Food'] },
+      { heading: 'Fresh & Bulk Supply', links: ['Seafood', 'Fresh Produce', 'Rice & Grains', 'Organic Food'] },
+      { heading: 'Buyer Services', links: ['Private Label', 'Bulk Sourcing', 'Hotel Supply', 'Food Safety'] },
+    ],
+    featured: ['Ceylon tea bags', 'Cinnamon sticks', 'Virgin coconut oil'],
+  },
+  {
+    label: 'Ceylon Tea',
+    keywords: ['tea', 'beverage'],
+    summary: 'Bulk tea, private label tea, sachets and premium hospitality packs',
+    fallback: '/search?q=Ceylon%20Tea',
+    columns: [
+      { heading: 'Tea Products', links: ['Black Tea', 'Green Tea', 'Tea Bags', 'Flavoured Tea'] },
+      { heading: 'Packaging', links: ['Private Label Tea', 'Hotel Amenity Packs', 'Gift Tea Boxes', 'Bulk Tea'] },
+      { heading: 'Trade Ready', links: ['FOB Colombo', 'Organic Tea', 'Certified Tea', 'Maldives Resort Supply'] },
+    ],
+    featured: ['Resort tea packs', 'Bulk Ceylon black tea', 'Private label tea'],
+  },
+  {
+    label: 'Coconut Products',
+    keywords: ['coconut', 'coir'],
+    summary: 'Coconut oil, coir, wellness amenities and coconut-based foods',
+    fallback: '/search?q=Coconut%20Products',
+    columns: [
+      { heading: 'Food & Wellness', links: ['Virgin Coconut Oil', 'Coconut Milk', 'Coconut Snacks', 'Spa Amenity Oil'] },
+      { heading: 'Industrial', links: ['Coir Products', 'Coconut Shell', 'Activated Carbon', 'Coconut Fiber'] },
+      { heading: 'Sourcing', links: ['Bulk Supply', 'Private Label', 'Resort Amenities', 'Export Packaging'] },
+    ],
+    featured: ['Coconut spa oil', 'Virgin coconut oil', 'Coir products'],
+  },
+  {
+    label: 'Spices & Cinnamon',
+    keywords: ['spice', 'cinnamon', 'condiment'],
+    summary: 'True cinnamon, spices, pepper, cloves and blended condiments',
+    fallback: '/search?q=Spices%20Cinnamon',
+    columns: [
+      { heading: 'Spices', links: ['Ceylon Cinnamon', 'Black Pepper', 'Cloves', 'Cardamom'] },
+      { heading: 'Formats', links: ['Cinnamon Sticks', 'Cinnamon Powder', 'Spice Blends', 'Retail Packs'] },
+      { heading: 'Certifications', links: ['Organic Spices', 'Export Grade', 'Food Service', 'Private Label'] },
+    ],
+    featured: ['Ceylon cinnamon sticks', 'Mixed spice packs', 'Organic pepper'],
+  },
+  {
+    label: 'Apparel & Textiles',
+    keywords: ['apparel', 'textile', 'fabric', 'batik'],
+    summary: 'Garments, fabrics, uniforms, resort wear and textile sourcing',
+    fallback: '/search?q=Apparel%20Textiles',
+    columns: [
+      { heading: 'Products', links: ['Garments', 'Fabric', 'Uniforms', 'Sportswear'] },
+      { heading: 'Hospitality', links: ['Resort Wear', 'Staff Uniforms', 'Beachwear', 'Batik Fabric'] },
+      { heading: 'Manufacturing', links: ['OEM Apparel', 'Bulk Orders', 'Quality Control', 'Export Packing'] },
+    ],
+    featured: ['Resort uniforms', 'Organic cotton fabric', 'Batik resort wear'],
+  },
+  {
+    label: 'Packaging & Printing',
+    keywords: ['packaging', 'printing', 'box', 'carton'],
+    summary: 'Tea packaging, food packaging, labels, gift boxes and eco packs',
+    fallback: '/search?q=Packaging%20Printing',
+    columns: [
+      { heading: 'Packaging', links: ['Food Packaging', 'Tea Packaging', 'Eco Packaging', 'Gift Boxes'] },
+      { heading: 'Print', links: ['Labels', 'Retail Boxes', 'Cartons', 'Custom Printing'] },
+      { heading: 'Trade Use', links: ['Export Cartons', 'Hotel Amenities', 'Private Label Packs', 'Sample Boxes'] },
+    ],
+    featured: ['Kraft tea boxes', 'Eco food packaging', 'Custom labels'],
+  },
+  {
+    label: 'Wellness & Ayurveda',
+    keywords: ['ayurvedic', 'ayurveda', 'herbal', 'wellness'],
+    summary: 'Ayurvedic oils, herbal products, spa products and natural cosmetics',
+    fallback: '/search?q=Wellness%20Ayurveda',
+    columns: [
+      { heading: 'Wellness', links: ['Ayurvedic Oils', 'Herbal Products', 'Spa Products', 'Natural Cosmetics'] },
+      { heading: 'Hospitality', links: ['Resort Spa Supply', 'Amenity Bottles', 'Gift Sets', 'Private Label'] },
+      { heading: 'Compliance', links: ['Ingredient Data', 'Export Documents', 'Organic Options', 'Bulk Supply'] },
+    ],
+    featured: ['Ayurvedic herbal oil', 'Spa amenity kits', 'Natural cosmetics'],
+  },
+  {
+    label: 'Handicrafts',
+    keywords: ['handicraft', 'gift', 'wood', 'souvenir'],
+    summary: 'Handmade gifts, wooden crafts, decor, souvenirs and resort retail',
+    fallback: '/search?q=Handicrafts',
+    columns: [
+      { heading: 'Crafts', links: ['Wooden Crafts', 'Handmade Gifts', 'Souvenirs', 'Home Decor'] },
+      { heading: 'Retail', links: ['Resort Gift Shop', 'Cultural Gifts', 'Decor Items', 'Custom Designs'] },
+      { heading: 'Sourcing', links: ['Small Batch', 'Bulk Gift Packs', 'Artisan Supply', 'Export Packaging'] },
+    ],
+    featured: ['Wooden gift boxes', 'Handmade souvenirs', 'Decor collections'],
+  },
+  {
+    label: 'Light Industry & Daily Use',
+    keywords: ['rubber', 'daily', 'industrial'],
+    summary: 'Rubber goods, daily-use products, light manufacturing and supplies',
+    fallback: '/search?q=Light%20Industry%20Daily%20Use',
+    columns: [
+      { heading: 'Daily Use', links: ['Rubber Gloves', 'Household Goods', 'Cleaning Supplies', 'Hotel Supplies'] },
+      { heading: 'Industrial', links: ['Light Manufacturing', 'OEM Products', 'Maintenance Supply', 'Bulk Orders'] },
+      { heading: 'Trade', links: ['FOB Supply', 'Quality Checks', 'Private Label', 'Export Packing'] },
+    ],
+    featured: ['Latex gloves', 'Hotel supplies', 'Daily-use goods'],
+  },
+  {
+    label: 'Construction & Decoration',
+    keywords: ['construction', 'decor', 'decoration', 'home'],
+    summary: 'Building supplies, decor, furnishing and project sourcing',
+    fallback: '/search?q=Construction%20Decoration',
+    columns: [
+      { heading: 'Construction', links: ['Building Materials', 'Tiles', 'Fixtures', 'Timber Products'] },
+      { heading: 'Decoration', links: ['Home Decor', 'Resort Decor', 'Furniture', 'Lighting'] },
+      { heading: 'Projects', links: ['Hotel Projects', 'Bulk Procurement', 'Supplier Matching', 'Custom Orders'] },
+    ],
+    featured: ['Resort decor', 'Building fixtures', 'Custom furniture'],
+  },
+  {
+    label: 'Consumer Electronics',
+    keywords: ['electronics', 'it', 'software'],
+    summary: 'IT services, software, electronics and digital export services',
+    fallback: '/search?q=Consumer%20Electronics%20IT',
+    columns: [
+      { heading: 'Electronics', links: ['Consumer Electronics', 'Accessories', 'Smart Devices', 'Components'] },
+      { heading: 'IT Services', links: ['Marketplace Integration', 'ERP Services', 'Web Solutions', 'Support Services'] },
+      { heading: 'Business', links: ['B2B Software', 'SaaS Services', 'Digital Trade', 'Remote Delivery'] },
+    ],
+    featured: ['Export ERP services', 'Marketplace integration', 'IT support'],
+  },
+  {
+    label: 'Sporting Goods & Recreation',
+    keywords: ['sport', 'recreation', 'outdoor'],
+    summary: 'Sportswear, recreation goods, outdoor products and tourism supply',
+    fallback: '/search?q=Sporting%20Goods%20Recreation',
+    columns: [
+      { heading: 'Recreation', links: ['Sportswear', 'Outdoor Goods', 'Beach Products', 'Tourism Supply'] },
+      { heading: 'Hospitality', links: ['Resort Activities', 'Gift Shop Goods', 'Branded Items', 'Custom Apparel'] },
+      { heading: 'Sourcing', links: ['Bulk Orders', 'Private Label', 'Supplier Matching', 'Export Packing'] },
+    ],
+    featured: ['Sportswear', 'Beach products', 'Tourism goods'],
+  },
+];
+
 /* ── Dropdown data ───────────────────────────────── */
 const SUPPLIER_MENU = {
   columns: [
@@ -135,6 +282,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); // 'categories'|'supplier'|'buyer'|'help'|'apps'|'user'|'lang'
   const [mobileCatOpen, setMobileCatOpen] = useState(false);
+  const [activeMarketplaceCategory, setActiveMarketplaceCategory] = useState(MARKETPLACE_CATEGORY_GROUPS[0].label);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const closeTimerRef = useRef(null);
@@ -252,12 +400,38 @@ export default function Header() {
     };
   });
 
+  const marketplaceCategories = MARKETPLACE_CATEGORY_GROUPS.map((group) => {
+    const match = categories.find((category) => {
+      const haystack = `${category.slug || ''} ${category.label || ''}`.toLowerCase();
+      return group.keywords.some((keyword) => haystack.includes(keyword));
+    });
+
+    return {
+      ...group,
+      href: match ? `/categories/${match.slug}` : group.fallback,
+      sourceLabel: match?.label || group.label,
+    };
+  });
+  const activeCategoryGroup = marketplaceCategories.find((category) => category.label === activeMarketplaceCategory)
+    || marketplaceCategories[0];
+  const hotProductKeywords = [
+    'Ceylon tea',
+    'Virgin coconut oil',
+    'Cinnamon sticks',
+    'Resort uniforms',
+    'Eco packaging',
+    'Ayurvedic oils',
+    'Wooden gifts',
+    'Rubber gloves',
+  ];
+
   /* ── Shared hover menu wrapper ─────────────────── */
   const HoverWrapper = ({ name, children, trigger, align = 'right' }) => {
     const triggerWithClick = cloneElement(trigger, {
       type: trigger.type === 'button' ? 'button' : trigger.props.type,
       'aria-expanded': activeMenu === name,
       'aria-haspopup': 'menu',
+      'data-dropdown-trigger': name,
       onClick: (event) => {
         trigger.props.onClick?.(event);
         event.preventDefault();
@@ -279,6 +453,7 @@ export default function Header() {
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
           role="menu"
+          data-dropdown-menu={name}
         >
           {children}
         </div>
@@ -304,7 +479,7 @@ export default function Header() {
           </Link>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="min-w-0 flex-1 flex items-center border-2 border-primary-800 rounded-full h-10 shadow-sm">
+          <form onSubmit={handleSearch} className="flex h-10 min-w-0 flex-1 items-center rounded-full border-2 border-primary-800 bg-white shadow-sm focus-within:ring-2 focus-within:ring-primary-100">
             {/* Type dropdown */}
             <div ref={typeRef} className="relative flex-shrink-0">
               <button
@@ -315,19 +490,20 @@ export default function Header() {
                 }}
                 aria-expanded={typeOpen}
                 aria-haspopup="listbox"
-                className="flex items-center gap-1 px-2 sm:px-3 h-10 text-sm font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
+                data-search-type-trigger
+                className="flex h-10 items-center gap-1 rounded-l-full border-r border-gray-200 bg-gray-50 px-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-primary-50 hover:text-primary-800 sm:px-3"
               >
                 {searchType}
                 <ChevronDown size={13} className={`transition-transform ${typeOpen ? 'rotate-180' : ''}`} />
               </button>
               {typeOpen && (
-                <div className="absolute left-0 top-full z-[80] mt-1 min-w-[130px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                <div data-search-type-menu className="absolute left-0 top-full z-[80] mt-2 min-w-[160px] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-2xl">
                   {SEARCH_TYPES.map((t) => (
                     <button
                       key={t}
                       type="button"
                       onClick={() => { setSearchType(t); setTypeOpen(false); }}
-                      className={`block w-full text-left px-4 py-2 text-sm transition-colors ${searchType === t ? 'text-primary-800 bg-primary-50 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}
+                      className={`block w-full px-4 py-2.5 text-left text-sm transition-colors ${searchType === t ? 'bg-primary-50 font-semibold text-primary-800' : 'text-gray-700 hover:bg-gray-50 hover:text-primary-800'}`}
                     >
                       {t}
                     </button>
@@ -342,18 +518,18 @@ export default function Header() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={`Search ${searchType.toLowerCase()}…`}
-              className="min-w-0 flex-1 px-2 sm:px-4 text-sm outline-none bg-white placeholder-gray-400 text-gray-800"
+              className="min-w-0 flex-1 bg-white px-2 text-sm text-gray-800 outline-none placeholder-gray-400 sm:px-4"
             />
 
             {/* Camera icon */}
-            <button type="button" aria-label="Image search" className="hidden sm:block px-2 text-gray-400 hover:text-primary-700 transition-colors">
+            <button type="button" aria-label="Image search" className="hidden px-2 text-gray-400 transition-colors hover:text-primary-700 sm:block">
               <Camera size={17} />
             </button>
 
             {/* Search button */}
             <button
               type="submit"
-              className="px-3 sm:px-5 h-10 bg-primary-800 hover:bg-primary-700 text-white flex-shrink-0 flex items-center justify-center transition-colors"
+              className="flex h-10 flex-shrink-0 items-center justify-center rounded-r-full bg-primary-800 px-3 text-white transition-colors hover:bg-primary-700 sm:px-5"
             >
               <Search size={16} />
             </button>
@@ -538,61 +714,104 @@ export default function Header() {
               </button>
             }
           >
-            <div className="w-[720px] max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-b-xl shadow-2xl mt-0 overflow-hidden">
-              <div className="bg-primary-50 px-5 py-4 border-b border-primary-100">
-                <p className="text-xs font-semibold text-primary-700 uppercase tracking-wide">Export Category Navigation</p>
-                <p className="mt-1 text-sm text-gray-600">Source verified Sri Lankan products by sector, supplier, and RFQ-ready trade requirements.</p>
+            <div className="mt-0 w-[1040px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-b-xl border border-gray-200 bg-white text-gray-800 shadow-2xl">
+              <div className="flex items-center justify-between gap-4 border-b border-primary-100 bg-primary-50 px-5 py-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">Marketplace Category Navigation</p>
+                  <p className="mt-1 text-sm text-gray-600">Browse Sri Lankan export sectors, subcategories, and RFQ-ready product keywords.</p>
+                </div>
+                <Link
+                  href="/products"
+                  onClick={() => setActiveMenu(null)}
+                  className="hidden flex-shrink-0 rounded-lg bg-primary-800 px-3 py-2 text-xs font-semibold text-white hover:bg-primary-700 sm:block"
+                >
+                  Browse products
+                </Link>
               </div>
-              <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(220px,0.65fr)] gap-0">
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    {exportCategoryCards.map((cat) => (
-                      <Link
-                        key={cat.label}
-                        href={cat.href}
-                        onClick={() => setActiveMenu(null)}
-                        className="group rounded-lg border border-gray-100 bg-white p-3 transition-colors hover:border-primary-200 hover:bg-primary-50"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-sm font-semibold text-gray-800 group-hover:text-primary-800">{cat.sourceLabel}</span>
-                          <ChevronDown size={13} className="-rotate-90 text-gray-300 group-hover:text-primary-600" />
+
+              <div className="grid min-h-[360px] grid-cols-[240px_minmax(0,1fr)]">
+                <aside className="border-r border-gray-100 bg-gray-50/80 p-2">
+                  <div className="mb-1 px-2 py-1 text-[11px] font-bold uppercase tracking-widest text-gray-400">Categories</div>
+                  <div className="grid grid-cols-1 gap-0.5">
+                    {marketplaceCategories.map((cat) => {
+                      const selected = activeCategoryGroup?.label === cat.label;
+                      return (
+                        <Link
+                          key={cat.label}
+                          href={cat.href}
+                          onMouseEnter={() => setActiveMarketplaceCategory(cat.label)}
+                          onFocus={() => setActiveMarketplaceCategory(cat.label)}
+                          onClick={() => setActiveMenu(null)}
+                          className={`group flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+                            selected
+                              ? 'bg-white font-semibold text-primary-800 shadow-sm'
+                              : 'text-gray-700 hover:bg-white hover:text-primary-800'
+                          }`}
+                        >
+                          <span className="min-w-0 truncate">{cat.sourceLabel}</span>
+                          <ChevronDown size={13} className="-rotate-90 flex-shrink-0 text-gray-300 group-hover:text-primary-600" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  {categoriesLoading && <span className="block px-3 py-2 text-xs text-gray-400">Loading backend categories...</span>}
+                  {categoriesError && (
+                    <button type="button" onClick={retryCategories} className="px-3 py-2 text-left text-xs text-red-600 hover:underline">
+                      Retry categories
+                    </button>
+                  )}
+                </aside>
+
+                <div className="flex min-w-0 flex-col">
+                  <div className="grid flex-1 grid-cols-3 gap-5 p-5">
+                    {activeCategoryGroup.columns.map((column) => (
+                      <div key={column.heading} className="min-w-0">
+                        <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gray-400">{column.heading}</div>
+                        <div className="space-y-1">
+                          {column.links.map((label) => (
+                            <Link
+                              key={label}
+                              href={`/search?q=${encodeURIComponent(label)}`}
+                              onClick={() => setActiveMenu(null)}
+                              className="block rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800"
+                            >
+                              {label}
+                            </Link>
+                          ))}
                         </div>
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-500">{cat.summary}</p>
-                      </Link>
+                      </div>
                     ))}
-                    {categoriesLoading && <span className="px-3 py-2 text-xs text-gray-400">Loading categories…</span>}
-                    {categoriesError && (
-                      <button type="button" onClick={retryCategories} className="px-3 py-2 text-left text-xs text-red-600 hover:underline">
-                        Retry categories
-                      </button>
-                    )}
+                  </div>
+
+                  <div className="border-t border-gray-100 bg-gray-50 px-5 py-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      {activeCategoryGroup.featured.map((label) => (
+                        <Link
+                          key={label}
+                          href={`/search?q=${encodeURIComponent(label)}`}
+                          onClick={() => setActiveMenu(null)}
+                          className="rounded-lg border border-gray-100 bg-white p-3 text-sm font-semibold text-gray-800 shadow-sm hover:border-primary-200 hover:text-primary-800"
+                        >
+                          <span className="block text-[10px] font-bold uppercase tracking-wide text-primary-600">Featured sourcing</span>
+                          <span className="mt-1 block truncate">{label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Hot products:</span>
+                      {hotProductKeywords.map((keyword) => (
+                        <Link
+                          key={keyword}
+                          href={`/search?q=${encodeURIComponent(keyword)}`}
+                          onClick={() => setActiveMenu(null)}
+                          className="rounded-full bg-white px-2.5 py-1 text-xs text-gray-600 hover:bg-primary-50 hover:text-primary-800"
+                        >
+                          {keyword}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
-
-                <aside className="border-l border-gray-100 bg-gray-50 p-4">
-                  <div className="mb-3 flex items-center gap-2">
-                    <BadgeCheck size={16} className="text-primary-700" />
-                    <p className="text-sm font-semibold text-gray-800">B2B shortcuts</p>
-                  </div>
-                  {[
-                    { label: 'Browse all products', href: '/products', icon: Package },
-                    { label: 'Find verified suppliers', href: '/suppliers?verified=1', icon: Shield },
-                    { label: 'Post an RFQ', href: '/rfq', icon: FileText },
-                    { label: 'Buyer Dashboard', href: '/dashboard', icon: BarChart2 },
-                    { label: 'Supplier Dashboard', href: '/supplier-dashboard', icon: Building2 },
-                    { label: 'Messages', href: '/messages', icon: MessageSquare },
-                  ].map(({ label, href, icon: Icon }) => (
-                    <Link
-                      key={label}
-                      href={href}
-                      onClick={() => setActiveMenu(null)}
-                      className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-white hover:text-primary-800"
-                    >
-                      <Icon size={14} className="text-gray-400" />
-                      {label}
-                    </Link>
-                  ))}
-                </aside>
               </div>
             </div>
           </HoverWrapper>
@@ -621,13 +840,13 @@ export default function Header() {
                 </button>
               }
             >
-              <div className="w-[420px] bg-white border border-gray-200 rounded-xl shadow-2xl py-3 mt-1">
+              <div className="mt-1 w-[420px] overflow-hidden rounded-xl border border-gray-200 bg-white py-3 shadow-2xl">
                 <div className="grid grid-cols-2 gap-0 divide-x divide-gray-100">
                   {SUPPLIER_MENU.columns.map((col) => (
                     <div key={col.heading} className="px-4 py-1">
                       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{col.heading}</div>
                       {col.links.map(({ label, href, icon: Icon }) => (
-                        <Link key={href} href={href} onClick={() => setActiveMenu(null)} className="flex items-center gap-2.5 py-1.5 text-sm text-gray-700 hover:text-primary-800 group">
+                        <Link key={href} href={href} onClick={() => setActiveMenu(null)} className="group flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
                           {Icon && <Icon size={13} className="text-gray-400 group-hover:text-primary-600" />}
                           {label}
                         </Link>
@@ -647,13 +866,13 @@ export default function Header() {
                 </button>
               }
             >
-              <div className="w-[540px] bg-white border border-gray-200 rounded-xl shadow-2xl py-3 mt-1">
+              <div className="mt-1 w-[540px] overflow-hidden rounded-xl border border-gray-200 bg-white py-3 shadow-2xl">
                 <div className="grid grid-cols-3 gap-0 divide-x divide-gray-100">
                   {BUYER_MENU.columns.map((col) => (
                     <div key={col.heading} className="px-4 py-1">
                       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{col.heading}</div>
                       {col.links.map(({ label, href }) => (
-                        <Link key={`${href}-${label}`} href={href} onClick={() => setActiveMenu(null)} className="block py-1.5 text-sm text-gray-700 hover:text-primary-800">
+                        <Link key={`${href}-${label}`} href={href} onClick={() => setActiveMenu(null)} className="block rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
                           {label}
                         </Link>
                       ))}
@@ -672,9 +891,9 @@ export default function Header() {
                 </button>
               }
             >
-              <div className="w-52 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 mt-1">
+              <div className="mt-1 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-2xl">
                 {HELP_MENU.links.map(({ label, href, icon: Icon }) => (
-                  <Link key={href} href={href} onClick={() => setActiveMenu(null)} className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800 group">
+                  <Link key={href} href={href} onClick={() => setActiveMenu(null)} className="group mx-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
                     {Icon && <Icon size={14} className="text-gray-400 group-hover:text-primary-600" />}
                     {label}
                   </Link>
@@ -691,7 +910,7 @@ export default function Header() {
                 </button>
               }
             >
-              <div className="w-52 bg-white border border-gray-200 rounded-xl shadow-2xl py-3 mt-1">
+              <div className="mt-1 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-3 shadow-2xl">
                 <div className="px-4 mb-2">
                   <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Download App</div>
                 </div>
@@ -699,7 +918,7 @@ export default function Header() {
                   { label: 'iOS App',     sub: 'App Store',    icon: '🍎', href: '/apps' },
                   { label: 'Android App', sub: 'Google Play',  icon: '▶',  href: '/apps' },
                 ].map(({ label, sub, icon, href }) => (
-                  <Link key={label} href={href} onClick={() => setActiveMenu(null)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 group">
+                  <Link key={label} href={href} onClick={() => setActiveMenu(null)} className="group mx-1 flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-primary-50">
                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-lg">{icon}</div>
                     <div>
                       <div className="text-sm font-medium text-gray-800">{label}</div>
@@ -722,9 +941,9 @@ export default function Header() {
                 </button>
               }
             >
-              <div className="w-48 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 mt-1">
+              <div className="mt-1 w-48 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-2xl">
                 {LANGUAGE_OPTIONS.map((lang) => (
-                  <button key={lang} type="button" onClick={() => setActiveMenu(null)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
+                  <button key={lang} type="button" onClick={() => setActiveMenu(null)} className="mx-1 block w-[calc(100%-0.5rem)] rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
                     {lang}
                   </button>
                 ))}
