@@ -20,7 +20,7 @@ import {
   ChevronDown, Menu, X, User, LogOut, Package, Heart,
   FileText, Settings, Globe, Shield, Phone, HelpCircle,
   Smartphone, LayoutGrid, Star, BarChart2, BadgeCheck,
-  Bell,
+  Bell, Building2,
 } from 'lucide-react';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,10 +33,21 @@ import useCategories from '@/hooks/useCategories';
 const SEARCH_TYPES = ['Products', 'Suppliers', 'Companies'];
 
 const SECONDARY_NAV = [
-  { label: 'Secured Trading', href: '/secured-trading' },
+  { label: 'Products', href: '/products' },
+  { label: 'Suppliers', href: '/suppliers' },
   { label: 'Verified Suppliers', href: '/suppliers?verified=1' },
-  { label: 'Top Products', href: '/products?sort=top' },
-  { label: 'Video Channel', href: '/videos' },
+  { label: 'Post RFQ', href: '/rfq' },
+];
+
+const EXPORT_CATEGORY_FOCUS = [
+  { label: 'Ceylon Tea', keywords: ['tea', 'beverage'], summary: 'Bulk tea, private label, hotel amenity packs', fallback: '/search?q=Ceylon%20Tea' },
+  { label: 'Coconut Products', keywords: ['coconut', 'coir'], summary: 'Oils, spa amenities, coir, coconut-based goods', fallback: '/search?q=Coconut%20Products' },
+  { label: 'Spices & Cinnamon', keywords: ['spice', 'cinnamon', 'condiment'], summary: 'True cinnamon, pepper, cloves, spice blends', fallback: '/search?q=Spices%20Cinnamon' },
+  { label: 'Apparel & Textiles', keywords: ['apparel', 'textile', 'batik', 'fabric'], summary: 'Garments, fabric, resort uniforms, batik', fallback: '/search?q=Apparel%20Textiles' },
+  { label: 'Handicrafts', keywords: ['handicraft', 'gift', 'wood'], summary: 'Resort gifts, decor, handmade export goods', fallback: '/search?q=Handicrafts' },
+  { label: 'Wellness & Ayurveda', keywords: ['ayurvedic', 'ayurveda', 'herbal', 'wellness'], summary: 'Spa oils, herbal products, wellness ranges', fallback: '/search?q=Ayurvedic%20Wellness' },
+  { label: 'Packaging Products', keywords: ['packaging', 'box', 'carton'], summary: 'Gift boxes, retail packs, export cartons', fallback: '/search?q=Packaging%20Products' },
+  { label: 'Food & Agriculture', keywords: ['food', 'agriculture', 'seafood', 'fisheries'], summary: 'Agri exports, seafood, processed foods', fallback: '/search?q=Food%20Agriculture' },
 ];
 
 /* ── Dropdown data ───────────────────────────────── */
@@ -46,10 +57,10 @@ const SUPPLIER_MENU = {
       heading: 'Service',
       links: [
         { label: 'Register as Supplier', href: '/register?role=supplier', icon: User },
-        { label: 'Supplier Dashboard',   href: '/dashboard',               icon: BarChart2 },
-        { label: 'Manage Products',      href: '/dashboard?tab=products',  icon: Package },
-        { label: 'Trade Analytics',      href: '/dashboard?tab=analytics', icon: BarChart2 },
-        { label: 'Orders & Payments',    href: '/dashboard?tab=orders',    icon: Shield },
+        { label: 'Supplier Dashboard',   href: '/supplier-dashboard',           icon: BarChart2 },
+        { label: 'Manage Products',      href: '/supplier-dashboard/products',  icon: Package },
+        { label: 'Trade Analytics',      href: '/supplier-dashboard/analytics', icon: BarChart2 },
+        { label: 'Orders & Payments',    href: '/supplier-dashboard/orders',    icon: Shield },
       ],
     },
     {
@@ -71,6 +82,7 @@ const BUYER_MENU = {
       heading: 'Service',
       links: [
         { label: 'New Buyer Guide',          href: '/guide/buyer' },
+        { label: 'Buyer Dashboard',          href: '/dashboard' },
         { label: 'Verified Supplier Reports', href: '/suppliers?verified=1' },
         { label: 'Meet Suppliers',           href: '/suppliers' },
         { label: 'Secured Trading',          href: '/secured-trading' },
@@ -210,6 +222,19 @@ export default function Header() {
     router.refresh();
   };
 
+  const exportCategoryCards = EXPORT_CATEGORY_FOCUS.map((focus) => {
+    const match = categories.find((category) => {
+      const haystack = `${category.slug || ''} ${category.label || ''}`.toLowerCase();
+      return focus.keywords.some((keyword) => haystack.includes(keyword));
+    });
+
+    return {
+      ...focus,
+      href: match ? `/categories/${match.slug}` : focus.fallback,
+      sourceLabel: match?.label || focus.label,
+    };
+  });
+
   /* ── Shared hover menu wrapper ─────────────────── */
   const HoverWrapper = ({ name, children, trigger }) => (
     <div
@@ -302,7 +327,7 @@ export default function Header() {
             {/* Post RFQ */}
             <Link href="/rfq" className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-accent-500 hover:text-accent-600 hover:bg-orange-50 rounded-lg transition-colors">
               <FileText size={19} />
-              <span className="text-[10px] font-semibold whitespace-nowrap">Post My RFQ</span>
+              <span className="text-[10px] font-semibold whitespace-nowrap">Post RFQ</span>
             </Link>
 
             {/* Messages */}
@@ -369,11 +394,12 @@ export default function Header() {
                     <div className="text-xs text-gray-400 truncate">{user?.email}</div>
                   </div>
                   {[
-                    { label: 'Dashboard', href: '/dashboard', icon: BarChart2 },
-                    { label: 'My Orders',  href: '/orders',    icon: Package },
-                    { label: 'Wishlist',   href: '/wishlist',  icon: Heart },
-                    { label: 'My RFQs',   href: '/rfq',       icon: FileText },
-                    { label: 'Settings',   href: '/settings',  icon: Settings },
+                    { label: 'Buyer Dashboard', href: '/dashboard', icon: BarChart2 },
+                    { label: 'Supplier Dashboard', href: '/supplier-dashboard', icon: Building2 },
+                    { label: 'My Orders', href: '/orders', icon: Package },
+                    { label: 'Wishlist', href: '/wishlist', icon: Heart },
+                    { label: 'My RFQs', href: '/rfq', icon: FileText },
+                    { label: 'Settings', href: '/settings', icon: Settings },
                   ].map(({ label, href, icon: Icon }) => (
                     <Link key={href} href={href} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-800">
                       <Icon size={14} className="text-gray-400" />{label}
@@ -412,12 +438,12 @@ export default function Header() {
                   </div>
                   <div className="border-t border-gray-100 pt-3 space-y-1">
                     {[
-                      { label: 'Messages',             href: '/messages' },
-                      { label: 'Quotes',               href: '/rfq' },
-                      { label: 'Orders',               href: '/orders' },
-                      { label: 'Favourites',           href: '/wishlist' },
-                      { label: 'Browsing History',     href: '/history' },
-                      { label: 'Post Sourcing Request',href: '/rfq' },
+                      { label: 'Buyer Dashboard', href: '/dashboard' },
+                      { label: 'Messages', href: '/messages' },
+                      { label: 'Orders', href: '/orders' },
+                      { label: 'Favourites', href: '/wishlist' },
+                      { label: 'Supplier Dashboard', href: '/supplier-dashboard' },
+                      { label: 'Post Sourcing Request', href: '/rfq' },
                     ].map(({ label, href }) => (
                       <Link key={label} href={href} className="block py-1.5 text-sm text-gray-600 hover:text-primary-800">
                         {label}
@@ -461,7 +487,7 @@ export default function Header() {
 
       {/* ── Secondary / mega-menu nav ──────────────────────────── */}
       <div className="bg-primary-800 text-white relative">
-        <div className="max-w-screen-xl mx-auto px-4 h-9 flex items-center gap-0.5">
+        <div className="max-w-screen-xl mx-auto px-4 h-9 flex items-center gap-0.5 overflow-hidden">
 
           {/* All Categories — mega dropdown */}
           <HoverWrapper
@@ -474,27 +500,61 @@ export default function Header() {
               </button>
             }
           >
-            <div className="w-[520px] bg-white border border-gray-200 rounded-b-xl shadow-2xl py-3 mt-0">
-              <div className="px-4 pb-2 mb-2 border-b border-gray-100">
-                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Browse All Categories</span>
+            <div className="w-[720px] max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-b-xl shadow-2xl mt-0 overflow-hidden">
+              <div className="bg-primary-50 px-5 py-4 border-b border-primary-100">
+                <p className="text-xs font-semibold text-primary-700 uppercase tracking-wide">Export Category Navigation</p>
+                <p className="mt-1 text-sm text-gray-600">Source verified Sri Lankan products by sector, supplier, and RFQ-ready trade requirements.</p>
               </div>
-              <div className="grid grid-cols-2 gap-x-2 px-2">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat.slug}
-                    href={`/categories/${cat.slug}`}
-                    onClick={() => setActiveMenu(null)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800 group transition-colors"
-                  >
-                    <span className="flex-1 text-[13px]">{cat.label}</span>
-                  </Link>
-                ))}
-                {categoriesLoading && <span className="px-3 py-2 text-xs text-gray-400">Loading categories…</span>}
-                {categoriesError && (
-                  <button type="button" onClick={retryCategories} className="px-3 py-2 text-left text-xs text-red-600 hover:underline">
-                    Retry categories
-                  </button>
-                )}
+              <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(220px,0.65fr)] gap-0">
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {exportCategoryCards.map((cat) => (
+                      <Link
+                        key={cat.label}
+                        href={cat.href}
+                        onClick={() => setActiveMenu(null)}
+                        className="group rounded-lg border border-gray-100 bg-white p-3 transition-colors hover:border-primary-200 hover:bg-primary-50"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-semibold text-gray-800 group-hover:text-primary-800">{cat.sourceLabel}</span>
+                          <ChevronDown size={13} className="-rotate-90 text-gray-300 group-hover:text-primary-600" />
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-500">{cat.summary}</p>
+                      </Link>
+                    ))}
+                    {categoriesLoading && <span className="px-3 py-2 text-xs text-gray-400">Loading categories…</span>}
+                    {categoriesError && (
+                      <button type="button" onClick={retryCategories} className="px-3 py-2 text-left text-xs text-red-600 hover:underline">
+                        Retry categories
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <aside className="border-l border-gray-100 bg-gray-50 p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <BadgeCheck size={16} className="text-primary-700" />
+                    <p className="text-sm font-semibold text-gray-800">B2B shortcuts</p>
+                  </div>
+                  {[
+                    { label: 'Browse all products', href: '/products', icon: Package },
+                    { label: 'Find verified suppliers', href: '/suppliers?verified=1', icon: Shield },
+                    { label: 'Post an RFQ', href: '/rfq', icon: FileText },
+                    { label: 'Buyer Dashboard', href: '/dashboard', icon: BarChart2 },
+                    { label: 'Supplier Dashboard', href: '/supplier-dashboard', icon: Building2 },
+                    { label: 'Messages', href: '/messages', icon: MessageSquare },
+                  ].map(({ label, href, icon: Icon }) => (
+                    <Link
+                      key={label}
+                      href={href}
+                      onClick={() => setActiveMenu(null)}
+                      className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-white hover:text-primary-800"
+                    >
+                      <Icon size={14} className="text-gray-400" />
+                      {label}
+                    </Link>
+                  ))}
+                </aside>
               </div>
             </div>
           </HoverWrapper>
@@ -506,14 +566,14 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="hidden md:flex items-center px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors whitespace-nowrap"
+              className="hidden lg:flex items-center px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors whitespace-nowrap"
             >
               {item.label}
             </Link>
           ))}
 
           {/* Right side menus */}
-          <div className="ml-auto flex items-center">
+          <div className="ml-auto hidden xl:flex items-center">
             {/* Supplier dropdown */}
             <HoverWrapper
               name="supplier"
@@ -648,7 +708,8 @@ export default function Header() {
                   <div className="text-xs text-gray-400">{user?.email}</div>
                 </div>
                 {[
-                  { label: 'Dashboard', href: '/dashboard' },
+                  { label: 'Buyer Dashboard', href: '/dashboard' },
+                  { label: 'Supplier Dashboard', href: '/supplier-dashboard' },
                   { label: 'Notifications', href: '/notifications' },
                   { label: 'My Orders', href: '/orders' },
                   { label: 'Wishlist',  href: '/wishlist' },
@@ -688,15 +749,16 @@ export default function Header() {
                 <ChevronDown size={14} className={`transition-transform ${mobileCatOpen ? 'rotate-180' : ''}`} />
               </button>
               {mobileCatOpen && (
-                <div className="grid grid-cols-2 gap-1 mt-2 px-1">
-                  {categories.map((cat) => (
+                <div className="grid grid-cols-1 gap-1 mt-2 px-1 sm:grid-cols-2">
+                  {exportCategoryCards.map((cat) => (
                     <Link
-                      key={cat.slug}
-                      href={`/categories/${cat.slug}`}
+                      key={cat.label}
+                      href={cat.href}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg"
+                      className="flex flex-col gap-0.5 px-3 py-2 text-sm text-gray-700 hover:text-primary-800 hover:bg-primary-50 rounded-lg"
                     >
-                      <span className="text-xs line-clamp-1">{cat.label}</span>
+                      <span className="text-xs font-semibold line-clamp-1">{cat.sourceLabel}</span>
+                      <span className="text-[11px] leading-4 text-gray-400 line-clamp-1">{cat.summary}</span>
                     </Link>
                   ))}
                   {categoriesLoading && <span className="px-3 py-2 text-xs text-gray-400">Loading categories…</span>}
