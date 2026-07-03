@@ -22,10 +22,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
     prev = page;
   }
 
-  const btnBase = 'w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors';
+  const btnBase = 'w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-lg text-sm font-medium transition-colors';
 
   return (
-    <div className="flex items-center justify-center gap-1.5 mt-8">
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -36,7 +36,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
 
       {withEllipsis.map((page, i) =>
         page === '…' ? (
-          <span key={`ellipsis-${i}`} className="w-9 h-9 flex items-center justify-center text-gray-400">
+          <span key={`ellipsis-${i}`} className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-gray-400">
             …
           </span>
         ) : (
