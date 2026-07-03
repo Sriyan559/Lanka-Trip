@@ -259,9 +259,9 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       {/* ── Top bar ──────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-screen-xl mx-auto px-4 h-[60px] flex items-center gap-3">
+        <div className="max-w-screen-xl mx-auto px-3 sm:px-4 h-[60px] flex items-center gap-2 sm:gap-3">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 flex items-center gap-2 mr-2">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2 sm:mr-2">
             <div className="w-9 h-9 bg-primary-800 rounded-lg flex items-center justify-center shadow-sm">
               <span className="text-white font-extrabold text-lg leading-none">E</span>
             </div>
@@ -272,13 +272,13 @@ export default function Header() {
           </Link>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="flex-1 flex items-center border-2 border-primary-800 rounded-full overflow-hidden h-10 shadow-sm">
+          <form onSubmit={handleSearch} className="min-w-0 flex-1 flex items-center border-2 border-primary-800 rounded-full overflow-hidden h-10 shadow-sm">
             {/* Type dropdown */}
             <div ref={typeRef} className="relative flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setTypeOpen((o) => !o)}
-                className="flex items-center gap-1 px-3 h-10 text-sm font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1 px-2 sm:px-3 h-10 text-sm font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
               >
                 {searchType}
                 <ChevronDown size={13} className={`transition-transform ${typeOpen ? 'rotate-180' : ''}`} />
@@ -305,18 +305,18 @@ export default function Header() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={`Search ${searchType.toLowerCase()}…`}
-              className="flex-1 px-4 text-sm outline-none bg-white placeholder-gray-400 text-gray-800"
+              className="min-w-0 flex-1 px-2 sm:px-4 text-sm outline-none bg-white placeholder-gray-400 text-gray-800"
             />
 
             {/* Camera icon */}
-            <button type="button" aria-label="Image search" className="px-2 text-gray-400 hover:text-primary-700 transition-colors">
+            <button type="button" aria-label="Image search" className="hidden sm:block px-2 text-gray-400 hover:text-primary-700 transition-colors">
               <Camera size={17} />
             </button>
 
             {/* Search button */}
             <button
               type="submit"
-              className="px-5 h-10 bg-primary-800 hover:bg-primary-700 text-white flex-shrink-0 flex items-center justify-center transition-colors"
+              className="px-3 sm:px-5 h-10 bg-primary-800 hover:bg-primary-700 text-white flex-shrink-0 flex items-center justify-center transition-colors"
             >
               <Search size={16} />
             </button>

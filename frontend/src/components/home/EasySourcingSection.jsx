@@ -62,14 +62,14 @@ export default function EasySourcingSection() {
   };
 
   return (
-    <section className="mt-8 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
+    <section className="mt-6 sm:mt-8 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_420px]">
-        <div className="bg-primary-900 px-4 py-6 text-white sm:px-6 lg:px-7 lg:py-7">
+        <div className="bg-primary-900 px-4 py-5 text-white sm:px-6 sm:py-6 lg:px-7 lg:py-7">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-200">
               RFQ and inquiry matching
             </p>
-            <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
+            <h2 className="mt-2 text-xl font-bold leading-tight sm:text-3xl">
               Source from Sri Lanka with one professional buyer request
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-primary-100">
@@ -77,9 +77,9 @@ export default function EasySourcingSection() {
             </p>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 gap-2.5 sm:mt-6 sm:grid-cols-2 sm:gap-3">
             {RFQ_FLOW.map(({ title, copy, Icon }, index) => (
-              <div key={title} className="rounded-lg border border-white/10 bg-white/8 p-4">
+              <div key={title} className="rounded-lg border border-white/10 bg-white/8 p-3.5 sm:p-4">
                 <div className="flex items-center gap-3">
                   <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white text-primary-800">
                     <Icon size={18} />
@@ -91,12 +91,12 @@ export default function EasySourcingSection() {
                     <h3 className="text-sm font-bold text-white">{title}</h3>
                   </div>
                 </div>
-                <p className="mt-3 text-sm leading-5 text-primary-100">{copy}</p>
+                <p className="mt-2 text-sm leading-5 text-primary-100 sm:mt-3">{copy}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
             {TRUST_POINTS.map(({ label, Icon }) => (
               <span
                 key={label}
@@ -108,7 +108,7 @@ export default function EasySourcingSection() {
             ))}
           </div>
 
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+          <div className="mt-5 flex flex-col gap-2 sm:mt-6 sm:flex-row">
             <Link
               href="/rfq"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 transition-colors hover:bg-primary-50"
@@ -131,7 +131,7 @@ export default function EasySourcingSection() {
         </div>
 
         <div className="bg-white p-4 sm:p-6 lg:p-7">
-          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+          <div className="rounded-lg border border-gray-100 bg-gray-50 p-3.5 sm:p-4">
             <div className="flex items-start gap-3">
               <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-800">
                 <Send size={18} />
@@ -145,7 +145,7 @@ export default function EasySourcingSection() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-2.5 sm:space-y-3">
             <input
               type="text"
               placeholder="Product or keywords, e.g. Ceylon tea"

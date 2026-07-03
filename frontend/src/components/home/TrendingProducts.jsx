@@ -121,19 +121,19 @@ export default function TrendingProducts({ products }) {
   if (!items.length) return null;
 
   return (
-    <section className="mt-6 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
-      <div className="border-b border-gray-100 px-4 py-4 sm:px-5">
+    <section className="mt-5 sm:mt-6 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
+      <div className="border-b border-gray-100 px-4 py-3.5 sm:px-5 sm:py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">Featured export products</p>
-            <h2 className="mt-1 text-xl font-bold text-gray-900">Maldives-ready B2B sourcing picks</h2>
+            <h2 className="mt-1 text-lg font-bold text-gray-900 sm:text-xl">Maldives-ready B2B sourcing picks</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
               High-demand Sri Lankan products with RFQ-ready trade details for hospitality, retail, food service, and distribution buyers.
             </p>
           </div>
           <Link
             href="/products?sort=trending"
-            className="inline-flex items-center gap-2 self-start rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800 md:self-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800 sm:w-auto md:self-auto"
           >
             View all products <ArrowRight size={14} />
           </Link>
@@ -144,7 +144,7 @@ export default function TrendingProducts({ products }) {
         {items.map((product) => (
           <article
             key={product.id}
-            className="group flex min-h-[430px] flex-col border-b border-gray-100 bg-white p-3 transition-colors hover:bg-gray-50 sm:border-r xl:border-b-0 [&:nth-child(2n)]:sm:border-r-0 [&:nth-child(4n)]:xl:border-r-0"
+            className="group flex min-h-[392px] flex-col border-b border-gray-100 bg-white p-3 transition-colors hover:bg-gray-50 sm:min-h-[430px] sm:border-r xl:border-b-0 [&:nth-child(2n)]:sm:border-r-0 [&:nth-child(4n)]:xl:border-r-0"
           >
             <Link href={product.href} className="relative block overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
               <div className="aspect-[4/3]">
@@ -180,9 +180,9 @@ export default function TrendingProducts({ products }) {
                 <span className="line-clamp-1">{product.supplierName}</span>
               </div>
 
-              <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
+              <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-2.5 sm:p-3">
                 <div className="text-sm font-bold text-primary-800">{product.price}</div>
-                <div className="mt-2 grid grid-cols-1 gap-2 text-[11px] text-gray-600">
+                <div className="mt-2 grid grid-cols-1 gap-1.5 text-[11px] text-gray-600 sm:gap-2">
                   <span className="flex items-center gap-1.5">
                     <PackageCheck size={13} className="text-gray-400" />
                     MOQ: {product.moq}
