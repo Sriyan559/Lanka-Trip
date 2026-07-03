@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             ShipmentMethodSeeder::class,
             TradeDocumentTypeSeeder::class,
             LogisticsPartnerSeeder::class,
+            NotificationChannelSeeder::class,
+            NotificationTemplateSeeder::class,
             UserSeeder::class,
             UserRoleSeeder::class,
             CategorySeeder::class,
