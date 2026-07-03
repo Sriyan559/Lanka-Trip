@@ -1,25 +1,53 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { BadgeCheck, ChevronRight } from 'lucide-react';
 import useCategories from '@/hooks/useCategories';
+
+const CATEGORY_PRIORITIES = [
+  { label: 'Ceylon Tea', keywords: ['tea', 'beverage'] },
+  { label: 'Coconut Products', keywords: ['coconut', 'coir'] },
+  { label: 'Spices & Cinnamon', keywords: ['spice', 'cinnamon', 'condiment'] },
+  { label: 'Apparel & Textiles', keywords: ['apparel', 'textile', 'fabric', 'batik'] },
+  { label: 'Handicrafts', keywords: ['handicraft', 'gift', 'wood'] },
+  { label: 'Wellness & Ayurveda', keywords: ['ayurvedic', 'ayurveda', 'herbal', 'wellness'] },
+  { label: 'Packaging Products', keywords: ['packaging', 'box', 'carton'] },
+  { label: 'Food & Agriculture', keywords: ['food', 'agriculture', 'seafood', 'fisheries'] },
+];
+
+function categoryMatches(category, keywords) {
+  const haystack = `${category.slug || ''} ${category.label || ''}`.toLowerCase();
+  return keywords.some((keyword) => haystack.includes(keyword));
+}
 
 export default function CategorySidebar() {
   const { categories, loading, error, retry } = useCategories();
+  const prioritizedCategories = CATEGORY_PRIORITIES.map((priority) => {
+    const match = categories.find((category) => categoryMatches(category, priority.keywords));
+    return match ? { ...match, displayLabel: match.label } : null;
+  }).filter(Boolean);
+
+  const prioritySlugs = new Set(prioritizedCategories.map((category) => category.slug));
+  const remainingCategories = categories.filter((category) => !prioritySlugs.has(category.slug));
+  const visibleCategories = [...prioritizedCategories, ...remainingCategories].slice(0, 12);
 
   return (
     <aside className="hidden lg:block w-52 flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 py-2 self-start">
       <div className="px-3 py-2 border-b border-gray-100 mb-1">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">All Categories</span>
+        <div className="flex items-center gap-2">
+          <BadgeCheck size={14} className="text-primary-700" />
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Export Categories</span>
+        </div>
+        <p className="mt-1 text-[11px] leading-4 text-gray-400">Verified Sri Lankan supplier sectors</p>
       </div>
       <nav className="space-y-0.5 px-1">
-        {categories.map((cat) => (
+        {visibleCategories.map((cat) => (
           <Link
             key={cat.slug}
             href={`/categories/${cat.slug}`}
             className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800 group transition-colors"
           >
-            <span className="flex-1 text-[13px] leading-tight line-clamp-1">{cat.label}</span>
+            <span className="flex-1 text-[13px] leading-tight line-clamp-1">{cat.displayLabel || cat.label}</span>
             <ChevronRight size={12} className="text-gray-300 group-hover:text-primary-600" />
           </Link>
         ))}
