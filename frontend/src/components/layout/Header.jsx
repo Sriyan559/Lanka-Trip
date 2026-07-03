@@ -12,7 +12,7 @@
  *  ✅ WAF-safe cookie auth
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { cloneElement, useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -139,9 +139,11 @@ export default function Header() {
 
   const closeTimerRef = useRef(null);
   const typeRef = useRef(null);
+  const headerRef = useRef(null);
 
   const openMenu = useCallback((name) => {
     clearTimeout(closeTimerRef.current);
+    setTypeOpen(false);
     setActiveMenu(name);
   }, []);
 
@@ -153,13 +155,28 @@ export default function Header() {
     clearTimeout(closeTimerRef.current);
   }, []);
 
-  // Close type dropdown on outside click
+  // Close dropdowns on outside click and Escape.
   useEffect(() => {
-    const h = (e) => {
-      if (!typeRef.current?.contains(e.target)) setTypeOpen(false);
+    const handlePointerDown = (event) => {
+      if (!headerRef.current?.contains(event.target)) {
+        setTypeOpen(false);
+        setActiveMenu(null);
+      }
     };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setTypeOpen(false);
+        setActiveMenu(null);
+        setMobileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   // Close menus on route change
@@ -236,27 +253,42 @@ export default function Header() {
   });
 
   /* ── Shared hover menu wrapper ─────────────────── */
-  const HoverWrapper = ({ name, children, trigger }) => (
+  const HoverWrapper = ({ name, children, trigger, align = 'right' }) => {
+    const triggerWithClick = cloneElement(trigger, {
+      type: trigger.type === 'button' ? 'button' : trigger.props.type,
+      'aria-expanded': activeMenu === name,
+      'aria-haspopup': 'menu',
+      onClick: (event) => {
+        trigger.props.onClick?.(event);
+        event.preventDefault();
+        event.stopPropagation();
+        openMenu(name);
+      },
+    });
+
+    return (
     <div
       className="relative"
       onMouseEnter={() => openMenu(name)}
       onMouseLeave={scheduleClose}
     >
-      {trigger}
+      {triggerWithClick}
       {activeMenu === name && (
         <div
-          className="absolute top-full right-0 z-50 animate-slide-up"
+          className={`absolute top-full z-[70] animate-slide-up ${align === 'left' ? 'left-0' : 'right-0'}`}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
+          role="menu"
         >
           {children}
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
+    <header ref={headerRef} className="sticky top-0 z-50 bg-white shadow-sm">
       {/* ── Top bar ──────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-screen-xl mx-auto px-3 sm:px-4 h-[60px] flex items-center gap-2 sm:gap-3">
@@ -272,19 +304,24 @@ export default function Header() {
           </Link>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="min-w-0 flex-1 flex items-center border-2 border-primary-800 rounded-full overflow-hidden h-10 shadow-sm">
+          <form onSubmit={handleSearch} className="min-w-0 flex-1 flex items-center border-2 border-primary-800 rounded-full h-10 shadow-sm">
             {/* Type dropdown */}
             <div ref={typeRef} className="relative flex-shrink-0">
               <button
                 type="button"
-                onClick={() => setTypeOpen((o) => !o)}
+                onClick={() => {
+                  setActiveMenu(null);
+                  setTypeOpen((o) => !o);
+                }}
+                aria-expanded={typeOpen}
+                aria-haspopup="listbox"
                 className="flex items-center gap-1 px-2 sm:px-3 h-10 text-sm font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
               >
                 {searchType}
                 <ChevronDown size={13} className={`transition-transform ${typeOpen ? 'rotate-180' : ''}`} />
               </button>
               {typeOpen && (
-                <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[130px] py-1">
+                <div className="absolute left-0 top-full z-[80] mt-1 min-w-[130px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                   {SEARCH_TYPES.map((t) => (
                     <button
                       key={t}
@@ -341,7 +378,7 @@ export default function Header() {
               <HoverWrapper
                 name="notifications"
                 trigger={
-                  <button className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-gray-600 hover:text-primary-700 hover:bg-gray-50 rounded-lg transition-colors relative">
+              <button type="button" className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-gray-600 hover:text-primary-700 hover:bg-gray-50 rounded-lg transition-colors relative">
                     <span className="relative">
                       <Bell size={19} />
                       {unreadNotifications > 0 && (
@@ -375,7 +412,7 @@ export default function Header() {
             <HoverWrapper
               name="user"
               trigger={
-                <button className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-gray-600 hover:text-primary-700 hover:bg-gray-50 rounded-lg transition-colors">
+                <button type="button" className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 text-gray-600 hover:text-primary-700 hover:bg-gray-50 rounded-lg transition-colors">
                   {isAuthenticated ? (
                     <div className="w-5 h-5 rounded-full bg-primary-800 text-white text-[10px] font-bold flex items-center justify-center">
                       {initials(user?.name || 'U')}
@@ -487,13 +524,14 @@ export default function Header() {
 
       {/* ── Secondary / mega-menu nav ──────────────────────────── */}
       <div className="bg-primary-800 text-white relative">
-        <div className="max-w-screen-xl mx-auto px-4 h-9 flex items-center gap-0.5 overflow-hidden">
+        <div className="max-w-screen-xl mx-auto px-4 h-9 flex items-center gap-0.5 overflow-visible">
 
           {/* All Categories — mega dropdown */}
           <HoverWrapper
             name="categories"
+            align="left"
             trigger={
-              <button className="flex items-center gap-1.5 px-3 h-9 text-sm font-medium text-white hover:bg-primary-700 whitespace-nowrap transition-colors">
+              <button type="button" className="flex items-center gap-1.5 px-3 h-9 text-sm font-medium text-white hover:bg-primary-700 whitespace-nowrap transition-colors">
                 <Menu size={14} />
                 All Categories
                 <ChevronDown size={12} className={`transition-transform ${activeMenu === 'categories' ? 'rotate-180' : ''}`} />
@@ -578,7 +616,7 @@ export default function Header() {
             <HoverWrapper
               name="supplier"
               trigger={
-                <button className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
+                <button type="button" className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
                   Supplier <ChevronDown size={11} className={`transition-transform ${activeMenu === 'supplier' ? 'rotate-180' : ''}`} />
                 </button>
               }
@@ -604,7 +642,7 @@ export default function Header() {
             <HoverWrapper
               name="buyer"
               trigger={
-                <button className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
+                <button type="button" className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
                   Buyer <ChevronDown size={11} className={`transition-transform ${activeMenu === 'buyer' ? 'rotate-180' : ''}`} />
                 </button>
               }
@@ -629,7 +667,7 @@ export default function Header() {
             <HoverWrapper
               name="help"
               trigger={
-                <button className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
+                <button type="button" className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
                   Help <ChevronDown size={11} className={`transition-transform ${activeMenu === 'help' ? 'rotate-180' : ''}`} />
                 </button>
               }
@@ -648,7 +686,7 @@ export default function Header() {
             <HoverWrapper
               name="apps"
               trigger={
-                <button className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
+                <button type="button" className="hidden md:flex items-center gap-0.5 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
                   Apps <ChevronDown size={11} />
                 </button>
               }
@@ -661,7 +699,7 @@ export default function Header() {
                   { label: 'iOS App',     sub: 'App Store',    icon: '🍎', href: '/apps' },
                   { label: 'Android App', sub: 'Google Play',  icon: '▶',  href: '/apps' },
                 ].map(({ label, sub, icon, href }) => (
-                  <Link key={label} href={href} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 group">
+                  <Link key={label} href={href} onClick={() => setActiveMenu(null)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 group">
                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-lg">{icon}</div>
                     <div>
                       <div className="text-sm font-medium text-gray-800">{label}</div>
@@ -670,7 +708,7 @@ export default function Header() {
                   </Link>
                 ))}
                 <div className="mt-2 pt-2 border-t border-gray-100 px-4">
-                  <Link href="/apps" className="text-xs text-primary-700 hover:underline">View all apps →</Link>
+                  <Link href="/apps" onClick={() => setActiveMenu(null)} className="text-xs text-primary-700 hover:underline">View all apps →</Link>
                 </div>
               </div>
             </HoverWrapper>
@@ -679,14 +717,14 @@ export default function Header() {
             <HoverWrapper
               name="lang"
               trigger={
-                <button className="hidden md:flex items-center gap-1 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
+                <button type="button" className="hidden md:flex items-center gap-1 px-3 h-9 text-sm text-primary-100 hover:text-white hover:bg-primary-700 transition-colors">
                   <Globe size={13} /> EN <ChevronDown size={11} />
                 </button>
               }
             >
               <div className="w-48 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 mt-1">
                 {LANGUAGE_OPTIONS.map((lang) => (
-                  <button key={lang} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
+                  <button key={lang} type="button" onClick={() => setActiveMenu(null)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-800">
                     {lang}
                   </button>
                 ))}
