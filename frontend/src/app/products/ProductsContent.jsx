@@ -231,12 +231,12 @@ export default function ProductsContent() {
 
   /* ── Filter sidebar content ─────────────────────────── */
   const FilterContent = () => (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h3 className="font-bold text-sm text-gray-800">Sourcing filters</h3>
         {hasFilters && (
-          <button onClick={clearFilters} className="text-xs text-primary-700 hover:underline flex items-center gap-0.5">
+          <button onClick={clearFilters} className="flex flex-shrink-0 items-center gap-0.5 text-xs text-primary-700 hover:underline">
             <X size={11} /> Clear All
           </button>
         )}
@@ -340,7 +340,7 @@ export default function ProductsContent() {
       {/* Price range */}
       <div>
         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Price (USD/Unit)</div>
-        <div className="flex gap-1.5 items-center mb-2">
+        <div className="flex items-center gap-1.5 mb-2">
           <input
             type="number"
             placeholder="Min"
@@ -420,9 +420,9 @@ export default function ProductsContent() {
   );
 
   return (
-    <div>
+    <div className="min-w-0">
       {/* Breadcrumb */}
-      <div className="text-sm text-gray-400 mb-4 flex items-center gap-1.5 flex-wrap">
+      <div className="mb-3 flex min-w-0 flex-wrap items-center gap-1.5 text-xs text-gray-400 sm:mb-4 sm:text-sm">
         <a href="/" className="hover:text-primary-700 transition-colors">Home</a>
         <span>/</span>
         <span className="text-gray-700">Products</span>
@@ -440,7 +440,7 @@ export default function ProductsContent() {
         )}
       </div>
 
-      <section className="mb-5 rounded-xl border border-primary-100 bg-white p-4 shadow-sm sm:p-5">
+      <section className="mb-4 rounded-xl border border-primary-100 bg-white p-3.5 shadow-sm sm:mb-5 sm:p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">B2B product sourcing</p>
@@ -462,7 +462,7 @@ export default function ProductsContent() {
             </div>
             <button
               type="submit"
-              className="rounded-lg bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+              className="rounded-lg bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 sm:flex-shrink-0"
             >
               Search products
             </button>
@@ -470,32 +470,36 @@ export default function ProductsContent() {
         </div>
       </section>
 
-      <div className="flex gap-5">
+      <div className="flex min-w-0 gap-5">
         {/* ── Desktop filter sidebar ── */}
         <aside className="hidden lg:block flex-shrink-0 w-64">
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sticky top-20">
+          <div className="sticky top-20 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <FilterContent />
           </div>
         </aside>
 
         {/* ── Mobile filter drawer ── */}
         {filtersOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 flex">
+          <div className="fixed inset-0 z-40 flex lg:hidden">
             <div className="absolute inset-0 bg-black/40" onClick={() => setFiltersOpen(false)} />
-            <div className="relative w-[min(22rem,calc(100vw-2rem))] bg-white h-full overflow-y-auto p-4 shadow-2xl animate-slide-up">
-              <div className="flex items-center justify-between mb-4">
+            <div className="relative flex h-full w-[min(22rem,calc(100vw-2rem))] flex-col bg-white shadow-2xl animate-slide-up">
+              <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
                 <h3 className="font-bold text-gray-800">Filters</h3>
                 <button onClick={() => setFiltersOpen(false)} className="p-1.5 hover:bg-gray-100 rounded-lg">
                   <X size={18} />
                 </button>
               </div>
-              <FilterContent />
-              <button
-                onClick={() => setFiltersOpen(false)}
-                className="mt-4 w-full py-2.5 bg-primary-800 text-white text-sm font-semibold rounded-xl"
-              >
-                Show Results ({total})
-              </button>
+              <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <FilterContent />
+              </div>
+              <div className="border-t border-gray-100 p-4">
+                <button
+                  onClick={() => setFiltersOpen(false)}
+                  className="w-full py-2.5 bg-primary-800 text-white text-sm font-semibold rounded-xl"
+                >
+                  Show Results ({total})
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -503,18 +507,18 @@ export default function ProductsContent() {
         {/* ── Main content ── */}
         <div className="flex-1 min-w-0">
           {/* Toolbar */}
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <button
                 onClick={() => setFiltersOpen(true)}
-                className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-300 shadow-sm transition-colors"
+                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 shadow-sm transition-colors hover:border-gray-300 lg:hidden"
               >
                 <SlidersHorizontal size={14} /> Filters
                 {hasFilters && <span className="w-2 h-2 rounded-full bg-accent-500 flex-shrink-0" />}
               </button>
 
               {q && (
-                <div className="flex min-w-0 items-center gap-1 bg-primary-50 text-primary-800 text-sm px-3 py-1.5 rounded-lg border border-primary-100">
+                <div className="flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-primary-100 bg-primary-50 px-3 py-1.5 text-sm text-primary-800">
                   <Search size={13} />
                   <span className="font-medium truncate">&quot;{q}&quot;</span>
                 </div>
@@ -527,15 +531,15 @@ export default function ProductsContent() {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end">
               {/* Sort */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:flex-none">
                 <span className="text-xs text-gray-500 hidden sm:block">Sort by:</span>
-                <div className="relative">
+                <div className="relative min-w-0 flex-1 sm:flex-none">
                   <select
                     value={sort}
                     onChange={(e) => pushParams({ sort: e.target.value })}
-                    className="appearance-none pl-3 pr-7 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white outline-none hover:border-gray-300 cursor-pointer shadow-sm"
+                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white py-1.5 pl-3 pr-7 text-sm text-gray-700 shadow-sm outline-none hover:border-gray-300 cursor-pointer sm:w-auto"
                   >
                     {SORT_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>{o.label}</option>
@@ -546,7 +550,7 @@ export default function ProductsContent() {
               </div>
 
               {/* View toggle */}
-              <div className="flex border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="flex flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 shadow-sm">
                 <button
                   onClick={() => setView('grid')}
                   className={`p-1.5 transition-colors ${view === 'grid' ? 'bg-primary-800 text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
@@ -567,33 +571,33 @@ export default function ProductsContent() {
 
           {/* Active filters chips */}
           {hasFilters && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="mb-4 flex min-w-0 flex-wrap gap-2">
               {q && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  Search: {q}
+                <span className="flex max-w-full items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
+                  <span className="truncate">Search: {q}</span>
                   <button onClick={() => { setKeyword(''); pushParams({ q: '' }); }} aria-label="Remove search filter">
                     <X size={11} />
                   </button>
                 </span>
               )}
               {selCat && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  Category: {selectedCategoryLabel}
+                <span className="flex max-w-full items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
+                  <span className="truncate">Category: {selectedCategoryLabel}</span>
                   <button onClick={() => { setSelCat(''); pushParams({ category: '' }); }} aria-label="Remove category filter">
                     <X size={11} />
                   </button>
                 </span>
               )}
               {selSupplier && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  Supplier: {selectedSupplierLabel}
+                <span className="flex max-w-full items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
+                  <span className="truncate">Supplier: {selectedSupplierLabel}</span>
                   <button onClick={() => { setSelSupplier(''); pushParams({ supplier_id: '' }); }} aria-label="Remove supplier filter">
                     <X size={11} />
                   </button>
                 </span>
               )}
               {selVerified && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                <span className="flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
                   Verified suppliers
                   <button onClick={() => { setSelVerified(''); pushParams({ verified_supplier: '' }); }} aria-label="Remove verified supplier filter">
                     <X size={11} />
@@ -601,7 +605,7 @@ export default function ProductsContent() {
                 </span>
               )}
               {(priceMin || priceMax) && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                <span className="flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
                   Price: {priceMin || '0'}–{priceMax || '∞'}
                   <button onClick={() => { setPriceMin(''); setPriceMax(''); pushParams({ price_min: '', price_max: '' }); }} aria-label="Remove price filter">
                     <X size={11} />
@@ -609,7 +613,7 @@ export default function ProductsContent() {
                 </span>
               )}
               {maxOrder && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                <span className="flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
                   MOQ up to {maxOrder}
                   <button onClick={() => { setMaxOrder(''); pushParams({ max_order: '' }); }} aria-label="Remove MOQ filter">
                     <X size={11} />
@@ -617,7 +621,7 @@ export default function ProductsContent() {
                 </span>
               )}
               {selLeadTime && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                <span className="flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
                   {selectedLeadTimeLabel}
                   <button onClick={() => { setSelLeadTime(''); pushParams({ lead_time_max: '' }); }} aria-label="Remove lead time filter">
                     <X size={11} />
@@ -625,16 +629,16 @@ export default function ProductsContent() {
                 </span>
               )}
               {selPort && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  Port: {selectedPortLabel}
+                <span className="flex max-w-full items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
+                  <span className="truncate">Port: {selectedPortLabel}</span>
                   <button onClick={() => { setSelPort(''); pushParams({ port: '' }); }} aria-label="Remove port filter">
                     <X size={11} />
                   </button>
                 </span>
               )}
               {selStatus && (
-                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  {selectedStatusLabel}
+                <span className="flex max-w-full items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
+                  <span className="truncate">{selectedStatusLabel}</span>
                   <button onClick={() => { setSelStatus(''); pushParams({ status: '' }); }} aria-label="Remove listing type filter">
                     <X size={11} />
                   </button>
@@ -667,7 +671,7 @@ export default function ProductsContent() {
             <>
               <div className={view === 'grid'
                 ? 'grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4'
-                : 'space-y-3'
+                : 'space-y-3 sm:space-y-4'
               }>
                 {products.map((p) => (
                   <B2BProductCard key={p.id} product={p} viewMode={view} />
