@@ -16,11 +16,11 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SlidersHorizontal, LayoutGrid, List, ChevronDown, X, Search } from 'lucide-react';
+import { SlidersHorizontal, LayoutGrid, List, ChevronDown, X, Search, ShieldCheck } from 'lucide-react';
 import B2BProductCard from '@/components/product/B2BProductCard';
 import Pagination from '@/components/ui/Pagination';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { productsApi } from '@/lib/api';
+import { productsApi, suppliersApi } from '@/lib/api';
 import { normalizeProductResponse } from '@/lib/products';
 import useCategories from '@/hooks/useCategories';
 
@@ -33,11 +33,51 @@ const SORT_OPTIONS = [
 ];
 
 const MIN_ORDER_OPTIONS = [
-  { label: 'Any quantity', value: '' },
-  { label: 'Less than 50', value: '50' },
-  { label: 'Less than 100', value: '100' },
-  { label: 'Less than 500', value: '500' },
+  { label: 'Any MOQ', value: '' },
+  { label: 'MOQ up to 50', value: '50' },
+  { label: 'MOQ up to 100', value: '100' },
+  { label: 'MOQ up to 500', value: '500' },
 ];
+
+const LEAD_TIME_OPTIONS = [
+  { label: 'Any lead time', value: '' },
+  { label: 'Ready within 7 days', value: '7' },
+  { label: 'Ready within 14 days', value: '14' },
+  { label: 'Ready within 30 days', value: '30' },
+  { label: 'Ready within 45 days', value: '45' },
+];
+
+const PORT_OPTIONS = [
+  { label: 'Any export port', value: '' },
+  { label: 'Colombo Port', value: 'Colombo' },
+  { label: 'Hambantota Port', value: 'Hambantota' },
+  { label: 'Bandaranaike Airport', value: 'Bandaranaike' },
+];
+
+const STATUS_OPTIONS = [
+  { label: 'All products', value: '' },
+  { label: 'Active listings', value: 'active' },
+  { label: 'Featured products', value: 'featured' },
+  { label: 'Export ready', value: 'export_ready' },
+];
+
+function normalizeSupplierOptions(response) {
+  const rows = Array.isArray(response?.data)
+    ? response.data
+    : Array.isArray(response?.suppliers)
+      ? response.suppliers
+      : Array.isArray(response)
+        ? response
+        : [];
+
+  return rows
+    .map((supplier) => ({
+      id: supplier.id ?? supplier.supplier_id,
+      name: supplier.company_name || supplier.name || supplier.business_name || 'Verified supplier',
+      verified: Boolean(supplier.verified || supplier.verification_status === 'verified'),
+    }))
+    .filter((supplier) => supplier.id);
+}
 
 export default function ProductsContent() {
   const searchParams = useSearchParams();
@@ -50,21 +90,35 @@ export default function ProductsContent() {
   const urlPriceMin = searchParams.get('price_min') || '';
   const urlPriceMax = searchParams.get('price_max') || '';
   const urlMaxOrder = searchParams.get('max_order') || '';
+  const supplierId = searchParams.get('supplier_id') || '';
+  const verifiedSupplier = searchParams.get('verified_supplier') || '';
+  const leadTimeMax = searchParams.get('lead_time_max') || '';
+  const port = searchParams.get('port') || '';
+  const productStatus = searchParams.get('status') || '';
 
   const [products,    setProducts]    = useState([]);
+  const [suppliers,   setSuppliers]   = useState([]);
   const [totalPages,  setTotalPages]  = useState(1);
   const [total,       setTotal]       = useState(0);
   const [loading,     setLoading]     = useState(true);
+  const [supplierLoading, setSupplierLoading] = useState(false);
+  const [supplierError, setSupplierError] = useState('');
   const [error,       setError]       = useState('');
   const [reloadKey,   setReloadKey]   = useState(0);
   const [view,        setView]        = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   /* Filter state */
+  const [keyword,     setKeyword]     = useState(q);
   const [selCat,      setSelCat]      = useState(category);
   const [priceMin,    setPriceMin]    = useState(urlPriceMin);
   const [priceMax,    setPriceMax]    = useState(urlPriceMax);
   const [maxOrder,    setMaxOrder]    = useState(urlMaxOrder);
+  const [selSupplier, setSelSupplier] = useState(supplierId);
+  const [selVerified, setSelVerified] = useState(verifiedSupplier);
+  const [selLeadTime, setSelLeadTime] = useState(leadTimeMax);
+  const [selPort,     setSelPort]     = useState(port);
+  const [selStatus,   setSelStatus]   = useState(productStatus);
   const { categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories } = useCategories();
 
   const pushParams = (updates) => {
@@ -81,6 +135,11 @@ export default function ProductsContent() {
     pushParams({ price_min: priceMin, price_max: priceMax });
   };
 
+  const applyKeywordSearch = (event) => {
+    event.preventDefault();
+    pushParams({ q: keyword.trim() });
+  };
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -90,6 +149,11 @@ export default function ProductsContent() {
           search: q, category, sort, page,
           price_min: urlPriceMin, price_max: urlPriceMax,
           max_order: urlMaxOrder,
+          supplier_id: supplierId,
+          verified_supplier: verifiedSupplier,
+          lead_time_max: leadTimeMax,
+          port,
+          status: productStatus,
         });
         const normalized = normalizeProductResponse(data);
         setProducts(normalized.data);
@@ -105,37 +169,122 @@ export default function ProductsContent() {
       }
     };
     load();
-  }, [category, sort, page, q, urlPriceMin, urlPriceMax, urlMaxOrder, reloadKey]);
+  }, [category, sort, page, q, urlPriceMin, urlPriceMax, urlMaxOrder, supplierId, verifiedSupplier, leadTimeMax, port, productStatus, reloadKey]);
 
   useEffect(() => {
+    let active = true;
+
+    const loadSuppliers = async () => {
+      setSupplierLoading(true);
+      setSupplierError('');
+      try {
+        const data = await suppliersApi.list({ per_page: 20, verified: 1 });
+        if (active) setSuppliers(normalizeSupplierOptions(data));
+      } catch (supplierLoadError) {
+        if (active) {
+          setSuppliers([]);
+          setSupplierError(supplierLoadError.message || 'Supplier filters unavailable.');
+        }
+      } finally {
+        if (active) setSupplierLoading(false);
+      }
+    };
+
+    loadSuppliers();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    setKeyword(q);
     setSelCat(category);
     setPriceMin(urlPriceMin);
     setPriceMax(urlPriceMax);
     setMaxOrder(urlMaxOrder);
-  }, [category, urlPriceMin, urlPriceMax, urlMaxOrder]);
+    setSelSupplier(supplierId);
+    setSelVerified(verifiedSupplier);
+    setSelLeadTime(leadTimeMax);
+    setSelPort(port);
+    setSelStatus(productStatus);
+  }, [q, category, urlPriceMin, urlPriceMax, urlMaxOrder, supplierId, verifiedSupplier, leadTimeMax, port, productStatus]);
 
   const clearFilters = () => {
     setSelCat('');
     setPriceMin('');
     setPriceMax('');
     setMaxOrder('');
+    setSelSupplier('');
+    setSelVerified('');
+    setSelLeadTime('');
+    setSelPort('');
+    setSelStatus('');
     router.push('/products');
   };
 
-  const hasFilters = category || urlPriceMin || urlPriceMax || urlMaxOrder;
+  const selectedCategoryLabel = categories.find(c => c.slug === selCat)?.label || selCat;
+  const selectedSupplierLabel = suppliers.find(supplier => String(supplier.id) === String(selSupplier))?.name || 'Selected supplier';
+  const selectedLeadTimeLabel = LEAD_TIME_OPTIONS.find(option => option.value === selLeadTime)?.label;
+  const selectedPortLabel = PORT_OPTIONS.find(option => option.value === selPort)?.label || selPort;
+  const selectedStatusLabel = STATUS_OPTIONS.find(option => option.value === selStatus)?.label || selStatus;
+  const hasFilters = q || category || urlPriceMin || urlPriceMax || urlMaxOrder || supplierId || verifiedSupplier || leadTimeMax || port || productStatus;
 
   /* ── Filter sidebar content ─────────────────────────── */
   const FilterContent = () => (
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-sm text-gray-800">Filter</h3>
+        <h3 className="font-bold text-sm text-gray-800">Sourcing filters</h3>
         {hasFilters && (
           <button onClick={clearFilters} className="text-xs text-primary-700 hover:underline flex items-center gap-0.5">
             <X size={11} /> Clear All
           </button>
         )}
       </div>
+
+      {/* Supplier */}
+      <div>
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Supplier</div>
+        <select
+          value={selSupplier}
+          onChange={(event) => {
+            setSelSupplier(event.target.value);
+            pushParams({ supplier_id: event.target.value });
+          }}
+          className="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm text-gray-700 bg-white outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-100"
+        >
+          <option value="">All suppliers</option>
+          {suppliers.map((supplier) => (
+            <option key={supplier.id} value={supplier.id}>
+              {supplier.name}{supplier.verified ? ' - Verified' : ''}
+            </option>
+          ))}
+        </select>
+        {supplierLoading && <p className="mt-1.5 text-xs text-gray-400">Loading suppliers...</p>}
+        {supplierError && <p className="mt-1.5 text-xs text-gray-400">Supplier list unavailable; product results still work.</p>}
+      </div>
+
+      {/* Verified supplier */}
+      <label className="flex items-start gap-2 rounded-lg border border-primary-100 bg-primary-50/70 px-3 py-2.5 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={selVerified === '1'}
+          onChange={(event) => {
+            const value = event.target.checked ? '1' : '';
+            setSelVerified(value);
+            pushParams({ verified_supplier: value });
+          }}
+          className="mt-0.5 accent-primary-700 w-3.5 h-3.5"
+        />
+        <span>
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-primary-900">
+            <ShieldCheck size={13} /> Verified suppliers only
+          </span>
+          <span className="block text-[11px] leading-snug text-primary-700 mt-0.5">
+            Prioritize export-ready Sri Lankan suppliers for Maldives sourcing.
+          </span>
+        </span>
+      </label>
 
       {/* Category */}
       <div>
@@ -167,7 +316,7 @@ export default function ProductsContent() {
 
       {/* Min Order */}
       <div>
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Min. Order</div>
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">MOQ</div>
         <div className="space-y-0.5">
           {MIN_ORDER_OPTIONS.map((opt) => (
             <label key={opt.value} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -216,6 +365,57 @@ export default function ProductsContent() {
         </button>
       </div>
 
+      {/* Lead time */}
+      <div>
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lead time</div>
+        <select
+          value={selLeadTime}
+          onChange={(event) => {
+            setSelLeadTime(event.target.value);
+            pushParams({ lead_time_max: event.target.value });
+          }}
+          className="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm text-gray-700 bg-white outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-100"
+        >
+          {LEAD_TIME_OPTIONS.map((option) => (
+            <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Port */}
+      <div>
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Export port</div>
+        <select
+          value={selPort}
+          onChange={(event) => {
+            setSelPort(event.target.value);
+            pushParams({ port: event.target.value });
+          }}
+          className="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm text-gray-700 bg-white outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-100"
+        >
+          {PORT_OPTIONS.map((option) => (
+            <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Product status */}
+      <div>
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Listing type</div>
+        <select
+          value={selStatus}
+          onChange={(event) => {
+            setSelStatus(event.target.value);
+            pushParams({ status: event.target.value });
+          }}
+          className="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm text-gray-700 bg-white outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-100"
+        >
+          {STATUS_OPTIONS.map((option) => (
+            <option key={option.value || 'all'} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
     </div>
   );
 
@@ -240,9 +440,39 @@ export default function ProductsContent() {
         )}
       </div>
 
+      <section className="mb-5 rounded-xl border border-primary-100 bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">B2B product sourcing</p>
+            <h1 className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">Find export-ready Sri Lankan products</h1>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              Search verified suppliers, compare MOQ and FOB pricing, then send inquiries for Maldives-ready sourcing.
+            </p>
+          </div>
+          <form onSubmit={applyKeywordSearch} className="flex w-full min-w-0 flex-col gap-2 sm:flex-row lg:max-w-xl">
+            <div className="relative flex-1 min-w-0">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder="Search tea, coconut, cinnamon, apparel..."
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100"
+              />
+            </div>
+            <button
+              type="submit"
+              className="rounded-lg bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+            >
+              Search products
+            </button>
+          </form>
+        </div>
+      </section>
+
       <div className="flex gap-5">
         {/* ── Desktop filter sidebar ── */}
-        <aside className="hidden lg:block flex-shrink-0 w-52">
+        <aside className="hidden lg:block flex-shrink-0 w-64">
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sticky top-20">
             <FilterContent />
           </div>
@@ -252,7 +482,7 @@ export default function ProductsContent() {
         {filtersOpen && (
           <div className="lg:hidden fixed inset-0 z-40 flex">
             <div className="absolute inset-0 bg-black/40" onClick={() => setFiltersOpen(false)} />
-            <div className="relative w-72 bg-white h-full overflow-y-auto p-4 shadow-2xl animate-slide-up">
+            <div className="relative w-[min(22rem,calc(100vw-2rem))] bg-white h-full overflow-y-auto p-4 shadow-2xl animate-slide-up">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-800">Filters</h3>
                 <button onClick={() => setFiltersOpen(false)} className="p-1.5 hover:bg-gray-100 rounded-lg">
@@ -274,7 +504,7 @@ export default function ProductsContent() {
         <div className="flex-1 min-w-0">
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <button
                 onClick={() => setFiltersOpen(true)}
                 className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-300 shadow-sm transition-colors"
@@ -284,9 +514,9 @@ export default function ProductsContent() {
               </button>
 
               {q && (
-                <div className="flex items-center gap-1 bg-primary-50 text-primary-800 text-sm px-3 py-1.5 rounded-lg border border-primary-100">
+                <div className="flex min-w-0 items-center gap-1 bg-primary-50 text-primary-800 text-sm px-3 py-1.5 rounded-lg border border-primary-100">
                   <Search size={13} />
-                  <span className="font-medium">&quot;{q}&quot;</span>
+                  <span className="font-medium truncate">&quot;{q}&quot;</span>
                 </div>
               )}
 
@@ -297,7 +527,7 @@ export default function ProductsContent() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Sort */}
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-gray-500 hidden sm:block">Sort by:</span>
@@ -338,10 +568,34 @@ export default function ProductsContent() {
           {/* Active filters chips */}
           {hasFilters && (
             <div className="flex flex-wrap gap-2 mb-4">
+              {q && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  Search: {q}
+                  <button onClick={() => { setKeyword(''); pushParams({ q: '' }); }} aria-label="Remove search filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
               {selCat && (
                 <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
-                  {categories.find(c => c.slug === selCat)?.label || selCat}
-                  <button onClick={() => { setSelCat(''); pushParams({ category: '' }); }}>
+                  Category: {selectedCategoryLabel}
+                  <button onClick={() => { setSelCat(''); pushParams({ category: '' }); }} aria-label="Remove category filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
+              {selSupplier && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  Supplier: {selectedSupplierLabel}
+                  <button onClick={() => { setSelSupplier(''); pushParams({ supplier_id: '' }); }} aria-label="Remove supplier filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
+              {selVerified && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  Verified suppliers
+                  <button onClick={() => { setSelVerified(''); pushParams({ verified_supplier: '' }); }} aria-label="Remove verified supplier filter">
                     <X size={11} />
                   </button>
                 </span>
@@ -349,7 +603,39 @@ export default function ProductsContent() {
               {(priceMin || priceMax) && (
                 <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
                   Price: {priceMin || '0'}–{priceMax || '∞'}
-                  <button onClick={() => { setPriceMin(''); setPriceMax(''); pushParams({ price_min: '', price_max: '' }); }}>
+                  <button onClick={() => { setPriceMin(''); setPriceMax(''); pushParams({ price_min: '', price_max: '' }); }} aria-label="Remove price filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
+              {maxOrder && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  MOQ up to {maxOrder}
+                  <button onClick={() => { setMaxOrder(''); pushParams({ max_order: '' }); }} aria-label="Remove MOQ filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
+              {selLeadTime && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  {selectedLeadTimeLabel}
+                  <button onClick={() => { setSelLeadTime(''); pushParams({ lead_time_max: '' }); }} aria-label="Remove lead time filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
+              {selPort && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  Port: {selectedPortLabel}
+                  <button onClick={() => { setSelPort(''); pushParams({ port: '' }); }} aria-label="Remove port filter">
+                    <X size={11} />
+                  </button>
+                </span>
+              )}
+              {selStatus && (
+                <span className="flex items-center gap-1.5 text-xs bg-primary-50 text-primary-800 px-2.5 py-1 rounded-full border border-primary-100 font-medium">
+                  {selectedStatusLabel}
+                  <button onClick={() => { setSelStatus(''); pushParams({ status: '' }); }} aria-label="Remove listing type filter">
                     <X size={11} />
                   </button>
                 </span>
@@ -380,7 +666,7 @@ export default function ProductsContent() {
           ) : (
             <>
               <div className={view === 'grid'
-                ? 'grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4'
+                ? 'grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4'
                 : 'space-y-3'
               }>
                 {products.map((p) => (

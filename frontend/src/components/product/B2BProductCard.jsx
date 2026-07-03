@@ -184,9 +184,9 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
 
   /* ── List view ────────────────────────────────────────── */
   return (
-    <div className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md hover:border-gray-200 flex gap-4 p-4 transition-all duration-200">
+    <div className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md hover:border-gray-200 flex flex-col gap-3 p-3 transition-all duration-200 sm:flex-row sm:gap-4 sm:p-4">
       {/* Thumbnail */}
-      <Link href={productHref} className="flex-shrink-0 w-28 h-28 rounded-lg overflow-hidden bg-gray-50 border border-gray-100">
+      <Link href={productHref} className="flex-shrink-0 w-full h-40 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 sm:h-28 sm:w-28">
         <Image
           src={image || `https://placehold.co/280x280/f0fdf4/155e2c?text=${encodeURIComponent((name || 'Product').slice(0, 12))}`}
           alt={name}
@@ -236,7 +236,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
       </div>
 
       {/* Price + CTA */}
-      <div className="flex-shrink-0 flex flex-col items-end justify-between text-right min-w-[140px]">
+      <div className="flex-shrink-0 flex flex-col justify-between text-left sm:min-w-[140px] sm:items-end sm:text-right">
         <div>
           <div className="text-primary-800 font-bold text-base">
             {displayPriceMax
@@ -250,10 +250,10 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-1.5 mt-3">
+        <div className="flex flex-col gap-1.5 mt-3 sm:w-auto">
           <button
             onClick={handleInquire}
-            className="w-full px-4 py-1.5 bg-primary-800 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap"
+            className="w-full px-4 py-2 bg-primary-800 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap sm:py-1.5"
           >
             Send Inquiry
           </button>
