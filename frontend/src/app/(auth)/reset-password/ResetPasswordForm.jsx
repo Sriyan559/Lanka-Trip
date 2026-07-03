@@ -43,8 +43,8 @@ export default function ResetPasswordForm() {
       await authApi.resetPassword({
         email,
         token,
-        password: btoa(form.password),
-        password_confirmation: btoa(form.confirmation),
+        password: form.password,
+        password_confirmation: form.confirmation,
       });
       setComplete(true);
     } catch (requestError) {

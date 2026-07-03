@@ -51,6 +51,8 @@ class DatabaseSeeder extends Seeder
             SupplierSeeder::class,
             UserRoleSeeder::class,
             ProductSeeder::class,
+            DemoMarketplaceSeeder::class,
+            UserRoleSeeder::class,
             SupplierStorefrontSeeder::class,
             ProductTagSeeder::class,
             ProductImageSeeder::class,

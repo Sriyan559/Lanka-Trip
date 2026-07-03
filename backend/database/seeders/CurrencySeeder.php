@@ -17,6 +17,7 @@ class CurrencySeeder extends Seeder
             ['code' => 'GBP', 'name' => 'Pound Sterling', 'symbol' => 'GBP', 'decimal_places' => 2],
             ['code' => 'AUD', 'name' => 'Australian Dollar', 'symbol' => 'A$', 'decimal_places' => 2],
             ['code' => 'CAD', 'name' => 'Canadian Dollar', 'symbol' => 'C$', 'decimal_places' => 2],
+            ['code' => 'MVR', 'name' => 'Maldivian Rufiyaa', 'symbol' => 'Rf', 'decimal_places' => 2],
             ['code' => 'INR', 'name' => 'Indian Rupee', 'symbol' => 'INR', 'decimal_places' => 2],
             ['code' => 'AED', 'name' => 'United Arab Emirates Dirham', 'symbol' => 'AED', 'decimal_places' => 2],
             ['code' => 'SGD', 'name' => 'Singapore Dollar', 'symbol' => 'S$', 'decimal_places' => 2],

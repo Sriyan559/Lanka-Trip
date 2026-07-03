@@ -65,8 +65,8 @@ export default function RegisterForm() {
         phone: form.phone.trim() || null,
         country: form.country.trim() || null,
         role,
-        password:              btoa(form._el_pw),
-        password_confirmation: btoa(form._el_pw2),
+        password:              form._el_pw,
+        password_confirmation: form._el_pw2,
       });
       toast.success('Account created! Welcome to EcomLanka.');
       router.push('/dashboard');

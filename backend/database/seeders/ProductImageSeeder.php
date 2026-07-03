@@ -37,7 +37,7 @@ class ProductImageSeeder extends Seeder
                 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=80',
             ],
             'virgin-coconut-oil' => [
-                'https://images.unsplash.com/photo-1581375383689-4f8f974d6b82?auto=format&fit=crop&w=900&q=80',
+                'https://placehold.co/900x700/fff9c4/854d0e?text=Virgin+Coconut+Oil',
                 'https://images.unsplash.com/photo-1553787499-6f9133860278?auto=format&fit=crop&w=900&q=80',
                 'https://images.unsplash.com/photo-1573812461383-e5f8b759d12e?auto=format&fit=crop&w=900&q=80',
             ],
@@ -86,7 +86,7 @@ class ProductImageSeeder extends Seeder
         Product::query()->each(function (Product $product) use ($galleryImages): void {
             $images = $galleryImages[$product->slug] ?? [
                 $product->featured_image,
-                'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
+                'https://placehold.co/900x700/e0f2fe/075985?text=Sri+Lanka+Export+Shipment',
                 'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?auto=format&fit=crop&w=900&q=80',
             ];
 

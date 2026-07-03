@@ -17,6 +17,7 @@ class CountrySeeder extends Seeder
             ['iso2' => 'GB', 'iso3' => 'GBR', 'name' => 'United Kingdom', 'phone_code' => '+44'],
             ['iso2' => 'AU', 'iso3' => 'AUS', 'name' => 'Australia', 'phone_code' => '+61'],
             ['iso2' => 'CA', 'iso3' => 'CAN', 'name' => 'Canada', 'phone_code' => '+1'],
+            ['iso2' => 'MV', 'iso3' => 'MDV', 'name' => 'Maldives', 'phone_code' => '+960'],
             ['iso2' => 'AE', 'iso3' => 'ARE', 'name' => 'United Arab Emirates', 'phone_code' => '+971'],
             ['iso2' => 'SG', 'iso3' => 'SGP', 'name' => 'Singapore', 'phone_code' => '+65'],
             ['iso2' => 'DE', 'iso3' => 'DEU', 'name' => 'Germany', 'phone_code' => '+49'],
