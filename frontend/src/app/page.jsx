@@ -5,6 +5,7 @@ import HeroSlider         from '@/components/home/HeroSlider';
 import YouMayLike         from '@/components/home/YouMayLike';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
+import ExportCategorySection from '@/components/home/ExportCategorySection';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
 import TrendingKeywords   from '@/components/home/TrendingKeywords';
 import EasySourcingSection from '@/components/home/EasySourcingSection';
@@ -96,6 +97,9 @@ export default async function HomePage() {
 
         {/* ── Trending products grid ─────────────────────────── */}
         <TrendingProducts products={sections.trending_products} />
+
+        {/* ── Export category sourcing section, backed by Laravel categories ── */}
+        <ExportCategorySection />
 
         {/* ── Source UI/UX product category sections, backed by Laravel data ── */}
         {categorySections.map((section) => (
