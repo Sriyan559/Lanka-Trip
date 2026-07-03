@@ -38,13 +38,13 @@ export default function CategoryGridSection({ section }) {
   } = section;
 
   return (
-    <section className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <section className="mt-5 sm:mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Section header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+      <div className="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-gray-100 sm:px-5">
         <h2 className="text-base font-bold text-gray-800">{title}</h2>
         <Link
           href={promoHref}
-          className="flex items-center gap-1 text-sm text-primary-700 hover:text-primary-800 hover:underline font-medium"
+          className="flex flex-shrink-0 items-center gap-1 text-sm text-primary-700 hover:text-primary-800 hover:underline font-medium"
         >
           View All <ArrowRight size={13} />
         </Link>
@@ -54,7 +54,7 @@ export default function CategoryGridSection({ section }) {
       <div className="flex flex-col sm:flex-row">
         {/* Left: Promo tile */}
         <div
-          className="sm:w-48 lg:w-56 flex-shrink-0 relative flex flex-col justify-between p-5 min-h-[180px]"
+          className="sm:w-48 lg:w-56 flex-shrink-0 relative flex flex-col justify-between p-4 sm:p-5 min-h-[150px] sm:min-h-[180px]"
           style={{ background: promoBg || '#155e2c' }}
         >
           {promoImage && (
@@ -81,14 +81,14 @@ export default function CategoryGridSection({ section }) {
         </div>
 
         {/* Right: 8-item grid */}
-        <div className="flex-1 grid grid-cols-4 divide-x divide-y divide-gray-100">
+        <div className="flex-1 grid grid-cols-2 divide-x divide-y divide-gray-100 sm:grid-cols-4">
           {items.slice(0, 8).map((item) => (
             <Link
               key={item.id || item.slug || item.label}
               href={item.href || `/categories/${item.slug}`}
               className="flex flex-col items-center justify-center gap-2 p-3 hover:bg-primary-50 group transition-colors"
             >
-              <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-200 transition-colors flex-shrink-0">
+              <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-200 transition-colors flex-shrink-0">
                 <Image
                   src={item.image || `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent((item.label || 'Product').slice(0, 16))}`}
                   alt={item.label}
