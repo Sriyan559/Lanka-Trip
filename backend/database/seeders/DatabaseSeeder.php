@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             CurrencySeeder::class,
             LanguageSeeder::class,
+            PaymentMethodSeeder::class,
             UserSeeder::class,
             UserRoleSeeder::class,
             CategorySeeder::class,
