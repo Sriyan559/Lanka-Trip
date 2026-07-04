@@ -20,7 +20,7 @@ const BEAUTY_MARKETPLACE_CATEGORIES = [
     label: 'Skincare',
     keywords: ['skincare', 'skin', 'serum', 'cleanser', 'moisturizer'],
     summary: 'Cleansers, serums, moisturizers, SPF, and daily care',
-    buyerNeed: 'Shoppers, salons, retailers',
+    buyerNeed: 'Shoppers, salons, authorized retailers',
     query: 'Skincare',
     Icon: Leaf,
     accent: 'text-emerald-700 bg-emerald-50 border-emerald-100',
@@ -29,7 +29,7 @@ const BEAUTY_MARKETPLACE_CATEGORIES = [
     label: 'Hair Care',
     keywords: ['hair', 'shampoo', 'conditioner', 'treatment', 'mask'],
     summary: 'Shampoo, conditioner, treatments, masks, and styling care',
-    buyerNeed: 'Salons, retailers, shoppers',
+    buyerNeed: 'Salons, retailers, distributors',
     query: 'Hair Care',
     Icon: Waves,
     accent: 'text-cyan-700 bg-cyan-50 border-cyan-100',
@@ -38,7 +38,7 @@ const BEAUTY_MARKETPLACE_CATEGORIES = [
     label: 'Fragrance',
     keywords: ['fragrance', 'perfume', 'cologne'],
     summary: 'Perfume, body mist, premium fragrance, and gift edits',
-    buyerNeed: 'Shoppers, boutiques, retailers',
+    buyerNeed: 'Shoppers, boutiques, authorized sellers',
     query: 'Fragrance',
     Icon: Sparkles,
     accent: 'text-amber-700 bg-amber-50 border-amber-100',
@@ -47,7 +47,7 @@ const BEAUTY_MARKETPLACE_CATEGORIES = [
     label: 'Makeup',
     keywords: ['makeup', 'cosmetic', 'foundation', 'lipstick', 'mascara'],
     summary: 'Face, lip, eye, cheek, and long-wear cosmetic picks',
-    buyerNeed: 'Beauty shoppers and stores',
+    buyerNeed: 'Beauty shoppers and retailers',
     query: 'Makeup',
     Icon: Shirt,
     accent: 'text-sky-700 bg-sky-50 border-sky-100',
@@ -82,8 +82,8 @@ const BEAUTY_MARKETPLACE_CATEGORIES = [
   {
     label: 'Professional Beauty',
     keywords: ['professional', 'salon', 'spa', 'retail'],
-    summary: 'Retailer, salon, and distributor-ready beauty selections',
-    buyerNeed: 'Beauty suppliers and retailers',
+    summary: 'Authorized seller, retailer, salon, and distributor-ready beauty selections',
+    buyerNeed: 'Beauty suppliers, retailers, distributors',
     query: 'Professional Beauty',
     Icon: Box,
     accent: 'text-orange-700 bg-orange-50 border-orange-100',
@@ -142,7 +142,7 @@ export default function ExportCategorySection() {
               Shop trusted beauty products by category
             </h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              Built for shoppers, beauty suppliers, salons, retailers, and distributors discovering authentic brands in Sri Lanka.
+              Built for shoppers, verified beauty brands, authorized sellers, retailers, and distributors discovering authentic beauty in Sri Lanka.
             </p>
           </div>
 
@@ -169,7 +169,7 @@ export default function ExportCategorySection() {
             {loading ? 'Syncing backend categories' : `${connectedCount} matched backend categories`}
           </span>
           <span className="rounded-full bg-gray-50 px-2.5 py-1">Safe search fallback enabled</span>
-          <span className="rounded-full bg-gray-50 px-2.5 py-1">Brand verified seller paths</span>
+          <span className="rounded-full bg-gray-50 px-2.5 py-1">Authorized seller and distributor paths</span>
           {error && (
             <button
               type="button"

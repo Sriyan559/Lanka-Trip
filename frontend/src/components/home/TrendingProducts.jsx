@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Heart, ShoppingBasket, Star } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { TRENDING_PRODUCTS } from '@/lib/constants';
 
 const BEAUTY_FOCUS = [
   { label: 'Makeup', keywords: ['makeup', 'lipstick', 'foundation', 'concealer', 'mascara', 'eyeliner', 'blush'] },
@@ -14,14 +15,16 @@ const BEAUTY_FOCUS = [
 ];
 
 const fallbackProducts = [
-  'L’Oréal Paris Infallible Foundation',
-  'Maybelline SuperStay Matte Ink',
-  'CeraVe Moisturizing Cream',
-  'The Ordinary Niacinamide Serum',
-  'Garnier Vitamin C Serum',
-  'Kérastase Hair Serum',
-  'Lancôme La Vie Est Belle',
-  'NYX Butter Gloss',
+  'Gentle Hydrating Cleanser',
+  'Vitamin C Brightening Serum',
+  'SPF 50 Daily Sunscreen',
+  'Long Wear Matte Lipstick',
+  'Bond Repair Shampoo',
+  'Signature Eau de Parfum',
+  'Soft Glow Body Lotion',
+  'Pore Care Clay Face Mask',
+  'Nourishing Hair Oil',
+  'Essential Beauty Tools Set',
 ];
 
 const fallbackImage = (label = 'Beauty Product') =>
@@ -83,8 +86,12 @@ function normalizeForCard(product, index) {
 }
 
 export default function TrendingProducts({ products }) {
-  const items = Array.isArray(products)
+  const sourceProducts = Array.isArray(products) && products.length > 0
     ? products
+    : TRENDING_PRODUCTS;
+
+  const items = Array.isArray(sourceProducts)
+    ? sourceProducts
       .map(normalizeForCard)
       .sort((a, b) => a.focusScore - b.focusScore)
       .slice(0, 8)
@@ -100,7 +107,7 @@ export default function TrendingProducts({ products }) {
             <p className="text-xs font-semibold uppercase tracking-wide text-pink-700">Trending Beauty</p>
             <h2 className="mt-1 text-lg font-bold text-gray-900 sm:text-xl">Best Sellers & New Favourites</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
-              Shop original makeup, skincare, fragrance, hair care, and daily beauty essentials loved by SL Beauty customers.
+              Shop original makeup, skincare, fragrance, haircare, bath and body, wellness, and beauty tools from verified beauty brands and authorized sellers.
             </p>
           </div>
           <Link
