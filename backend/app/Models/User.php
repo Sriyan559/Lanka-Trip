@@ -100,6 +100,16 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'buyer_id');
     }
 
+    public function createdBrands(): HasMany
+    {
+        return $this->hasMany(Brand::class, 'created_by');
+    }
+
+    public function reviewedSellerBrandAuthorizations(): HasMany
+    {
+        return $this->hasMany(SellerBrandAuthorization::class, 'reviewed_by');
+    }
+
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);

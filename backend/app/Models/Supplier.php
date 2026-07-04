@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -97,6 +98,29 @@ class Supplier extends Model
     public function productionCapacity(): HasOne
     {
         return $this->hasOne(ProductionCapacity::class);
+    }
+
+    public function sellerBrandAuthorizations(): HasMany
+    {
+        return $this->hasMany(SellerBrandAuthorization::class);
+    }
+
+    public function brands(): BelongsToMany
+    {
+        return $this->belongsToMany(Brand::class, 'seller_brand_authorizations')
+            ->withPivot([
+                'id',
+                'authorization_type',
+                'territory',
+                'document_path',
+                'starts_at',
+                'expires_at',
+                'status',
+                'reviewed_by',
+                'reviewed_at',
+                'review_notes',
+            ])
+            ->withTimestamps();
     }
 
     public function reviews(): HasMany

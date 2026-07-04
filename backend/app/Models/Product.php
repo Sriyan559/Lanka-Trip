@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -66,6 +67,16 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)
             ->orderBy('sort_order')
             ->orderBy('id');
+    }
+
+    public function beautyProfile(): HasOne
+    {
+        return $this->hasOne(ProductBeautyProfile::class);
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 
     public function inquiryCartItems(): HasMany
