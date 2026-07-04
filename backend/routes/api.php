@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\SLBeauty\PublicBeautyController;
 use App\Http\Controllers\SLBeauty\SupplierBeautyProfileController;
+use App\Http\Controllers\SLBeauty\SupplierBrandAuthorizationController;
 use App\Http\Controllers\SLBeauty\SupplierProductVariantController;
 use Illuminate\Support\Facades\Route;
 
@@ -194,6 +195,17 @@ Route::middleware('auth:sanctum')->group(function () {
             ->whereNumber(['product', 'variant']);
         Route::delete('/products/{product}/variants/{variant}', [SupplierProductVariantController::class, 'destroy'])
             ->whereNumber(['product', 'variant']);
+
+        Route::get('/brand-authorizations', [SupplierBrandAuthorizationController::class, 'index']);
+        Route::post('/brand-authorizations', [SupplierBrandAuthorizationController::class, 'store']);
+        Route::get('/brand-authorizations/{authorization}', [SupplierBrandAuthorizationController::class, 'show'])
+            ->whereNumber('authorization');
+        Route::put('/brand-authorizations/{authorization}', [SupplierBrandAuthorizationController::class, 'update'])
+            ->whereNumber('authorization');
+        Route::post('/brand-authorizations/{authorization}/submit', [SupplierBrandAuthorizationController::class, 'submit'])
+            ->whereNumber('authorization');
+        Route::delete('/brand-authorizations/{authorization}', [SupplierBrandAuthorizationController::class, 'destroy'])
+            ->whereNumber('authorization');
     });
 
     Route::get('/supplier/certificates', [SupplierProfileController::class, 'certificates']);
