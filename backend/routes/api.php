@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\SLBeauty\PublicBeautyController;
+use App\Http\Controllers\SLBeauty\SupplierBeautyProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json([
@@ -171,6 +172,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/supplier/products/{id}', [SupplierProductController::class, 'show'])->whereNumber('id');
     Route::put('/supplier/products/{id}', [SupplierProductController::class, 'update'])->whereNumber('id');
     Route::delete('/supplier/products/{id}', [SupplierProductController::class, 'destroy'])->whereNumber('id');
+
+    Route::prefix('supplier/sl-beauty')->group(function () {
+        Route::get('/products/{product}/beauty-profile', [SupplierBeautyProfileController::class, 'show'])
+            ->whereNumber('product');
+        Route::put('/products/{product}/beauty-profile', [SupplierBeautyProfileController::class, 'upsert'])
+            ->whereNumber('product');
+        Route::post('/products/{product}/beauty-profile/submit-compliance', [SupplierBeautyProfileController::class, 'submitCompliance'])
+            ->whereNumber('product');
+    });
 
     Route::get('/supplier/certificates', [SupplierProfileController::class, 'certificates']);
     Route::post('/supplier/certificates', [SupplierProfileController::class, 'storeCertificate']);
