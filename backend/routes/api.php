@@ -23,6 +23,9 @@ use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\SLBeauty\PublicBeautyController;
+use App\Http\Controllers\SLBeauty\SupplierBeautyProfileController;
+use App\Http\Controllers\SLBeauty\SupplierBrandAuthorizationController;
+use App\Http\Controllers\SLBeauty\SupplierProductVariantController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json([
@@ -171,6 +174,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/supplier/products/{id}', [SupplierProductController::class, 'show'])->whereNumber('id');
     Route::put('/supplier/products/{id}', [SupplierProductController::class, 'update'])->whereNumber('id');
     Route::delete('/supplier/products/{id}', [SupplierProductController::class, 'destroy'])->whereNumber('id');
+
+    Route::prefix('supplier/sl-beauty')->group(function () {
+        Route::get('/products/{product}/beauty-profile', [SupplierBeautyProfileController::class, 'show'])
+            ->whereNumber('product');
+        Route::put('/products/{product}/beauty-profile', [SupplierBeautyProfileController::class, 'upsert'])
+            ->whereNumber('product');
+        Route::post('/products/{product}/beauty-profile/submit-compliance', [SupplierBeautyProfileController::class, 'submitCompliance'])
+            ->whereNumber('product');
+
+        Route::get('/products/{product}/variants', [SupplierProductVariantController::class, 'index'])
+            ->whereNumber('product');
+        Route::post('/products/{product}/variants', [SupplierProductVariantController::class, 'store'])
+            ->whereNumber('product');
+        Route::get('/products/{product}/variants/{variant}', [SupplierProductVariantController::class, 'show'])
+            ->whereNumber(['product', 'variant']);
+        Route::put('/products/{product}/variants/{variant}', [SupplierProductVariantController::class, 'update'])
+            ->whereNumber(['product', 'variant']);
+        Route::patch('/products/{product}/variants/{variant}/status', [SupplierProductVariantController::class, 'updateStatus'])
+            ->whereNumber(['product', 'variant']);
+        Route::delete('/products/{product}/variants/{variant}', [SupplierProductVariantController::class, 'destroy'])
+            ->whereNumber(['product', 'variant']);
+
+        Route::get('/brand-authorizations', [SupplierBrandAuthorizationController::class, 'index']);
+        Route::post('/brand-authorizations', [SupplierBrandAuthorizationController::class, 'store']);
+        Route::get('/brand-authorizations/{authorization}', [SupplierBrandAuthorizationController::class, 'show'])
+            ->whereNumber('authorization');
+        Route::put('/brand-authorizations/{authorization}', [SupplierBrandAuthorizationController::class, 'update'])
+            ->whereNumber('authorization');
+        Route::post('/brand-authorizations/{authorization}/submit', [SupplierBrandAuthorizationController::class, 'submit'])
+            ->whereNumber('authorization');
+        Route::delete('/brand-authorizations/{authorization}', [SupplierBrandAuthorizationController::class, 'destroy'])
+            ->whereNumber('authorization');
+    });
 
     Route::get('/supplier/certificates', [SupplierProfileController::class, 'certificates']);
     Route::post('/supplier/certificates', [SupplierProfileController::class, 'storeCertificate']);
