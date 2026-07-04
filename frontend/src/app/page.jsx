@@ -5,11 +5,11 @@ import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
 import { getHomeSections } from '@/lib/services';
+import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
 export const metadata = {
-  title: 'SL Beauty Platform — Beauty Ecommerce Marketplace',
-  description:
-    'Shop original beauty brands, skincare, makeup, fragrance, hair care, gifts, and daily beauty essentials in Sri Lanka.',
+  title: `${SL_BEAUTY_DISPLAY_CONFIG.displayName} — Sri Lanka Beauty Marketplace`,
+  description: SL_BEAUTY_DISPLAY_CONFIG.description,
 };
 
 const sectionImageFallback = (label = 'Beauty Product') =>
@@ -37,7 +37,7 @@ function buildHomeCategorySections(sections) {
       id: 'featured-products',
       title: 'Featured Beauty Picks',
       promoTitle: 'Original Beauty Essentials',
-      promoSubtitle: 'Discover makeup, skincare, fragrance, and hair care favourites',
+      promoSubtitle: 'Discover authentic skincare, cosmetics, fragrance, wellness, and haircare favourites',
       promoBg: 'linear-gradient(135deg, #9f1239 0%, #f472b6 100%)',
       promoImage: featuredProducts[0]?.featured_image || featuredProducts[0]?.image,
       promoHref: '/products?featured=1',
@@ -47,7 +47,7 @@ function buildHomeCategorySections(sections) {
       id: 'trending-products',
       title: 'Trending Beauty Picks',
       promoTitle: 'Most-Loved Beauty Finds',
-      promoSubtitle: 'Explore products shoppers are adding to their routines',
+      promoSubtitle: 'Explore brand verified products shoppers and retailers are adding to their routines',
       promoBg: 'linear-gradient(135deg, #111827 0%, #be185d 100%)',
       promoImage: trendingProducts[0]?.featured_image || trendingProducts[0]?.image,
       promoHref: '/products?sort=trending',
@@ -57,7 +57,7 @@ function buildHomeCategorySections(sections) {
       id: 'recommended-products',
       title: 'Recommended for You',
       promoTitle: 'More Beauty To Love',
-      promoSubtitle: 'Discover related products and new routine ideas',
+      promoSubtitle: 'Find trusted beauty brands, retailer picks, and new routine ideas',
       promoBg: 'linear-gradient(135deg, #7e22ce 0%, #fb7185 100%)',
       promoImage: recommendations[0]?.featured_image || recommendations[0]?.image,
       promoHref: '/products',

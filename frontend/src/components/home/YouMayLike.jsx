@@ -45,12 +45,12 @@ export default function YouMayLike({ recommendations }) {
         })}
       </div>
       <div className="px-3 py-2 border-t border-gray-100">
-        <p className="text-[11px] text-gray-400 mb-1.5">Can&apos;t find what you need?</p>
+        <p className="text-[11px] text-gray-400 mb-1.5">Looking for more beauty picks?</p>
         <Link
-          href="/rfq"
+          href="/products"
           className="block text-center text-xs py-1.5 border border-accent-500 text-accent-600 rounded-lg hover:bg-accent-50 font-medium transition-colors"
         >
-          Post Your Request
+          Shop All Products
         </Link>
       </div>
     </aside>

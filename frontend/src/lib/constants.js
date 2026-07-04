@@ -1,4 +1,6 @@
 // TODO: Rename legacy constant name in a later cleanup.
+import { SL_BEAUTY_CATEGORY_SLUGS } from './slBeautyConfig';
+
 export const SRI_LANKA_CATEGORIES = [
   { slug: 'makeup',          label: 'Makeup',          icon: '💄' },
   { slug: 'skincare',        label: 'Skincare',        icon: '🧴' },
@@ -14,7 +16,7 @@ export const SRI_LANKA_CATEGORIES = [
   { slug: 'gift-sets',       label: 'Gift Sets',       icon: '🎁' },
   { slug: 'sale',            label: 'Sale & Offers',   icon: '🏷️' },
   { slug: 'new-arrivals',    label: 'New Arrivals',    icon: '🆕' },
-];
+].filter((category) => SL_BEAUTY_CATEGORY_SLUGS.includes(category.slug));
 
 export const HERO_SLIDES = [
   {
@@ -48,8 +50,8 @@ export const YOU_MAY_LIKE = [
 
 export const FEATURED_CARDS = [
   {
-    title:    'Original Beauty',
-    subtitle: 'Trusted skincare, makeup, fragrance, and hair care',
+    title:    'Authentic Beauty',
+    subtitle: 'Trusted skincare, cosmetics, fragrance, wellness, and haircare',
     bg:       'from-pink-800 to-rose-500',
     href:     '/products',
   },
@@ -60,8 +62,8 @@ export const FEATURED_CARDS = [
     href:     '/products?sale=1',
   },
   {
-    title:    'Premium Brands',
-    subtitle: 'Explore global favourites and everyday essentials',
+    title:    'Verified Brands',
+    subtitle: 'Explore original brands and brand verified sellers',
     bg:       'from-purple-800 to-fuchsia-500',
     href:     '/brands',
   },
@@ -91,7 +93,7 @@ export const TRENDING_PRODUCTS = [
 export const SOURCING_SOLUTIONS = [
   {
     title:    'New Arrivals',
-    subtitle: 'Fresh makeup, skincare, fragrance, and hair care launches',
+    subtitle: 'Fresh cosmetics, skincare, fragrance, and haircare launches',
     tags:     ['New Makeup', 'New Skincare', 'New Fragrance'],
     bg:       'https://placehold.co/760x420/fdf2f8/9f1239?text=New+Arrivals',
     href:     '/products?sort=new',

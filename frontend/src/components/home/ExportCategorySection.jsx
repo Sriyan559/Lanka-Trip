@@ -15,76 +15,76 @@ import {
 } from 'lucide-react';
 import useCategories from '@/hooks/useCategories';
 
-const EXPORT_CATEGORIES = [
+const BEAUTY_MARKETPLACE_CATEGORIES = [
   {
-    label: 'Ceylon Tea',
-    keywords: ['tea', 'beverage'],
-    summary: 'Bulk tea, hospitality packs, private label blends',
-    buyerNeed: 'Hotels, resorts, distributors',
-    query: 'Ceylon Tea',
+    label: 'Skincare',
+    keywords: ['skincare', 'skin', 'serum', 'cleanser', 'moisturizer'],
+    summary: 'Cleansers, serums, moisturizers, SPF, and daily care',
+    buyerNeed: 'Shoppers, salons, retailers',
+    query: 'Skincare',
     Icon: Leaf,
     accent: 'text-emerald-700 bg-emerald-50 border-emerald-100',
   },
   {
-    label: 'Coconut Products',
-    keywords: ['coconut', 'coir'],
-    summary: 'Virgin coconut oil, coir, spa and retail goods',
-    buyerNeed: 'Wellness, retail, resort supply',
-    query: 'Coconut Products',
+    label: 'Hair Care',
+    keywords: ['hair', 'shampoo', 'conditioner', 'treatment', 'mask'],
+    summary: 'Shampoo, conditioner, treatments, masks, and styling care',
+    buyerNeed: 'Salons, retailers, shoppers',
+    query: 'Hair Care',
     Icon: Waves,
     accent: 'text-cyan-700 bg-cyan-50 border-cyan-100',
   },
   {
-    label: 'Spices & Cinnamon',
-    keywords: ['spice', 'cinnamon', 'condiment'],
-    summary: 'True cinnamon, pepper, cloves, blends, bulk packs',
-    buyerNeed: 'Food service, grocery, importers',
-    query: 'Spices Cinnamon',
+    label: 'Fragrance',
+    keywords: ['fragrance', 'perfume', 'cologne'],
+    summary: 'Perfume, body mist, premium fragrance, and gift edits',
+    buyerNeed: 'Shoppers, boutiques, retailers',
+    query: 'Fragrance',
     Icon: Sparkles,
     accent: 'text-amber-700 bg-amber-50 border-amber-100',
   },
   {
-    label: 'Apparel & Textiles',
-    keywords: ['apparel', 'textile', 'fabric', 'batik'],
-    summary: 'Garments, fabric, resort uniforms, batik ranges',
-    buyerNeed: 'Hospitality, retail, uniforms',
-    query: 'Apparel Textiles',
+    label: 'Makeup',
+    keywords: ['makeup', 'cosmetic', 'foundation', 'lipstick', 'mascara'],
+    summary: 'Face, lip, eye, cheek, and long-wear cosmetic picks',
+    buyerNeed: 'Beauty shoppers and stores',
+    query: 'Makeup',
     Icon: Shirt,
     accent: 'text-sky-700 bg-sky-50 border-sky-100',
   },
   {
-    label: 'Handicrafts',
-    keywords: ['handicraft', 'gift', 'wood'],
-    summary: 'Resort gifts, decor, handmade export collections',
-    buyerNeed: 'Gift shops, resorts, interiors',
-    query: 'Handicrafts',
+    label: 'Beauty Tools',
+    keywords: ['tool', 'brush', 'sponge', 'blender'],
+    summary: 'Brushes, applicators, sponges, mirrors, and routine tools',
+    buyerNeed: 'Makeup lovers, salons, retailers',
+    query: 'Beauty Tools',
     Icon: Palette,
     accent: 'text-rose-700 bg-rose-50 border-rose-100',
   },
   {
-    label: 'Wellness & Ayurveda',
+    label: 'Wellness',
     keywords: ['ayurvedic', 'ayurveda', 'herbal', 'wellness'],
-    summary: 'Spa oils, herbal products, wellness amenities',
-    buyerNeed: 'Spas, resorts, wellness retail',
-    query: 'Ayurvedic Wellness',
+    summary: 'Natural beauty, wellness care, spa essentials, and self-care',
+    buyerNeed: 'Spas, retailers, shoppers',
+    query: 'Wellness Beauty',
     Icon: Sprout,
     accent: 'text-lime-700 bg-lime-50 border-lime-100',
   },
   {
-    label: 'Packaging Products',
-    keywords: ['packaging', 'box', 'carton'],
-    summary: 'Gift boxes, retail packs, export cartons, labels',
-    buyerNeed: 'Retail, logistics, resort supply',
-    query: 'Packaging Products',
+    label: 'Gift Sets',
+    keywords: ['gift', 'set', 'bundle', 'mini'],
+    summary: 'Value sets, minis, beauty gifts, and seasonal bundles',
+    buyerNeed: 'Gift shoppers and retailers',
+    query: 'Gift Sets',
     Icon: PackageCheck,
     accent: 'text-indigo-700 bg-indigo-50 border-indigo-100',
   },
   {
-    label: 'Food & Agriculture',
-    keywords: ['food', 'agriculture', 'seafood', 'fisheries'],
-    summary: 'Agri exports, processed foods, seafood suppliers',
-    buyerNeed: 'Distributors, kitchens, importers',
-    query: 'Food Agriculture',
+    label: 'Professional Beauty',
+    keywords: ['professional', 'salon', 'spa', 'retail'],
+    summary: 'Retailer, salon, and distributor-ready beauty selections',
+    buyerNeed: 'Beauty suppliers and retailers',
+    query: 'Professional Beauty',
     Icon: Box,
     accent: 'text-orange-700 bg-orange-50 border-orange-100',
   },
@@ -109,7 +109,7 @@ function buildCategoryHref(category, fallbackQuery) {
 export default function ExportCategorySection() {
   const { categories, loading, error, retry } = useCategories();
 
-  const exportCards = EXPORT_CATEGORIES.map((category) => {
+  const beautyCards = BEAUTY_MARKETPLACE_CATEGORIES.map((category) => {
     const match = categories.find((item) => categoryMatches(item, category.keywords));
     const productCount = Number(
       match?.products_count
@@ -127,7 +127,7 @@ export default function ExportCategorySection() {
     };
   });
 
-  const connectedCount = exportCards.filter((category) => category.isBackendMatch).length;
+  const connectedCount = beautyCards.filter((category) => category.isBackendMatch).length;
 
   return (
     <section className="mt-5 sm:mt-6 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
@@ -136,13 +136,13 @@ export default function ExportCategorySection() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-800">
               <BadgeCheck size={14} />
-              Export-ready categories
+              Beauty marketplace categories
             </div>
             <h2 className="mt-3 text-lg font-bold text-gray-900 sm:text-2xl">
-              Source Sri Lankan products by verified export sector
+              Shop trusted beauty products by category
             </h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              Built for B2B buyers sourcing for Maldives hospitality, retail, wellness, food service, and distribution channels.
+              Built for shoppers, beauty suppliers, salons, retailers, and distributors discovering authentic brands in Sri Lanka.
             </p>
           </div>
 
@@ -155,10 +155,10 @@ export default function ExportCategorySection() {
               <ArrowRight size={14} />
             </Link>
             <Link
-              href="/rfq"
+              href="/partners"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-700 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
             >
-              Post RFQ
+              Partner with SL Beauty
               <ArrowRight size={14} />
             </Link>
           </div>
@@ -169,7 +169,7 @@ export default function ExportCategorySection() {
             {loading ? 'Syncing backend categories' : `${connectedCount} matched backend categories`}
           </span>
           <span className="rounded-full bg-gray-50 px-2.5 py-1">Safe search fallback enabled</span>
-          <span className="rounded-full bg-gray-50 px-2.5 py-1">RFQ-ready sourcing paths</span>
+          <span className="rounded-full bg-gray-50 px-2.5 py-1">Brand verified seller paths</span>
           {error && (
             <button
               type="button"
@@ -183,7 +183,7 @@ export default function ExportCategorySection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        {exportCards.map(({ Icon, ...category }) => (
+        {beautyCards.map(({ Icon, ...category }) => (
           <Link
             key={category.label}
             href={category.href}
@@ -214,7 +214,7 @@ export default function ExportCategorySection() {
                 </p>
                 <div className="mt-3 flex items-center justify-between gap-3 text-xs">
                   <span className="font-medium text-gray-500">
-                    {category.productCount > 0 ? `${category.productCount} products` : 'View sourcing options'}
+                    {category.productCount > 0 ? `${category.productCount} products` : 'View beauty options'}
                   </span>
                   <span className="inline-flex items-center gap-1 font-semibold text-primary-700">
                     Explore
