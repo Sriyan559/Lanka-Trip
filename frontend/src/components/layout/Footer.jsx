@@ -85,14 +85,14 @@ export default function Footer() {
       <div className="border-t border-gray-200 bg-gray-100">
         <div className="max-w-screen-xl mx-auto px-4 py-4">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-gray-400 mb-2">
-            {['Hot Products','Ceylon Tea','Gems & Jewelry','Rubber Products','Spices','Ayurvedic'].map((item) => (
+            {['New Arrivals','Best Sellers','Makeup','Skincare','Fragrance','Gift Sets'].map((item) => (
               <Link key={item} href={`/search?q=${encodeURIComponent(item)}`} className="hover:text-primary-700">
                 {item}
               </Link>
             ))}
           </div>
           <div className="text-center text-xs text-gray-400 flex flex-wrap justify-center gap-x-3">
-            <span>© {year} EcomLanka · Sri Lanka B2B Export Marketplace</span>
+            <span>© {year} SL Beauty Platform · Premium Beauty Ecommerce Marketplace</span>
             <Link href="/terms"   className="hover:text-primary-700">Terms of Service</Link>
             <Link href="/privacy" className="hover:text-primary-700">Privacy Policy</Link>
             <Link href="/cookies" className="hover:text-primary-700">Cookie Policy</Link>

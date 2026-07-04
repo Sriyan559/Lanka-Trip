@@ -3,13 +3,7 @@ import Footer             from '@/components/layout/Footer';
 import HeroSlider         from '@/components/home/HeroSlider';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
-import ExportCategorySection from '@/components/home/ExportCategorySection';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
-import VerifiedSuppliers  from '@/components/home/VerifiedSuppliers';
-import EasySourcingSection from '@/components/home/EasySourcingSection';
-import SourcingSolutions  from '@/components/home/SourcingSolutions';
-import TradeShows         from '@/components/home/TradeShows';
-import FloatingActions    from '@/components/ui/FloatingActions';
 import { getHomeSections } from '@/lib/services';
 
 export const metadata = {
@@ -92,49 +86,13 @@ export default async function HomePage() {
         {/* ── Trending products grid ─────────────────────────── */}
         <TrendingProducts products={sections.trending_products} />
 
-        {/* ── Export category sourcing section, backed by Laravel categories ── */}
-        <ExportCategorySection />
-
-        {/* ── Source UI/UX product category sections, backed by Laravel data ── */}
+        {/* ── Beauty product category sections, backed by Laravel data ── */}
         {categorySections.map((section) => (
           <CategoryGridSection key={section.id} section={section} />
         ))}
 
-        {/* ── Verified supplier discovery, backed by Laravel data ── */}
-        <VerifiedSuppliers suppliers={sections.verified_suppliers} />
-
-        {/* ── Easy Sourcing / RFQ form ───────────────────────── */}
-        <EasySourcingSection />
-
-        {/* ── Secured Trading banner ─────────────────────────── */}
-        <div className="mt-5 sm:mt-6 bg-gradient-to-r from-primary-800 to-primary-600 rounded-lg sm:rounded-xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="text-white font-bold text-lg">Secured Trading Service</h2>
-            <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2">
-              {['🛡️ Funds Security', '✅ Audited Suppliers', '↩️ Refund Policy', '🔒 Service Guarantee'].map(f => (
-                <span key={f} className="text-primary-100 text-sm">{f}</span>
-              ))}
-            </div>
-          </div>
-          <a
-            href="/secured-trading"
-            className="w-full sm:w-auto text-center px-6 py-2.5 bg-white text-primary-800 font-semibold text-sm rounded-full hover:bg-gray-50 transition-colors shadow-sm"
-          >
-            Learn More
-          </a>
-        </div>
-
-        {/* ── Sourcing solutions ─────────────────────────────── */}
-        <SourcingSolutions />
-
-        {/* ── Trade shows ───────────────────────────────────── */}
-        <TradeShows />
-
       </main>
       <Footer />
-
-      {/* ── Sticky floating quick actions (RFQ · Help · App · ↑) */}
-      <FloatingActions />
     </>
   );
 }

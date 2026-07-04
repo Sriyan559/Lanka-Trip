@@ -37,9 +37,9 @@ export default function ForgotPasswordForm() {
           <Link href="/">
             <div className="inline-flex items-center gap-2">
               <div className="w-10 h-10 bg-primary-800 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
+                <span className="text-white font-bold text-xl">SL</span>
               </div>
-              <span className="text-xl font-bold text-primary-800">EcomLanka</span>
+              <span className="text-xl font-bold text-primary-800">SL Beauty</span>
             </div>
           </Link>
         </div>
