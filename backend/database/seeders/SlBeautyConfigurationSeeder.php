@@ -51,18 +51,16 @@ class SlBeautyConfigurationSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            DB::table('system_settings')->updateOrInsert(
+            $this->stableUpsert(
+                'system_settings',
                 ['setting_key' => $setting['setting_key']],
                 [
-                    'uuid' => (string) Str::uuid(),
                     'setting_group_id' => $groupIds[$setting['group']] ?? null,
                     'setting_type' => $setting['setting_type'],
                     'config_value' => json_encode($setting['value']),
                     'constraints' => null,
                     'is_public' => $setting['is_public'],
                     'status' => 'active',
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ],
             );
         }
@@ -98,16 +96,14 @@ class SlBeautyConfigurationSeeder extends Seeder
         ];
 
         foreach ($configs as $config) {
-            DB::table('platform_configurations')->updateOrInsert(
+            $this->stableUpsert(
+                'platform_configurations',
                 ['config_key' => $config['config_key']],
                 [
-                    'uuid' => (string) Str::uuid(),
                     'config_type' => $config['config_type'],
                     'config_value' => json_encode($config['value']),
                     'environment' => 'global',
                     'status' => 'active',
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ],
             );
         }
@@ -147,18 +143,40 @@ class SlBeautyConfigurationSeeder extends Seeder
         ];
 
         foreach ($flags as $flag) {
-            DB::table('feature_flags')->updateOrInsert(
+            $this->stableUpsert(
+                'feature_flags',
                 ['feature_key' => $flag['feature_key']],
                 [
-                    'uuid' => (string) Str::uuid(),
                     'name' => $flag['name'],
                     'description' => $flag['description'],
                     'is_enabled' => $flag['is_enabled'],
                     'status' => 'active',
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ],
             );
         }
+    }
+
+    private function stableUpsert(string $table, array $keys, array $values): void
+    {
+        $existing = DB::table($table)->where($keys)->first();
+
+        if ($existing) {
+            DB::table($table)
+                ->where('id', $existing->id)
+                ->update([
+                    ...$values,
+                    'updated_at' => now(),
+                ]);
+
+            return;
+        }
+
+        DB::table($table)->insert([
+            ...$keys,
+            ...$values,
+            'uuid' => (string) Str::uuid(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

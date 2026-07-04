@@ -144,16 +144,14 @@ class SlBeautyTaxonomySeeder extends Seeder
         foreach ($groups as $group) {
             $slug = Str::slug($group['name']);
 
-            DB::table('attribute_groups')->updateOrInsert(
+            $this->stableUpsert(
+                'attribute_groups',
                 ['slug' => $slug],
                 [
-                    'uuid' => (string) Str::uuid(),
                     'name' => $group['name'],
                     'description' => $group['description'],
                     'sort_order' => $group['sort_order'],
                     'status' => 'active',
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ],
             );
         }
@@ -180,10 +178,10 @@ class SlBeautyTaxonomySeeder extends Seeder
         foreach ($attributes as $attribute) {
             $slug = Str::slug($attribute['name']);
 
-            DB::table('product_attributes')->updateOrInsert(
+            $this->stableUpsert(
+                'product_attributes',
                 ['slug' => $slug],
                 [
-                    'uuid' => (string) Str::uuid(),
                     'attribute_group_id' => $groupIds[$attribute['group']] ?? null,
                     'name' => $attribute['name'],
                     'data_type' => $attribute['data_type'],
@@ -193,8 +191,6 @@ class SlBeautyTaxonomySeeder extends Seeder
                     'is_variant_defining' => $attribute['is_variant_defining'],
                     'sort_order' => $attribute['sort_order'],
                     'status' => 'active',
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ],
             );
         }
@@ -247,22 +243,44 @@ class SlBeautyTaxonomySeeder extends Seeder
                     continue;
                 }
 
-                DB::table('category_attributes')->updateOrInsert(
+                $this->stableUpsert(
+                    'category_attributes',
                     [
                         'category_id' => $categoryId,
                         'product_attribute_id' => $attributeId,
                     ],
                     [
-                        'uuid' => (string) Str::uuid(),
                         'is_required' => false,
                         'is_filterable' => ! in_array($attributeSlug, ['ingredient-list', 'allergen-notes'], true),
                         'sort_order' => ($index + 1) * 10,
                         'status' => 'active',
-                        'created_at' => now(),
-                        'updated_at' => now(),
                     ],
                 );
             }
         }
+    }
+
+    private function stableUpsert(string $table, array $keys, array $values): void
+    {
+        $existing = DB::table($table)->where($keys)->first();
+
+        if ($existing) {
+            DB::table($table)
+                ->where('id', $existing->id)
+                ->update([
+                    ...$values,
+                    'updated_at' => now(),
+                ]);
+
+            return;
+        }
+
+        DB::table($table)->insert([
+            ...$keys,
+            ...$values,
+            'uuid' => (string) Str::uuid(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }
