@@ -130,29 +130,13 @@ return new class extends Migration
     {
         Schema::dropIfExists('seller_brand_authorizations');
 
-        if (Schema::hasTable('product_variants')) {
-            Schema::table('product_variants', function (Blueprint $table) {
-                $columns = [
-                    'variant_name',
-                    'barcode',
-                    'shade_name',
-                    'shade_code',
-                    'size_label',
-                    'volume_ml',
-                    'weight_g',
-                    'retail_price',
-                    'sale_price',
-                    'low_stock_threshold',
-                    'is_active',
-                ];
-
-                $existingColumns = array_filter($columns, fn (string $column): bool => Schema::hasColumn('product_variants', $column));
-
-                if ($existingColumns !== []) {
-                    $table->dropColumn($existingColumns);
-                }
-            });
-        }
+        /*
+         * product_variants is a pre-existing enterprise catalogue table. Its SL
+         * Beauty extension columns are added with hasColumn guards in up(), so
+         * rollback cannot know whether same-named columns existed before this
+         * migration. Do not auto-drop them here; use a targeted rollback
+         * migration after schema ownership is confirmed for the environment.
+         */
 
         Schema::dropIfExists('product_beauty_profiles');
         Schema::dropIfExists('brands');
