@@ -6,7 +6,6 @@ import TrendingProducts   from '@/components/home/TrendingProducts';
 import ExportCategorySection from '@/components/home/ExportCategorySection';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
 import VerifiedSuppliers  from '@/components/home/VerifiedSuppliers';
-import TrendingKeywords   from '@/components/home/TrendingKeywords';
 import EasySourcingSection from '@/components/home/EasySourcingSection';
 import SourcingSolutions  from '@/components/home/SourcingSolutions';
 import TradeShows         from '@/components/home/TradeShows';
@@ -14,16 +13,16 @@ import FloatingActions    from '@/components/ui/FloatingActions';
 import { getHomeSections } from '@/lib/services';
 
 export const metadata = {
-  title: 'EcomLanka — Sri Lanka B2B Export Marketplace',
+  title: 'SL Beauty Platform — Beauty Ecommerce Marketplace',
   description:
-    'Find verified Sri Lankan exporters for tea, spices, gems, textiles and more. Source direct from certified suppliers.',
+    'Shop original beauty brands, skincare, makeup, fragrance, hair care, gifts, and daily beauty essentials in Sri Lanka.',
 };
 
-const sectionImageFallback = (label = 'Sri Lanka Export') =>
-  `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent(label.slice(0, 16))}`;
+const sectionImageFallback = (label = 'Beauty Product') =>
+  `https://placehold.co/160x160/fdf2f8/9f1239?text=${encodeURIComponent(label.slice(0, 16))}`;
 
 function productToCategoryGridItem(product) {
-  const label = product?.name || product?.label || 'Sri Lankan Export Product';
+  const label = product?.name || product?.label || 'Beauty Product';
   const categorySlug = product?.category?.slug || product?.category_slug || product?.slug || 'products';
 
   return {
@@ -42,20 +41,20 @@ function buildHomeCategorySections(sections) {
   return [
     {
       id: 'featured-products',
-      title: 'Featured Export Products',
-      promoTitle: 'Verified Sri Lankan Export Goods',
-      promoSubtitle: 'Source high-demand products from trusted suppliers',
-      promoBg: 'linear-gradient(135deg, #155e2c 0%, #16a34a 100%)',
+      title: 'Featured Beauty Picks',
+      promoTitle: 'Original Beauty Essentials',
+      promoSubtitle: 'Discover makeup, skincare, fragrance, and hair care favourites',
+      promoBg: 'linear-gradient(135deg, #9f1239 0%, #f472b6 100%)',
       promoImage: featuredProducts[0]?.featured_image || featuredProducts[0]?.image,
       promoHref: '/products?featured=1',
       items: featuredProducts.map(productToCategoryGridItem),
     },
     {
       id: 'trending-products',
-      title: 'Trending Marketplace Picks',
-      promoTitle: 'Popular Buyer Searches',
-      promoSubtitle: 'Explore products gaining traction with global buyers',
-      promoBg: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
+      title: 'Trending Beauty Picks',
+      promoTitle: 'Most-Loved Beauty Finds',
+      promoSubtitle: 'Explore products shoppers are adding to their routines',
+      promoBg: 'linear-gradient(135deg, #111827 0%, #be185d 100%)',
       promoImage: trendingProducts[0]?.featured_image || trendingProducts[0]?.image,
       promoHref: '/products?sort=trending',
       items: trendingProducts.map(productToCategoryGridItem),
@@ -63,9 +62,9 @@ function buildHomeCategorySections(sections) {
     {
       id: 'recommended-products',
       title: 'Recommended for You',
-      promoTitle: 'More Sri Lankan Suppliers',
-      promoSubtitle: 'Discover related products and sourcing ideas',
-      promoBg: 'linear-gradient(135deg, #7c2d12 0%, #f97316 100%)',
+      promoTitle: 'More Beauty To Love',
+      promoSubtitle: 'Discover related products and new routine ideas',
+      promoBg: 'linear-gradient(135deg, #7e22ce 0%, #fb7185 100%)',
       promoImage: recommendations[0]?.featured_image || recommendations[0]?.image,
       promoHref: '/products',
       items: recommendations.map(productToCategoryGridItem),
@@ -86,8 +85,6 @@ export default async function HomePage() {
         <div className="w-full">
           <HeroSlider />
         </div>
-
-        <TrendingKeywords keywords={sections.trending_keywords} />
 
         {/* ── Featured service cards ─────────────────────────── */}
         <FeaturedCards />
