@@ -34,6 +34,11 @@ import {
 import { quotationsApi, rfqApi } from './api/rfq';
 import { ordersApi, supplierDashboardApi, userApi } from './api/dashboard';
 import { getHomeSections, homeApi } from './api/home';
+import {
+  getSlBeautyBrand,
+  getSlBeautyBrands,
+  slBeautyPublicApi,
+} from './api/slBeauty';
 
 export {
   API_BASE,
@@ -43,6 +48,8 @@ export {
   clearAuthToken,
   getAuthToken,
   getHomeSections,
+  getSlBeautyBrand,
+  getSlBeautyBrands,
   homeApi,
   ordersApi,
   productTagsApi,
@@ -51,6 +58,7 @@ export {
   request,
   rfqApi,
   saveAuthToken,
+  slBeautyPublicApi,
   supplierDashboardApi,
   supplierProductsApi,
   supplierProfileApi,
