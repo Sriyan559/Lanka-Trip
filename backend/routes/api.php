@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\SupplierReviewController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\SLBeauty\PublicBeautyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json([
@@ -62,6 +63,17 @@ Route::get('/suppliers/{id}/products', [SupplierController::class, 'products'])-
 Route::get('/suppliers/{id}/reviews', [SupplierReviewController::class, 'index'])->whereNumber('id');
 Route::get('/suppliers/{id}/company-profile', [SupplierProfileController::class, 'publicCompanyProfile'])
     ->whereNumber('id');
+
+Route::prefix('sl-beauty')->group(function () {
+    Route::get('/brands', [PublicBeautyController::class, 'brands']);
+    Route::get('/brands/{slug}', [PublicBeautyController::class, 'brand']);
+    Route::get('/products/{product}/beauty-profile', [PublicBeautyController::class, 'beautyProfile'])
+        ->whereNumber('product');
+    Route::get('/products/{product}/variants', [PublicBeautyController::class, 'variants'])
+        ->whereNumber('product');
+    Route::get('/products/{product}/beauty-summary', [PublicBeautyController::class, 'beautySummary'])
+        ->whereNumber('product');
+});
 
 Route::prefix('auth')->group(function () {
     Route::middleware('throttle:auth')->group(function () {
