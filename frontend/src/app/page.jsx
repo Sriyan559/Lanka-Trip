@@ -1,8 +1,6 @@
 import Header             from '@/components/layout/Header';
 import Footer             from '@/components/layout/Footer';
-import CategorySidebar    from '@/components/home/CategorySidebar';
 import HeroSlider         from '@/components/home/HeroSlider';
-import YouMayLike         from '@/components/home/YouMayLike';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import ExportCategorySection from '@/components/home/ExportCategorySection';
@@ -84,11 +82,9 @@ export default async function HomePage() {
       <Header />
       <main className="max-w-screen-xl mx-auto px-3 py-3 sm:px-4 sm:py-4">
 
-        {/* ── Hero row: [sidebar | slider | you-may-like] ────── */}
-        <div className="flex gap-3 sm:gap-4">
-          <CategorySidebar />
-          <HeroSlider banners={sections.banners} />
-          <YouMayLike recommendations={sections.recommendations} />
+        {/* ── Full-width beauty hero slider ─────────────────── */}
+        <div className="w-full">
+          <HeroSlider />
         </div>
 
         <TrendingKeywords keywords={sections.trending_keywords} />
