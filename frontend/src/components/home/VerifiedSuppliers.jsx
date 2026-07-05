@@ -71,15 +71,6 @@ function inquiryHref(supplier) {
   return `/messages?partner=${encodeURIComponent(name)}`;
 }
 
-function initials(name = 'SL') {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() || '')
-    .join('') || 'SL';
-}
-
 function normalizeSupplier(supplier, index) {
   const companyName = supplier.company_name || supplier.name || 'Verified Beauty Partner';
   const rating = numberFrom(supplier.rating, supplier.average_rating);
@@ -94,7 +85,7 @@ function normalizeSupplier(supplier, index) {
     companyName,
     logo: supplier.logo
       || supplier.image
-      || `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent(initials(companyName))}`,
+      || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80',
     href: supplierHref(supplier),
     productsHref: supplierProductsHref(supplier),
     inquiryHref: inquiryHref(supplier),

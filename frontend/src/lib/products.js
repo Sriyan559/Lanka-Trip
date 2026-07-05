@@ -1,4 +1,4 @@
-const FALLBACK_PRODUCT_IMAGE = 'https://placehold.co/600x600/f3f4f6/6b7280?text=No+Image';
+const FALLBACK_PRODUCT_IMAGE = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80';
 
 function normalizeSupplier(source, product = {}) {
   if (!source || typeof source !== 'object') {

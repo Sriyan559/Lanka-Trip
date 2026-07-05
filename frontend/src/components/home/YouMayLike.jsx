@@ -29,7 +29,7 @@ export default function YouMayLike({ recommendations }) {
             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors"
           >
             <Image
-              src={image || `https://placehold.co/60x60/f0fdf4/155e2c?text=${encodeURIComponent(label.slice(0, 8))}`}
+              src={image || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=160&q=80'}
               alt={label}
               width={44}
               height={44}

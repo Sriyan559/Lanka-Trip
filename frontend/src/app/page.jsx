@@ -13,7 +13,9 @@ export const metadata = {
 };
 
 const sectionImageFallback = (label = 'Beauty Product') =>
-  `https://placehold.co/160x160/fdf2f8/9f1239?text=${encodeURIComponent(label.slice(0, 16))}`;
+  label.toLowerCase().includes('categor')
+    ? 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=500&q=80'
+    : 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80';
 
 function productToCategoryGridItem(product) {
   const label = product?.name || product?.label || 'Beauty Product';

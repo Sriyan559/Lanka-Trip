@@ -89,7 +89,7 @@ export default function CategoryGridSection({ section }) {
             >
               <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-200 transition-colors flex-shrink-0">
                 <Image
-                  src={item.image || `https://placehold.co/160x160/fdf2f8/9f1239?text=${encodeURIComponent((item.label || 'Product').slice(0, 16))}`}
+                  src={item.image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80'}
                   alt={item.label}
                   width={80}
                   height={80}

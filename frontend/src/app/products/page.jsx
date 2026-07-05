@@ -4,7 +4,7 @@ import Footer from '@/components/layout/Footer';
 import ProductsContent from './ProductsContent';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-export const metadata = { title: 'All Products' };
+export const metadata = { title: 'SL Beauty Products' };
 
 export default function ProductsPage() {
   return (

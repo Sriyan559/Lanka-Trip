@@ -40,12 +40,12 @@ export const HERO_SLIDES = [
 ];
 
 export const YOU_MAY_LIKE = [
-  { label: 'Gentle Cleanser',   count: 'Skincare',   image: 'https://placehold.co/160x160/ecfeff/155e75?text=Cleanser' },
-  { label: 'Vitamin C Serum',   count: 'Skincare',   image: 'https://placehold.co/160x160/fef3c7/92400e?text=Serum' },
-  { label: 'SPF 50 Sunscreen',  count: 'Sun Care',   image: 'https://placehold.co/160x160/fffbeb/a16207?text=SPF+50' },
-  { label: 'Matte Lipstick',    count: 'Makeup',     image: 'https://placehold.co/160x160/fce7f3/9d174d?text=Lipstick' },
-  { label: 'Repair Shampoo',    count: 'Haircare',   image: 'https://placehold.co/160x160/f0f9ff/0369a1?text=Shampoo' },
-  { label: 'Eau de Parfum',     count: 'Fragrance',  image: 'https://placehold.co/160x160/faf5ff/6b21a8?text=Perfume' },
+  { label: 'Gentle Cleanser',   count: 'Skincare',   image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=320&q=80' },
+  { label: 'Vitamin C Serum',   count: 'Skincare',   image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=320&q=80' },
+  { label: 'SPF 50 Sunscreen',  count: 'Sun Care',   image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=320&q=80' },
+  { label: 'Matte Lipstick',    count: 'Makeup',     image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=320&q=80' },
+  { label: 'Repair Shampoo',    count: 'Haircare',   image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=320&q=80' },
+  { label: 'Eau de Parfum',     count: 'Fragrance',  image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=320&q=80' },
 ];
 
 export const FEATURED_CARDS = [
@@ -84,7 +84,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.8,
     category: { slug: 'skincare', label: 'Skincare' },
-    image: 'https://placehold.co/520x420/ecfeff/155e75?text=Gentle+Cleanser',
+    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'vitamin-c-serum',
@@ -94,7 +94,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.7,
     category: { slug: 'skincare', label: 'Skincare' },
-    image: 'https://placehold.co/520x420/fef3c7/92400e?text=Vitamin+C+Serum',
+    image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'spf-50-sunscreen',
@@ -104,7 +104,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.9,
     category: { slug: 'skincare', label: 'Sun Care' },
-    image: 'https://placehold.co/520x420/fffbeb/a16207?text=SPF+50+Sunscreen',
+    image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'matte-lipstick',
@@ -114,7 +114,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.6,
     category: { slug: 'makeup', label: 'Makeup' },
-    image: 'https://placehold.co/520x420/fce7f3/9d174d?text=Matte+Lipstick',
+    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'repair-shampoo',
@@ -124,7 +124,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.7,
     category: { slug: 'hair-care', label: 'Haircare' },
-    image: 'https://placehold.co/520x420/f0f9ff/0369a1?text=Repair+Shampoo',
+    image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'signature-perfume',
@@ -134,7 +134,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.9,
     category: { slug: 'fragrance', label: 'Fragrance' },
-    image: 'https://placehold.co/520x420/faf5ff/6b21a8?text=Eau+de+Parfum',
+    image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'body-lotion',
@@ -144,7 +144,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.5,
     category: { slug: 'bath-body', label: 'Bath & Body' },
-    image: 'https://placehold.co/520x420/fff7ed/9a3412?text=Body+Lotion',
+    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'clay-face-mask',
@@ -154,7 +154,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.6,
     category: { slug: 'skincare', label: 'Face Mask' },
-    image: 'https://placehold.co/520x420/ecfdf5/047857?text=Face+Mask',
+    image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'nourishing-hair-oil',
@@ -164,7 +164,7 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.8,
     category: { slug: 'hair-care', label: 'Haircare' },
-    image: 'https://placehold.co/520x420/fef3c7/92400e?text=Hair+Oil',
+    image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=80',
   },
   {
     slug: 'beauty-brush-set',
@@ -174,7 +174,67 @@ export const TRENDING_PRODUCTS = [
     currency_code: 'LKR',
     rating: 4.7,
     category: { slug: 'tools-brushes', label: 'Beauty Tools' },
-    image: 'https://placehold.co/520x420/f3f4f6/111827?text=Beauty+Tools',
+    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    slug: 'rose-glow-blush-palette',
+    label: 'Rose Glow Blush Palette',
+    brand_name: 'NARS',
+    price: 9800,
+    currency_code: 'LKR',
+    rating: 4.8,
+    category: { slug: 'makeup', label: 'Makeup' },
+    image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    slug: 'retinol-night-cream',
+    label: 'Retinol Night Cream',
+    brand_name: 'Olay',
+    price: 7600,
+    currency_code: 'LKR',
+    rating: 4.6,
+    category: { slug: 'skincare', label: 'Skincare' },
+    image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    slug: 'micellar-cleansing-water',
+    label: 'Micellar Cleansing Water',
+    brand_name: 'Bioderma',
+    price: 5100,
+    currency_code: 'LKR',
+    rating: 4.7,
+    category: { slug: 'skincare', label: 'Skincare' },
+    image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    slug: 'hydrating-sheet-mask',
+    label: 'Hydrating Sheet Mask',
+    brand_name: 'Laneige',
+    price: 1800,
+    currency_code: 'LKR',
+    rating: 4.5,
+    category: { slug: 'k-beauty', label: 'K-Beauty' },
+    image: 'https://images.unsplash.com/photo-1608979048467-6194dabc6a3d?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    slug: 'brow-definer-pencil',
+    label: 'Brow Definer Pencil',
+    brand_name: 'Anastasia Beverly Hills',
+    price: 5900,
+    currency_code: 'LKR',
+    rating: 4.6,
+    category: { slug: 'makeup', label: 'Makeup' },
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    slug: 'makeup-brush-collection',
+    label: 'Makeup Brush Collection',
+    brand_name: 'Morphe',
+    price: 11200,
+    currency_code: 'LKR',
+    rating: 4.8,
+    category: { slug: 'tools-brushes', label: 'Beauty Tools' },
+    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80',
   },
 ];
 
@@ -183,28 +243,28 @@ export const SOURCING_SOLUTIONS = [
     title:    'New Arrivals',
     subtitle: 'Fresh cosmetics, skincare, fragrance, and haircare launches',
     tags:     ['New Makeup', 'New Skincare', 'New Fragrance'],
-    bg:       'https://placehold.co/760x420/fdf2f8/9f1239?text=New+Arrivals',
+    bg:       'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80',
     href:     '/products?sort=new',
   },
   {
     title:    'Best Sellers',
     subtitle: 'Most-loved beauty products for everyday routines',
     tags:     ['Makeup Icons', 'Routine Staples', 'Top Rated'],
-    bg:       'https://placehold.co/760x420/fce7f3/9d174d?text=Best+Sellers',
+    bg:       'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=1200&q=80',
     href:     '/products?sort=popular',
   },
   {
     title:    'Luxury Beauty',
     subtitle: 'Premium fragrance, skincare, and makeup collections',
     tags:     ['Lancôme', 'YSL', 'Tom Ford'],
-    bg:       'https://placehold.co/760x420/faf5ff/6b21a8?text=Luxury+Beauty',
+    bg:       'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1200&q=80',
     href:     '/categories/luxury-beauty',
   },
   {
     title:    'Gift Sets',
     subtitle: 'Curated beauty gifts, minis, and value bundles',
     tags:     ['Value Sets', 'Minis', 'Beauty Gifts'],
-    bg:       'https://placehold.co/760x420/fff7ed/9a3412?text=Gift+Sets',
+    bg:       'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1200&q=80',
     href:     '/products?collection=gifts-value-sets',
   },
 ];
@@ -215,14 +275,14 @@ export const TRADE_SHOWS = [
     title:    'SL Beauty Brand Week',
     date:     'Aug 12–14, 2026',
     location: 'Online and selected stores',
-    image:    'https://placehold.co/900x520/fdf2f8/9f1239?text=Brand+Week',
+    image:    'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id:       2,
     title:    'Luxury Beauty Edit',
     date:     'Sep 5–7, 2026',
     location: 'SL Beauty Platform',
-    image:    'https://placehold.co/900x520/faf5ff/6b21a8?text=Luxury+Beauty',
+    image:    'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 

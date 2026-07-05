@@ -65,9 +65,15 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const supplyAbility = normalized.supply_ability || normalized.supplyAbility || 'Original brand product';
   const status = String(normalized.status || normalized.approval_status || '').toLowerCase();
   const featured = Boolean(normalized.featured || normalized.is_featured || status.includes('featured'));
-  const originalBrand = Boolean(normalized.export_ready || normalized.is_export_ready || status.includes('export'));
+  const originalBrand = Boolean(
+    normalized.is_original_brand
+    || normalized.original_brand
+    || normalized.export_ready
+    || normalized.is_export_ready
+    || status.includes('export')
+  );
   const priceLabel = displayPriceMax
-    ? `US$${Number(displayPriceMin).toFixed(2)}-${Number(displayPriceMax).toFixed(2)}`
+    ? `${formatCurrency(displayPriceMin)}-${formatCurrency(displayPriceMax)}`
     : displayPriceMin > 0
       ? formatCurrency(displayPriceMin)
       : 'View price';

@@ -28,7 +28,9 @@ const fallbackProducts = [
 ];
 
 const fallbackImage = (label = 'Beauty Product') =>
-  `https://placehold.co/520x420/fdf2f8/9f1239?text=${encodeURIComponent(label.slice(0, 18))}`;
+  label.toLowerCase().includes('perfume')
+    ? 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=900&q=80'
+    : 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80';
 
 function numberFrom(...values) {
   const found = values.find((value) => value !== undefined && value !== null && value !== '');

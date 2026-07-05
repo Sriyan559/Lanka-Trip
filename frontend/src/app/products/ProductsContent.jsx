@@ -11,18 +11,16 @@
  *  - Mobile filter drawer
  *  - Pagination
  *
- * Laravel integration: productsApi.list(params) — see /src/lib/api.js
+ * Public display data is forced to SL Beauty constants until backend beauty
+ * product seed data is ready.
  */
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal, LayoutGrid, List, ChevronDown, X, Search, ShieldCheck } from 'lucide-react';
 import B2BProductCard from '@/components/product/B2BProductCard';
 import Pagination from '@/components/ui/Pagination';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { productsApi, suppliersApi } from '@/lib/api';
-import { normalizeProductResponse } from '@/lib/products';
-import useCategories from '@/hooks/useCategories';
+import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS } from '@/lib/constants';
 
 const SORT_OPTIONS = [
   { value: 'best',       label: 'Best Match' },
@@ -58,26 +56,83 @@ const STATUS_OPTIONS = [
   { label: 'All products', value: '' },
   { label: 'Active listings', value: 'active' },
   { label: 'Featured products', value: 'featured' },
-  { label: 'Original brands', value: 'export_ready' },
+  { label: 'Original brands', value: 'original' },
 ];
 
-function normalizeSupplierOptions(response) {
-  const rows = Array.isArray(response?.data)
-    ? response.data
-    : Array.isArray(response?.suppliers)
-      ? response.suppliers
-      : Array.isArray(response)
-        ? response
-        : [];
+const BEAUTY_BRANDS = [
+  { id: 'cerave', name: 'CeraVe', verified: true },
+  { id: 'garnier', name: 'Garnier', verified: true },
+  { id: 'la-roche-posay', name: 'La Roche-Posay', verified: true },
+  { id: 'maybelline', name: 'Maybelline', verified: true },
+  { id: 'loreal', name: 'L’Oréal', verified: true },
+  { id: 'lancome', name: 'Lancôme', verified: true },
+  { id: 'nivea', name: 'Nivea', verified: true },
+  { id: 'the-ordinary', name: 'The Ordinary', verified: true },
+  { id: 'kerastase', name: 'Kérastase', verified: true },
+  { id: 'real-techniques', name: 'Real Techniques', verified: true },
+  { id: 'nars', name: 'NARS', verified: true },
+  { id: 'olay', name: 'Olay', verified: true },
+  { id: 'bioderma', name: 'Bioderma', verified: true },
+  { id: 'laneige', name: 'Laneige', verified: true },
+  { id: 'anastasia-beverly-hills', name: 'Anastasia Beverly Hills', verified: true },
+  { id: 'morphe', name: 'Morphe', verified: true },
+];
 
-  return rows
-    .map((supplier) => ({
-      id: supplier.id ?? supplier.supplier_id,
-      name: supplier.company_name || supplier.name || supplier.business_name || 'Verified brand',
-      verified: Boolean(supplier.verified || supplier.verification_status === 'verified'),
-    }))
-    .filter((supplier) => supplier.id);
-}
+const PAGE_SIZE = 12;
+
+const slugify = (value = '') => String(value)
+  .toLowerCase()
+  .replace(/&/g, 'and')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+const categoryOptions = SRI_LANKA_CATEGORIES.map((category) => ({
+  ...category,
+  name: category.label,
+}));
+
+const BEAUTY_PRODUCTS = TRENDING_PRODUCTS.map((product, index) => {
+  const brandSlug = slugify(product.brand_name);
+  const brand = BEAUTY_BRANDS.find((item) => item.id === brandSlug) || {
+    id: brandSlug,
+    name: product.brand_name,
+    verified: true,
+  };
+
+  return {
+    id: product.slug,
+    slug: product.slug,
+    name: product.label,
+    image: product.image,
+    price: product.price,
+    price_min: product.price,
+    currency_code: product.currency_code || 'LKR',
+    unit: index % 5 === 0 ? 'Set' : 'Item',
+    moq: index % 4 === 0 ? 2 : 1,
+    minOrder: index % 4 === 0 ? 2 : 1,
+    rating: product.rating,
+    average_rating: product.rating,
+    reviews_count: 32 + (index * 7),
+    category: product.category,
+    category_name: product.category?.label,
+    supplier: {
+      id: brand.id,
+      slug: brand.id,
+      name: brand.name,
+      company_name: brand.name,
+      location: 'Sri Lanka',
+      verified: brand.verified,
+    },
+    supplier_id: brand.id,
+    verified: brand.verified,
+    featured: index < 6,
+    is_original_brand: true,
+    lead_time_days: [2, 3, 5, 7][index % 4],
+    port: ['Colombo delivery', 'Islandwide delivery', 'Express delivery'][index % 3],
+    supply_ability: 'Authentic beauty product',
+    status: index < 6 ? 'featured' : 'active',
+  };
+});
 
 export default function ProductsContent() {
   const searchParams = useSearchParams();
@@ -96,15 +151,6 @@ export default function ProductsContent() {
   const port = searchParams.get('port') || '';
   const productStatus = searchParams.get('status') || '';
 
-  const [products,    setProducts]    = useState([]);
-  const [suppliers,   setSuppliers]   = useState([]);
-  const [totalPages,  setTotalPages]  = useState(1);
-  const [total,       setTotal]       = useState(0);
-  const [loading,     setLoading]     = useState(true);
-  const [supplierLoading, setSupplierLoading] = useState(false);
-  const [supplierError, setSupplierError] = useState('');
-  const [error,       setError]       = useState('');
-  const [reloadKey,   setReloadKey]   = useState(0);
   const [view,        setView]        = useState('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -119,7 +165,8 @@ export default function ProductsContent() {
   const [selLeadTime, setSelLeadTime] = useState(leadTimeMax);
   const [selPort,     setSelPort]     = useState(port);
   const [selStatus,   setSelStatus]   = useState(productStatus);
-  const { categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories } = useCategories();
+  const categories = categoryOptions;
+  const suppliers = BEAUTY_BRANDS;
 
   const pushParams = (updates) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -141,62 +188,6 @@ export default function ProductsContent() {
   };
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const data = await productsApi.list({
-          search: q, category, sort, page,
-          price_min: urlPriceMin, price_max: urlPriceMax,
-          max_order: urlMaxOrder,
-          supplier_id: supplierId,
-          verified_supplier: verifiedSupplier,
-          lead_time_max: leadTimeMax,
-          port,
-          status: productStatus,
-        });
-        const normalized = normalizeProductResponse(data);
-        setProducts(normalized.data);
-        setTotalPages(normalized.last_page);
-        setTotal(normalized.total);
-      } catch (loadError) {
-        setProducts([]);
-        setTotalPages(1);
-        setTotal(0);
-        setError(loadError.message || 'Could not load products.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [category, sort, page, q, urlPriceMin, urlPriceMax, urlMaxOrder, supplierId, verifiedSupplier, leadTimeMax, port, productStatus, reloadKey]);
-
-  useEffect(() => {
-    let active = true;
-
-    const loadSuppliers = async () => {
-      setSupplierLoading(true);
-      setSupplierError('');
-      try {
-        const data = await suppliersApi.list({ per_page: 20, verified: 1 });
-        if (active) setSuppliers(normalizeSupplierOptions(data));
-      } catch (supplierLoadError) {
-        if (active) {
-          setSuppliers([]);
-          setSupplierError(supplierLoadError.message || 'Brand filters unavailable.');
-        }
-      } finally {
-        if (active) setSupplierLoading(false);
-      }
-    };
-
-    loadSuppliers();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
     setKeyword(q);
     setSelCat(category);
     setPriceMin(urlPriceMin);
@@ -208,6 +199,59 @@ export default function ProductsContent() {
     setSelPort(port);
     setSelStatus(productStatus);
   }, [q, category, urlPriceMin, urlPriceMax, urlMaxOrder, supplierId, verifiedSupplier, leadTimeMax, port, productStatus]);
+
+  const filteredProducts = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    const min = Number(urlPriceMin);
+    const max = Number(urlPriceMax);
+    const maxOrderValue = Number(urlMaxOrder);
+    const leadTimeValue = Number(leadTimeMax);
+
+    const results = BEAUTY_PRODUCTS.filter((product) => {
+      const matchesQuery = !query || [
+        product.name,
+        product.category?.label,
+        product.brand_name,
+        product.supplier?.name,
+      ].filter(Boolean).join(' ').toLowerCase().includes(query);
+      const matchesCategory = !category || product.category?.slug === category;
+      const matchesPriceMin = !urlPriceMin || product.price >= min;
+      const matchesPriceMax = !urlPriceMax || product.price <= max;
+      const matchesQuantity = !urlMaxOrder || product.minOrder <= maxOrderValue;
+      const matchesSupplier = !supplierId || String(product.supplier_id) === String(supplierId);
+      const matchesVerified = !verifiedSupplier || product.verified;
+      const matchesLeadTime = !leadTimeMax || Number(product.lead_time_days || 0) <= leadTimeValue;
+      const matchesFulfilment = !port || String(product.port || '').toLowerCase().includes(port.toLowerCase());
+      const matchesStatus = !productStatus
+        || (productStatus === 'original' && product.is_original_brand)
+        || product.status === productStatus
+        || (productStatus === 'active' && ['active', 'featured'].includes(product.status));
+
+      return matchesQuery
+        && matchesCategory
+        && matchesPriceMin
+        && matchesPriceMax
+        && matchesQuantity
+        && matchesSupplier
+        && matchesVerified
+        && matchesLeadTime
+        && matchesFulfilment
+        && matchesStatus;
+    });
+
+    return [...results].sort((a, b) => {
+      if (sort === 'price_asc') return a.price - b.price;
+      if (sort === 'price_desc') return b.price - a.price;
+      if (sort === 'top') return b.rating - a.rating;
+      if (sort === 'newest') return BEAUTY_PRODUCTS.indexOf(b) - BEAUTY_PRODUCTS.indexOf(a);
+      return Number(b.featured) - Number(a.featured) || b.rating - a.rating;
+    });
+  }, [category, leadTimeMax, port, productStatus, q, sort, supplierId, urlMaxOrder, urlPriceMax, urlPriceMin, verifiedSupplier]);
+
+  const total = filteredProducts.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const products = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const clearFilters = () => {
     setSelCat('');
@@ -244,7 +288,7 @@ export default function ProductsContent() {
 
       {/* Brand */}
       <div>
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Supplier</div>
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Brand or seller</div>
         <select
           value={selSupplier}
           onChange={(event) => {
@@ -260,8 +304,6 @@ export default function ProductsContent() {
             </option>
           ))}
         </select>
-        {supplierLoading && <p className="mt-1.5 text-xs text-gray-400">Loading brands...</p>}
-        {supplierError && <p className="mt-1.5 text-xs text-gray-400">Brand list unavailable; product results still work.</p>}
       </div>
 
       {/* Verified brand */}
@@ -305,12 +347,6 @@ export default function ProductsContent() {
               <span className="line-clamp-1 flex-1">{c.label}</span>
             </button>
           ))}
-          {categoriesLoading && <p className="px-2 py-1.5 text-xs text-gray-400">Loading categories…</p>}
-          {categoriesError && (
-            <button type="button" onClick={retryCategories} className="px-2 py-1.5 text-xs text-red-600 hover:underline">
-              Retry categories
-            </button>
-          )}
         </div>
       </div>
 
@@ -630,7 +666,7 @@ export default function ProductsContent() {
               )}
               {selPort && (
                 <span className="flex max-w-full items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800">
-                  <span className="truncate">Port: {selectedPortLabel}</span>
+                  <span className="truncate">Fulfilment: {selectedPortLabel}</span>
                   <button onClick={() => { setSelPort(''); pushParams({ port: '' }); }} aria-label="Remove port filter">
                     <X size={11} />
                   </button>
@@ -648,17 +684,7 @@ export default function ProductsContent() {
           )}
 
           {/* Products grid / list */}
-          {loading ? (
-            <LoadingSpinner label="Finding products…" />
-          ) : error ? (
-            <div className="py-16 text-center">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Products could not be loaded</h3>
-              <p className="text-sm text-gray-400 mb-4">{error}</p>
-              <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="px-6 py-2.5 bg-primary-800 text-white text-sm font-semibold rounded-xl">
-                Retry
-              </button>
-            </div>
-          ) : products.length === 0 ? (
+          {products.length === 0 ? (
             <div className="py-16 text-center">
               <div className="text-5xl mb-4">🔍</div>
               <h3 className="text-lg font-semibold text-gray-700 mb-2">No products found</h3>
@@ -678,7 +704,7 @@ export default function ProductsContent() {
                 ))}
               </div>
               <Pagination
-                currentPage={page}
+                currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={(p) => pushParams({ page: String(p) })}
               />
