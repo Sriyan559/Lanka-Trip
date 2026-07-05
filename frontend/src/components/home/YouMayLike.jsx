@@ -17,7 +17,7 @@ export default function YouMayLike({ recommendations }) {
         {items.map((item) => {
           const label = item.name || item.label;
           const image = item.featured_image || item.image;
-          const href = item.id ? `/products/${item.id}` : `/search?q=${encodeURIComponent(label)}`;
+          const href = item.id ? `/products/${item.id}` : `/products?q=${encodeURIComponent(label)}`;
           const detail = item.id
             ? `${formatCurrency(item.price)} / ${item.unit || 'unit'}`
             : `${item.count} Products`;

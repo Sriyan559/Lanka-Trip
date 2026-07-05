@@ -42,18 +42,18 @@ export default function Footer() {
       <div className="border-t border-gray-200 bg-gray-50">
         <div className="max-w-screen-xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">Free App:</span>
+            <span className="text-sm text-gray-500">Quick Shop:</span>
             <a
-              href="/apps"
+              href="/products"
               className="flex items-center gap-1.5 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-gray-700"
             >
-              🍎 App Store
+              Shop Products
             </a>
             <a
-              href="/apps"
+              href="/brands"
               className="flex items-center gap-1.5 bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-green-600"
             >
-              ▶ Google Play
+              Browse Brands
             </a>
           </div>
 
@@ -86,16 +86,16 @@ export default function Footer() {
         <div className="max-w-screen-xl mx-auto px-4 py-4">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-gray-400 mb-2">
             {['New Arrivals','Best Sellers','Makeup','Skincare','Fragrance','Gift Sets'].map((item) => (
-              <Link key={item} href={`/search?q=${encodeURIComponent(item)}`} className="hover:text-primary-700">
+              <Link key={item} href={`/products?q=${encodeURIComponent(item)}`} className="hover:text-primary-700">
                 {item}
               </Link>
             ))}
           </div>
           <div className="text-center text-xs text-gray-400 flex flex-wrap justify-center gap-x-3">
             <span>© {year} SL Beauty Platform · Premium Beauty Ecommerce Marketplace</span>
-            <Link href="/terms"   className="hover:text-primary-700">Terms of Service</Link>
-            <Link href="/privacy" className="hover:text-primary-700">Privacy Policy</Link>
-            <Link href="/cookies" className="hover:text-primary-700">Cookie Policy</Link>
+            <Link href="/help-center" className="hover:text-primary-700">Help Center</Link>
+            <Link href="/brands" className="hover:text-primary-700">Brands</Link>
+            <Link href="/gift-cards" className="hover:text-primary-700">Gift Cards</Link>
           </div>
         </div>
       </div>

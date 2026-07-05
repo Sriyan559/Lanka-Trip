@@ -103,7 +103,7 @@ function categoryMatches(category, keywords) {
 
 function buildCategoryHref(category, fallbackQuery) {
   if (category?.slug) return `/categories/${category.slug}`;
-  return `/search?q=${encodeURIComponent(fallbackQuery)}`;
+  return `/products?q=${encodeURIComponent(fallbackQuery)}`;
 }
 
 export default function ExportCategorySection() {
@@ -155,7 +155,7 @@ export default function ExportCategorySection() {
               <ArrowRight size={14} />
             </Link>
             <Link
-              href="/partners"
+              href="/brands"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-700 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
             >
               Partner with SL Beauty

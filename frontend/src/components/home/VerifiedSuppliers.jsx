@@ -59,16 +59,16 @@ function numberFrom(...values) {
 }
 
 function supplierHref(supplier) {
-  return supplier.id ? `/suppliers/${supplier.id}` : '/suppliers?verified=1';
+  return supplier.slug ? `/brands/${supplier.slug}` : '/brands';
 }
 
 function supplierProductsHref(supplier) {
-  return supplier.id ? `/suppliers/${supplier.id}/products` : '/products';
+  return supplier.id ? `/products?supplier_id=${encodeURIComponent(supplier.id)}` : '/products';
 }
 
 function inquiryHref(supplier) {
-  const name = supplier.company_name || supplier.name || 'this verified beauty partner';
-  return `/messages?partner=${encodeURIComponent(name)}`;
+  const name = supplier.company_name || supplier.name || '';
+  return name ? `/brands?search=${encodeURIComponent(name)}` : '/brands';
 }
 
 function normalizeSupplier(supplier, index) {
@@ -77,7 +77,7 @@ function normalizeSupplier(supplier, index) {
   const trustScore = numberFrom(supplier.trust_score, supplier.profile_completion_score);
   const responseRate = numberFrom(supplier.response_rate, supplier.responseRate);
   const productsCount = numberFrom(supplier.products_count, supplier.products, supplier.total_products);
-  const partnerMarkets = asArray(supplier.export_markets || supplier.main_markets || supplier.markets);
+  const partnerMarkets = asArray(supplier.main_markets || supplier.markets);
   const location = supplier.location || [supplier.city, supplier.country].filter(Boolean).join(', ') || 'Sri Lanka';
 
   return {
@@ -130,13 +130,13 @@ export default function VerifiedSuppliers({ suppliers = [] }) {
           </div>
           <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             <Link
-              href="/suppliers?verified=1"
+              href="/brands"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"
             >
               View partners <ArrowRight size={14} />
             </Link>
             <Link
-              href="/partners"
+              href="/brands"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-700 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
             >
               Partner with us <Send size={14} />

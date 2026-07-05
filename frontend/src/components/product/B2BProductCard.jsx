@@ -50,9 +50,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const supplierName = typeof supplier === 'string'
     ? supplier
     : supplier?.name || supplier?.company_name || '';
-  const supplierId = typeof supplier === 'object' ? supplier?.id : normalized.supplier_id;
-  const supplierSlug = typeof supplier === 'object' ? supplier?.slug : null;
-  const supplierHref = supplierId || supplierSlug ? `/suppliers/${supplierSlug || supplierId}` : null;
+  const supplierHref = supplierName ? '/brands' : null;
   const displaySupplierLocation = supplierLocation
     || (typeof supplier === 'object' ? supplier?.location : '')
     || '';

@@ -252,11 +252,9 @@ export default function ProductDetailPage() {
                   Brand rating: {brand.rating.toFixed(1)}
                 </div>
               )}
-              {brand.id && (
-                <a href={`/suppliers/${brand.id}`} className="text-xs text-primary-700 hover:underline">
-                  View Brand Profile →
-                </a>
-              )}
+              <a href="/brands" className="text-xs text-primary-700 hover:underline">
+                Browse Brand Directory →
+              </a>
             </div>
           </div>
         </div>

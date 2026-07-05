@@ -122,7 +122,7 @@ export default function EasySourcingSection() {
               Browse products
             </Link>
             <Link
-              href="/partners"
+              href="/brands"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
               Explore beauty partners

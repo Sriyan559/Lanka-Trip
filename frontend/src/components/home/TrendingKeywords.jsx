@@ -9,7 +9,7 @@ export default function TrendingKeywords({ keywords = [] }) {
       {keywords.slice(0, 10).map((item) => (
         <Link
           key={item.id || item.keyword}
-          href={`/search?q=${encodeURIComponent(item.keyword)}`}
+          href={`/products?q=${encodeURIComponent(item.keyword)}`}
           className="px-3 py-1.5 bg-white border border-gray-100 rounded-full text-xs text-gray-600 hover:text-primary-700 hover:border-primary-200 transition-colors"
         >
           {item.keyword}

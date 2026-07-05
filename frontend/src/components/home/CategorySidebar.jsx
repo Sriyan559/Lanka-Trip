@@ -59,7 +59,7 @@ export default function CategorySidebar() {
         )}
       </nav>
       <div className="px-3 pt-2 mt-1 border-t border-gray-100">
-        <Link href="/categories" className="text-xs text-primary-700 font-medium hover:underline">
+        <Link href="/products" className="text-xs text-primary-700 font-medium hover:underline">
           More Categories →
         </Link>
       </div>

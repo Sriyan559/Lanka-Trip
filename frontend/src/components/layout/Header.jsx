@@ -22,18 +22,18 @@ import { notificationsApi } from '@/lib/api';
 import { initials } from '@/lib/utils';
 
 const BEAUTY_NAV = [
-  { label: 'New', href: '/products?sort=new' },
+  { label: 'New', href: '/categories/new-arrivals' },
   { label: 'Summer Sets Under $35', href: '/products?collection=summer-sets' },
   { label: 'Makeup', href: '/categories/makeup' },
   { label: 'Skincare', href: '/categories/skincare' },
   { label: 'Fragrance', href: '/categories/fragrance' },
   { label: 'Hair', href: '/categories/hair' },
-  { label: 'Bath & Body', href: '/categories/bath-body' },
-  { label: 'Mini Size', href: '/products?size=mini' },
+  { label: 'Bath & Body', href: '/categories/bath-and-body' },
+  { label: 'Mini Size', href: '/categories/mini-size' },
   { label: 'Brands', href: '/brands' },
-  { label: 'Gifts & Value Sets', href: '/products?collection=gifts-value-sets' },
+  { label: 'Gifts & Value Sets', href: '/categories/gift-sets' },
   { label: 'Gift Cards', href: '/gift-cards' },
-  { label: 'Sale & Offers', href: '/products?sale=1' },
+  { label: 'Sale & Offers', href: '/categories/sale' },
 ];
 
 export default function Header() {
@@ -85,7 +85,7 @@ export default function Header() {
     const searchTerm = query.trim();
     if (!searchTerm) return;
 
-    router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+    router.push(`/products?q=${encodeURIComponent(searchTerm)}`);
   };
 
   const handleLogout = async () => {

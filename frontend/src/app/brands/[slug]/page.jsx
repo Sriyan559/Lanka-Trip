@@ -163,7 +163,7 @@ export default async function BrandDetailPage({ params }) {
                 <p className="text-xs font-bold uppercase tracking-wide text-pink-700">Read-only</p>
                 <h2 className="mt-2 text-base font-bold text-gray-950">No private actions</h2>
                 <p className="mt-2 text-sm leading-6 text-gray-500">
-                  This page does not modify products, carts, orders, supplier data, admin reviews, RFQs, or quotations.
+                  This page is public and read-only. It does not modify products, carts, orders, seller data, admin reviews, or customer records.
                 </p>
               </div>
             </section>
