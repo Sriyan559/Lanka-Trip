@@ -15,35 +15,35 @@ import {
   Ship,
 } from 'lucide-react';
 
-const RFQ_FLOW = [
+const BEAUTY_DISCOVERY_FLOW = [
   {
-    title: 'Tell us what you need',
-    copy: 'Share product, quantity, destination, packaging, and delivery expectations.',
+    title: 'Choose your beauty need',
+    copy: 'Search skincare, haircare, fragrance, cosmetics, wellness, or salon-ready products.',
     Icon: ClipboardList,
   },
   {
-    title: 'Match with verified suppliers',
-    copy: 'Connect with Sri Lankan exporters that fit your category and sourcing brief.',
+    title: 'Shop verified sellers',
+    copy: 'Discover brand verified sellers, beauty suppliers, retailers, and distributors in Sri Lanka.',
     Icon: BadgeCheck,
   },
   {
-    title: 'Receive quotations',
-    copy: 'Collect FOB pricing, MOQ, lead time, terms, and supplier notes in one flow.',
+    title: 'Compare trusted picks',
+    copy: 'Review product details, brand indicators, pricing, variants, and routine-friendly options.',
     Icon: PackageSearch,
   },
   {
-    title: 'Compare and negotiate',
-    copy: 'Review supplier fit, pricing, export readiness, and logistics support.',
+    title: 'Buy or connect',
+    copy: 'Shop authentic beauty products or connect with partners for B2B beauty supply needs.',
     Icon: Scale,
   },
 ];
 
 const TRUST_POINTS = [
-  { label: 'Verified exporters', Icon: BadgeCheck },
-  { label: 'Export-ready products', Icon: PackageSearch },
-  { label: 'Maldives-friendly sourcing', Icon: Route },
-  { label: 'Quotation matching', Icon: Handshake },
-  { label: 'Trade and logistics support', Icon: Ship },
+  { label: 'Brand verified sellers', Icon: BadgeCheck },
+  { label: 'Authentic beauty brands', Icon: PackageSearch },
+  { label: 'B2B and B2C marketplace', Icon: Route },
+  { label: 'Retailer-ready partners', Icon: Handshake },
+  { label: 'Beauty supply support', Icon: Ship },
 ];
 
 export default function EasySourcingSection() {
@@ -52,13 +52,13 @@ export default function EasySourcingSection() {
     product: '',
     description: '',
     qty: '',
-    unit: 'Kg',
+    unit: 'Pieces',
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const qs = new URLSearchParams({ ...form }).toString();
-    router.push(`/rfq?${qs}`);
+    router.push(`/products?${qs}`);
   };
 
   return (
@@ -67,18 +67,18 @@ export default function EasySourcingSection() {
         <div className="bg-primary-900 px-4 py-5 text-white sm:px-6 sm:py-6 lg:px-7 lg:py-7">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-200">
-              RFQ and inquiry matching
+              Beauty shopping and partner discovery
             </p>
             <h2 className="mt-2 text-xl font-bold leading-tight sm:text-3xl">
-              Source from Sri Lanka with one professional buyer request
+              Discover authentic beauty products and trusted sellers in Sri Lanka
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-primary-100">
-              Built for Maldives buyers sourcing tea, coconut products, spices, apparel, wellness goods, packaging, food products, and export-ready supplier capacity.
+              Built for shoppers, salons, retailers, beauty suppliers, and distributors exploring skincare, haircare, fragrance, cosmetics, and wellness collections.
             </p>
           </div>
 
           <div className="mt-5 grid grid-cols-1 gap-2.5 sm:mt-6 sm:grid-cols-2 sm:gap-3">
-            {RFQ_FLOW.map(({ title, copy, Icon }, index) => (
+            {BEAUTY_DISCOVERY_FLOW.map(({ title, copy, Icon }, index) => (
               <div key={title} className="rounded-lg border border-white/10 bg-white/8 p-3.5 sm:p-4">
                 <div className="flex items-center gap-3">
                   <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white text-primary-800">
@@ -110,10 +110,10 @@ export default function EasySourcingSection() {
 
           <div className="mt-5 flex flex-col gap-2 sm:mt-6 sm:flex-row">
             <Link
-              href="/rfq"
+              href="/products"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 transition-colors hover:bg-primary-50"
             >
-              Post an RFQ <ArrowRight size={15} />
+              Shop beauty products <ArrowRight size={15} />
             </Link>
             <Link
               href="/products"
@@ -122,10 +122,10 @@ export default function EasySourcingSection() {
               Browse products
             </Link>
             <Link
-              href="/suppliers?verified=1"
+              href="/brands"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
-              Contact verified suppliers
+              Explore beauty partners
             </Link>
           </div>
         </div>
@@ -137,9 +137,9 @@ export default function EasySourcingSection() {
                 <Send size={18} />
               </span>
               <div>
-                <h3 className="text-base font-bold text-gray-900">Quick sourcing brief</h3>
+                <h3 className="text-base font-bold text-gray-900">Quick beauty search</h3>
                 <p className="mt-1 text-sm leading-5 text-gray-500">
-                  Start with the essentials. The RFQ page can capture full trade requirements.
+                  Start with the essentials and continue into SL Beauty product discovery.
                 </p>
               </div>
             </div>
@@ -148,14 +148,14 @@ export default function EasySourcingSection() {
           <form onSubmit={handleSubmit} className="mt-4 space-y-2.5 sm:space-y-3">
             <input
               type="text"
-              placeholder="Product or keywords, e.g. Ceylon tea"
+              placeholder="Product or keywords, e.g. vitamin C serum"
               value={form.product}
               onChange={(e) => setForm((f) => ({ ...f, product: e.target.value }))}
               required
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
             />
             <textarea
-              placeholder="Brief requirements, destination, packaging, or supplier preferences"
+              placeholder="Beauty need, preferred brand, skin or hair concern, or retailer quantity"
               rows={3}
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -174,7 +174,7 @@ export default function EasySourcingSection() {
                 onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
                 className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:ring-2 focus:ring-primary-300 outline-none bg-white"
               >
-                {['Kg', 'MT', 'Tons', 'Pieces', 'Boxes', 'Liters', 'Cartons'].map((u) => (
+                {['Pieces', 'Sets', 'Bottles', 'Tubes', 'Jars', 'Boxes', 'Cartons'].map((u) => (
                   <option key={u}>{u}</option>
                 ))}
               </select>
@@ -184,10 +184,10 @@ export default function EasySourcingSection() {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600"
             >
               <Send size={15} />
-              Continue to RFQ
+              Search SL Beauty
             </button>
             <p className="text-center text-xs leading-5 text-gray-400">
-              Buyers can compare quotations, supplier profiles, and trade terms before negotiation.
+              Shoppers and B2B partners can compare trusted products, brands, and seller details.
             </p>
           </form>
         </div>

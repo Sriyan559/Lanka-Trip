@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 
 const CATEGORIES = [
-  { icon: Package,     label: 'Buying on EcomLanka', color: 'text-blue-600 bg-blue-50',    href: '/buyer-guide' },
-  { icon: Globe,       label: 'Selling & Exporting',  color: 'text-primary-700 bg-primary-50', href: '/supplier-guide' },
+  { icon: Package,     label: 'Shopping on SL Beauty', color: 'text-blue-600 bg-blue-50',    href: '/buyer-guide' },
+  { icon: Globe,       label: 'Brands & Partners',  color: 'text-primary-700 bg-primary-50', href: '/partners' },
   { icon: CreditCard,  label: 'Payments & Finance',   color: 'text-green-600 bg-green-50',  href: '/help-center/payments' },
   { icon: Truck,       label: 'Shipping & Logistics', color: 'text-purple-600 bg-purple-50', href: '/help-center/shipping' },
   { icon: ShieldCheck, label: 'Trust & Safety',        color: 'text-rose-600 bg-rose-50',    href: '/help-center/safety' },
@@ -24,45 +24,45 @@ const FAQS = [
     category: 'Buying',
     items: [
       {
-        q: 'How do I find verified suppliers on EcomLanka?',
-        a: 'Look for the green ✅ Verified Supplier badge on supplier profiles. Verified suppliers have submitted and passed our document verification process (business registration, tax documents, and export licenses). You can also filter by "Verified Only" in the Supplier Directory.',
+        q: 'How do I find original beauty brands on SL Beauty?',
+        a: 'Look for original brand and verified seller indicators on product and brand pages. Brand partners may be reviewed for authorization documents, product authenticity, and compliance requirements.',
       },
       {
-        q: 'What is an RFQ and how does it work?',
-        a: 'An RFQ (Request for Quotation) lets you post your buying requirements — product, quantity, budget, and delivery requirements — so multiple suppliers can send you competitive quotes. Go to Products → Contact Supplier, or use the RFQ page directly. Suppliers typically respond within 24–48 hours.',
+        q: 'How do I shop beauty products?',
+        a: 'Browse products by makeup, skincare, fragrance, hair care, bath and body, or brands. Open a product page to view details, add it to your wishlist, or add it to your basket.',
       },
       {
         q: 'Is my payment protected?',
-        a: 'Yes. EcomLanka uses Trade Assurance Escrow — your funds are held securely and only released to the supplier after you confirm delivery and satisfaction. For bank transfers, we provide step-by-step payment verification.',
+        a: 'SL Beauty keeps checkout and order information protected with secure account flows and clear order tracking. Payment options may vary by launch phase and availability.',
       },
       {
-        q: 'Can I order samples before placing a bulk order?',
-        a: 'Yes. Most suppliers on EcomLanka offer samples. When viewing a product, look for the "Sample Available" badge. You can also ask via the message system. Sample pricing and DHL shipping fees vary by supplier.',
+        q: 'Are products original?',
+        a: 'SL Beauty is built around authentic beauty products and approved brand or seller verification workflows. Product pages and brand pages show the available trust indicators.',
       },
       {
         q: 'What if my order is wrong or damaged?',
-        a: 'Contact us within 7 days of delivery via the Order Detail page → "Raise Dispute". Our team will mediate between you and the supplier. If the issue is confirmed, a refund or replacement will be arranged within 14 business days.',
+        a: 'Contact support from your order detail page or the help center. Our team will review the issue and guide you through replacement, return, or refund options.',
       },
     ],
   },
   {
-    category: 'Suppliers',
+    category: 'Brands',
     items: [
       {
-        q: 'How do I register as a supplier?',
-        a: 'Register a free account, go to Settings → Switch to Supplier Mode, then complete your Supplier Profile and upload your verification documents. Basic verification (business registration + tax certificate) is free and takes 1–3 days.',
+        q: 'How do I become a brand partner?',
+        a: 'Create an account, choose the brand partner option, and complete the verification information requested by SL Beauty.',
       },
       {
-        q: 'What documents do I need to get verified?',
-        a: 'For Basic Verification: Business Registration Certificate (Registrar of Companies) and Tax Registration (Inland Revenue Department). For Premium: also need an Export License (EDB/NExT) and bank reference. See the Verification page for full details.',
+        q: 'What documents do I need for brand verification?',
+        a: 'Verification may include business registration, brand authorization, distributor letters, product authenticity documents, and compliance details for beauty products.',
       },
       {
         q: 'How much does it cost to list products?',
-        a: 'Listing up to 10 products is completely free. The free tier also includes access to buyer RFQs and the messaging system. Premium plans (from USD 49/month) offer unlimited listings, featured placement, analytics, and trade show access.',
+        a: 'Partner listing options can vary by launch phase. Contact SL Beauty for brand onboarding, product listing, and promotional placement details.',
       },
       {
-        q: 'How do I respond to an RFQ?',
-        a: 'Go to Supplier Dashboard → RFQs. You\'ll see all RFQs matching your product categories. Click "View & Quote" to submit your pricing, MOQ, lead time, and notes. Buyers receive instant notifications when you submit a quotation.',
+        q: 'Can I promote new launches?',
+        a: 'Yes. Brand partners can request placement in New Arrivals, Best Sellers, Sale & Offers, and curated beauty collections once approval workflows are available.',
       },
     ],
   },
@@ -70,8 +70,8 @@ const FAQS = [
     category: 'Shipping',
     items: [
       {
-        q: 'What shipping methods are available from Sri Lanka?',
-        a: 'EcomLanka suppliers ship via: Air Freight (7–14 days), Sea Freight FCL/LCL (28–50 days), and DHL/FedEx Express (3–7 days). Incoterms available include FOB, CIF, EXW, DDP. The shipping method and cost depend on your order size and destination.',
+        q: 'What delivery options are available?',
+        a: 'Delivery options may include standard, express, and selected area delivery depending on item availability and launch-phase operations.',
       },
       {
         q: 'How do I track my shipment?',
@@ -79,7 +79,7 @@ const FAQS = [
       },
       {
         q: 'What about customs and import duties?',
-        a: 'Import duties depend on your country\'s regulations and the product\'s HS code. EcomLanka suppliers can provide all required documentation (Certificate of Origin, Phytosanitary Certificate, CITES, etc.) to facilitate customs clearance.',
+        a: 'Some beauty products may be subject to delivery restrictions or compliance checks. Product pages will show important warnings when applicable.',
       },
     ],
   },
@@ -121,7 +121,7 @@ export default function HelpCenterPage() {
       {/* Hero */}
       <div className="text-center py-6">
         <h1 className="text-3xl font-black text-gray-900 mb-2">How can we help?</h1>
-        <p className="text-gray-500 mb-6">Find answers, guides, and support for EcomLanka</p>
+        <p className="text-gray-500 mb-6">Find answers, guides, and support for SL Beauty Platform</p>
 
         {/* Search */}
         <div className="relative max-w-xl mx-auto">
@@ -163,20 +163,20 @@ export default function HelpCenterPage() {
             <BookOpen size={22} />
           </div>
           <div className="flex-1">
-            <p className="font-bold">Buyer&apos;s Guide</p>
-            <p className="text-blue-100 text-sm mt-0.5">Learn how to source, verify, and order from Sri Lankan exporters</p>
+            <p className="font-bold">Beauty Shopper Guide</p>
+            <p className="text-blue-100 text-sm mt-0.5">Learn how to discover original brands, compare products, and place beauty orders</p>
           </div>
           <ChevronRight size={18} className="flex-shrink-0 group-hover:translate-x-1 transition-transform" />
         </Link>
 
-        <Link href="/supplier-guide"
+        <Link href="/partners"
           className="group flex items-center gap-4 bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-5 text-white hover:opacity-95 transition-opacity">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
             <Globe size={22} />
           </div>
           <div className="flex-1">
-            <p className="font-bold">Supplier Guide</p>
-            <p className="text-primary-100 text-sm mt-0.5">Set up your profile, list products, and start exporting globally</p>
+            <p className="font-bold">Brand Partner Guide</p>
+            <p className="text-primary-100 text-sm mt-0.5">Set up brand collections, list beauty products, and manage offers</p>
           </div>
           <ChevronRight size={18} className="flex-shrink-0 group-hover:translate-x-1 transition-transform" />
         </Link>

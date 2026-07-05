@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { FEATURED_CARDS } from '@/lib/constants';
 import { ArrowRight } from 'lucide-react';
 
-const ICONS = ['🏛️', '🔒', '🏭', '⭐'];
+const ICONS = ['💄', '🏷️', '✨', '🎁'];
 
 export default function FeaturedCards() {
   return (

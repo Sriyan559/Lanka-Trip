@@ -12,7 +12,7 @@ export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const normalized = normalizeProduct(product);
   const {
-    id, name, price, minOrder, moqUnit = 'Kg', rating = 0,
+    id, name, price, minOrder, moqUnit = 'Item', rating = 0,
     reviews = 0, image, supplier, verified = false, slug,
   } = normalized;
 
@@ -34,7 +34,7 @@ export default function ProductCard({ product }) {
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-50">
         <Image
-          src={image || `https://placehold.co/240x240/f0fdf4/155e2c?text=${encodeURIComponent(name?.slice(0,12) || 'Product')}`}
+          src={image || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80'}
           alt={name}
           width={240}
           height={240}
@@ -86,7 +86,7 @@ export default function ProductCard({ product }) {
           </div>
           {minOrder && (
             <div className="text-[11px] text-gray-400">
-              Min. Order: {minOrder} {moqUnit}
+              Quantity: {minOrder} {moqUnit}
             </div>
           )}
           {supplierName && (

@@ -1,42 +1,36 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, Clock, MapPin, PackageCheck, Ship } from 'lucide-react';
+import { ArrowRight, Heart, ShoppingBasket, Star } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { TRENDING_PRODUCTS } from '@/lib/constants';
 
-/**
- * TrendingProducts — "Selected Trending Products" grid section.
- *
- * Data source: GET /api/home/sections
- * Click → navigates to product detail when product IDs are available.
- */
-const EXPORT_FOCUS = [
-  { label: 'Ceylon Tea', keywords: ['tea'] },
-  { label: 'Coconut', keywords: ['coconut', 'coir'] },
-  { label: 'Spices', keywords: ['spice', 'cinnamon', 'pepper', 'clove'] },
-  { label: 'Apparel', keywords: ['apparel', 'textile', 'fabric', 'batik', 'garment'] },
-  { label: 'Handicraft', keywords: ['handicraft', 'gift', 'wood'] },
-  { label: 'Wellness', keywords: ['ayurveda', 'ayurvedic', 'herbal', 'wellness'] },
-  { label: 'Packaging', keywords: ['packaging', 'box', 'carton'] },
-  { label: 'Food', keywords: ['food', 'agriculture', 'seafood', 'fish'] },
+const BEAUTY_FOCUS = [
+  { label: 'Makeup', keywords: ['makeup', 'lipstick', 'foundation', 'concealer', 'mascara', 'eyeliner', 'blush'] },
+  { label: 'Skincare', keywords: ['skincare', 'serum', 'moisturizer', 'sunscreen', 'cleanser', 'toner', 'cream'] },
+  { label: 'Fragrance', keywords: ['fragrance', 'perfume', 'eau de parfum', 'cologne'] },
+  { label: 'Hair Care', keywords: ['hair', 'shampoo', 'conditioner', 'mask', 'kerastase', 'redken'] },
+  { label: 'Bath & Body', keywords: ['body', 'lotion', 'shower', 'bath'] },
+  { label: 'Tools & Brushes', keywords: ['brush', 'sponge', 'blender', 'tool'] },
+  { label: 'Gift Sets', keywords: ['gift', 'set', 'bundle', 'mini'] },
 ];
 
-const fallbackImage = (label = 'Export Product') =>
-  `https://placehold.co/520x420/f0fdf4/155e2c?text=${encodeURIComponent(label.slice(0, 18))}`;
+const fallbackProducts = [
+  'Gentle Hydrating Cleanser',
+  'Vitamin C Brightening Serum',
+  'SPF 50 Daily Sunscreen',
+  'Long Wear Matte Lipstick',
+  'Bond Repair Shampoo',
+  'Signature Eau de Parfum',
+  'Soft Glow Body Lotion',
+  'Pore Care Clay Face Mask',
+  'Nourishing Hair Oil',
+  'Essential Beauty Tools Set',
+];
 
-function getExportFocus(product) {
-  const haystack = [
-    product?.name,
-    product?.label,
-    product?.slug,
-    product?.category?.name,
-    product?.category?.label,
-    product?.category?.slug,
-  ].filter(Boolean).join(' ').toLowerCase();
-
-  return EXPORT_FOCUS.find((focus) => (
-    focus.keywords.some((keyword) => haystack.includes(keyword))
-  ));
-}
+const fallbackImage = (label = 'Beauty Product') =>
+  label.toLowerCase().includes('perfume')
+    ? 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=900&q=80'
+    : 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80';
 
 function numberFrom(...values) {
   const found = values.find((value) => value !== undefined && value !== null && value !== '');
@@ -52,67 +46,52 @@ function productHref(product) {
   return '/products';
 }
 
-function inquiryHref(product) {
-  const id = product?.id || product?.slug;
-  return id ? `/inquiry/create?product_id=${encodeURIComponent(id)}` : '/rfq';
+function getBeautyFocus(product) {
+  const haystack = [
+    product?.name,
+    product?.label,
+    product?.slug,
+    product?.category?.name,
+    product?.category?.label,
+    product?.category?.slug,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  return BEAUTY_FOCUS.find((focus) => (
+    focus.keywords.some((keyword) => haystack.includes(keyword))
+  ));
 }
 
-function getSupplier(product) {
-  const supplier = product?.supplier_details || product?.supplier;
-  if (typeof supplier === 'string') {
-    return { name: supplier, verified: Boolean(product?.verified) };
-  }
+function formatPrice(product, index) {
+  const price = numberFrom(product?.retail_price, product?.sale_price, product?.price_min, product?.price);
+  const currency = product?.currency?.code || product?.currency_code || 'LKR';
 
-  return {
-    name: supplier?.company_name || supplier?.name || product?.supplier_name || 'Verified Sri Lankan supplier',
-    verified: Boolean(
-      product?.verified
-      || supplier?.verified
-      || supplier?.verification_status === 'verified'
-      || product?.supplier_verified,
-    ),
-  };
-}
-
-function formatPrice(product) {
-  const min = numberFrom(product?.fob_price_min, product?.price_min, product?.priceMin, product?.price);
-  const max = numberFrom(product?.fob_price_max, product?.price_max, product?.priceMax);
-  const currency = product?.currency?.code || product?.currency_code || 'USD';
-
-  if (min === null) return 'RFQ pricing';
-  if (max !== null && max > min) return `${formatCurrency(min, currency)} - ${formatCurrency(max, currency)}`;
-  return formatCurrency(min, currency);
+  return price !== null ? formatCurrency(price, currency) : formatCurrency([3900, 5200, 6800, 8400][index % 4], currency);
 }
 
 function normalizeForCard(product, index) {
-  const label = product?.name || product?.label || 'Sri Lankan Export Product';
-  const focus = getExportFocus(product);
-  const supplier = getSupplier(product);
-  const moq = numberFrom(product?.moq, product?.minOrder, product?.min_order);
-  const unit = product?.moq_unit || product?.unit || product?.moqUnit || 'units';
-  const leadTime = numberFrom(product?.lead_time_days, product?.leadTimeDays, product?.lead_time);
+  const label = product?.name || product?.label || fallbackProducts[index % fallbackProducts.length];
+  const focus = getBeautyFocus(product);
+  const rating = numberFrom(product?.rating, product?.average_rating) || (4.5 + (index % 5) / 10);
 
   return {
     id: product?.id || product?.slug || `${label}-${index}`,
     label,
     href: productHref(product),
-    inquiryHref: inquiryHref(product),
     image: product?.featured_image || product?.image || product?.thumbnail || fallbackImage(label),
-    categoryLabel: focus?.label || product?.category?.label || product?.category?.name || 'Export product',
-    supplierName: supplier.name,
-    supplierVerified: supplier.verified,
-    price: formatPrice(product),
-    moq: moq ? `${moq.toLocaleString()} ${unit}` : `MOQ by ${unit}`,
-    leadTime: leadTime ? `${leadTime} days` : 'Lead time on request',
-    port: product?.port || product?.shipping_port || 'Colombo Port',
-    supplyAbility: product?.supply_ability || product?.supplyAbility || 'Export supply available',
-    focusScore: focus ? EXPORT_FOCUS.indexOf(focus) : EXPORT_FOCUS.length + index,
+    categoryLabel: focus?.label || product?.category?.label || product?.category?.name || 'Beauty',
+    brand: product?.brand?.name || product?.brand_name || ['L’Oréal', 'Maybelline', 'CeraVe', 'Lancôme', 'Redken'][index % 5],
+    price: formatPrice(product, index),
+    rating: rating.toFixed(1),
+    badge: index % 3 === 0 ? 'Best Seller' : index % 3 === 1 ? 'New' : 'Original',
+    focusScore: focus ? BEAUTY_FOCUS.indexOf(focus) : BEAUTY_FOCUS.length + index,
   };
 }
 
-export default function TrendingProducts({ products }) {
-  const items = Array.isArray(products)
-    ? products
+export default function TrendingProducts() {
+  const sourceProducts = TRENDING_PRODUCTS;
+
+  const items = Array.isArray(sourceProducts)
+    ? sourceProducts
       .map(normalizeForCard)
       .sort((a, b) => a.focusScore - b.focusScore)
       .slice(0, 8)
@@ -121,19 +100,19 @@ export default function TrendingProducts({ products }) {
   if (!items.length) return null;
 
   return (
-    <section className="mt-5 sm:mt-6 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
+    <section className="mt-5 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm sm:mt-6">
       <div className="border-b border-gray-100 px-4 py-3.5 sm:px-5 sm:py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">Featured export products</p>
-            <h2 className="mt-1 text-lg font-bold text-gray-900 sm:text-xl">Maldives-ready B2B sourcing picks</h2>
+            <p className="text-xs font-semibold uppercase tracking-wide text-pink-700">Trending Beauty</p>
+            <h2 className="mt-1 text-lg font-bold text-gray-900 sm:text-xl">Best Sellers & New Favourites</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
-              High-demand Sri Lankan products with RFQ-ready trade details for hospitality, retail, food service, and distribution buyers.
+              Shop original makeup, skincare, fragrance, haircare, bath and body, wellness, and beauty tools from verified beauty brands and authorized sellers.
             </p>
           </div>
           <Link
             href="/products?sort=trending"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800 sm:w-auto md:self-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-pink-200 hover:bg-pink-50 hover:text-pink-800 sm:w-auto md:self-auto"
           >
             View all products <ArrowRight size={14} />
           </Link>
@@ -157,63 +136,47 @@ export default function TrendingProducts({ products }) {
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
-              <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-primary-800 shadow-sm">
+              <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-pink-800 shadow-sm">
                 {product.categoryLabel}
               </span>
-              {product.supplierVerified && (
-                <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-primary-700/95 px-2 py-1 text-[11px] font-semibold text-white shadow-sm">
-                  <BadgeCheck size={12} />
-                  Verified
-                </span>
-              )}
+              <span className="absolute right-2 top-2 rounded-full bg-black/90 px-2 py-1 text-[11px] font-semibold text-white shadow-sm">
+                {product.badge}
+              </span>
             </Link>
 
             <div className="flex flex-1 flex-col pt-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{product.brand}</p>
               <Link href={product.href}>
-                <h3 className="text-sm font-bold leading-snug text-gray-900 line-clamp-2 group-hover:text-primary-800">
+                <h3 className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-gray-900 group-hover:text-pink-800">
                   {product.label}
                 </h3>
               </Link>
 
-              <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
-                {product.supplierVerified && <BadgeCheck size={13} className="flex-shrink-0 text-primary-700" />}
-                <span className="line-clamp-1">{product.supplierName}</span>
+              <div className="mt-2 flex items-center gap-1 text-xs text-amber-500">
+                <Star size={13} fill="currentColor" />
+                <span className="font-semibold">{product.rating}</span>
+                <span className="text-gray-400">customer rating</span>
               </div>
 
-              <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-2.5 sm:p-3">
-                <div className="text-sm font-bold text-primary-800">{product.price}</div>
-                <div className="mt-2 grid grid-cols-1 gap-1.5 text-[11px] text-gray-600 sm:gap-2">
-                  <span className="flex items-center gap-1.5">
-                    <PackageCheck size={13} className="text-gray-400" />
-                    MOQ: {product.moq}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock size={13} className="text-gray-400" />
-                    Lead time: {product.leadTime}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Ship size={13} className="text-gray-400" />
-                    {product.supplyAbility}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <MapPin size={13} className="text-gray-400" />
-                    FOB: {product.port}
-                  </span>
-                </div>
+              <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                <div className="text-base font-black text-gray-950">{product.price}</div>
+                <p className="mt-1 text-xs leading-5 text-gray-500">
+                  Authentic brand product with beauty routine-friendly delivery options.
+                </p>
               </div>
 
               <div className="mt-auto flex gap-2 pt-3">
                 <Link
-                  href={product.inquiryHref}
-                  className="inline-flex flex-1 items-center justify-center rounded-lg bg-primary-700 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-800"
+                  href={product.href}
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-black px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-neutral-800"
                 >
-                  Send inquiry
+                  <ShoppingBasket size={14} /> Shop
                 </Link>
                 <Link
-                  href={product.href}
-                  className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"
+                  href="/wishlist"
+                  className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition-colors hover:border-pink-200 hover:bg-pink-50 hover:text-pink-800"
                 >
-                  Details
+                  <Heart size={14} />
                 </Link>
               </div>
             </div>

@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\SupplierReviewController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\SLBeauty\AdminBrandController;
 use App\Http\Controllers\SLBeauty\PublicBeautyController;
 use App\Http\Controllers\SLBeauty\SupplierBeautyProfileController;
 use App\Http\Controllers\SLBeauty\SupplierBrandAuthorizationController;
@@ -165,6 +166,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/backups', [AdminController::class, 'backups']);
     Route::post('/admin/maintenance/enable', [AdminController::class, 'enableMaintenance']);
     Route::post('/admin/maintenance/disable', [AdminController::class, 'disableMaintenance']);
+
+    Route::prefix('admin/sl-beauty')->group(function () {
+        Route::get('/brands', [AdminBrandController::class, 'index']);
+        Route::post('/brands', [AdminBrandController::class, 'store']);
+        Route::get('/brands/{brand}', [AdminBrandController::class, 'show'])
+            ->whereNumber('brand');
+        Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])
+            ->whereNumber('brand');
+        Route::patch('/brands/{brand}/status', [AdminBrandController::class, 'updateStatus'])
+            ->whereNumber('brand');
+        Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])
+            ->whereNumber('brand');
+    });
 
     Route::get('/supplier/company-profile', [SupplierProfileController::class, 'getCompanyProfile']);
     Route::put('/supplier/company-profile', [SupplierProfileController::class, 'updateCompanyProfile']);

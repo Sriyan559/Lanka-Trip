@@ -17,7 +17,7 @@ export default function YouMayLike({ recommendations }) {
         {items.map((item) => {
           const label = item.name || item.label;
           const image = item.featured_image || item.image;
-          const href = item.id ? `/products/${item.id}` : `/search?q=${encodeURIComponent(label)}`;
+          const href = item.id ? `/products/${item.id}` : `/products?q=${encodeURIComponent(label)}`;
           const detail = item.id
             ? `${formatCurrency(item.price)} / ${item.unit || 'unit'}`
             : `${item.count} Products`;
@@ -29,7 +29,7 @@ export default function YouMayLike({ recommendations }) {
             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors"
           >
             <Image
-              src={image || `https://placehold.co/60x60/f0fdf4/155e2c?text=${encodeURIComponent(label.slice(0, 8))}`}
+              src={image || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=160&q=80'}
               alt={label}
               width={44}
               height={44}
@@ -45,12 +45,12 @@ export default function YouMayLike({ recommendations }) {
         })}
       </div>
       <div className="px-3 py-2 border-t border-gray-100">
-        <p className="text-[11px] text-gray-400 mb-1.5">Can&apos;t find what you need?</p>
+        <p className="text-[11px] text-gray-400 mb-1.5">Looking for more beauty picks?</p>
         <Link
-          href="/rfq"
+          href="/products"
           className="block text-center text-xs py-1.5 border border-accent-500 text-accent-600 rounded-lg hover:bg-accent-50 font-medium transition-colors"
         >
-          Post Your Request
+          Shop All Products
         </Link>
       </div>
     </aside>

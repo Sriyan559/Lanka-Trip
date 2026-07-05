@@ -1,23 +1,22 @@
 'use client';
 
 /**
- * B2BProductCard — product card styled for B2B marketplace listing pages.
+ * B2BProductCard — legacy component name for product listing cards.
  *
  * Features:
- *  - Price range display (US$X.XX – X.XX / Unit)
- *  - MOQ (Minimum Order Quantity)
- *  - Supplier certification badges (OEM/ODM, Audited, Secured Trading)
- *  - Send Inquiry CTA button
+ *  - Price range display
+ *  - Brand verification badges
+ *  - Add-to-basket CTA button
  *  - Chat icon button
  *  - Works in both grid and list view modes
  *
  * Connect to Laravel: product data comes from GET /api/products?... 
- * The onInquire callback should open the inquiry/RFQ workflow.
+ * TODO: Rename this component in a later cleanup once imports are migrated.
  */
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Anchor, BadgeCheck, Eye, MapPin, MessageCircle, PackageCheck, Star } from 'lucide-react';
+import { BadgeCheck, Eye, MapPin, MessageCircle, PackageCheck, Star } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency } from '@/lib/utils';
 import { FALLBACK_PRODUCT_IMAGE, normalizeProduct } from '@/lib/products';
@@ -51,27 +50,29 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const supplierName = typeof supplier === 'string'
     ? supplier
     : supplier?.name || supplier?.company_name || '';
-  const supplierId = typeof supplier === 'object' ? supplier?.id : normalized.supplier_id;
-  const supplierSlug = typeof supplier === 'object' ? supplier?.slug : null;
-  const supplierHref = supplierId || supplierSlug ? `/suppliers/${supplierSlug || supplierId}` : null;
+  const supplierHref = supplierName ? '/brands' : null;
   const displaySupplierLocation = supplierLocation
     || (typeof supplier === 'object' ? supplier?.location : '')
     || '';
-  const categoryLabel = category?.label || category?.name || normalized.category_name || 'Export product';
+  const categoryLabel = category?.label || category?.name || normalized.category_name || 'Beauty product';
   const leadTime = normalized.lead_time_days ?? normalized.leadTimeDays ?? normalized.lead_time ?? null;
   const displayLeadTime = leadTime
     ? (String(leadTime).toLowerCase().includes('day') ? String(leadTime) : `${leadTime} days`)
-    : 'Ask supplier';
-  const displayPort = normalized.port || normalized.export_port || 'Colombo Port';
-  const supplyAbility = normalized.supply_ability || normalized.supplyAbility || 'Available on request';
+    : 'Delivery time varies';
+  const displayPort = normalized.port || 'Islandwide delivery';
+  const supplyAbility = normalized.supply_ability || normalized.supplyAbility || 'Original brand product';
   const status = String(normalized.status || normalized.approval_status || '').toLowerCase();
   const featured = Boolean(normalized.featured || normalized.is_featured || status.includes('featured'));
-  const exportReady = Boolean(normalized.export_ready || normalized.is_export_ready || status.includes('export'));
+  const originalBrand = Boolean(
+    normalized.is_original_brand
+    || normalized.original_brand
+    || status.includes('original')
+  );
   const priceLabel = displayPriceMax
-    ? `US$${Number(displayPriceMin).toFixed(2)}-${Number(displayPriceMax).toFixed(2)}`
+    ? `${formatCurrency(displayPriceMin)}-${formatCurrency(displayPriceMax)}`
     : displayPriceMin > 0
       ? formatCurrency(displayPriceMin)
-      : 'Request FOB';
+      : 'View price';
   const fallbackImage = image || FALLBACK_PRODUCT_IMAGE;
 
   const handleInquire = (e) => {
@@ -86,11 +87,11 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
       return;
     }
     if (!isBuyer) {
-      toast.error('Only buyer accounts can start supplier conversations.');
+      toast.error('Only shopper accounts can start brand conversations.');
       return;
     }
     if (!normalized.supplier_id) {
-      toast.error('Supplier information is unavailable for this product.');
+      toast.error('Brand information is unavailable for this product.');
       return;
     }
     try {
@@ -125,9 +126,9 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
                 <BadgeCheck size={9} /> Verified
               </span>
             )}
-            {(featured || exportReady) && (
+            {(featured || originalBrand) && (
               <span className="rounded-full bg-white/95 px-1.5 py-0.5 text-[10px] font-semibold text-primary-800 shadow-sm backdrop-blur-sm">
-                {featured ? 'Featured' : 'Export ready'}
+                {featured ? 'Featured' : 'Original'}
               </span>
             )}
           </div>
@@ -153,13 +154,13 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
 
           <Link href={productHref}>
             <h3 className="mb-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-gray-900 line-clamp-2 transition-colors hover:text-primary-800">
-              {name || 'Export product'}
+              {name || 'Beauty product'}
             </h3>
           </Link>
 
           {/* Price */}
           <div className="mb-2 rounded-lg border border-primary-50 bg-primary-50/70 px-2.5 py-2">
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">FOB price</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">Price</div>
             <span className="text-primary-800 font-bold text-[15px]">
               {priceLabel}
             </span>
@@ -168,18 +169,18 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
 
           <div className="grid grid-cols-2 gap-1.5 text-[11px] text-gray-500">
             <div className="rounded-lg bg-gray-50 px-2 py-1.5">
-              <span className="block text-[10px] uppercase text-gray-400">MOQ</span>
+              <span className="block text-[10px] uppercase text-gray-400">Quantity</span>
               <span className="font-semibold text-gray-700">{minOrder > 0 ? `${minOrder} ${moqUnit || displayUnit}` : 'Flexible'}</span>
             </div>
             <div className="rounded-lg bg-gray-50 px-2 py-1.5">
-              <span className="block text-[10px] uppercase text-gray-400">Lead time</span>
+              <span className="block text-[10px] uppercase text-gray-400">Delivery</span>
               <span className="font-semibold text-gray-700">{displayLeadTime}</span>
             </div>
           </div>
 
           <div className="mt-2 space-y-1 text-[11px] text-gray-500">
             <div className="flex items-center gap-1.5">
-              <Anchor size={11} className="text-gray-400" />
+              <MapPin size={11} className="text-gray-400" />
               <span className="truncate">{displayPort}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -188,7 +189,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             </div>
           </div>
 
-          {/* Supplier */}
+          {/* Brand */}
           {supplierName && (
             supplierHref ? (
               <Link href={supplierHref} className="mt-2 flex items-center gap-1 text-[11px] text-gray-500 hover:text-primary-800">
@@ -234,13 +235,13 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             onClick={handleInquire}
             className="flex-1 py-2 bg-primary-800 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors"
           >
-            Send Inquiry
+            Add to Basket
           </button>
           <button
             type="button"
             onClick={handleChat}
             className="hidden h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-primary-300 hover:text-primary-700 sm:flex"
-            title="Chat with supplier"
+            title="Chat with brand"
           >
             <MessageCircle size={14} />
           </button>
@@ -279,15 +280,15 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             {categoryLabel}
           </span>
           {featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">Featured</span>}
-          {exportReady && <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-semibold text-primary-700">Export ready</span>}
+          {originalBrand && <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-semibold text-primary-700">Original</span>}
         </div>
         <Link href={productHref}>
           <h3 className="text-base font-semibold text-gray-900 hover:text-primary-800 line-clamp-2 mb-1.5 transition-colors leading-snug">
-            {name || 'Export product'}
+            {name || 'Beauty product'}
           </h3>
         </Link>
 
-        {/* Supplier */}
+        {/* Brand */}
         {supplierName && (
           <div className="flex flex-wrap items-center gap-1 text-xs text-gray-500 mb-2">
             {audited && <BadgeCheck size={11} className="text-primary-600 flex-shrink-0" />}
@@ -306,19 +307,19 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
 
         <div className="grid gap-2 text-xs text-gray-500 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg bg-gray-50 px-2.5 py-2">
-            <span className="block text-[10px] uppercase text-gray-400">MOQ</span>
+            <span className="block text-[10px] uppercase text-gray-400">Quantity</span>
             <span className="font-semibold text-gray-700">{minOrder > 0 ? `${minOrder} ${moqUnit || displayUnit}` : 'Flexible'}</span>
           </div>
           <div className="rounded-lg bg-gray-50 px-2.5 py-2">
-            <span className="block text-[10px] uppercase text-gray-400">Lead time</span>
+            <span className="block text-[10px] uppercase text-gray-400">Delivery</span>
             <span className="font-semibold text-gray-700">{displayLeadTime}</span>
           </div>
           <div className="rounded-lg bg-gray-50 px-2.5 py-2">
-            <span className="block text-[10px] uppercase text-gray-400">Port</span>
+            <span className="block text-[10px] uppercase text-gray-400">Fulfilment</span>
             <span className="font-semibold text-gray-700">{displayPort}</span>
           </div>
           <div className="rounded-lg bg-gray-50 px-2.5 py-2">
-            <span className="block text-[10px] uppercase text-gray-400">Supply</span>
+            <span className="block text-[10px] uppercase text-gray-400">Product</span>
             <span className="font-semibold text-gray-700 line-clamp-1">{supplyAbility}</span>
           </div>
         </div>
@@ -344,7 +345,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
       {/* Price + CTA */}
       <div className="flex-shrink-0 flex flex-col justify-between text-left sm:min-w-[140px] sm:items-end sm:text-right">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">FOB price</div>
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">Price</div>
           <div className="text-primary-800 font-bold text-base sm:text-lg">
             {priceLabel}
           </div>
@@ -361,7 +362,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             onClick={handleInquire}
             className="w-full whitespace-nowrap rounded-lg bg-primary-800 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-700 sm:py-1.5"
           >
-            Send Inquiry
+            Add to Basket
           </button>
           <button
             type="button"

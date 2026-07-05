@@ -6,8 +6,7 @@ import { ArrowRight } from 'lucide-react';
  * CategoryGridSection — a reusable homepage section block.
  *
  * Renders a large promo tile on the left and an 8-item category grid
- * on the right — matching the "Manufacturing & Processing Machinery" pattern
- * from the screenshots, adapted for Sri Lankan export categories.
+ * on the right for SL Beauty homepage product and category collections.
  *
  * Backend: GET /api/home/sections returns an array of these objects.
  * Each section's `items` array is independently rendered.
@@ -19,7 +18,7 @@ import { ArrowRight } from 'lucide-react';
  * @param {string}   section.promoSubtitle      — Smaller text on left tile
  * @param {string}   section.promoBg            — Inline style background (gradient string)
  * @param {string}   [section.promoImage]       — Optional image URL for left tile
- * @param {string}   section.promoHref          — Where "Source Now" links to
+ * @param {string}   section.promoHref          — Where the promo CTA links to
  * @param {string}   [section.promoButtonLabel] — CTA button text
  * @param {Object[]} section.items              — Array of { slug, label, image }
  */
@@ -33,7 +32,7 @@ export default function CategoryGridSection({ section }) {
     promoBg,
     promoImage,
     promoHref = '/products',
-    promoButtonLabel = 'Source Now',
+    promoButtonLabel = 'Shop Now',
     items = [],
   } = section;
 
@@ -90,7 +89,7 @@ export default function CategoryGridSection({ section }) {
             >
               <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-200 transition-colors flex-shrink-0">
                 <Image
-                  src={item.image || `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent((item.label || 'Product').slice(0, 16))}`}
+                  src={item.image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80'}
                   alt={item.label}
                   width={80}
                   height={80}

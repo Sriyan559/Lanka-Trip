@@ -8,17 +8,17 @@ import './globals.css';
 
 export const metadata = {
   title: {
-    default: 'EcomLanka — Sri Lanka B2B Export Marketplace',
-    template: '%s | EcomLanka',
+    default: 'SL Beauty Platform — Premium Beauty Ecommerce Marketplace',
+    template: '%s | SL Beauty Platform',
   },
   description:
-    'Connect with verified Sri Lankan exporters. Source quality tea, spices, gems, textiles, rubber products and more.',
-  keywords: ['Sri Lanka exports', 'B2B marketplace', 'Ceylon tea', 'spices', 'gems', 'rubber'],
+    'Shop authentic beauty products, makeup, skincare, fragrance, hair care, bath and body essentials, beauty tools, gift sets, and original brands.',
+  keywords: ['beauty ecommerce', 'makeup', 'skincare', 'fragrance', 'hair care', 'gift sets', 'beauty brands'],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: 'EcomLanka',
+    siteName: 'SL Beauty Platform',
   },
 };
 

@@ -9,8 +9,8 @@ import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 import toast from 'react-hot-toast';
 
 const ROLES = [
-  { value: 'buyer',    label: '🛒 Buyer',    desc: 'Source products from Sri Lankan exporters' },
-  { value: 'supplier', label: '📦 Supplier',  desc: 'Sell your products to global buyers' },
+  { value: 'buyer',    label: '🛒 Shopper',  desc: 'Shop authentic beauty products and favourite brands' },
+  { value: 'supplier', label: '🏷️ Brand Partner',  desc: 'Manage beauty products, offers, and brand collections' },
 ];
 
 export default function RegisterForm() {
@@ -68,7 +68,7 @@ export default function RegisterForm() {
         password:              form._el_pw,
         password_confirmation: form._el_pw2,
       });
-      toast.success('Account created! Welcome to EcomLanka.');
+      toast.success('Account created! Welcome to SL Beauty Platform.');
       router.push('/dashboard');
     } catch (err) {
       setFieldErrors(err.errors || {});
@@ -80,8 +80,8 @@ export default function RegisterForm() {
 
   const fields = [
     { id: 'name',    icon: User,     label: 'Full Name',       type: 'text',  placeholder: 'John Silva',          key: 'name' },
-    { id: 'company', icon: Building, label: 'Company Name',    type: 'text',  placeholder: 'Lanka Exports Ltd.',   key: 'company' },
-    { id: 'email',   icon: Mail,     label: 'Email Address',   type: 'email', placeholder: 'you@company.com',      key: 'email' },
+    { id: 'company', icon: Building, label: 'Brand or Company Name', type: 'text',  placeholder: 'Glow Beauty Co.', key: 'company' },
+    { id: 'email',   icon: Mail,     label: 'Email Address',   type: 'email', placeholder: 'you@example.com',       key: 'email' },
     { id: 'phone',   icon: Phone,    label: 'Phone (optional)',type: 'tel',   placeholder: '+94 77 000 0000',       key: 'phone' },
     { id: 'country', icon: Globe2, label: 'Country (optional)', type: 'text', placeholder: 'Sri Lanka', key: 'country' },
   ];
@@ -93,9 +93,9 @@ export default function RegisterForm() {
           <Link href="/">
             <div className="inline-flex items-center gap-2">
               <div className="w-10 h-10 bg-primary-800 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
+                <span className="text-white font-bold text-xl">SL</span>
               </div>
-              <span className="text-xl font-bold text-primary-800">EcomLanka</span>
+              <span className="text-xl font-bold text-primary-800">SL Beauty</span>
             </div>
           </Link>
         </div>
@@ -221,7 +221,7 @@ export default function RegisterForm() {
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Creating Account…
                 </span>
-              ) : `Create ${role === 'supplier' ? 'Supplier' : 'Buyer'} Account`}
+              ) : `Create ${role === 'supplier' ? 'Brand Partner' : 'Shopper'} Account`}
             </button>
           </form>
 

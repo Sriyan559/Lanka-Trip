@@ -5,14 +5,14 @@ import { BadgeCheck, ChevronRight } from 'lucide-react';
 import useCategories from '@/hooks/useCategories';
 
 const CATEGORY_PRIORITIES = [
-  { label: 'Ceylon Tea', keywords: ['tea', 'beverage'] },
-  { label: 'Coconut Products', keywords: ['coconut', 'coir'] },
-  { label: 'Spices & Cinnamon', keywords: ['spice', 'cinnamon', 'condiment'] },
-  { label: 'Apparel & Textiles', keywords: ['apparel', 'textile', 'fabric', 'batik'] },
-  { label: 'Handicrafts', keywords: ['handicraft', 'gift', 'wood'] },
-  { label: 'Wellness & Ayurveda', keywords: ['ayurvedic', 'ayurveda', 'herbal', 'wellness'] },
-  { label: 'Packaging Products', keywords: ['packaging', 'box', 'carton'] },
-  { label: 'Food & Agriculture', keywords: ['food', 'agriculture', 'seafood', 'fisheries'] },
+  { label: 'Makeup', keywords: ['makeup', 'cosmetic', 'lipstick', 'foundation'] },
+  { label: 'Skincare', keywords: ['skincare', 'skin', 'serum', 'cleanser', 'moisturizer'] },
+  { label: 'Fragrance', keywords: ['fragrance', 'perfume', 'cologne'] },
+  { label: 'Hair Care', keywords: ['hair', 'shampoo', 'conditioner', 'treatment'] },
+  { label: 'Bath & Body', keywords: ['bath', 'body', 'lotion', 'shower'] },
+  { label: 'Tools & Brushes', keywords: ['tool', 'brush', 'sponge', 'blender'] },
+  { label: 'Wellness', keywords: ['wellness', 'ayurvedic', 'natural', 'supplement'] },
+  { label: 'Gift Sets', keywords: ['gift', 'set', 'bundle', 'mini'] },
 ];
 
 function categoryMatches(category, keywords) {
@@ -36,9 +36,9 @@ export default function CategorySidebar() {
       <div className="px-3 py-2 border-b border-gray-100 mb-1">
         <div className="flex items-center gap-2">
           <BadgeCheck size={14} className="text-primary-700" />
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Export Categories</span>
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Beauty Categories</span>
         </div>
-        <p className="mt-1 text-[11px] leading-4 text-gray-400">Verified Sri Lankan supplier sectors</p>
+        <p className="mt-1 text-[11px] leading-4 text-gray-400">Authentic beauty brands and retailer-ready collections</p>
       </div>
       <nav className="space-y-0.5 px-1">
         {visibleCategories.map((cat) => (
@@ -59,7 +59,7 @@ export default function CategorySidebar() {
         )}
       </nav>
       <div className="px-3 pt-2 mt-1 border-t border-gray-100">
-        <Link href="/categories" className="text-xs text-primary-700 font-medium hover:underline">
+        <Link href="/products" className="text-xs text-primary-700 font-medium hover:underline">
           More Categories →
         </Link>
       </div>

@@ -4,17 +4,17 @@ import { SOURCING_SOLUTIONS, SRI_LANKA_CATEGORIES } from '@/lib/constants';
 
 // Show 3 category thumbnail icons under each solution card
 const SOLUTION_CATS = [
-  ['tea-beverages', 'spices-condiments', 'food-agriculture'],
-  ['gems-jewelry',  'ceramics-pottery',  'handicrafts'],
-  ['textiles-apparel','rubber-products', 'coir-coconut'],
-  ['it-software',   'electrical',        'construction'],
+  ['makeup', 'skincare', 'fragrance'],
+  ['hair-care', 'bath-body', 'wellness'],
+  ['luxury-beauty', 'k-beauty', 'new-arrivals'],
+  ['gift-sets', 'mini-size', 'sale'],
 ];
 
 export default function SourcingSolutions() {
   return (
     <section className="mt-8">
       <h2 className="text-base font-bold text-gray-800 mb-4 text-center">
-        Sourcing Solutions &amp; Tailored Services
+        Beauty Collections &amp; Partner Services
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {SOURCING_SOLUTIONS.map((card, idx) => {

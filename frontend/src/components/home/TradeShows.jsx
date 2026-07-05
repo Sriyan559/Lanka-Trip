@@ -8,10 +8,10 @@ export default function TradeShows() {
     <section className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-base font-bold text-gray-800">Trade Shows</h2>
-          <p className="text-xs text-gray-400">Upcoming exhibitions EcomLanka will participate in</p>
+          <h2 className="text-base font-bold text-gray-800">Beauty Events</h2>
+          <p className="text-xs text-gray-400">Upcoming SL Beauty campaigns, brand weeks, and partner showcases</p>
         </div>
-        <Link href="/trade-shows" className="text-sm text-primary-700 hover:underline flex items-center gap-1">
+        <Link href="/products?collection=events" className="text-sm text-primary-700 hover:underline flex items-center gap-1">
           View More <ArrowRight size={13} />
         </Link>
       </div>
@@ -20,7 +20,7 @@ export default function TradeShows() {
         {TRADE_SHOWS.map((show) => (
           <Link
             key={show.id}
-            href={`/trade-shows/${show.id}`}
+            href="/products?collection=events"
             className="group flex gap-3 p-3 rounded-xl border border-gray-100 hover:border-primary-200 hover:bg-primary-50 transition-colors"
           >
             <Image
