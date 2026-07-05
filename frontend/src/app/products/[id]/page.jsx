@@ -38,7 +38,10 @@ function productCardFromConstant(item) {
 }
 
 function buildBeautyProductDetail(slug) {
-  const source = TRENDING_PRODUCTS.find((item) => item.slug === slug);
+  const numericIndex = Number(slug);
+  const source = Number.isInteger(numericIndex) && numericIndex > 0
+    ? TRENDING_PRODUCTS[numericIndex - 1]
+    : TRENDING_PRODUCTS.find((item) => item.slug === slug);
   if (!source) return null;
 
   return {
