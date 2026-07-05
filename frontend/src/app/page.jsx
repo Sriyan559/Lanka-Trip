@@ -4,7 +4,7 @@ import HeroSlider         from '@/components/home/HeroSlider';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
-import { getHomeSections } from '@/lib/services';
+import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS } from '@/lib/constants';
 import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
 export const metadata = {
@@ -27,48 +27,70 @@ function productToCategoryGridItem(product) {
   };
 }
 
-function buildHomeCategorySections(sections) {
-  const featuredProducts = Array.isArray(sections.featured_products) ? sections.featured_products : [];
-  const trendingProducts = Array.isArray(sections.trending_products) ? sections.trending_products : [];
-  const recommendations = Array.isArray(sections.recommendations) ? sections.recommendations : [];
+function categoryToGridItem(category) {
+  const label = category?.label || 'Beauty Category';
+  const slug = category?.slug || 'products';
+
+  return {
+    slug,
+    label,
+    image: sectionImageFallback(label),
+    href: `/categories/${slug}`,
+  };
+}
+
+function buildHomeCategorySections() {
+  const beautyCategories = SRI_LANKA_CATEGORIES.filter((category) => (
+    [
+      'skincare',
+      'makeup',
+      'hair-care',
+      'fragrance',
+      'bath-body',
+      'wellness',
+      'tools-brushes',
+      'luxury-beauty',
+    ].includes(category.slug)
+  ));
+
+  const beautyProducts = TRENDING_PRODUCTS.map(productToCategoryGridItem);
 
   return [
     {
-      id: 'featured-products',
-      title: 'Featured Beauty Picks',
-      promoTitle: 'Original Beauty Essentials',
-      promoSubtitle: 'Discover authentic skincare, cosmetics, fragrance, wellness, and haircare favourites',
+      id: 'beauty-categories',
+      title: 'Shop Beauty Categories',
+      promoTitle: 'Find Your Beauty Routine',
+      promoSubtitle: 'Browse skincare, makeup, haircare, fragrance, bath and body, wellness, beauty tools, and luxury beauty',
       promoBg: 'linear-gradient(135deg, #9f1239 0%, #f472b6 100%)',
-      promoImage: featuredProducts[0]?.featured_image || featuredProducts[0]?.image,
-      promoHref: '/products?featured=1',
-      items: featuredProducts.map(productToCategoryGridItem),
-    },
-    {
-      id: 'trending-products',
-      title: 'Trending Beauty Picks',
-      promoTitle: 'Most-Loved Beauty Finds',
-      promoSubtitle: 'Explore verified beauty brands, authorized sellers, retailers, and distributors shoppers trust',
-      promoBg: 'linear-gradient(135deg, #111827 0%, #be185d 100%)',
-      promoImage: trendingProducts[0]?.featured_image || trendingProducts[0]?.image,
-      promoHref: '/products?sort=trending',
-      items: trendingProducts.map(productToCategoryGridItem),
-    },
-    {
-      id: 'recommended-products',
-      title: 'Recommended for You',
-      promoTitle: 'More Beauty To Love',
-      promoSubtitle: 'Find cleanser, serum, sunscreen, lipstick, fragrance, haircare, and retailer picks',
-      promoBg: 'linear-gradient(135deg, #7e22ce 0%, #fb7185 100%)',
-      promoImage: recommendations[0]?.featured_image || recommendations[0]?.image,
+      promoImage: sectionImageFallback('Beauty Categories'),
       promoHref: '/products',
-      items: recommendations.map(productToCategoryGridItem),
+      items: beautyCategories.map(categoryToGridItem),
+    },
+    {
+      id: 'beauty-essentials',
+      title: 'Beauty Essentials',
+      promoTitle: 'Daily Routine Picks',
+      promoSubtitle: 'Cleanser, serum, sunscreen, lipstick, shampoo, perfume, body lotion, and face mask',
+      promoBg: 'linear-gradient(135deg, #111827 0%, #be185d 100%)',
+      promoImage: TRENDING_PRODUCTS[0]?.image,
+      promoHref: '/products',
+      items: beautyProducts.slice(0, 8),
+    },
+    {
+      id: 'premium-beauty-picks',
+      title: 'Premium Beauty Picks',
+      promoTitle: 'Brands To Love',
+      promoSubtitle: 'Hair oil, beauty tools, luxury fragrance, and authorized seller favourites',
+      promoBg: 'linear-gradient(135deg, #7e22ce 0%, #fb7185 100%)',
+      promoImage: TRENDING_PRODUCTS[5]?.image,
+      promoHref: '/brands',
+      items: beautyProducts.slice(2, 10),
     },
   ].filter((section) => section.items.length > 0);
 }
 
-export default async function HomePage() {
-  const sections = await getHomeSections();
-  const categorySections = buildHomeCategorySections(sections);
+export default function HomePage() {
+  const categorySections = buildHomeCategorySections();
 
   return (
     <>
@@ -84,9 +106,9 @@ export default async function HomePage() {
         <FeaturedCards />
 
         {/* ── Trending products grid ─────────────────────────── */}
-        <TrendingProducts products={sections.trending_products} />
+        <TrendingProducts />
 
-        {/* ── Beauty product category sections, backed by Laravel data ── */}
+        {/* ── Beauty product category sections, using public SL Beauty display data ── */}
         {categorySections.map((section) => (
           <CategoryGridSection key={section.id} section={section} />
         ))}

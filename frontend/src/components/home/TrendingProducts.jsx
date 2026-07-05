@@ -85,10 +85,8 @@ function normalizeForCard(product, index) {
   };
 }
 
-export default function TrendingProducts({ products }) {
-  const sourceProducts = Array.isArray(products) && products.length > 0
-    ? products
-    : TRENDING_PRODUCTS;
+export default function TrendingProducts() {
+  const sourceProducts = TRENDING_PRODUCTS;
 
   const items = Array.isArray(sourceProducts)
     ? sourceProducts
