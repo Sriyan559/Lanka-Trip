@@ -1,14 +1,14 @@
-# EcomLanka Laravel API
+# SL Beauty Platform Laravel API
 
-Production-oriented Laravel 11 REST API for the EcomLanka Sri Lankan export marketplace.
+Production-oriented Laravel 11 REST API for the SL Beauty Platform marketplace.
 
 ## Requirements
 
 - PHP 8.2+
 - Composer 2
-- MySQL 8+
+- PostgreSQL 16+
 - Redis 7+
-- Required PHP extensions: `pdo_mysql`, `mbstring`, `intl`, `zip`, `pcntl`
+- Required PHP extensions: `pdo_pgsql`, `mbstring`, `intl`, `zip`, `pcntl`
 
 ## Local installation
 
@@ -22,7 +22,7 @@ php artisan l5-swagger:generate
 php artisan serve
 ```
 
-Configure MySQL and Redis credentials in `.env`. The API defaults to Redis cache and queues.
+Configure PostgreSQL and Redis credentials in `.env`. The API defaults to Redis cache and queues.
 
 ## Docker
 
@@ -42,7 +42,7 @@ Services:
 
 - `app`: PHP-FPM application
 - `nginx`: web server
-- `mysql`: database
+- `postgres`: database
 - `redis`: cache and queue broker
 - `queue`: Laravel queue worker
 - `horizon`: Horizon supervisor

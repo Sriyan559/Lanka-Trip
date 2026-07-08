@@ -8,8 +8,9 @@ RUN apk add --no-cache \
         git \
         icu-dev \
         libzip-dev \
-        mysql-client \
         oniguruma-dev \
+        postgresql-client \
+        postgresql-dev \
         unzip \
         zip \
     && docker-php-ext-install \
@@ -17,7 +18,7 @@ RUN apk add --no-cache \
         intl \
         mbstring \
         pcntl \
-        pdo_mysql \
+        pdo_pgsql \
         zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
