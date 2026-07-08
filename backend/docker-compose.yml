@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -27,17 +27,16 @@ services:
     networks:
       - ecomlanka
 
-  mysql:
-    image: mysql:8.4
+  postgres:
+    image: postgres:16-alpine
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-ecomlanka}
-      MYSQL_USER: ${DB_USERNAME:-ecomlanka}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-secret}
+      POSTGRES_DB: ${DB_DATABASE:-sl_beauty_platform}
+      POSTGRES_USER: ${DB_USERNAME:-sl_beauty}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-sl_beauty} -d ${DB_DATABASE:-sl_beauty_platform}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -64,7 +63,7 @@ services:
     env_file:
       - .env
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -81,7 +80,7 @@ services:
     env_file:
       - .env
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -92,7 +91,7 @@ services:
       - ecomlanka
 
 volumes:
-  mysql-data:
+  postgres-data:
   redis-data:
   storage-data:
 
