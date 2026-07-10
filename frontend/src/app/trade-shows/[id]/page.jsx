@@ -141,7 +141,7 @@ export default function TradeShowDetailPage() {
               <span className="badge-pill bg-white/20 text-white text-[11px]">{s.edition}</span>
               {s.ecomlanka_booth && <span className="badge-pill bg-amber-400 text-white text-[11px] font-bold">🇱🇰 EcomLanka Booth</span>}
             </div>
-            <h1 className="text-3xl font-black mb-1">{s.name}</h1>
+            <h1 className="text-3xl font-bold mb-1">{s.name}</h1>
             <p className="text-primary-100">{s.tagline}</p>
             <div className="flex items-center gap-4 mt-3 flex-wrap">
               <span className="flex items-center gap-1.5 text-sm"><Calendar size={14} /> {s.date}</span>
@@ -157,7 +157,7 @@ export default function TradeShowDetailPage() {
             [s.sri_lanka_suppliers, '🇱🇰 Suppliers'],
           ].map(([val, label]) => (
             <div key={label} className="text-center">
-              <p className="text-2xl font-black">{val}</p>
+              <p className="text-2xl font-bold">{val}</p>
               <p className="text-xs text-primary-200">{label}</p>
             </div>
           ))}
@@ -236,7 +236,7 @@ export default function TradeShowDetailPage() {
                         <p className="font-semibold text-gray-800 text-sm">{pkg.name}</p>
                         {pkg.recommended && <span className="badge-pill bg-amber-50 text-amber-700 text-[10px] font-bold">Recommended</span>}
                       </div>
-                      <p className="font-black text-primary-800 mt-0.5">{pkg.price} <span className="text-xs font-normal text-gray-400">/ {pkg.per}</span></p>
+                      <p className="font-bold text-primary-800 mt-0.5">{pkg.price} <span className="text-xs font-normal text-gray-400">/ {pkg.per}</span></p>
                       <ul className="mt-1.5 space-y-0.5">
                         {pkg.includes.map((item) => (
                           <li key={item} className="text-[11px] text-gray-500 flex gap-1"><CheckCircle2 size={10} className="text-primary-500 flex-shrink-0 mt-0.5" />{item}</li>

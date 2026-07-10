@@ -51,7 +51,7 @@ export default function BuyerGuideContent() {
       {/* Hero */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl p-8 text-white mb-6">
         <p className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Help Center / Buyer Guide</p>
-        <h1 className="text-2xl sm:text-3xl font-black mb-2">The Complete Buyer&apos;s Guide</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">The Complete Buyer&apos;s Guide</h1>
         <p className="text-blue-100 max-w-xl">Everything you need to source, vet, and order confidently from Sri Lankan exporters on EcomLanka.</p>
       </div>
 

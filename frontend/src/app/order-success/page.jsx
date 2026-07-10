@@ -71,7 +71,7 @@ function OrderSuccessContent() {
             <div className="absolute inset-0 rounded-full bg-primary-800/20 animate-ping" />
           </div>
 
-          <h1 className="text-3xl font-black text-gray-900 mb-2">Order Placed! 🎉</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h1>
           <p className="text-gray-500 mb-1">Thank you for your purchase on EcomLanka</p>
           <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-800 border border-primary-100 px-4 py-2 rounded-full text-sm font-bold mt-2">
             <Package size={15} />

@@ -111,7 +111,7 @@ export default function CompanyVerificationPage() {
     <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <BadgeCheck size={24} className="text-primary-600" /> Supplier Verification
         </h1>
         <p className="text-sm text-gray-500 mt-1">

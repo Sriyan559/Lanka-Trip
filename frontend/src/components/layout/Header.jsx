@@ -451,12 +451,12 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white">
       <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-3 px-4">
         <Link href="/" className="flex min-w-fit items-center gap-2" aria-label="SL Beauty Platform home">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-black text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
             SL
           </span>
           <span className="hidden leading-tight sm:block">
-            <span className="block text-base font-black tracking-normal text-black">SL Beauty</span>
-            <span className="block text-[11px] font-medium uppercase tracking-[0.16em] text-gray-400">Platform</span>
+            <span className="block text-base font-bold tracking-normal text-black">SL Beauty</span>
+            <span className="block text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">Platform</span>
           </span>
         </Link>
 
@@ -540,7 +540,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className="ml-1 inline-flex h-10 items-center rounded-full bg-black px-5 text-sm font-bold text-white transition hover:bg-neutral-800"
+                className="ml-1 inline-flex h-10 items-center rounded-full bg-black px-5 text-sm font-semibold text-white transition hover:bg-neutral-800"
               >
                 Sign In
               </Link>
@@ -613,7 +613,7 @@ export default function Header() {
                     <div key={colIdx} className="space-y-6">
                       {column.sections.map((section) => (
                         <div key={section.title}>
-                          <h4 className="mb-2.5 text-[11px] font-extrabold tracking-wider text-black uppercase border-b border-gray-100 pb-1">
+                          <h4 className="mb-2.5 text-[12px] font-semibold tracking-[0.04em] text-black uppercase border-b border-gray-100 pb-1">
                             {section.title}
                           </h4>
                           <ul className="space-y-1.5">
@@ -648,7 +648,7 @@ export default function Header() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
                       <div className="relative z-10 text-white">
-                        <h5 className="text-[14px] font-extrabold tracking-wide leading-tight drop-shadow-sm font-sans uppercase">
+                        <h5 className="text-[14px] font-semibold tracking-[0.03em] leading-tight drop-shadow-sm font-sans uppercase">
                           {NAV_DROPDOWNS[hoveredCategory].featured.title}
                         </h5>
                         <p className="text-[11px] text-white/90 mt-1 drop-shadow-sm font-medium">
@@ -706,7 +706,7 @@ export default function Header() {
                         </Link>
                         {dropdownData.columns.flatMap((col) => col.sections).map((section) => (
                           <div key={section.title} className="mt-1">
-                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 block mb-1.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.05em] text-gray-400 block mb-1.5">
                               {section.title}
                             </span>
                             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
@@ -754,10 +754,10 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="rounded-lg bg-black px-3 py-2 text-center text-sm font-bold text-white">
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="rounded-lg bg-black px-3 py-2 text-center text-sm font-semibold text-white">
                   Sign In
                 </Link>
-                <Link href="/register" onClick={() => setMobileOpen(false)} className="rounded-lg border border-black px-3 py-2 text-center text-sm font-bold text-black">
+                <Link href="/register" onClick={() => setMobileOpen(false)} className="rounded-lg border border-black px-3 py-2 text-center text-sm font-semibold text-black">
                   Register
                 </Link>
               </>

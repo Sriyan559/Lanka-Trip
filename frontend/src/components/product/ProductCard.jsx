@@ -42,7 +42,7 @@ export default function ProductCard({ product }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {verified && (
-          <span className="absolute top-2 left-2 flex items-center gap-0.5 bg-primary-700/90 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+          <span className="absolute top-2 left-2 flex items-center gap-0.5 bg-primary-700/90 text-white text-[11px] font-semibold px-1.5 py-0.5 rounded-full">
             <BadgeCheck size={10} /> Verified
           </span>
         )}
@@ -54,7 +54,10 @@ export default function ProductCard({ product }) {
 
       {/* Body */}
       <div className="p-3 flex flex-col flex-1">
-        <h3 className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug mb-1.5">
+        {supplierName && (
+          <div className="mb-1 text-[13px] font-medium text-gray-500 truncate">{supplierName}</div>
+        )}
+        <h3 className="text-[15px] sm:text-base font-semibold text-gray-900 line-clamp-2 leading-snug mb-2">
           {name}
         </h3>
 
@@ -80,7 +83,7 @@ export default function ProductCard({ product }) {
 
         {/* Price */}
         <div className="mt-auto">
-          <div className="text-primary-800 font-bold text-base">
+          <div className="text-primary-800 font-semibold text-base sm:text-[17px]">
             {formatCurrency(price)}
             <span className="text-gray-400 text-[11px] font-normal ml-0.5">/{moqUnit}</span>
           </div>
@@ -89,16 +92,13 @@ export default function ProductCard({ product }) {
               Quantity: {minOrder} {moqUnit}
             </div>
           )}
-          {supplierName && (
-            <div className="text-[11px] text-gray-500 mt-1 truncate">{supplierName}</div>
-          )}
         </div>
       </div>
 
       {/* Add to Inquiry Basket */}
       <button
         onClick={handleAddToCart}
-        className="mx-3 mb-3 py-1.5 border border-primary-700 text-primary-700 text-xs font-medium rounded-lg hover:bg-primary-700 hover:text-white transition-colors flex items-center justify-center gap-1.5"
+        className="mx-3 mb-3 py-2 border border-primary-700 text-primary-700 text-[13px] font-semibold rounded-lg hover:bg-primary-700 hover:text-white transition-colors flex items-center justify-center gap-1.5"
       >
         <ShoppingBasket size={13} />
         Add to Basket

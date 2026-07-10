@@ -51,7 +51,7 @@ export default function SupplierGuideContent() {
       {/* Hero */}
       <div className="bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-8 text-white mb-6">
         <p className="text-primary-100 text-xs font-bold uppercase tracking-wider mb-1">Help Center / Supplier Guide</p>
-        <h1 className="text-2xl sm:text-3xl font-black mb-2">The Complete Supplier&apos;s Guide</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">The Complete Supplier&apos;s Guide</h1>
         <p className="text-primary-100 max-w-xl">Set up your storefront, get verified, and start exporting to global buyers through EcomLanka.</p>
       </div>
 

@@ -88,7 +88,7 @@ export default function TradeShowsPage() {
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Globe size={22} className="text-primary-600" /> Trade Shows & Events
         </h1>
         <p className="text-sm text-gray-500 mt-1">Exhibit at global trade fairs and connect with international buyers</p>
@@ -99,7 +99,7 @@ export default function TradeShowsPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex-1">
             <p className="text-primary-200 text-xs font-semibold uppercase tracking-wider mb-1">🇱🇰 Sri Lanka Pavilion</p>
-            <h2 className="text-xl font-black mb-1">Exhibit under the EcomLanka Brand</h2>
+            <h2 className="text-xl font-bold mb-1">Exhibit under the EcomLanka Brand</h2>
             <p className="text-primary-100 text-sm">Share a booth with us at FoodEx Japan, Anuga, and other key shows. Reduced costs, shared logistics, translation support.</p>
           </div>
           <Link href="/contact-support?subject=trade-show"

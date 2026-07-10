@@ -120,7 +120,7 @@ export default function HelpCenterPage() {
     <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* Hero */}
       <div className="text-center py-6">
-        <h1 className="text-3xl font-black text-gray-900 mb-2">How can we help?</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">How can we help?</h1>
         <p className="text-gray-500 mb-6">Find answers, guides, and support for SL Beauty Platform</p>
 
         {/* Search */}

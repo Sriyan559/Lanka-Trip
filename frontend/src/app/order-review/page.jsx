@@ -133,7 +133,7 @@ function OrderReviewContent() {
           <div className="flex justify-between text-sm text-gray-500">
             <span>Shipping ({r.incoterms})</span><span>{formatCurrency(r.shipping)}</span>
           </div>
-          <div className="flex justify-between font-black text-gray-900 text-lg pt-2 border-t border-gray-100">
+          <div className="flex justify-between font-bold text-gray-900 text-lg pt-2 border-t border-gray-100">
             <span>Total ({r.currency})</span><span>{formatCurrency(r.total)}</span>
           </div>
         </div>

@@ -158,7 +158,7 @@ export default function QuotationDetailPage() {
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Supplier</h2>
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary-100 text-primary-800 font-black text-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-primary-100 text-primary-800 font-bold text-lg flex items-center justify-center flex-shrink-0">
             {q.supplier.name.charAt(0)}
           </div>
           <div className="flex-1">
@@ -220,7 +220,7 @@ export default function QuotationDetailPage() {
           <div className="flex justify-between text-sm text-gray-500">
             <span>Shipping ({q.incoterms})</span><span>{formatCurrency(q.shipping_cost)}</span>
           </div>
-          <div className="flex justify-between font-black text-gray-900 text-base pt-2 border-t border-gray-100">
+          <div className="flex justify-between font-bold text-gray-900 text-base pt-2 border-t border-gray-100">
             <span>Total ({q.currency})</span><span>{formatCurrency(q.total)}</span>
           </div>
         </div>

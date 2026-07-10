@@ -196,7 +196,7 @@ export default function ProductDetailPage() {
                   <BadgeCheck size={12} /> Verified Brand
                 </span>
               )}
-              <h1 className="text-xl font-bold text-gray-800 leading-snug">{product.name}</h1>
+              <h1 className="text-2xl font-semibold leading-tight text-gray-950 sm:text-3xl lg:text-[34px]">{product.name}</h1>
             </div>
 
             {product.rating > 0 && (
@@ -216,7 +216,7 @@ export default function ProductDetailPage() {
             )}
 
             <div className="bg-primary-50 rounded-xl p-4">
-              <div className="text-3xl font-bold text-primary-800">
+              <div className="text-3xl font-bold leading-tight text-primary-800 sm:text-[34px]">
                 {formatCurrency(product.price)}
                 <span className="text-base font-normal text-gray-500 ml-1">/ {product.moqUnit}</span>
               </div>
@@ -249,7 +249,7 @@ export default function ProductDetailPage() {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={buyNowLoading || qty < (product.minOrder || 1)}
-                className="w-full h-12 rounded-xl bg-primary-800 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-xl bg-primary-800 px-5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {buyNowLoading ? (
                   <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
@@ -344,7 +344,7 @@ export default function ProductDetailPage() {
 
         {product.related_products.length > 0 && (
           <div>
-            <h2 className="text-base font-bold text-gray-800 mb-4">Related Products</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Related Products</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {product.related_products.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id || relatedProduct.slug} product={relatedProduct} />

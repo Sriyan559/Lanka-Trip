@@ -47,7 +47,7 @@ export default function OrderTrackingPage() {
             <ArrowLeft size={16} className="text-gray-500" />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900">Order Tracking</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">Order Tracking</h1>
             <p className="text-sm text-gray-400">Payment and delivery status</p>
           </div>
           {order?.id && (
@@ -66,7 +66,7 @@ export default function OrderTrackingPage() {
 
         {!loading && error && (
           <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
-            <div className="flex items-center gap-2 font-bold">
+            <div className="flex items-center gap-2 font-semibold">
               <AlertCircle size={18} /> Tracking unavailable
             </div>
             <p className="mt-2">{error}</p>
@@ -78,26 +78,26 @@ export default function OrderTrackingPage() {
             <section className="rounded-2xl bg-primary-800 p-5 text-white">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-100">Order Reference</p>
-                  <p className="mt-1 font-mono text-xl font-black">{order.order_number}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.04em] text-primary-100">Order Reference</p>
+                  <p className="mt-1 font-mono text-xl font-semibold">{order.order_number}</p>
                   <p className="mt-2 text-sm text-primary-100">{order.supplier?.name}</p>
                 </div>
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold capitalize text-white">
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold capitalize text-white">
                   {order.status}
                 </span>
               </div>
 
               <div className="mt-5 grid gap-3 border-t border-white/15 pt-5 sm:grid-cols-3">
                 <div>
-                  <p className="text-[11px] font-bold uppercase text-primary-100">Payment</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.03em] text-primary-100">Payment</p>
                   <p className="mt-1 text-sm font-semibold capitalize">{order.payment_status}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-bold uppercase text-primary-100">Fulfillment</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.03em] text-primary-100">Fulfillment</p>
                   <p className="mt-1 text-sm font-semibold capitalize">{order.fulfillment_status || 'pending'}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-bold uppercase text-primary-100">Total</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.03em] text-primary-100">Total</p>
                   <p className="mt-1 text-sm font-semibold">{formatCurrency(Number(order.total_amount || 0), order.currency || 'LKR')}</p>
                 </div>
               </div>
@@ -167,7 +167,7 @@ export default function OrderTrackingPage() {
                       <p className="text-sm font-semibold text-gray-800">{item.product_name}</p>
                       <p className="text-xs text-gray-400">Qty {item.quantity} {item.unit}</p>
                     </div>
-                    <p className="text-sm font-bold text-gray-900">{formatCurrency(Number(item.total_amount || item.amount || 0), order.currency || 'LKR')}</p>
+                    <p className="text-sm font-semibold text-gray-900">{formatCurrency(Number(item.total_amount || item.amount || 0), order.currency || 'LKR')}</p>
                   </div>
                 ))}
               </div>

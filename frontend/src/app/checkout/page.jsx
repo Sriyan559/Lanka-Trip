@@ -76,7 +76,7 @@ function Field({ id, label, error, children }) {
 function CheckoutSection({ title, children }) {
   return (
     <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="mb-4 text-base font-bold text-gray-900">{title}</h2>
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">{title}</h2>
       {children}
     </section>
   );
@@ -114,13 +114,13 @@ function OrderSummary({ quote }) {
 
   return (
     <aside className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm lg:sticky lg:top-32">
-      <h2 className="mb-4 text-base font-bold text-gray-900">Order Summary</h2>
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">Order Summary</h2>
       <div className="mb-4 flex gap-3">
         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
           {product.image && <Image src={product.image} alt={product.name} fill unoptimized className="object-cover" />}
         </div>
         <div className="min-w-0">
-          <p className="line-clamp-2 text-sm font-bold text-gray-900">{product.name}</p>
+          <p className="line-clamp-2 text-[15px] font-semibold text-gray-900">{product.name}</p>
           <p className="mt-1 text-xs text-gray-500">{product.brandName}</p>
           <p className="text-xs text-gray-400">{product.sellerName}</p>
         </div>
@@ -131,7 +131,7 @@ function OrderSummary({ quote }) {
         <div className="flex justify-between text-gray-500"><span>Subtotal</span><span>{formatCurrency(Number(totals.subtotal), quote.currency)}</span></div>
         <div className="flex justify-between text-gray-500"><span>Delivery</span><span>{formatCurrency(Number(totals.shipping), quote.currency)}</span></div>
         <div className="flex justify-between text-gray-500"><span>Discount</span><span>-{formatCurrency(Number(totals.discount), quote.currency)}</span></div>
-        <div className="mt-3 flex justify-between border-t border-gray-100 pt-4 text-lg font-black text-gray-900">
+        <div className="mt-3 flex justify-between border-t border-gray-100 pt-4 text-xl font-bold text-gray-900">
           <span>Total</span><span className="text-primary-800">{formatCurrency(Number(totals.total), quote.currency)}</span>
         </div>
       </div>
@@ -156,7 +156,7 @@ function PaymentMethodCard({ method, selected, onSelect }) {
           <Icon size={18} />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-bold text-gray-900">{method.title}</span>
+          <span className="block text-base font-semibold text-gray-900">{method.title}</span>
           <span className="mt-0.5 block text-xs text-gray-500">{method.description}</span>
           {method.requires_manual_review && (
             <span className="mt-3 inline-flex rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-600">
@@ -200,7 +200,7 @@ function TradingProtection() {
             <div key={benefit.title} className="flex gap-3 py-4 first:pt-0 last:pb-0">
               <Icon size={22} className="mt-0.5 flex-shrink-0 text-gray-800" />
               <div>
-                <h3 className="text-sm font-black text-gray-900">{benefit.title}</h3>
+                <h3 className="text-sm font-semibold text-gray-900">{benefit.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-gray-600">{benefit.text}</p>
               </div>
             </div>
@@ -310,7 +310,7 @@ export default function CheckoutPage() {
         <Header />
         <main className="mx-auto max-w-2xl px-4 py-16 text-center">
           <PackageCheck size={46} className="mx-auto mb-4 text-gray-300" />
-          <h1 className="text-2xl font-black text-gray-900">No checkout item selected</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">No checkout item selected</h1>
           <p className="mt-2 text-sm text-gray-500">Choose an available product and use Buy Now to start secure checkout.</p>
           <Link href="/products" className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary-800 px-5 text-sm font-bold text-white hover:bg-primary-900">
             Browse Products
@@ -326,8 +326,8 @@ export default function CheckoutPage() {
       <Header />
       <main className="mx-auto max-w-screen-xl px-4 py-6 sm:py-8">
         <div className="mb-6">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-700">SL Beauty Platform</p>
-          <h1 className="mt-1 text-2xl font-black text-gray-950 sm:text-3xl">Secure Checkout</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.04em] text-primary-700">SL Beauty Platform</p>
+          <h1 className="mt-1 text-3xl font-bold text-gray-950 sm:text-4xl">Secure Checkout</h1>
         </div>
         <CheckoutProgress />
 
@@ -420,7 +420,7 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={continueToReview}
                 disabled={!isValid || saving}
-                className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 text-sm font-black uppercase tracking-wide text-white transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 text-[15px] font-semibold text-white transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? <span className="h-5 w-5 rounded-full border-2 border-white/40 border-t-white animate-spin" /> : <BadgeCheck size={18} />}
                 {saving ? 'Preparing Review...' : 'Continue to Review'}

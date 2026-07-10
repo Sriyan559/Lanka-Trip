@@ -82,7 +82,7 @@ function ContactSupportContent() {
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-2xl font-black text-gray-900 mb-1">Contact Support</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Contact Support</h1>
         <p className="text-sm text-gray-500">Mon–Fri, 9 AM–6 PM (IST) · Usually replies within a few hours</p>
       </div>
 

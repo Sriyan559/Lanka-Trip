@@ -32,7 +32,7 @@ export default function PaymentFailedPage() {
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 text-primary-800">
             <AlertCircle size={34} />
           </span>
-          <h1 className="mt-5 text-3xl font-black text-gray-950">Payment Unsuccessful</h1>
+          <h1 className="mt-5 text-3xl font-bold text-gray-950">Payment Unsuccessful</h1>
           <p className="mt-2 text-sm leading-6 text-gray-500">
             We could not complete your payment. Please try again or select another payment method.
           </p>

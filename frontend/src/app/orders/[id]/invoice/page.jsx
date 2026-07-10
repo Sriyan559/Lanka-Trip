@@ -101,12 +101,12 @@ export default function OrderInvoicePage() {
                 <div className="w-8 h-8 rounded-lg bg-primary-800 flex items-center justify-center">
                   <span className="text-white text-xs font-bold">E</span>
                 </div>
-                <span className="text-xl font-black text-primary-800">EcomLanka</span>
+                <span className="text-xl font-bold text-primary-800">EcomLanka</span>
               </div>
               <p className="text-xs text-gray-400">Sri Lanka&apos;s Premier B2B Marketplace</p>
             </div>
             <div className="text-right">
-              <h2 className="text-3xl font-black text-gray-900 tracking-tight">INVOICE</h2>
+              <h2 className="text-3xl font-bold text-gray-900 tracking-tight">INVOICE</h2>
               <p className="text-sm text-gray-500 mt-1">{inv.invoice_no}</p>
               <span className={`badge-pill mt-1 text-xs font-semibold ${
                 inv.status === 'Paid' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
@@ -192,7 +192,7 @@ export default function OrderInvoicePage() {
                   <span>{val < 0 ? `−${formatCurrency(Math.abs(val))}` : formatCurrency(val)}</span>
                 </div>
               ))}
-              <div className="flex justify-between text-base font-black text-gray-900 pt-2 border-t-2 border-gray-900">
+              <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t-2 border-gray-900">
                 <span>Total (USD)</span>
                 <span>{formatCurrency(inv.total)}</span>
               </div>

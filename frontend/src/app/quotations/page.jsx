@@ -74,7 +74,7 @@ export default function QuotationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">Quotations</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Quotations</h1>
           <p className="text-sm text-gray-500">{newCount > 0 ? `${newCount} new quotations awaiting review` : 'All quotations from suppliers'}</p>
         </div>
         <Link href="/rfq" className="flex items-center gap-1.5 px-3 py-2 bg-primary-800 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition-colors">

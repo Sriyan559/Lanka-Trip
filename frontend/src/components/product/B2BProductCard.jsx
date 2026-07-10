@@ -160,8 +160,8 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
 
           {/* Price */}
           <div className="mb-2 rounded-lg border border-primary-50 bg-primary-50/70 px-2.5 py-2">
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">Price</div>
-            <span className="text-primary-800 font-bold text-[15px]">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.03em] text-primary-600">Price</div>
+            <span className="text-primary-800 font-semibold text-base">
               {priceLabel}
             </span>
             <span className="text-gray-400 text-[11px] ml-0.5">/{displayUnit}</span>
@@ -345,8 +345,8 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
       {/* Price + CTA */}
       <div className="flex-shrink-0 flex flex-col justify-between text-left sm:min-w-[140px] sm:items-end sm:text-right">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">Price</div>
-          <div className="text-primary-800 font-bold text-base sm:text-lg">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.03em] text-primary-600">Price</div>
+          <div className="text-primary-800 font-semibold text-base sm:text-lg">
             {priceLabel}
           </div>
           <div className="text-xs text-gray-400">/{displayUnit}</div>

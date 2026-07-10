@@ -124,7 +124,7 @@ function PaymentContent() {
         <p className="text-xs text-gray-400 mt-0.5">Supplier: {order.supplier}</p>
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
           <span className="text-sm text-gray-500">Amount Due</span>
-          <span className="text-2xl font-black text-gray-900">{formatCurrency(order.total)}</span>
+          <span className="text-2xl font-bold text-gray-900">{formatCurrency(order.total)}</span>
         </div>
       </div>
 

@@ -22,7 +22,7 @@ export default function GiftCardsPage() {
             <Sparkles size={14} />
             SL Beauty gift cards
           </p>
-          <h1 className="mx-auto mt-4 max-w-2xl text-3xl font-black tracking-normal text-gray-950 sm:text-5xl">
+          <h1 className="mx-auto mt-4 max-w-2xl text-3xl font-bold tracking-normal text-gray-950 sm:text-5xl">
             Beauty gift cards are coming soon
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">

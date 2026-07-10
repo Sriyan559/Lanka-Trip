@@ -28,7 +28,7 @@ function readReview() {
 
 function SummaryRow({ label, value, strong = false }) {
   return (
-    <div className={`flex justify-between gap-4 ${strong ? 'text-lg font-black text-gray-950' : 'text-sm text-gray-500'}`}>
+    <div className={`flex justify-between gap-4 ${strong ? 'text-xl font-bold text-gray-950' : 'text-sm text-gray-500'}`}>
       <span>{label}</span>
       <span className={strong ? 'text-primary-800' : 'font-semibold text-gray-800'}>{value}</span>
     </div>
@@ -74,7 +74,7 @@ export default function PaymentConfirmationPage() {
         <Header />
         <main className="mx-auto max-w-2xl px-4 py-16 text-center">
           <PackageCheck size={46} className="mx-auto mb-4 text-gray-300" />
-          <h1 className="text-2xl font-black text-gray-900">No checkout review found</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">No checkout review found</h1>
           <p className="mt-2 text-sm text-gray-500">Return to checkout and review your delivery and payment details.</p>
           <Link href="/checkout" className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary-800 px-5 text-sm font-bold text-white hover:bg-primary-900">
             Back to Checkout
@@ -98,15 +98,15 @@ export default function PaymentConfirmationPage() {
         </button>
 
         <div className="mb-6">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-700">Final Review</p>
-          <h1 className="mt-1 text-2xl font-black text-gray-950 sm:text-3xl">Payment Confirmation</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.04em] text-primary-700">Final Review</p>
+          <h1 className="mt-1 text-3xl font-bold text-gray-950 sm:text-4xl">Payment Confirmation</h1>
           <p className="mt-2 text-sm text-gray-500">Review the backend-quoted total before creating your order.</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="space-y-5">
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
                 <PackageCheck size={18} /> Product
               </h2>
               <div className="flex gap-4">
@@ -114,7 +114,7 @@ export default function PaymentConfirmationPage() {
                   {product.image && <Image src={product.image} alt={product.name} fill unoptimized className="object-cover" />}
                 </div>
                 <div className="min-w-0">
-                  <p className="line-clamp-2 font-bold text-gray-900">{product.name}</p>
+                  <p className="line-clamp-2 font-semibold text-gray-900">{product.name}</p>
                   <p className="mt-1 text-sm text-gray-500">{product.brandName}</p>
                   <p className="text-sm text-gray-400">Qty {quote.quantity} {product.unit}</p>
                 </div>
@@ -123,14 +123,14 @@ export default function PaymentConfirmationPage() {
 
             <div className="grid gap-5 md:grid-cols-2">
               <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-base font-bold text-gray-900">Customer</h2>
-                <p className="font-bold text-gray-900">{customer.fullName}</p>
+                <h2 className="mb-4 text-lg font-semibold text-gray-900">Customer</h2>
+                <p className="font-semibold text-gray-900">{customer.fullName}</p>
                 <p className="mt-1 text-sm text-gray-500">{customer.email}</p>
                 <p className="text-sm text-gray-500">{customer.phone}</p>
               </div>
               <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-base font-bold text-gray-900">Delivery</h2>
-                <p className="font-bold text-gray-900">{delivery.address1}</p>
+                <h2 className="mb-4 text-lg font-semibold text-gray-900">Delivery</h2>
+                <p className="font-semibold text-gray-900">{delivery.address1}</p>
                 {delivery.address2 && <p className="text-sm text-gray-500">{delivery.address2}</p>}
                 <p className="mt-1 text-sm text-gray-500">{[delivery.city, delivery.province, delivery.postalCode].filter(Boolean).join(', ')}</p>
                 <p className="text-sm text-gray-500">{delivery.country}</p>
@@ -138,7 +138,7 @@ export default function PaymentConfirmationPage() {
             </div>
 
             <div className="rounded-2xl border border-primary-100 bg-primary-50/60 p-5">
-              <h2 className="mb-2 flex items-center gap-2 text-base font-bold text-primary-900">
+              <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-primary-900">
                 <ShieldCheck size={18} /> Payment State
               </h2>
               <p className="text-sm leading-6 text-gray-700">
@@ -150,7 +150,7 @@ export default function PaymentConfirmationPage() {
           </section>
 
           <aside className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm lg:sticky lg:top-32">
-            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
               <CreditCard size={18} /> Total
             </h2>
             <div className="space-y-2">
@@ -167,7 +167,7 @@ export default function PaymentConfirmationPage() {
               type="button"
               onClick={confirmOrder}
               disabled={submitting}
-              className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 text-sm font-black uppercase tracking-wide text-white transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 text-[15px] font-semibold text-white transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? <span className="h-5 w-5 rounded-full border-2 border-white/40 border-t-white animate-spin" /> : <BadgeCheck size={18} />}
               {submitting ? 'Confirming...' : paymentMethod === 'card' ? 'Confirm & Process Payment' : 'Confirm Order'}

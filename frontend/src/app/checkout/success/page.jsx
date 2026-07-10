@@ -65,7 +65,7 @@ export default function CheckoutSuccessPage() {
           }`}>
             {order?.payment_status === 'processing' ? <Clock size={34} /> : <CheckCircle2 size={34} />}
           </span>
-          <h1 className="mt-5 text-3xl font-black text-gray-950">
+          <h1 className="mt-5 text-3xl font-bold text-gray-950">
             {order?.payment_status === 'processing' ? 'Order Created' : 'Order Confirmed'}
           </h1>
           <p className="mt-2 text-sm text-gray-500">
@@ -90,8 +90,8 @@ export default function CheckoutSuccessPage() {
           {!loading && order ? (
             <div className="mt-8 text-left">
               <div className="rounded-2xl bg-primary-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-700">Order Reference</p>
-                <p className="mt-1 text-xl font-black text-primary-900">{order.order_number}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.04em] text-primary-700">Order Reference</p>
+                <p className="mt-1 text-xl font-semibold text-primary-900">{order.order_number}</p>
               </div>
 
               <div className="mt-5 flex gap-4 rounded-2xl border border-gray-100 p-4">
@@ -99,7 +99,7 @@ export default function CheckoutSuccessPage() {
                   {item?.image && <Image src={item.image} alt={item.product_name} fill unoptimized className="object-cover" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 font-bold text-gray-900">{item?.product_name}</p>
+                  <p className="line-clamp-2 font-semibold text-gray-900">{item?.product_name}</p>
                   <p className="mt-1 text-sm text-gray-500">{order.supplier?.name}</p>
                   <p className="text-sm text-gray-400">Qty {item?.quantity}</p>
                 </div>
@@ -107,21 +107,21 @@ export default function CheckoutSuccessPage() {
 
               <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
                 <div className="rounded-2xl border border-gray-100 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Total</p>
-                  <p className="mt-1 font-black text-primary-800">{formatCurrency(Number(order.total_amount || 0), order.currency || 'LKR')}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.03em] text-gray-400">Total</p>
+                  <p className="mt-1 font-bold text-primary-800">{formatCurrency(Number(order.total_amount || 0), order.currency || 'LKR')}</p>
                 </div>
                 <div className="rounded-2xl border border-gray-100 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Payment</p>
-                  <p className="mt-1 font-bold text-gray-900">{PAYMENT_LABELS[order.payment_method] || order.payment_method}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.03em] text-gray-400">Payment</p>
+                  <p className="mt-1 font-semibold text-gray-900">{PAYMENT_LABELS[order.payment_method] || order.payment_method}</p>
                   <p className="text-gray-500">{order.payment_status}</p>
                 </div>
                 <div className="rounded-2xl border border-gray-100 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Order Status</p>
-                  <p className="mt-1 font-bold capitalize text-gray-900">{order.status}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.03em] text-gray-400">Order Status</p>
+                  <p className="mt-1 font-semibold capitalize text-gray-900">{order.status}</p>
                 </div>
                 <div className="rounded-2xl border border-gray-100 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Delivery Address</p>
-                  <p className="mt-1 font-bold text-gray-900">{order.delivery_address?.address1}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.03em] text-gray-400">Delivery Address</p>
+                  <p className="mt-1 font-semibold text-gray-900">{order.delivery_address?.address1}</p>
                   <p className="text-gray-500">{[order.delivery_address?.city, order.delivery_address?.province, order.delivery_address?.country].filter(Boolean).join(', ')}</p>
                 </div>
               </div>
@@ -143,11 +143,11 @@ export default function CheckoutSuccessPage() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             {order?.id && (
-              <Link href={`/orders/${order.id}/tracking`} className="inline-flex h-12 items-center justify-center rounded-xl border border-gray-200 px-5 text-sm font-bold text-gray-800 transition hover:bg-gray-50">
+              <Link href={`/orders/${order.id}/tracking`} className="inline-flex h-12 items-center justify-center rounded-xl border border-gray-200 px-5 text-sm font-semibold text-gray-800 transition hover:bg-gray-50">
                 Track My Order
               </Link>
             )}
-            <Link href="/products" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 text-sm font-bold text-white transition hover:bg-primary-900">
+            <Link href="/products" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 text-sm font-semibold text-white transition hover:bg-primary-900">
               <ShoppingBag size={17} /> Continue Shopping
             </Link>
           </div>

@@ -132,7 +132,7 @@ function ReviewCard({ review, onHelpful }) {
           <Image src={review.product.image} alt="" width={48} height={48} unoptimized
             className="w-12 h-12 rounded-xl object-cover border border-gray-100 flex-shrink-0" />
         ) : (
-          <div className="w-12 h-12 rounded-xl bg-primary-100 text-primary-800 font-black text-xl flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-primary-100 text-primary-800 font-bold text-xl flex items-center justify-center flex-shrink-0">
             {review.supplier.name.charAt(0)}
           </div>
         )}
@@ -246,7 +246,7 @@ export default function ReviewsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">Reviews & Ratings</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Reviews & Ratings</h1>
           <p className="text-sm text-gray-500">{stats.total.toLocaleString()} verified reviews from global buyers</p>
         </div>
       </div>
@@ -256,7 +256,7 @@ export default function ReviewsPage() {
         <div className="space-y-4">
           {/* Overall score */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
-            <div className="text-5xl font-black text-gray-900 mb-1">{stats.overall}</div>
+            <div className="text-5xl font-bold text-gray-900 mb-1">{stats.overall}</div>
             <StarRow count={20} value={stats.overall} />
             <p className="text-sm text-gray-400 mt-1">{stats.total.toLocaleString()} reviews</p>
           </div>

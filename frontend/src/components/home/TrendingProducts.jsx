@@ -159,7 +159,7 @@ export default function TrendingProducts() {
               </div>
 
               <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
-                <div className="text-base font-black text-gray-950">{product.price}</div>
+                <div className="text-base font-bold text-gray-950">{product.price}</div>
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                   Authentic brand product with beauty routine-friendly delivery options.
                 </p>

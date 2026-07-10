@@ -3,9 +3,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import './globals.css';
 
-// Use system font stack — replace with next/font/google when deploying
-// to a network-connected environment (sandbox restricts external fetches).
-
 export const metadata = {
   title: {
     default: 'SL Beauty Platform — Premium Beauty Ecommerce Marketplace',

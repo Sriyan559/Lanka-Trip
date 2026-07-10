@@ -107,7 +107,7 @@ function CompareContent() {
             <ArrowLeft size={16} className="text-gray-500" />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <BarChart2 size={22} className="text-primary-600" /> Compare Products
             </h1>
             <p className="text-sm text-gray-500">{products.length} products · Side-by-side comparison</p>

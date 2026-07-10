@@ -97,7 +97,7 @@ export default async function BrandsPage({ searchParams = {} }) {
               <Sparkles size={14} />
               Brand verified beauty
             </p>
-            <h1 className="mt-4 text-3xl font-black tracking-normal text-gray-950 sm:text-4xl">
+            <h1 className="mt-4 text-3xl font-bold tracking-normal text-gray-950 sm:text-4xl">
               Discover authentic beauty brands
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">
@@ -187,7 +187,7 @@ export default async function BrandsPage({ searchParams = {} }) {
                               className="h-full w-full object-contain p-2"
                             />
                           ) : (
-                            <span className="text-lg font-black text-gray-400">
+                            <span className="text-lg font-bold text-gray-400">
                               {name.slice(0, 2).toUpperCase()}
                             </span>
                           )}

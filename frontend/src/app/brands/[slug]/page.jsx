@@ -96,7 +96,7 @@ export default async function BrandDetailPage({ params }) {
                       className="h-full w-full object-contain p-4"
                     />
                   ) : (
-                    <span className="text-4xl font-black text-gray-300">
+                    <span className="text-4xl font-bold text-gray-300">
                       {name.slice(0, 2).toUpperCase()}
                     </span>
                   )}
@@ -107,7 +107,7 @@ export default async function BrandDetailPage({ params }) {
                     <Sparkles size={14} />
                     SL Beauty brand
                   </p>
-                  <h1 className="mt-4 text-3xl font-black tracking-normal text-gray-950 sm:text-5xl">
+                  <h1 className="mt-4 text-3xl font-bold tracking-normal text-gray-950 sm:text-5xl">
                     {name}
                   </h1>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
