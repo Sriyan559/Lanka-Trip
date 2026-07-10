@@ -1,10 +1,12 @@
 import Header             from '@/components/layout/Header';
 import Footer             from '@/components/layout/Footer';
+import HomeCategoryCarousel from '@/components/home/HomeCategoryCarousel';
 import HeroSlider         from '@/components/home/HeroSlider';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
 import HomePromoVideo     from '@/components/home/HomePromoVideo';
+import HomePromotionalCarousels from '@/components/home/HomePromotionalCarousels';
 import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS } from '@/lib/constants';
 import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
@@ -105,6 +107,8 @@ export default function HomePage() {
           <HeroSlider />
         </div>
 
+        <HomeCategoryCarousel />
+
         {/* ── Featured service cards ─────────────────────────── */}
         <FeaturedCards />
 
@@ -115,7 +119,12 @@ export default function HomePage() {
         {categorySections.map((section) => (
           <div key={section.id}>
             <CategoryGridSection section={section} />
-            {section.id === 'beauty-categories' && <HomePromoVideo />}
+            {section.id === 'beauty-categories' && (
+              <>
+                <HomePromoVideo />
+                <HomePromotionalCarousels />
+              </>
+            )}
           </div>
         ))}
 
