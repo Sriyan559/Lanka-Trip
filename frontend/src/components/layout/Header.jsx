@@ -14,6 +14,8 @@ import {
   ShoppingBasket,
   User,
   X,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,6 +38,346 @@ const BEAUTY_NAV = [
   { label: 'Sale & Offers', href: '/categories/sale' },
 ];
 
+const NAV_DROPDOWNS = {
+  'Makeup': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Face',
+            links: [
+              { label: 'Foundation', href: '/products?category=makeup&q=foundation' },
+              { label: 'Concealer', href: '/products?category=makeup&q=concealer' },
+              { label: 'Primer', href: '/products?category=makeup&q=primer' },
+              { label: 'Compact Powder', href: '/products?category=makeup&q=compact' },
+              { label: 'Contour & Highlight', href: '/products?category=makeup&q=contour' },
+              { label: 'Blush & Setting Spray', href: '/products?category=makeup&q=blush' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Eyes',
+            links: [
+              { label: 'Mascara', href: '/products?category=makeup&q=mascara' },
+              { label: 'Eyeliner & Kajal', href: '/products?category=makeup&q=eyeliner' },
+              { label: 'Eyeshadow', href: '/products?category=makeup&q=eyeshadow' },
+              { label: 'Eyebrows', href: '/products?category=makeup&q=brow' },
+              { label: 'False Eyelashes', href: '/products?category=makeup&q=lashes' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Lips',
+            links: [
+              { label: 'Lipstick', href: '/products?category=makeup&q=lipstick' },
+              { label: 'Lip Gloss & Lacquer', href: '/products?category=makeup&q=gloss' },
+              { label: 'Lip Liner & Plumper', href: '/products?category=makeup&q=liner' },
+              { label: 'Lip Balm & Treatment', href: '/products?category=makeup&q=balm' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Nails',
+            links: [
+              { label: 'Nail Polish', href: '/products?category=makeup&q=polish' },
+              { label: 'Gel & Matte Top Coat', href: '/products?category=makeup&q=coat' },
+              { label: 'Nail Polish Remover', href: '/products?category=makeup&q=remover' },
+            ]
+          },
+          {
+            title: 'Shop By / Tools',
+            links: [
+              { label: "What's New", href: '/products?category=makeup&sort=new' },
+              { label: 'Bestsellers', href: '/products?category=makeup&sort=popular' },
+              { label: 'Makeup Brushes', href: '/products?category=tools-brushes' },
+              { label: 'Sponges & Blenders', href: '/products?category=tools-brushes' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Glamorous Looks',
+      subtitle: 'Premium cosmetics and tools',
+      image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=makeup'
+    }
+  },
+  'Skincare': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Cleansers',
+            links: [
+              { label: 'Face Wash', href: '/products?category=skincare&q=wash' },
+              { label: 'Cleansing Oil & Balm', href: '/products?category=skincare&q=cleansing' },
+              { label: 'Micellar Water', href: '/products?category=skincare&q=micellar' },
+              { label: 'Face Scrub & Peeling', href: '/products?category=skincare&q=scrub' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Moisturizers',
+            links: [
+              { label: 'Face Cream & Gel', href: '/products?category=skincare&q=moisturizer' },
+              { label: 'Night Cream & Mask', href: '/products?category=skincare&q=night' },
+              { label: 'Face Oil & Mist', href: '/products?category=skincare&q=oil' },
+              { label: 'Eye Cream & Serum', href: '/products?category=skincare&q=eye' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Treatments & Serums',
+            links: [
+              { label: 'Face Serum & Ampoule', href: '/products?category=skincare&q=serum' },
+              { label: 'Sheet Masks', href: '/products?category=skincare&q=sheet' },
+              { label: 'Clay & Peel-off Masks', href: '/products?category=skincare&q=mask' },
+              { label: 'Toner & Essence', href: '/products?category=skincare&q=toner' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Sun Care',
+            links: [
+              { label: 'Face Sunscreen', href: '/products?category=skincare&q=sunscreen' },
+              { label: 'Body Sunscreen', href: '/products?category=skincare&q=body' },
+              { label: 'After Sun Gel', href: '/products?category=skincare&q=after-sun' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Daily Hydration',
+      subtitle: 'Nourish your skin base',
+      image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=skincare'
+    }
+  },
+  'Fragrance': {
+    columns: [
+      {
+        sections: [
+          {
+            title: "Women's Fragrance",
+            links: [
+              { label: 'Perfume (EDT & EDP)', href: '/products?category=fragrance&q=women' },
+              { label: 'Body Mists & Sprays', href: '/products?category=fragrance&q=mist' },
+              { label: 'Deodorants & Roll-Ons', href: '/products?category=fragrance&q=deodorant' },
+            ]
+          },
+          {
+            title: "Men's Fragrance",
+            links: [
+              { label: 'Perfume (EDT & EDP)', href: '/products?category=fragrance&q=men' },
+              { label: 'Body Mists & Sprays', href: '/products?category=fragrance&q=mist' },
+              { label: 'Deodorants & Roll-Ons', href: '/products?category=fragrance&q=deodorant' },
+              { label: 'Colognes & After Shaves', href: '/products?category=fragrance&q=cologne' },
+            ]
+          },
+          {
+            title: 'Home Fragrance',
+            links: [
+              { label: 'Candle', href: '/products?category=fragrance&q=candle' },
+              { label: 'Diffuser', href: '/products?category=fragrance&q=diffuser' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Unisex Fragrance',
+            links: [
+              { label: 'Unisex Perfumes', href: '/products?category=fragrance&q=unisex' },
+              { label: 'Unisex Mists & Sprays', href: '/products?category=fragrance&q=mist' },
+              { label: 'Unisex Deodorants & Roll-Ons', href: '/products?category=fragrance&q=deodorant' },
+            ]
+          },
+          {
+            title: 'Fragrance Family',
+            links: [
+              { label: 'Floral', href: '/products?category=fragrance&q=floral' },
+              { label: 'Fruity', href: '/products?category=fragrance&q=fruity' },
+              { label: 'Spicy', href: '/products?category=fragrance&q=spicy' },
+              { label: 'Woody', href: '/products?category=fragrance&q=woody' },
+              { label: 'Fresh', href: '/products?category=fragrance&q=fresh' },
+              { label: 'Aqua', href: '/products?category=fragrance&q=aqua' },
+              { label: 'Citrus', href: '/products?category=fragrance&q=citrus' },
+              { label: 'Musky', href: '/products?category=fragrance&q=musk' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Shop By',
+            links: [
+              { label: "What's New", href: '/products?category=fragrance&sort=new' },
+              { label: 'Bestsellers', href: '/products?category=fragrance&sort=popular' },
+              { label: 'Gift Sets', href: '/products?category=fragrance&q=set' },
+              { label: 'Sets & Bundles', href: '/products?category=fragrance&q=bundle' },
+              { label: 'Tira Loves', href: '/products?category=fragrance' },
+            ]
+          },
+          {
+            title: 'Tira Red',
+            links: [
+              { label: 'Yves Saint Laurent', href: '/brands' },
+              { label: 'Burberry', href: '/brands' },
+              { label: 'Tom Ford', href: '/brands' },
+              { label: 'Prada', href: '/brands' },
+              { label: 'Versace', href: '/brands' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Brands To Know',
+            links: [
+              { label: 'Gucci', href: '/brands' },
+              { label: 'Jo Malone London', href: '/brands' },
+              { label: 'Elizabeth Arden', href: '/brands' },
+              { label: 'Jimmy Choo', href: '/brands' },
+              { label: 'Giorgio Armani', href: '/brands' },
+              { label: 'Calvin Klein', href: '/brands' },
+              { label: 'Narciso Rodriguez', href: '/brands' },
+              { label: 'Dolce&Gabbana', href: '/brands' },
+              { label: 'Salvatore Ferragamo', href: '/brands' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Pocket-friendly everyday scents',
+      subtitle: 'Find your signature fragrance',
+      image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=fragrance'
+    }
+  },
+  'Hair': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Hair Care',
+            links: [
+              { label: 'Shampoo', href: '/products?category=hair-care&q=shampoo' },
+              { label: 'Conditioner', href: '/products?category=hair-care&q=conditioner' },
+              { label: 'Hair Mask & Treatment', href: '/products?category=hair-care&q=mask' },
+              { label: 'Hair Oil & Serum', href: '/products?category=hair-care&q=oil' },
+              { label: 'Dry Shampoo', href: '/products?category=hair-care&q=dry' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Hair Styling',
+            links: [
+              { label: 'Hair Gel & Wax', href: '/products?category=hair-care&q=gel' },
+              { label: 'Hair Spray', href: '/products?category=hair-care&q=spray' },
+              { label: 'Heat Protectant Cream', href: '/products?category=hair-care&q=protect' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Color & Tools',
+            links: [
+              { label: 'Permanent Hair Color', href: '/products?category=hair-care&q=color' },
+              { label: 'Hair Dryer & Styler', href: '/products?category=hair-care&q=dryer' },
+              { label: 'Hair Straightener & Curler', href: '/products?category=hair-care&q=straightener' },
+              { label: 'Hair Brushes & Combs', href: '/products?category=hair-care&q=brush' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Healthy & Shiny Locks',
+      subtitle: 'Professional hair care routines',
+      image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=hair-care'
+    }
+  },
+  'Bath & Body': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Shower & Bath',
+            links: [
+              { label: 'Body Wash & Gel', href: '/products?category=bath-body&q=wash' },
+              { label: 'Shower Oil & Bubble Bath', href: '/products?category=bath-body&q=shower' },
+              { label: 'Exfoliating Body Scrub', href: '/products?category=bath-body&q=scrub' },
+              { label: 'Bar Soap', href: '/products?category=bath-body&q=soap' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Body Moisturizers',
+            links: [
+              { label: 'Body Lotion', href: '/products?category=bath-body&q=lotion' },
+              { label: 'Body Butter & Yogurt', href: '/products?category=bath-body&q=butter' },
+              { label: 'Body Oil & Mist', href: '/products?category=bath-body&q=oil' },
+              { label: 'Hand Cream & Foot Cream', href: '/products?category=bath-body&q=hand' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Personal Care',
+            links: [
+              { label: 'Deodorants & Roll-ons', href: '/products?category=bath-body&q=deodorant' },
+              { label: 'Intimate Wash & Care', href: '/products?category=bath-body&q=intimate' },
+              { label: 'Shaving Gel & Razor', href: '/products?category=bath-body&q=shaving' },
+              { label: 'Sun Protection for Body', href: '/products?category=bath-body&q=sun' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Relaxing Spa at Home',
+      subtitle: 'Indulge in gentle body care',
+      image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=bath-body'
+    }
+  }
+};
+
 export default function Header() {
   const router = useRouter();
   const { isAuthenticated, user, logout } = useAuth();
@@ -45,6 +387,15 @@ export default function Header() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [activeMobileCategories, setActiveMobileCategories] = useState({});
+
+  const toggleMobileCategory = (label) => {
+    setActiveMobileCategories((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -224,22 +575,97 @@ export default function Header() {
         </button>
       </div>
 
-      <nav className="bg-black text-white">
-        <div className="mx-auto flex h-10 max-w-screen-xl items-center gap-1 overflow-x-auto px-4">
-          {BEAUTY_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex h-10 flex-shrink-0 items-center px-3 text-sm font-semibold text-white/88 transition hover:bg-white/10 hover:text-white"
-            >
-              {item.label}
-            </Link>
-          ))}
+      <nav className="relative bg-black text-white" onMouseLeave={() => setHoveredCategory(null)}>
+        <div className="mx-auto flex h-10 max-w-screen-xl items-center gap-1 overflow-x-auto md:overflow-visible px-4">
+          {BEAUTY_NAV.map((item) => {
+            const hasDropdown = !!NAV_DROPDOWNS[item.label];
+            return (
+              <div
+                key={item.label}
+                className="relative flex h-10 flex-shrink-0 items-center"
+                onMouseEnter={() => {
+                  if (hasDropdown) setHoveredCategory(item.label);
+                  else setHoveredCategory(null);
+                }}
+              >
+                <Link
+                  href={item.href}
+                  className="flex h-10 items-center px-3 text-sm font-semibold text-white/88 transition hover:bg-white/10 hover:text-white"
+                >
+                  {item.label}
+                </Link>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Mega Menu Dropdown Panel */}
+        {hoveredCategory && NAV_DROPDOWNS[hoveredCategory] && (
+          <div
+            className="absolute left-0 right-0 top-full z-50 border-t border-gray-200 bg-white text-gray-900 shadow-2xl animate-slide-up"
+            onMouseEnter={() => setHoveredCategory(hoveredCategory)}
+          >
+            <div className="mx-auto max-w-screen-xl px-8 py-8">
+              <div className="grid grid-cols-5 gap-8">
+                {/* 4 Columns of Categories */}
+                <div className="col-span-4 grid grid-cols-4 gap-6">
+                  {NAV_DROPDOWNS[hoveredCategory].columns.map((column, colIdx) => (
+                    <div key={colIdx} className="space-y-6">
+                      {column.sections.map((section) => (
+                        <div key={section.title}>
+                          <h4 className="mb-2.5 text-[11px] font-extrabold tracking-wider text-black uppercase border-b border-gray-100 pb-1">
+                            {section.title}
+                          </h4>
+                          <ul className="space-y-1.5">
+                            {section.links.map((link) => (
+                              <li key={link.label}>
+                                <Link
+                                  href={link.href}
+                                  className="text-[13px] text-gray-600 hover:text-red-800 hover:font-semibold transition-colors duration-150 block"
+                                >
+                                  {link.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                {/* 1 Column for Featured Promo Card */}
+                {NAV_DROPDOWNS[hoveredCategory].featured && (
+                  <div className="col-span-1 border-l border-gray-100 pl-6">
+                    <Link
+                      href={NAV_DROPDOWNS[hoveredCategory].featured.href}
+                      className="group relative block overflow-hidden rounded-xl bg-gray-50 flex flex-col justify-end aspect-[4/3] w-full p-4 h-full min-h-[240px] hover:shadow-md transition-all duration-300"
+                    >
+                      <img
+                        src={NAV_DROPDOWNS[hoveredCategory].featured.image}
+                        alt={NAV_DROPDOWNS[hoveredCategory].featured.title}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+                      <div className="relative z-10 text-white">
+                        <h5 className="text-[14px] font-extrabold tracking-wide leading-tight drop-shadow-sm font-sans uppercase">
+                          {NAV_DROPDOWNS[hoveredCategory].featured.title}
+                        </h5>
+                        <p className="text-[11px] text-white/90 mt-1 drop-shadow-sm font-medium">
+                          {NAV_DROPDOWNS[hoveredCategory].featured.subtitle}
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {mobileOpen && (
-        <div className="border-t border-gray-100 bg-white shadow-lg md:hidden">
+        <div className="border-t border-gray-100 bg-white shadow-lg md:hidden max-h-[80vh] overflow-y-auto">
           <form onSubmit={handleSearch} className="p-4">
             <div className="relative">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -252,17 +678,68 @@ export default function Header() {
             </div>
           </form>
 
-          <div className="grid grid-cols-2 gap-1 px-4 pb-4">
-            {BEAUTY_NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-              >
-                {item.label}
-              </Link>
-            ))}
+          <div className="flex flex-col gap-1 px-4 pb-4">
+            {BEAUTY_NAV.map((item) => {
+              const dropdownData = NAV_DROPDOWNS[item.label];
+              const hasDropdown = !!dropdownData;
+
+              if (hasDropdown) {
+                const isExpanded = !!activeMobileCategories[item.label];
+                return (
+                  <div key={item.label} className="border-b border-gray-50 pb-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleMobileCategory(item.label)}
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                      <span>{item.label}</span>
+                      {isExpanded ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
+                    </button>
+                    {isExpanded && (
+                      <div className="mt-1 ml-4 pl-3 border-l border-gray-200 flex flex-col gap-4 py-2 animate-slide-up">
+                        <Link
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="text-xs font-bold text-red-800 hover:text-red-900 py-1"
+                        >
+                          Shop All {item.label}
+                        </Link>
+                        {dropdownData.columns.flatMap((col) => col.sections).map((section) => (
+                          <div key={section.title} className="mt-1">
+                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 block mb-1.5">
+                              {section.title}
+                            </span>
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                              {section.links.map((link) => (
+                                <Link
+                                  key={link.label}
+                                  href={link.href}
+                                  onClick={() => setMobileOpen(false)}
+                                  className="text-xs text-gray-600 hover:text-black py-1 block"
+                                >
+                                  {link.label}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 border-b border-gray-50/50"
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="grid grid-cols-2 gap-2 border-t border-gray-100 p-4">

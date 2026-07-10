@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { Star, BadgeCheck, MapPin, Package, Send, Share2, ChevronLeft, MessageCircle } from 'lucide-react';
+import { Star, BadgeCheck, MapPin, Package, Send, Share2, ChevronLeft, MessageCircle, ShoppingBag } from 'lucide-react';
 import { conversationsApi } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency, starRating } from '@/lib/utils';
@@ -76,6 +76,7 @@ export default function ProductDetailPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState('description');
+  const [buyNowLoading, setBuyNowLoading] = useState(false);
   const product = buildBeautyProductDetail(id);
 
   if (!product) {
@@ -117,6 +118,30 @@ export default function ProductDetailPage() {
     } catch (chatError) {
       toast.error(chatError.message || 'Could not start this conversation.');
     }
+  };
+
+  const handleBuyNow = () => {
+    const quantity = Math.max(product.minOrder || 1, Number(qty) || 1);
+    const backendSlug = slugify(product.name);
+    const checkoutProduct = {
+      id: product.id,
+      slug: product.slug,
+      product_slug: backendSlug,
+      backendSlug,
+      name: product.name,
+      image: images[activeImg],
+      price: product.price,
+      moqUnit: product.moqUnit,
+      categorySlug: product.category?.slug,
+      categoryName: product.category?.label || product.category?.name,
+      brandName: brand?.name || product.supplier?.name || 'SL Beauty Brand',
+      sellerName: product.supplier?.company_name || product.supplier?.name || 'Verified SL Beauty Seller',
+      productPath: `/products/${id}`,
+    };
+
+    setBuyNowLoading(true);
+    sessionStorage.setItem('slb_checkout_item', JSON.stringify({ product: checkoutProduct, quantity }));
+    router.push('/checkout');
   };
 
   return (
@@ -219,11 +244,24 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="flex gap-3 flex-wrap">
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                disabled={buyNowLoading || qty < (product.minOrder || 1)}
+                className="w-full h-12 rounded-xl bg-primary-800 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {buyNowLoading ? (
+                  <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                ) : (
+                  <ShoppingBag size={17} />
+                )}
+                {buyNowLoading ? 'Opening Checkout...' : 'Buy Now'}
+              </button>
               <button
                 type="button"
                 onClick={handleChat}
-                className="flex-1 min-w-[140px] py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                className="w-full h-12 bg-accent-500 hover:bg-neutral-800 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
               >
                 <Send size={16} /> Contact Seller
               </button>

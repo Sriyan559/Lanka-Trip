@@ -4,6 +4,7 @@ import HeroSlider         from '@/components/home/HeroSlider';
 import FeaturedCards      from '@/components/home/FeaturedCards';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
+import HomePromoVideo     from '@/components/home/HomePromoVideo';
 import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS } from '@/lib/constants';
 import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
@@ -112,7 +113,10 @@ export default function HomePage() {
 
         {/* ── Beauty product category sections, using public SL Beauty display data ── */}
         {categorySections.map((section) => (
-          <CategoryGridSection key={section.id} section={section} />
+          <div key={section.id}>
+            <CategoryGridSection section={section} />
+            {section.id === 'beauty-categories' && <HomePromoVideo />}
+          </div>
         ))}
 
       </main>

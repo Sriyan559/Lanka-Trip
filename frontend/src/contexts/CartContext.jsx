@@ -86,7 +86,7 @@ export function CartProvider({ children }) {
   const addItem = useCallback(async (product, quantity = 1) => {
     if (isAuthenticated) {
       try {
-        const data = await cartApi.add(product.id, quantity);
+        const data = await cartApi.add(product, quantity);
         dispatch({ type: 'SET_ITEMS', payload: data.items || [] });
         toast.success(`${product.name} added to cart`);
       } catch (e) {
