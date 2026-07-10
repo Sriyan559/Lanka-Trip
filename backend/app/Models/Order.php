@@ -38,12 +38,39 @@ class Order extends Model
         'payment_terms',
         'shipping_terms',
         'status',
+        'uuid',
+        'buyer_profile_id',
+        'currency_id',
+        'subtotal',
+        'tax_amount',
+        'shipping_amount',
+        'discount_amount',
+        'platform_fee_amount',
+        'payment_status',
+        'fulfillment_status',
+        'approval_status',
+        'order_source',
+        'delivery_terms',
+        'payment_method_slug',
+        'checkout_customer',
+        'checkout_delivery_address',
+        'confirmed_at',
+        'expected_delivery_date',
     ];
 
     protected function casts(): array
     {
         return [
             'total_amount' => 'decimal:2',
+            'subtotal' => 'decimal:2',
+            'tax_amount' => 'decimal:2',
+            'shipping_amount' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
+            'platform_fee_amount' => 'decimal:2',
+            'checkout_customer' => 'array',
+            'checkout_delivery_address' => 'array',
+            'confirmed_at' => 'datetime',
+            'expected_delivery_date' => 'date',
         ];
     }
 
@@ -70,6 +97,21 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class);
+    }
+
+    public function shipments(): HasMany
+    {
+        return $this->hasMany(OrderShipment::class);
     }
 
     public function scopeAccessibleTo(Builder $query, User $user): Builder

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\InquiryCartController;
@@ -78,6 +79,8 @@ Route::prefix('sl-beauty')->group(function () {
     Route::get('/products/{product}/beauty-summary', [PublicBeautyController::class, 'beautySummary'])
         ->whereNumber('product');
 });
+
+Route::post('/checkout/quote', [CheckoutController::class, 'quote']);
 
 Route::prefix('auth')->group(function () {
     Route::middleware('throttle:auth')->group(function () {
@@ -255,6 +258,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::put('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markRead'])->whereNumber('id');
+
+    Route::post('/checkout/confirm', [CheckoutController::class, 'confirm']);
+    Route::get('/orders/{reference}/tracking', [CheckoutController::class, 'tracking']);
+    Route::post('/orders/{reference}/retry-payment', [CheckoutController::class, 'retryPayment']);
 
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'index']);

@@ -8,6 +8,7 @@ use App\Http\Requests\Cart\UpdateCartItemRequest;
 use App\Http\Resources\InquiryCartResource;
 use App\Models\InquiryCart;
 use App\Models\InquiryCartItem;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,12 +26,13 @@ class InquiryCartController extends Controller
     public function store(AddToCartRequest $request): JsonResponse
     {
         $cart = DB::transaction(function () use ($request): InquiryCart {
+            $product = $this->cartProduct($request);
             $cart = InquiryCart::firstOrCreate([
                 'user_id' => $request->user()->id,
             ]);
 
             $item = $cart->items()
-                ->where('product_id', $request->validated('product_id'))
+                ->where('product_id', $product->id)
                 ->lockForUpdate()
                 ->first();
 
@@ -45,7 +47,11 @@ class InquiryCartController extends Controller
 
                 $item->update($updates);
             } else {
-                $cart->items()->create($request->validated());
+                $cart->items()->create([
+                    'product_id' => $product->id,
+                    'quantity' => $request->validated('quantity'),
+                    'note' => $request->validated('note'),
+                ]);
             }
 
             return $cart;
@@ -91,6 +97,22 @@ class InquiryCartController extends Controller
         return InquiryCart::firstOrCreate([
             'user_id' => $request->user()->id,
         ]);
+    }
+
+    private function cartProduct(AddToCartRequest $request): Product
+    {
+        $product = Product::query()
+            ->active()
+            ->when(
+                $request->filled('product_id'),
+                fn ($query) => $query->where('id', $request->validated('product_id')),
+                fn ($query) => $query->where('slug', $request->validated('product_slug')),
+            )
+            ->first();
+
+        abort_if(! $product, 422, 'This product is not available for the cart.');
+
+        return $product;
     }
 
     private function cartItem(InquiryCart $cart, int $id): InquiryCartItem

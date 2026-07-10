@@ -13,8 +13,8 @@ return new class extends Migration
             $table->string('order_number')->unique();
             $table->foreignId('buyer_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('quotation_id')->unique()->constrained()->cascadeOnDelete();
-            $table->foreignId('rfq_id')->constrained('rfqs')->cascadeOnDelete();
+            $table->foreignId('quotation_id')->nullable()->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('rfq_id')->nullable()->constrained('rfqs')->cascadeOnDelete();
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->string('currency', 3);
             $table->string('payment_terms')->nullable();

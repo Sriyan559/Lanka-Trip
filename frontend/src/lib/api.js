@@ -68,10 +68,47 @@ export {
   withQuery,
 };
 
+function slugifyProductName(value = '') {
+  return String(value)
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function cartItemPayload(productOrId, qty = 1) {
+  const quantity = Number(qty) || 1;
+
+  if (typeof productOrId === 'number') {
+    return { product_id: productOrId, quantity };
+  }
+
+  if (typeof productOrId === 'string' && /^\d+$/.test(productOrId)) {
+    return { product_id: Number(productOrId), quantity };
+  }
+
+  if (productOrId && typeof productOrId === 'object') {
+    const numericId = Number(productOrId.id);
+    if (Number.isInteger(numericId) && String(productOrId.id) === String(numericId)) {
+      return { product_id: numericId, quantity };
+    }
+
+    return {
+      product_slug: productOrId.product_slug
+        || productOrId.backendSlug
+        || slugifyProductName(productOrId.name || productOrId.label)
+        || productOrId.slug,
+      quantity,
+    };
+  }
+
+  return { product_slug: String(productOrId || ''), quantity };
+}
+
 export const cartApi = {
   get: () => api.get('/cart'),
-  add: (productId, qty = 1) =>
-    api.post('/cart/items', { product_id: productId, quantity: qty }),
+  add: (productOrId, qty = 1) =>
+    api.post('/cart/items', cartItemPayload(productOrId, qty)),
   update: (itemId, qty) => api.put(`/cart/items/${itemId}`, { quantity: qty }),
   remove: (itemId) => api.delete(`/cart/items/${itemId}`),
   clear: () => api.delete('/cart'),
@@ -81,6 +118,13 @@ export const wishlistApi = {
   get: () => api.get('/wishlist'),
   add: (productId) => api.post('/wishlist', { product_id: productId }),
   remove: (wishlistId) => api.delete(`/wishlist/${wishlistId}`),
+};
+
+export const checkoutApi = {
+  quote: (payload) => api.post('/checkout/quote', payload),
+  confirm: (payload) => api.post('/checkout/confirm', payload),
+  tracking: (reference) => api.get(`/orders/${reference}/tracking`),
+  retryPayment: (reference) => api.post(`/orders/${reference}/retry-payment`, {}),
 };
 
 export const uploadApi = {

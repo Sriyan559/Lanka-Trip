@@ -39,6 +39,11 @@ export const HERO_SLIDES = [
   },
 ];
 
+export const HOME_PROMO_VIDEO = {
+  youtubeId: 'l-UpsG80MZs',
+  title: 'SL Beauty promotional video',
+};
+
 export const YOU_MAY_LIKE = [
   { label: 'Gentle Cleanser',   count: 'Skincare',   image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=320&q=80' },
   { label: 'Vitamin C Serum',   count: 'Skincare',   image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=320&q=80' },

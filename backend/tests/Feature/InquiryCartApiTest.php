@@ -68,6 +68,26 @@ class InquiryCartApiTest extends TestCase
         $this->assertDatabaseCount('inquiry_cart_items', 1);
     }
 
+    public function test_authenticated_user_can_add_an_item_by_product_slug(): void
+    {
+        [$user, $product] = $this->userAndProduct();
+
+        $this->withToken($user->createToken('test')->plainTextToken)
+            ->postJson('/api/cart/items', [
+                'product_slug' => $product->slug,
+                'quantity' => 2,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('items_count', 2)
+            ->assertJsonPath('items.0.product_id', $product->id);
+
+        $this->assertDatabaseHas('inquiry_cart_items', [
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+    }
+
     public function test_authenticated_user_can_list_their_cart_with_eager_loaded_products(): void
     {
         [$user, $product] = $this->userAndProduct();

@@ -16,10 +16,12 @@ class AddToCartRequest extends FormRequest
     {
         return [
             'product_id' => [
-                'required',
+                'nullable',
+                'required_without:product_slug',
                 'integer',
                 Rule::exists('products', 'id')->where('status', 'active'),
             ],
+            'product_slug' => ['nullable', 'required_without:product_id', 'string', 'max:180'],
             'quantity' => ['required', 'integer', 'min:1'],
             'note' => ['nullable', 'string', 'max:1000'],
         ];
