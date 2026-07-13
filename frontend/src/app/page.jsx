@@ -34,7 +34,7 @@ const BEAUTY_CATEGORY_SECTION = {
     ['hair-care', 'Haircare', 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=320&q=80'],
     ['bath-body', 'Bath & Body', 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=320&q=80'],
     ['tools-brushes', 'Beauty Tools', 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=320&q=80'],
-    ['wellness', 'Wellness', 'https://images.unsplash.com/photo-1608571423539-e951a7df3a2e?auto=format&fit=crop&w=320&q=80'],
+    ['wellness', 'Wellness', '/images/categories/wellness.jpg'],
     ['luxury-beauty', 'Luxury Beauty', 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80'],
   ].map(([slug, label, image]) => ({ slug, label, image, href: `/categories/${slug}`, imageAlt: `${label} beauty category` })),
 };

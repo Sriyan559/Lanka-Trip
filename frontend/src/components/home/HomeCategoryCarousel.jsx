@@ -39,7 +39,7 @@ const HOME_CATEGORY_CAROUSEL = [
   },
   {
     name: 'Wellness',
-    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=720&q=85',
+    image: '/images/categories/wellness.jpg',
     link: '/categories/wellness',
   },
 ];
