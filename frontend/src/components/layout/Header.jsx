@@ -23,6 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { notificationsApi } from '@/lib/api';
 import { initials } from '@/lib/utils';
+import { homepageConfig } from '@/data/homepageConfig';
 
 const BEAUTY_NAV = [
   { label: 'New', href: '/categories/new-arrivals' },
@@ -477,6 +478,11 @@ export default function Header() {
           <Link href="/help-center" className="transition-colors hover:text-primary-700">Help Centre</Link>
         </div>
       </div>
+      {homepageConfig.announcement && (
+        <Link href={homepageConfig.announcement.href} className="flex min-h-8 items-center justify-center bg-[#fff2f1] px-4 text-center text-xs font-semibold text-primary-800 transition-colors hover:bg-[#ffe6e2]">
+          {homepageConfig.announcement.label}
+        </Link>
+      )}
 
       <div className="mx-auto flex h-[72px] max-w-screen-xl items-center gap-3 px-4 sm:px-5">
         <Link href="/" className="flex min-w-fit items-center gap-2" aria-label="SL Beauty Platform home">
