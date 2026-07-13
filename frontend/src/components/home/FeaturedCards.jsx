@@ -1,73 +1,90 @@
 import Link from 'next/link';
-import { FEATURED_CARDS } from '@/lib/constants';
 import { ArrowRight, BadgeCheck, Gift, Sparkles, Tags } from 'lucide-react';
 
-const CARD_STYLES = [
+// Keep card copy, destinations, icons, and artwork together so this section is easy to refresh.
+const BEAUTY_BENEFITS = [
   {
+    title: 'Authentic Beauty',
+    description: 'Trusted skincare, cosmetics, fragrance, wellness, and haircare from verified beauty brands',
+    href: '/products',
     Icon: BadgeCheck,
-    iconWrap: 'bg-rose-50 text-primary-800 ring-rose-100',
-    accent: 'bg-primary-800/5',
+    imageUrl: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Pearlescent beauty product texture',
+    iconClass: 'bg-white/70 text-rose-800',
+    overlayClass: 'from-[#fffdf8]/95 via-[#fff8f5]/78 to-[#dbc8c4]/65',
+    accentClass: 'bg-rose-300/35',
   },
   {
+    title: 'Beauty Offers',
+    description: 'Daily deals, value sets, and limited-time savings',
+    href: '/products?sale=1',
     Icon: Tags,
-    iconWrap: 'bg-amber-50 text-amber-700 ring-amber-100',
-    accent: 'bg-amber-500/10',
+    imageUrl: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Champagne gold beauty texture',
+    iconClass: 'bg-amber-100/70 text-amber-800',
+    overlayClass: 'from-[#fff5dd]/94 via-[#f8d28e]/70 to-[#b8792c]/55',
+    accentClass: 'bg-amber-400/35',
   },
   {
+    title: 'Verified Brands',
+    description: 'Explore original brands, authorized sellers, retailers, and distributors',
+    href: '/brands',
     Icon: Sparkles,
-    iconWrap: 'bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-100',
-    accent: 'bg-fuchsia-500/10',
+    imageUrl: 'https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Lavender glass and crystal texture',
+    iconClass: 'bg-white/65 text-fuchsia-700',
+    overlayClass: 'from-[#f9f7ff]/94 via-[#ded7f0]/72 to-[#aaa0d0]/60',
+    accentClass: 'bg-violet-400/35',
   },
   {
+    title: 'Gift Sets',
+    description: 'Curated beauty gifts and value bundles',
+    href: '/products?collection=gifts-value-sets',
     Icon: Gift,
-    iconWrap: 'bg-pink-50 text-pink-700 ring-pink-100',
-    accent: 'bg-pink-500/10',
+    imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Luxury pink gift wrapping and ribbon',
+    iconClass: 'bg-rose-100/70 text-rose-800',
+    overlayClass: 'from-[#fff5f4]/92 via-[#efb2bb]/70 to-[#a94f62]/62',
+    accentClass: 'bg-rose-500/30',
   },
 ];
 
 export default function FeaturedCards() {
   return (
-    <section className="mt-5 rounded-3xl bg-[#F7F8FA] px-4 py-6 sm:px-5 sm:py-9 lg:px-6 lg:py-12">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-        {FEATURED_CARDS.map((card, index) => {
-          const { Icon, iconWrap, accent } = CARD_STYLES[index] || CARD_STYLES[0];
+    <section aria-labelledby="beauty-benefits-title" className="relative mt-5 overflow-hidden rounded-[32px] border border-[#eadfca]/80 bg-gradient-to-br from-[#fffdf7] via-[#fbf4e6] to-[#f2d893] px-4 py-8 shadow-[0_18px_50px_rgba(130,96,39,0.09)] sm:px-6 sm:py-10 lg:px-8 lg:py-14">
+      <span aria-hidden="true" className="absolute -left-24 top-0 h-72 w-72 rounded-full bg-white/65 blur-3xl" />
+      <span aria-hidden="true" className="absolute -right-20 bottom-[-6rem] h-80 w-80 rounded-full bg-[#d8a849]/25 blur-3xl" />
+      <span aria-hidden="true" className="absolute bottom-5 right-[6%] h-20 w-20 rotate-45 rounded-[24px] border border-white/50 bg-white/20" />
 
-          return (
-            <Link
-              key={card.title}
-              href={card.href}
-              aria-label={`${card.title}: ${card.subtitle}`}
-              className="group relative flex min-h-[220px] flex-col overflow-hidden rounded-2xl border border-[#E7E9EE] bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition duration-300 ease-out hover:-translate-y-1.5 hover:border-primary-200 hover:bg-gradient-to-br hover:from-white hover:to-primary-50/35 hover:shadow-[0_16px_36px_rgba(15,23,42,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-4 sm:p-6"
-            >
-              <span
-                aria-hidden="true"
-                className={`absolute -bottom-12 -right-10 h-36 w-36 rounded-full ${accent} transition duration-300 group-hover:scale-110`}
-              />
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary-800/70 via-primary-400/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"
-              />
+      <div className="relative mx-auto max-w-screen-xl">
+        <div className="mb-7 text-center sm:mb-9">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-800/70">Shop with confidence</p>
+          <h2 id="beauty-benefits-title" className="mt-2 text-2xl font-bold text-stone-950 sm:text-3xl">Beauty benefits, thoughtfully curated</h2>
+        </div>
 
-              <span
-                aria-hidden="true"
-                className={`relative z-10 flex h-[52px] w-[52px] items-center justify-center rounded-2xl ring-1 transition duration-300 group-hover:scale-105 ${iconWrap}`}
-              >
-                <Icon size={24} strokeWidth={1.9} />
-              </span>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          {BEAUTY_BENEFITS.map(({ title, description, href, Icon, imageUrl, imageAlt, iconClass, overlayClass, accentClass }) => (
+            <article key={title} className="group relative min-h-[290px] overflow-hidden rounded-[26px] border border-white/70 bg-white/40 shadow-[0_6px_16px_rgba(82,57,31,0.10),0_18px_36px_rgba(82,57,31,0.10)] transition-[transform,box-shadow] duration-500 ease-out hover:-translate-y-2 hover:shadow-[0_12px_26px_rgba(82,57,31,0.12),0_28px_54px_rgba(82,57,31,0.18)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+              {/* Decorative source images retain native img behavior and avoid Next image-domain configuration. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageUrl} alt={imageAlt} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
+              <span aria-hidden="true" className={`absolute inset-0 bg-gradient-to-br ${overlayClass}`} />
+              <span aria-hidden="true" className={`absolute -bottom-12 -right-8 h-40 w-40 rounded-full ${accentClass} blur-[1px]`} />
 
-              <span className="relative z-10 mt-5 block text-lg font-bold leading-snug text-gray-950">
-                {card.title}
-              </span>
-              <span className="relative z-10 mt-2 block flex-1 text-sm leading-6 text-gray-500">
-                {card.subtitle}
-              </span>
-              <span className="relative z-10 mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-primary-800">
-                Learn More
-                <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-            </Link>
-          );
-        })}
+              <Link href={href} aria-label={`${title}: ${description}`} className="relative flex min-h-[290px] flex-col p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-800 focus-visible:ring-inset sm:p-6">
+                <span aria-hidden="true" className={`flex h-14 w-14 items-center justify-center rounded-2xl border border-white/60 shadow-sm backdrop-blur-md ${iconClass}`}>
+                  <Icon size={25} strokeWidth={1.9} />
+                </span>
+                <h3 className="mt-5 text-xl font-bold tracking-[-0.03em] text-stone-950">{title}</h3>
+                <p className="mt-2 max-w-[17rem] text-sm font-medium leading-6 text-stone-800 sm:text-[15px]">{description}</p>
+                <span className="mt-auto inline-flex w-full items-center justify-between rounded-2xl border border-white/75 bg-white/45 px-4 py-3 text-sm font-bold text-stone-900 shadow-[0_2px_8px_rgba(72,43,22,0.10)] backdrop-blur-md transition-colors duration-300 group-hover:bg-white/65">
+                  Learn More
+                  <ArrowRight size={18} aria-hidden="true" className="transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
+                </span>
+              </Link>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

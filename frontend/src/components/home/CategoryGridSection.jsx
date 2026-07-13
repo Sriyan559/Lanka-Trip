@@ -33,19 +33,21 @@ export default function CategoryGridSection({ section }) {
     promoImage,
     promoHref = '/products',
     promoButtonLabel = 'Shop Now',
+    viewAllLabel = 'View All',
+    viewAllUrl = promoHref,
     items = [],
   } = section;
 
   return (
-    <section className="mt-5 sm:mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <section className="mt-6 overflow-hidden rounded-[20px] border border-[#ebe7e5] bg-white shadow-[0_8px_22px_rgba(31,24,21,0.05)] sm:mt-7">
       {/* Section header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-gray-100 sm:px-5">
-        <h2 className="text-base font-bold text-gray-800">{title}</h2>
+      <div className="flex items-center justify-between gap-3 border-b border-[#eee9e6] px-5 py-5 sm:px-7">
+        <h2 className="text-xl font-bold tracking-[-0.035em] text-[#142238] sm:text-2xl">{title}</h2>
         <Link
-          href={promoHref}
-          className="flex flex-shrink-0 items-center gap-1 text-sm text-primary-700 hover:text-primary-800 hover:underline font-medium"
+          href={viewAllUrl}
+          className="group flex flex-shrink-0 items-center gap-1 text-sm font-semibold text-primary-700 transition-colors hover:text-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2"
         >
-          View All <ArrowRight size={13} />
+          {viewAllLabel} <ArrowRight size={16} aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
         </Link>
       </div>
 
@@ -53,51 +55,52 @@ export default function CategoryGridSection({ section }) {
       <div className="flex flex-col sm:flex-row">
         {/* Left: Promo tile */}
         <div
-          className="sm:w-48 lg:w-56 flex-shrink-0 relative flex flex-col justify-between p-4 sm:p-5 min-h-[150px] sm:min-h-[180px]"
+          className="relative flex min-h-[188px] flex-shrink-0 flex-col justify-between overflow-hidden p-5 sm:w-[27%] sm:min-h-[250px] sm:p-6 lg:w-[18%]"
           style={{ background: promoBg || '#155e2c' }}
         >
           {promoImage && (
             <Image
               src={promoImage}
-              alt={promoTitle}
+              alt=""
               fill
               unoptimized
-              className="object-cover opacity-20"
+              className="pointer-events-none object-cover opacity-35"
             />
           )}
+          <span aria-hidden="true" className="absolute inset-0 bg-rose-800/35" />
           <div className="relative z-10">
-            <h3 className="text-white font-bold text-[15px] leading-snug">{promoTitle}</h3>
+            <h3 className="text-base font-bold leading-snug text-white sm:text-lg">{promoTitle}</h3>
             {promoSubtitle && (
-              <p className="text-white/70 text-[11px] mt-1.5 leading-relaxed">{promoSubtitle}</p>
+              <p className="mt-2 text-xs leading-relaxed text-white/90 sm:text-sm">{promoSubtitle}</p>
             )}
           </div>
           <Link
             href={promoHref}
-            className="relative z-10 mt-4 self-start inline-block px-4 py-1.5 bg-white text-primary-800 text-xs font-semibold rounded-full hover:bg-gray-100 transition-colors shadow-sm"
+            className="relative z-10 mt-5 inline-flex min-h-10 self-start items-center rounded-full bg-white px-5 py-2 text-sm font-bold text-primary-800 shadow-[0_5px_12px_rgba(82,24,46,0.22)] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(82,24,46,0.30)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-rose-700 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
           >
             {promoButtonLabel}
           </Link>
         </div>
 
         {/* Right: 8-item grid */}
-        <div className="flex-1 grid grid-cols-2 divide-x divide-y divide-gray-100 sm:grid-cols-4">
-          {items.slice(0, 8).map((item) => (
+        <div className="flex-1 grid grid-cols-2 border-l border-[#e8e1dc] bg-white sm:grid-cols-4">
+          {items.slice(0, 8).map((item, index) => (
             <Link
               key={item.id || item.slug || item.label}
               href={item.href || `/categories/${item.slug}`}
-              className="flex flex-col items-center justify-center gap-2 p-3 hover:bg-primary-50 group transition-colors"
+              className={`group flex min-h-[135px] flex-col items-center justify-center gap-3 border-b border-r border-[#ece7e3] bg-white p-4 transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(55,38,31,0.09)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-700 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:min-h-[125px] ${index === 7 ? 'border-b-0' : ''} sm:[&:nth-last-child(-n+4)]:border-b-0`}
             >
-              <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-primary-200 transition-colors flex-shrink-0">
+              <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl border border-[#ebe6e2] bg-[#faf9f8] shadow-[0_6px_16px_rgba(55,38,31,0.10)] transition-[transform,box-shadow] duration-300 group-hover:scale-[1.04] group-hover:shadow-[0_9px_20px_rgba(55,38,31,0.14)] sm:h-[92px] sm:w-[92px]">
                 <Image
                   src={item.image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80'}
-                  alt={item.label}
-                  width={80}
-                  height={80}
+                  alt={item.imageAlt || item.label}
+                  width={104}
+                  height={104}
                   unoptimized
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <span className="text-xs text-center text-gray-600 group-hover:text-primary-800 leading-tight line-clamp-2 font-medium">
+              <span className="line-clamp-2 text-center text-sm font-medium leading-tight text-[#332a27] transition-colors duration-300 group-hover:text-primary-800">
                 {item.label}
               </span>
             </Link>

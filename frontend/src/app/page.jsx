@@ -7,7 +7,7 @@ import TrendingProducts   from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
 import HomePromoVideo     from '@/components/home/HomePromoVideo';
 import HomePromotionalCarousels from '@/components/home/HomePromotionalCarousels';
-import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS } from '@/lib/constants';
+import BeautyProductShowcases from '@/components/home/BeautyProductShowcases';
 import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
 export const metadata = {
@@ -15,88 +15,31 @@ export const metadata = {
   description: SL_BEAUTY_DISPLAY_CONFIG.description,
 };
 
-const sectionImageFallback = (label = 'Beauty Product') =>
-  label.toLowerCase().includes('categor')
-    ? 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=500&q=80'
-    : 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80';
-
-function productToCategoryGridItem(product) {
-  const label = product?.name || product?.label || 'Beauty Product';
-  const categorySlug = product?.category?.slug || product?.category_slug || product?.slug || 'products';
-
-  return {
-    slug: product?.slug || String(product?.id || categorySlug),
-    label,
-    image: product?.featured_image || product?.image || product?.thumbnail || sectionImageFallback(label),
-    href: product?.id ? `/products/${product.id}` : `/categories/${categorySlug}`,
-  };
-}
-
-function categoryToGridItem(category) {
-  const label = category?.label || 'Beauty Category';
-  const slug = category?.slug || 'products';
-
-  return {
-    slug,
-    label,
-    image: sectionImageFallback(label),
-    href: `/categories/${slug}`,
-  };
-}
-
-function buildHomeCategorySections() {
-  const beautyCategories = SRI_LANKA_CATEGORIES.filter((category) => (
-    [
-      'skincare',
-      'makeup',
-      'hair-care',
-      'fragrance',
-      'bath-body',
-      'wellness',
-      'tools-brushes',
-      'luxury-beauty',
-    ].includes(category.slug)
-  ));
-
-  const beautyProducts = TRENDING_PRODUCTS.map(productToCategoryGridItem);
-
-  return [
-    {
-      id: 'beauty-categories',
-      title: 'Shop Beauty Categories',
-      promoTitle: 'Find Your Beauty Routine',
-      promoSubtitle: 'Browse skincare, makeup, haircare, fragrance, bath and body, wellness, beauty tools, and luxury beauty',
-      promoBg: 'linear-gradient(135deg, #9f1239 0%, #f472b6 100%)',
-      promoImage: sectionImageFallback('Beauty Categories'),
-      promoHref: '/products',
-      items: beautyCategories.map(categoryToGridItem),
-    },
-    {
-      id: 'beauty-essentials',
-      title: 'Beauty Essentials',
-      promoTitle: 'Daily Routine Picks',
-      promoSubtitle: 'Cleanser, serum, sunscreen, lipstick, shampoo, perfume, body lotion, and face mask',
-      promoBg: 'linear-gradient(135deg, #111827 0%, #be185d 100%)',
-      promoImage: TRENDING_PRODUCTS[0]?.image,
-      promoHref: '/products',
-      items: beautyProducts.slice(0, 8),
-    },
-    {
-      id: 'premium-beauty-picks',
-      title: 'Premium Beauty Picks',
-      promoTitle: 'Brands To Love',
-      promoSubtitle: 'Hair oil, beauty tools, luxury fragrance, and authorized seller favourites',
-      promoBg: 'linear-gradient(135deg, #7e22ce 0%, #fb7185 100%)',
-      promoImage: TRENDING_PRODUCTS[5]?.image,
-      promoHref: '/brands',
-      items: beautyProducts.slice(2, 10),
-    },
-  ].filter((section) => section.items.length > 0);
-}
+// Edit every label, image, and destination for the category showcase in this one object.
+const BEAUTY_CATEGORY_SECTION = {
+  id: 'beauty-categories',
+  title: 'Shop Beauty Categories',
+  viewAllLabel: 'View All',
+  viewAllUrl: '/categories',
+  promoTitle: 'Find Your Beauty Routine',
+  promoSubtitle: 'Browse skincare, makeup, haircare, fragrance, bath and body, wellness, beauty tools, and luxury beauty',
+  promoBg: 'linear-gradient(135deg, #b62f59 0%, #e66b9a 100%)',
+  promoImage: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=700&q=80',
+  promoHref: '/products',
+  promoButtonLabel: 'Shop Now',
+  items: [
+    ['makeup', 'Makeup', 'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=320&q=80'],
+    ['skincare', 'Skincare', 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=320&q=80'],
+    ['fragrance', 'Fragrance', 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=320&q=80'],
+    ['hair-care', 'Haircare', 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=320&q=80'],
+    ['bath-body', 'Bath & Body', 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=320&q=80'],
+    ['tools-brushes', 'Beauty Tools', 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=320&q=80'],
+    ['wellness', 'Wellness', 'https://images.unsplash.com/photo-1608571423539-e951a7df3a2e?auto=format&fit=crop&w=320&q=80'],
+    ['luxury-beauty', 'Luxury Beauty', 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80'],
+  ].map(([slug, label, image]) => ({ slug, label, image, href: `/categories/${slug}`, imageAlt: `${label} beauty category` })),
+};
 
 export default function HomePage() {
-  const categorySections = buildHomeCategorySections();
-
   return (
     <>
       <Header />
@@ -115,18 +58,12 @@ export default function HomePage() {
         {/* ── Trending products grid ─────────────────────────── */}
         <TrendingProducts />
 
+        <BeautyProductShowcases />
+
         {/* ── Beauty product category sections, using public SL Beauty display data ── */}
-        {categorySections.map((section) => (
-          <div key={section.id}>
-            <CategoryGridSection section={section} />
-            {section.id === 'beauty-categories' && (
-              <>
-                <HomePromoVideo />
-                <HomePromotionalCarousels />
-              </>
-            )}
-          </div>
-        ))}
+        <CategoryGridSection section={BEAUTY_CATEGORY_SECTION} />
+        <HomePromoVideo />
+        <HomePromotionalCarousels />
 
       </main>
       <Footer />

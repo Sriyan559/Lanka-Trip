@@ -42,6 +42,10 @@ export const HERO_SLIDES = [
 export const HOME_PROMO_VIDEO = {
   youtubeId: 'l-UpsG80MZs',
   title: 'SL Beauty promotional video',
+  // A 9:16 video needs roughly 3.16× scale to cover a 16:9 landscape frame.
+  zoom: 3.2,
+  positionX: '50%',
+  positionY: '52%',
 };
 
 export const YOU_MAY_LIKE = [

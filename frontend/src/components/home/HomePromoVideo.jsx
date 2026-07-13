@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import { HOME_PROMO_VIDEO } from '@/lib/constants';
 
@@ -38,7 +39,10 @@ export default function HomePromoVideo() {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const videoId = HOME_PROMO_VIDEO.youtubeId;
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1`;
+  const maxResThumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  const fallbackThumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  const [thumbnailUrl, setThumbnailUrl] = useState(maxResThumbnailUrl);
+  const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1`;
   const soundLabel = isMuted ? 'Turn sound on' : 'Mute video';
 
   useEffect(() => {
@@ -89,19 +93,38 @@ export default function HomePromoVideo() {
   return (
     <section
       aria-label={HOME_PROMO_VIDEO.title}
-      className="relative left-1/2 mt-6 w-screen -translate-x-1/2 overflow-hidden bg-black sm:mt-8 lg:mt-10"
+      className="mt-6 w-full sm:mt-8 lg:mt-10"
     >
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-[radial-gradient(circle_at_center,rgba(153,27,27,0.14),rgba(0,0,0,1)_68%)] md:aspect-[16/8] lg:aspect-[16/7]">
-        <div aria-hidden="true" className="absolute inset-0 animate-pulse bg-gradient-to-br from-neutral-950 via-black to-primary-950" />
-        <iframe
-          id={iframeId}
-          className="absolute left-1/2 top-1/2 h-[177.78vw] min-h-full w-screen min-w-full -translate-x-1/2 -translate-y-1/2 border-0"
-          src={embedUrl}
-          title={HOME_PROMO_VIDEO.title}
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowFullScreen
+      <div className="relative aspect-video w-full overflow-hidden rounded-[16px] bg-black shadow-[0_12px_30px_rgba(0,0,0,0.16)] sm:rounded-[20px]">
+        <Image
+          src={thumbnailUrl}
+          alt=""
+          fill
+          unoptimized
+          sizes="(max-width: 1280px) 100vw, 1200px"
+          onError={() => {
+            if (thumbnailUrl !== fallbackThumbnailUrl) setThumbnailUrl(fallbackThumbnailUrl);
+          }}
+          className="pointer-events-none scale-[1.12] object-cover opacity-75 blur-[22px]"
         />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/[0.02] to-black/[0.10]" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/[0.18]" />
+        <div
+          className="relative z-[2] mx-auto h-full max-w-full aspect-[9/16] origin-[var(--promo-video-position-x)_var(--promo-video-position-y)] scale-[var(--promo-video-zoom)]"
+          style={{
+            '--promo-video-zoom': HOME_PROMO_VIDEO.zoom || 1.65,
+            '--promo-video-position-x': HOME_PROMO_VIDEO.positionX || '50%',
+            '--promo-video-position-y': HOME_PROMO_VIDEO.positionY || '50%',
+          }}
+        >
+          <iframe
+            id={iframeId}
+            className="absolute inset-0 h-full w-full border-0"
+            src={embedUrl}
+            title={HOME_PROMO_VIDEO.title}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
         {isPlayerReady && (
           <button
             type="button"

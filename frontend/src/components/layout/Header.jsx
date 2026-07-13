@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -36,6 +37,12 @@ const BEAUTY_NAV = [
   { label: 'Gifts & Value Sets', href: '/categories/gift-sets' },
   { label: 'Gift Cards', href: '/gift-cards' },
   { label: 'Sale & Offers', href: '/categories/sale' },
+];
+
+const PRIMARY_NAV = [
+  { label: 'Brands', href: '/brands' },
+  { label: 'Offers', href: '/categories/sale' },
+  { label: 'For You', href: '/products?sort=popular' },
 ];
 
 const NAV_DROPDOWNS = {
@@ -431,6 +438,20 @@ export default function Header() {
     return () => window.removeEventListener('notifications:unread', syncUnread);
   }, []);
 
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') {
+        setHoveredCategory(null);
+        setAccountOpen(false);
+        setNotificationsOpen(false);
+        setMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, []);
+
   const handleSearch = (event) => {
     event.preventDefault();
     const searchTerm = query.trim();
@@ -448,8 +469,16 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white">
-      <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-3 px-4">
+    <header className="sticky top-0 z-50 border-b border-[#e6e3e3] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+      <div className="hidden border-b border-[#eeeaea] lg:block">
+        <div className="mx-auto flex h-8 max-w-screen-xl items-center justify-end gap-3 px-4 text-[12px] font-medium text-[#36302f]">
+          <Link href="/orders" className="transition-colors hover:text-primary-700">Track Order</Link>
+          <span aria-hidden="true" className="h-3 border-l border-[#d9d3d2]" />
+          <Link href="/help-center" className="transition-colors hover:text-primary-700">Help Centre</Link>
+        </div>
+      </div>
+
+      <div className="mx-auto flex h-[72px] max-w-screen-xl items-center gap-3 px-4 sm:px-5">
         <Link href="/" className="flex min-w-fit items-center gap-2" aria-label="SL Beauty Platform home">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
             SL
@@ -460,17 +489,26 @@ export default function Header() {
           </span>
         </Link>
 
-        <form onSubmit={handleSearch} className="relative hidden min-w-0 flex-1 md:block">
+        <Link href={isAuthenticated ? '/dashboard' : '/login'} className="hidden min-w-fit border-l border-[#e7e2e1] pl-3 text-xs leading-5 text-[#242020] transition-colors hover:text-primary-700 lg:block">
+          <span className="block">{isAuthenticated ? `Welcome, ${user?.name?.split(' ')[0] || 'Beauty Lover'}` : 'Welcome'}</span>
+          <span className="font-semibold">{isAuthenticated ? 'My Account →' : 'Login / Sign Up →'}</span>
+        </Link>
+
+        <nav aria-label="Primary navigation" className="hidden items-center gap-6 xl:flex">
+          {PRIMARY_NAV.map((item) => <Link key={item.href} href={item.href} className="text-[15px] font-medium text-[#302b2a] transition-colors hover:text-primary-700">{item.label}</Link>)}
+        </nav>
+
+        <form onSubmit={handleSearch} className="relative hidden min-w-0 flex-1 md:block xl:ml-auto xl:max-w-[490px]">
           <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search makeup, skincare, fragrance and brands"
-            className="h-11 w-full rounded-full border border-gray-200 bg-gray-50 pl-11 pr-14 text-sm text-gray-900 outline-none transition focus:border-black focus:bg-white focus:ring-2 focus:ring-black/10"
+            className="h-12 w-full rounded-xl border border-transparent bg-[#f6f4f4] pl-11 pr-14 text-sm text-gray-900 outline-none transition focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100"
           />
           <button
             type="button"
-            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 transition hover:bg-white hover:text-black"
+            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-500 transition hover:bg-white hover:text-primary-700"
             aria-label="Visual search"
           >
             <Camera size={16} />
@@ -480,14 +518,14 @@ export default function Header() {
         <div className="ml-auto hidden items-center gap-1 md:flex">
           <Link
             href="/messages"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100 hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
             aria-label="Messages"
           >
             <MessageSquare size={19} />
           </Link>
           <Link
             href="/wishlist"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100 hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
             aria-label="Wishlist"
           >
             <Heart size={19} />
@@ -496,7 +534,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setNotificationsOpen((open) => !open)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100 hover:text-black"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
               aria-label="Notifications"
             >
               <Bell size={19} />
@@ -514,12 +552,12 @@ export default function Header() {
           </div>
           <Link
             href="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100 hover:text-black"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
             aria-label="Cart"
           >
             <ShoppingBasket size={20} />
             {cartCount > 0 && (
-              <span className="absolute right-0 top-0 min-w-[17px] rounded-full bg-black px-1 text-center text-[10px] font-bold leading-[17px] text-white">
+              <span className="absolute right-0 top-0 min-w-[17px] rounded-full bg-primary-700 px-1 text-center text-[10px] font-bold leading-[17px] text-white">
                 {cartCount > 99 ? '99+' : cartCount}
               </span>
             )}
@@ -530,7 +568,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setAccountOpen((open) => !open)}
-                className="ml-1 flex h-10 items-center gap-2 rounded-full border border-gray-200 bg-white px-2 pr-3 text-sm font-semibold text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
+                className="ml-1 flex h-10 items-center gap-2 rounded-full border border-[#f4d9d5] bg-[#fff3f1] px-2 pr-3 text-sm font-semibold text-gray-800 transition hover:bg-[#ffe8e4]"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
                   {initials(user?.name || user?.email || 'User')}
@@ -540,9 +578,10 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className="ml-1 inline-flex h-10 items-center rounded-full bg-black px-5 text-sm font-semibold text-white transition hover:bg-neutral-800"
+                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fff1ee] text-primary-700 transition hover:bg-[#ffe2dd]"
+                aria-label="Login or create an account"
               >
-                Sign In
+                <User size={19} />
               </Link>
             )}
 
@@ -575,22 +614,27 @@ export default function Header() {
         </button>
       </div>
 
-      <nav className="relative bg-black text-white" onMouseLeave={() => setHoveredCategory(null)}>
-        <div className="mx-auto flex h-10 max-w-screen-xl items-center gap-1 overflow-x-auto md:overflow-visible px-4">
+      <nav className="relative border-t border-[#eee9e8] bg-white text-[#211c1b]" onMouseLeave={() => setHoveredCategory(null)}>
+        <div className="mx-auto flex h-14 max-w-screen-xl items-center gap-1 overflow-x-auto px-4 sm:px-5">
           {BEAUTY_NAV.map((item) => {
             const hasDropdown = !!NAV_DROPDOWNS[item.label];
             return (
               <div
                 key={item.label}
-                className="relative flex h-10 flex-shrink-0 items-center"
+                className="relative flex h-14 flex-shrink-0 items-center"
                 onMouseEnter={() => {
                   if (hasDropdown) setHoveredCategory(item.label);
                   else setHoveredCategory(null);
                 }}
+                onFocus={() => {
+                  if (hasDropdown) setHoveredCategory(item.label);
+                }}
               >
                 <Link
                   href={item.href}
-                  className="flex h-10 items-center px-3 text-sm font-semibold text-white/88 transition hover:bg-white/10 hover:text-white"
+                  className={`flex h-14 items-center px-3 text-[15px] font-medium transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-inset ${hoveredCategory === item.label ? 'text-primary-700' : 'text-[#211c1b]'}`}
+                  aria-haspopup={hasDropdown ? 'true' : undefined}
+                  aria-expanded={hasDropdown ? hoveredCategory === item.label : undefined}
                 >
                   {item.label}
                 </Link>
@@ -602,10 +646,10 @@ export default function Header() {
         {/* Mega Menu Dropdown Panel */}
         {hoveredCategory && NAV_DROPDOWNS[hoveredCategory] && (
           <div
-            className="absolute left-0 right-0 top-full z-50 border-t border-gray-200 bg-white text-gray-900 shadow-2xl animate-slide-up"
+            className="absolute left-0 right-0 top-full z-50 border-t border-[#ece8e8] bg-white text-[#171717] shadow-[0_14px_35px_rgba(0,0,0,0.09)] animate-slide-up"
             onMouseEnter={() => setHoveredCategory(hoveredCategory)}
           >
-            <div className="mx-auto max-w-screen-xl px-8 py-8">
+            <div className="mx-auto max-w-screen-xl px-5 py-8 sm:px-8">
               <div className="grid grid-cols-5 gap-8">
                 {/* 4 Columns of Categories */}
                 <div className="col-span-4 grid grid-cols-4 gap-6">
@@ -641,10 +685,13 @@ export default function Header() {
                       href={NAV_DROPDOWNS[hoveredCategory].featured.href}
                       className="group relative block overflow-hidden rounded-xl bg-gray-50 flex flex-col justify-end aspect-[4/3] w-full p-4 h-full min-h-[240px] hover:shadow-md transition-all duration-300"
                     >
-                      <img
+                      <Image
                         src={NAV_DROPDOWNS[hoveredCategory].featured.image}
                         alt={NAV_DROPDOWNS[hoveredCategory].featured.title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        unoptimized
+                        sizes="(max-width: 1280px) 20vw, 240px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
                       <div className="relative z-10 text-white">
