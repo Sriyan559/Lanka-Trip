@@ -9,7 +9,6 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-<<<<<<< HEAD
           50:  '#f7f7f7',
           100: '#f1f1f1',
           200: '#e4e4e4',
@@ -32,18 +31,6 @@ module.exports = {
           700: '#111111',
           800: '#050505',
           900: '#000000',
-=======
-          50:  '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b', // main brand red
-          900: '#7f1d1d',
->>>>>>> e4f48f5d7fabbc1a7c27c7fdb8d70ca6b08545d1
         },
         accent: {
           50:  '#f7f7f7',
