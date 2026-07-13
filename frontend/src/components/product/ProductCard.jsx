@@ -98,7 +98,7 @@ export default function ProductCard({ product }) {
       {/* Add to Inquiry Basket */}
       <button
         onClick={handleAddToCart}
-        className="mx-3 mb-3 py-2 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm border-0"
+        className="mx-3 mb-3 py-2 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-[13px] font-semibold rounded-lg transition duration-200 flex items-center justify-center gap-1.5 shadow-sm border-0 antialiased"
       >
         <ShoppingBasket size={13} />
         Add to Basket

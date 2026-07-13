@@ -529,7 +529,7 @@ export default function ProductsContent() {
         </div>
         <button
           onClick={applyPriceFilter}
-          className="w-full py-1.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm border-0"
+          className="w-full py-1.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-xs font-semibold rounded-lg transition duration-200 shadow-sm border-0 antialiased"
         >
           Apply Price
         </button>
@@ -632,7 +632,7 @@ export default function ProductsContent() {
             </div>
             <button
               type="submit"
-              className="rounded-lg bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md active:scale-[0.98] sm:flex-shrink-0 border-0"
+              className="rounded-lg bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-sm font-semibold text-white transition duration-200 shadow-sm hover:shadow-md active:scale-[0.98] sm:flex-shrink-0 border-0 antialiased"
             >
               Search products
             </button>
@@ -665,7 +665,7 @@ export default function ProductsContent() {
               <div className="border-t border-gray-100 p-4">
                 <button
                   onClick={() => setFiltersOpen(false)}
-                  className="w-full py-2.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-sm font-semibold rounded-xl transition-all shadow-sm border-0"
+                  className="w-full py-2.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-sm font-semibold rounded-xl transition duration-200 shadow-sm border-0 antialiased"
                 >
                   Show Results ({total})
                 </button>
