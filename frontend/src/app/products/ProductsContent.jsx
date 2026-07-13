@@ -266,7 +266,10 @@ Object.entries(NAV_DROPDOWNS).forEach(([navGroup, data]) => {
   });
 });
 
-const BEAUTY_PRODUCTS = [...BASE_BEAUTY_PRODUCTS, ...GENERATED_PRODUCTS];
+// Keep product actions tied to records seeded in the backend catalogue. The
+// generated navigation examples are useful for menu content, but they do not
+// have product records and therefore cannot be added to an inquiry basket.
+const BEAUTY_PRODUCTS = BASE_BEAUTY_PRODUCTS;
 
 export default function ProductsContent() {
   const searchParams = useSearchParams();

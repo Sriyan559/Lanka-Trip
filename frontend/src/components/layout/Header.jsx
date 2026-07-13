@@ -143,7 +143,7 @@ export default function Header() {
         </div>
       </div>
       {homepageConfig.announcement && (
-        <Link href={homepageConfig.announcement.href} className="flex min-h-8 items-center justify-center bg-[#fff2f1] px-4 text-center text-xs font-semibold text-primary-800 transition-colors hover:bg-[#ffe6e2]">
+        <Link href={homepageConfig.announcement.href} className="flex min-h-8 items-center justify-center bg-[#f1f1f1] px-4 text-center text-xs font-semibold text-primary-800 transition-colors hover:bg-[#e4e4e4]">
           {homepageConfig.announcement.label}
         </Link>
       )}
@@ -188,14 +188,14 @@ export default function Header() {
         <div className="ml-auto hidden items-center gap-1 md:flex">
           <Link
             href="/messages"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#f1f1f1] hover:text-primary-700"
             aria-label="Messages"
           >
             <MessageSquare size={19} />
           </Link>
           <Link
             href="/wishlist"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#f1f1f1] hover:text-primary-700"
             aria-label="Wishlist"
           >
             <Heart size={19} />
@@ -204,7 +204,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setNotificationsOpen((open) => !open)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#f1f1f1] hover:text-primary-700"
               aria-label="Notifications"
             >
               <Bell size={19} />
@@ -222,7 +222,7 @@ export default function Header() {
           </div>
           <Link
             href="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#fff3f1] hover:text-primary-700"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#f1f1f1] hover:text-primary-700"
             aria-label="Cart"
           >
             <ShoppingBasket size={20} />
@@ -238,7 +238,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setAccountOpen((open) => !open)}
-                className="ml-1 flex h-10 items-center gap-2 rounded-full border border-[#f4d9d5] bg-[#fff3f1] px-2 pr-3 text-sm font-semibold text-gray-800 transition hover:bg-[#ffe8e4]"
+                className="ml-1 flex h-10 items-center gap-2 rounded-full border border-[#e4e4e4] bg-[#f7f7f7] px-2 pr-3 text-sm font-semibold text-gray-800 transition hover:bg-[#f1f1f1]"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
                   {initials(user?.name || user?.email || 'User')}
@@ -248,7 +248,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fff1ee] text-primary-700 transition hover:bg-[#ffe2dd]"
+                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#f7f7f7] text-primary-700 transition hover:bg-[#f1f1f1]"
                 aria-label="Login or create an account"
               >
                 <User size={19} />

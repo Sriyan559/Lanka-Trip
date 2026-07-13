@@ -105,10 +105,54 @@ function cartItemPayload(productOrId, qty = 1) {
   return { product_slug: String(productOrId || ''), quantity };
 }
 
+function numericProductId(value) {
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+function productDisplayName(product) {
+  if (!product || typeof product !== 'object') return '';
+  return String(product.name || product.label || '').trim();
+}
+
+function normalizedProductName(value) {
+  return String(value || '').trim().toLocaleLowerCase();
+}
+
+async function cartPayloadForProduct(productOrId, qty) {
+  const payload = cartItemPayload(productOrId, qty);
+
+  // API-backed cards already have a database ID, so avoid an unnecessary lookup.
+  if (payload.product_id) return payload;
+
+  // Some homepage and navigation cards are presentation data with display slugs.
+  // Resolve them against the live catalogue before creating a cart item so a
+  // display-only identifier cannot trigger Laravel's 422 product validation.
+  const name = productDisplayName(productOrId);
+  if (!name) return payload;
+
+  const response = await api.get(withQuery('/products', { search: name }));
+  const products = Array.isArray(response?.data)
+    ? response.data
+    : Array.isArray(response?.products)
+      ? response.products
+      : [];
+  const matchedProduct = products.find((product) => (
+    normalizedProductName(product.name) === normalizedProductName(name)
+  ));
+  const productId = numericProductId(matchedProduct?.id);
+
+  if (!productId) {
+    throw new Error('This product is not currently available in the catalogue.');
+  }
+
+  return { product_id: productId, quantity: payload.quantity };
+}
+
 export const cartApi = {
   get: () => api.get('/cart'),
-  add: (productOrId, qty = 1) =>
-    api.post('/cart/items', cartItemPayload(productOrId, qty)),
+  add: async (productOrId, qty = 1) =>
+    api.post('/cart/items', await cartPayloadForProduct(productOrId, qty)),
   update: (itemId, qty) => api.put(`/cart/items/${itemId}`, { quantity: qty }),
   remove: (itemId) => api.delete(`/cart/items/${itemId}`),
   clear: () => api.delete('/cart'),
