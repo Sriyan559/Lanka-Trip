@@ -109,7 +109,7 @@ export default function WishlistPage() {
                 </Link>
                 <button
                   onClick={() => addItem(wishlist.product)}
-                  className="mt-2 w-full py-1.5 border border-primary-700 text-primary-700 text-xs font-medium rounded-lg hover:bg-primary-700 hover:text-white transition-colors"
+                  className="mt-2 w-full py-1.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm border-0"
                 >
                   Add to Basket
                 </button>

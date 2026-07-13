@@ -325,3 +325,343 @@ export const FOOTER_LINKS = {
     { label: 'Shop Skincare',      href: '/categories/skincare' },
   ],
 };
+
+export const NAV_DROPDOWNS = {
+  'Makeup': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Face',
+            links: [
+              { label: 'Foundation', href: '/products?category=makeup&q=foundation' },
+              { label: 'Concealer', href: '/products?category=makeup&q=concealer' },
+              { label: 'Primer', href: '/products?category=makeup&q=primer' },
+              { label: 'Compact Powder', href: '/products?category=makeup&q=compact' },
+              { label: 'Contour & Highlight', href: '/products?category=makeup&q=contour' },
+              { label: 'Blush & Setting Spray', href: '/products?category=makeup&q=blush' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Eyes',
+            links: [
+              { label: 'Mascara', href: '/products?category=makeup&q=mascara' },
+              { label: 'Eyeliner & Kajal', href: '/products?category=makeup&q=eyeliner' },
+              { label: 'Eyeshadow', href: '/products?category=makeup&q=eyeshadow' },
+              { label: 'Eyebrows', href: '/products?category=makeup&q=brow' },
+              { label: 'False Eyelashes', href: '/products?category=makeup&q=lashes' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Lips',
+            links: [
+              { label: 'Lipstick', href: '/products?category=makeup&q=lipstick' },
+              { label: 'Lip Gloss & Lacquer', href: '/products?category=makeup&q=gloss' },
+              { label: 'Lip Liner & Plumper', href: '/products?category=makeup&q=liner' },
+              { label: 'Lip Balm & Treatment', href: '/products?category=makeup&q=balm' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Nails',
+            links: [
+              { label: 'Nail Polish', href: '/products?category=makeup&q=polish' },
+              { label: 'Gel & Matte Top Coat', href: '/products?category=makeup&q=coat' },
+              { label: 'Nail Polish Remover', href: '/products?category=makeup&q=remover' },
+            ]
+          },
+          {
+            title: 'Shop By / Tools',
+            links: [
+              { label: "What's New", href: '/products?category=makeup&sort=new' },
+              { label: 'Bestsellers', href: '/products?category=makeup&sort=popular' },
+              { label: 'Makeup Brushes', href: '/products?category=tools-brushes' },
+              { label: 'Sponges & Blenders', href: '/products?category=tools-brushes' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Glamorous Looks',
+      subtitle: 'Premium cosmetics and tools',
+      image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=makeup'
+    }
+  },
+  'Skincare': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Cleansers',
+            links: [
+              { label: 'Face Wash', href: '/products?category=skincare&q=wash' },
+              { label: 'Cleansing Oil & Balm', href: '/products?category=skincare&q=cleansing' },
+              { label: 'Micellar Water', href: '/products?category=skincare&q=micellar' },
+              { label: 'Face Scrub & Peeling', href: '/products?category=skincare&q=scrub' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Moisturizers',
+            links: [
+              { label: 'Face Cream & Gel', href: '/products?category=skincare&q=moisturizer' },
+              { label: 'Night Cream & Mask', href: '/products?category=skincare&q=night' },
+              { label: 'Face Oil & Mist', href: '/products?category=skincare&q=oil' },
+              { label: 'Eye Cream & Serum', href: '/products?category=skincare&q=eye' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Treatments & Serums',
+            links: [
+              { label: 'Face Serum & Ampoule', href: '/products?category=skincare&q=serum' },
+              { label: 'Sheet Masks', href: '/products?category=skincare&q=sheet' },
+              { label: 'Clay & Peel-off Masks', href: '/products?category=skincare&q=mask' },
+              { label: 'Toner & Essence', href: '/products?category=skincare&q=toner' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Sun Care',
+            links: [
+              { label: 'Face Sunscreen', href: '/products?category=skincare&q=sunscreen' },
+              { label: 'Body Sunscreen', href: '/products?category=skincare&q=body' },
+              { label: 'After Sun Gel', href: '/products?category=skincare&q=after-sun' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Daily Hydration',
+      subtitle: 'Nourish your skin base',
+      image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=skincare'
+    }
+  },
+  'Fragrance': {
+    columns: [
+      {
+        sections: [
+          {
+            title: "Women's Fragrance",
+            links: [
+              { label: 'Perfume (EDT & EDP)', href: '/products?category=fragrance&q=women' },
+              { label: 'Body Mists & Sprays', href: '/products?category=fragrance&q=mist' },
+              { label: 'Deodorants & Roll-Ons', href: '/products?category=fragrance&q=deodorant' },
+            ]
+          },
+          {
+            title: "Men's Fragrance",
+            links: [
+              { label: 'Perfume (EDT & EDP)', href: '/products?category=fragrance&q=men' },
+              { label: 'Body Mists & Sprays', href: '/products?category=fragrance&q=mist' },
+              { label: 'Deodorants & Roll-Ons', href: '/products?category=fragrance&q=deodorant' },
+              { label: 'Colognes & After Shaves', href: '/products?category=fragrance&q=cologne' },
+            ]
+          },
+          {
+            title: 'Home Fragrance',
+            links: [
+              { label: 'Candle', href: '/products?category=fragrance&q=candle' },
+              { label: 'Diffuser', href: '/products?category=fragrance&q=diffuser' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Unisex Fragrance',
+            links: [
+              { label: 'Unisex Perfumes', href: '/products?category=fragrance&q=unisex' },
+              { label: 'Unisex Mists & Sprays', href: '/products?category=fragrance&q=mist' },
+              { label: 'Unisex Deodorants & Roll-Ons', href: '/products?category=fragrance&q=deodorant' },
+            ]
+          },
+          {
+            title: 'Fragrance Family',
+            links: [
+              { label: 'Floral', href: '/products?category=fragrance&q=floral' },
+              { label: 'Fruity', href: '/products?category=fragrance&q=fruity' },
+              { label: 'Spicy', href: '/products?category=fragrance&q=spicy' },
+              { label: 'Woody', href: '/products?category=fragrance&q=woody' },
+              { label: 'Fresh', href: '/products?category=fragrance&q=fresh' },
+              { label: 'Aqua', href: '/products?category=fragrance&q=aqua' },
+              { label: 'Citrus', href: '/products?category=fragrance&q=citrus' },
+              { label: 'Musky', href: '/products?category=fragrance&q=musk' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Shop By',
+            links: [
+              { label: "What's New", href: '/products?category=fragrance&sort=new' },
+              { label: 'Bestsellers', href: '/products?category=fragrance&sort=popular' },
+              { label: 'Gift Sets', href: '/products?category=fragrance&q=set' },
+              { label: 'Sets & Bundles', href: '/products?category=fragrance&q=bundle' },
+              { label: 'Tira Loves', href: '/products?category=fragrance' },
+            ]
+          },
+          {
+            title: 'Tira Red',
+            links: [
+              { label: 'Yves Saint Laurent', href: '/brands' },
+              { label: 'Burberry', href: '/brands' },
+              { label: 'Tom Ford', href: '/brands' },
+              { label: 'Prada', href: '/brands' },
+              { label: 'Versace', href: '/brands' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Brands To Know',
+            links: [
+              { label: 'Gucci', href: '/brands' },
+              { label: 'Jo Malone London', href: '/brands' },
+              { label: 'Elizabeth Arden', href: '/brands' },
+              { label: 'Jimmy Choo', href: '/brands' },
+              { label: 'Giorgio Armani', href: '/brands' },
+              { label: 'Calvin Klein', href: '/brands' },
+              { label: 'Narciso Rodriguez', href: '/brands' },
+              { label: 'Dolce&Gabbana', href: '/brands' },
+              { label: 'Salvatore Ferragamo', href: '/brands' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Pocket-friendly everyday scents',
+      subtitle: 'Find your signature fragrance',
+      image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=fragrance'
+    }
+  },
+  'Hair': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Hair Care',
+            links: [
+              { label: 'Shampoo', href: '/products?category=hair-care&q=shampoo' },
+              { label: 'Conditioner', href: '/products?category=hair-care&q=conditioner' },
+              { label: 'Hair Mask & Treatment', href: '/products?category=hair-care&q=mask' },
+              { label: 'Hair Oil & Serum', href: '/products?category=hair-care&q=oil' },
+              { label: 'Dry Shampoo', href: '/products?category=hair-care&q=dry' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Hair Styling',
+            links: [
+              { label: 'Hair Gel & Wax', href: '/products?category=hair-care&q=gel' },
+              { label: 'Hair Spray', href: '/products?category=hair-care&q=spray' },
+              { label: 'Heat Protectant Cream', href: '/products?category=hair-care&q=protect' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Color & Tools',
+            links: [
+              { label: 'Permanent Hair Color', href: '/products?category=hair-care&q=color' },
+              { label: 'Hair Dryer & Styler', href: '/products?category=hair-care&q=dryer' },
+              { label: 'Hair Straightener & Curler', href: '/products?category=hair-care&q=straightener' },
+              { label: 'Hair Brushes & Combs', href: '/products?category=hair-care&q=brush' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Healthy & Shiny Locks',
+      subtitle: 'Professional hair care routines',
+      image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=hair-care'
+    }
+  },
+  'Bath & Body': {
+    columns: [
+      {
+        sections: [
+          {
+            title: 'Shower & Bath',
+            links: [
+              { label: 'Body Wash & Gel', href: '/products?category=bath-body&q=wash' },
+              { label: 'Shower Oil & Bubble Bath', href: '/products?category=bath-body&q=shower' },
+              { label: 'Exfoliating Body Scrub', href: '/products?category=bath-body&q=scrub' },
+              { label: 'Bar Soap', href: '/products?category=bath-body&q=soap' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Body Moisturizers',
+            links: [
+              { label: 'Body Lotion', href: '/products?category=bath-body&q=lotion' },
+              { label: 'Body Butter & Yogurt', href: '/products?category=bath-body&q=butter' },
+              { label: 'Body Oil & Mist', href: '/products?category=bath-body&q=oil' },
+              { label: 'Hand Cream & Foot Cream', href: '/products?category=bath-body&q=hand' },
+            ]
+          }
+        ]
+      },
+      {
+        sections: [
+          {
+            title: 'Personal Care',
+            links: [
+              { label: 'Deodorants & Roll-ons', href: '/products?category=bath-body&q=deodorant' },
+              { label: 'Intimate Wash & Care', href: '/products?category=bath-body&q=intimate' },
+              { label: 'Shaving Gel & Razor', href: '/products?category=bath-body&q=shaving' },
+              { label: 'Sun Protection for Body', href: '/products?category=bath-body&q=sun' },
+            ]
+          }
+        ]
+      }
+    ],
+    featured: {
+      title: 'Relaxing Spa at Home',
+      subtitle: 'Indulge in gentle body care',
+      image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80',
+      href: '/products?category=bath-body'
+    }
+  }
+};
