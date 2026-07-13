@@ -20,7 +20,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal, LayoutGrid, List, ChevronDown, X, Search, ShieldCheck } from 'lucide-react';
 import B2BProductCard from '@/components/product/B2BProductCard';
 import Pagination from '@/components/ui/Pagination';
-import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS } from '@/lib/constants';
+import { SRI_LANKA_CATEGORIES, TRENDING_PRODUCTS, NAV_DROPDOWNS } from '@/lib/constants';
 
 const SORT_OPTIONS = [
   { value: 'best',       label: 'Best Match' },
@@ -91,7 +91,44 @@ const categoryOptions = SRI_LANKA_CATEGORIES.map((category) => ({
   name: category.label,
 }));
 
-const BEAUTY_PRODUCTS = TRENDING_PRODUCTS.map((product, index) => {
+const CATEGORY_IMAGES = {
+  'makeup': [
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1515688594390-b649af70d282?auto=format&fit=crop&w=600&q=80',
+  ],
+  'skincare': [
+    'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80',
+  ],
+  'fragrance': [
+    'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1588405748373-122b2321bc31?auto=format&fit=crop&w=600&q=80',
+  ],
+  'hair-care': [
+    'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1593998066526-65fcab3024a2?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1527799863830-de80a4240aab?auto=format&fit=crop&w=600&q=80',
+  ],
+  'bath-body': [
+    'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1607006342411-985f1c240974?auto=format&fit=crop&w=600&q=80',
+  ],
+  'tools-brushes': [
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+  ]
+};
+
+const BASE_BEAUTY_PRODUCTS = TRENDING_PRODUCTS.map((product, index) => {
   const brandSlug = slugify(product.brand_name);
   const brand = BEAUTY_BRANDS.find((item) => item.id === brandSlug) || {
     id: brandSlug,
@@ -133,6 +170,103 @@ const BEAUTY_PRODUCTS = TRENDING_PRODUCTS.map((product, index) => {
     status: index < 6 ? 'featured' : 'active',
   };
 });
+
+const GENERATED_PRODUCTS = [];
+let idCounter = 1001;
+
+Object.entries(NAV_DROPDOWNS).forEach(([navGroup, data]) => {
+  data.columns.forEach((column) => {
+    column.sections.forEach((section) => {
+      section.links.forEach((link) => {
+        if (!link.href.startsWith('/products')) return;
+        
+        const queryParams = {};
+        const queryStr = link.href.split('?')[1];
+        if (queryStr) {
+          queryStr.split('&').forEach((pair) => {
+            const [k, v] = pair.split('=');
+            if (k && v) {
+              queryParams[decodeURIComponent(k)] = decodeURIComponent(v);
+            }
+          });
+        }
+        
+        const catSlug = queryParams['category'] || '';
+        const searchQ = queryParams['q'] || '';
+        const sortParam = queryParams['sort'] || '';
+        
+        const targetCategory = SRI_LANKA_CATEGORIES.find(c => c.slug === catSlug) || { slug: catSlug || 'makeup', label: navGroup };
+        
+        const productLabels = [];
+        if (searchQ) {
+          const capitalizedQ = searchQ.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          productLabels.push(`${capitalizedQ} Cream`);
+          productLabels.push(`Matte ${capitalizedQ}`);
+        } else if (sortParam === 'new') {
+          productLabels.push(`New Release ${link.label}`);
+          productLabels.push(`Latest ${link.label} formulation`);
+        } else if (sortParam === 'popular') {
+          productLabels.push(`Best Selling ${link.label}`);
+          productLabels.push(`Popular ${link.label} favorite`);
+        } else {
+          productLabels.push(`Premium ${link.label}`);
+          productLabels.push(`Professional ${link.label}`);
+        }
+        
+        productLabels.forEach((label, pIdx) => {
+          const brand = BEAUTY_BRANDS[(idCounter + pIdx) % BEAUTY_BRANDS.length];
+          const fullProductName = `${brand.name} ${label}`;
+          
+          const imageList = CATEGORY_IMAGES[catSlug] || CATEGORY_IMAGES['makeup'];
+          const image = imageList[(idCounter + pIdx) % imageList.length];
+          
+          const price = 2500 + ((idCounter * 37) % 80) * 100;
+          const rating = 4.4 + ((idCounter * 7) % 6) * 0.1;
+          
+          const slug = slugify(fullProductName) + '-' + idCounter;
+          
+          GENERATED_PRODUCTS.push({
+            id: slug,
+            slug: slug,
+            name: fullProductName,
+            image: image,
+            price: price,
+            price_min: price,
+            currency_code: 'LKR',
+            unit: 'Item',
+            moq: 1,
+            minOrder: 1,
+            rating: parseFloat(rating.toFixed(1)),
+            average_rating: parseFloat(rating.toFixed(1)),
+            reviews_count: 15 + (idCounter % 50),
+            category: { slug: targetCategory.slug, label: targetCategory.label },
+            category_name: targetCategory.label,
+            supplier: {
+              id: brand.id,
+              slug: brand.id,
+              name: brand.name,
+              company_name: brand.name,
+              location: 'Sri Lanka',
+              verified: brand.verified,
+            },
+            supplier_id: brand.id,
+            verified: brand.verified,
+            featured: idCounter % 5 === 0,
+            is_original_brand: true,
+            lead_time_days: 2 + (idCounter % 5),
+            port: ['Colombo delivery', 'Islandwide delivery', 'Express delivery'][idCounter % 3],
+            supply_ability: 'Authentic beauty product',
+            status: 'active',
+          });
+          
+          idCounter++;
+        });
+      });
+    });
+  });
+});
+
+const BEAUTY_PRODUCTS = [...BASE_BEAUTY_PRODUCTS, ...GENERATED_PRODUCTS];
 
 export default function ProductsContent() {
   const searchParams = useSearchParams();
@@ -395,7 +529,7 @@ export default function ProductsContent() {
         </div>
         <button
           onClick={applyPriceFilter}
-          className="w-full py-1.5 bg-primary-800 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors"
+          className="w-full py-1.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm border-0"
         >
           Apply Price
         </button>
@@ -476,7 +610,7 @@ export default function ProductsContent() {
         )}
       </div>
 
-      <section className="mb-4 rounded-xl border border-primary-100 bg-white p-3.5 shadow-sm sm:mb-5 sm:p-5">
+      <section className="mb-4 rounded-xl border border-gray-100 bg-gradient-to-br from-white via-white to-pink-50/20 p-3.5 shadow-sm sm:mb-5 sm:p-5 relative overflow-hidden after:absolute after:top-0 after:left-0 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-primary-800 after:to-rose-500">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">SL Beauty products</p>
@@ -498,7 +632,7 @@ export default function ProductsContent() {
             </div>
             <button
               type="submit"
-              className="rounded-lg bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 sm:flex-shrink-0"
+              className="rounded-lg bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md active:scale-[0.98] sm:flex-shrink-0 border-0"
             >
               Search products
             </button>
@@ -531,7 +665,7 @@ export default function ProductsContent() {
               <div className="border-t border-gray-100 p-4">
                 <button
                   onClick={() => setFiltersOpen(false)}
-                  className="w-full py-2.5 bg-primary-800 text-white text-sm font-semibold rounded-xl"
+                  className="w-full py-2.5 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-sm font-semibold rounded-xl transition-all shadow-sm border-0"
                 >
                   Show Results ({total})
                 </button>
@@ -589,14 +723,14 @@ export default function ProductsContent() {
               <div className="flex flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 shadow-sm">
                 <button
                   onClick={() => setView('grid')}
-                  className={`p-1.5 transition-colors ${view === 'grid' ? 'bg-primary-800 text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                  className={`p-1.5 transition-all ${view === 'grid' ? 'bg-gradient-to-r from-primary-800 to-rose-500 text-white font-medium' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                   title="Grid view"
                 >
                   <LayoutGrid size={15} />
                 </button>
                 <button
                   onClick={() => setView('list')}
-                  className={`p-1.5 transition-colors ${view === 'list' ? 'bg-primary-800 text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                  className={`p-1.5 transition-all ${view === 'list' ? 'bg-gradient-to-r from-primary-800 to-rose-500 text-white font-medium' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                   title="List view"
                 >
                   <List size={15} />

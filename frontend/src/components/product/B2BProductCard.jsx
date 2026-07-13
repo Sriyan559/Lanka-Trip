@@ -233,7 +233,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           </Link>
           <button
             onClick={handleInquire}
-            className="flex-1 py-2 bg-primary-800 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors"
+            className="flex-1 py-2 bg-gradient-to-r from-primary-800 to-rose-500 hover:from-primary-900 hover:to-rose-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm border-0"
           >
             Add to Basket
           </button>
@@ -360,7 +360,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           </Link>
           <button
             onClick={handleInquire}
-            className="w-full whitespace-nowrap rounded-lg bg-primary-800 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-700 sm:py-1.5"
+            className="w-full whitespace-nowrap rounded-lg bg-gradient-to-r from-primary-800 to-rose-500 px-4 py-2 text-xs font-semibold text-white transition-all hover:from-primary-900 hover:to-rose-600 sm:py-1.5 shadow-sm border-0"
           >
             Add to Basket
           </button>
