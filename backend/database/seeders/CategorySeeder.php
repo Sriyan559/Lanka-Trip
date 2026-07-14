@@ -28,7 +28,7 @@ class CategorySeeder extends Seeder
                 'name' => 'Coconut Oil',
                 'slug' => 'coconut-oil',
                 'description' => 'Virgin, organic, and refined coconut oils produced in Sri Lanka.',
-                'image' => 'https://placehold.co/900x700/fff9c4/854d0e?text=Coconut+Products',
+                'image' => 'https://images.unsplash.com/photo-1625128621059-e6859d5434a4?auto=format&fit=crop&w=900&q=80',
                 'sort_order' => 30,
             ],
             [

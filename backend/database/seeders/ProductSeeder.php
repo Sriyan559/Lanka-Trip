@@ -116,7 +116,7 @@ class ProductSeeder extends Seeder
                 'lead_time' => '21 days',
                 'port' => 'Colombo, Sri Lanka',
                 'packaging_details' => 'Food-grade HDPE drums, IBC tanks, glass bottles, or PET bottles.',
-                'featured_image' => 'https://placehold.co/900x700/fff9c4/854d0e?text=Virgin+Coconut+Oil',
+                'featured_image' => 'https://images.unsplash.com/photo-1625128621059-e6859d5434a4?auto=format&fit=crop&w=900&q=80',
                 'is_featured' => true,
                 'views_count' => 8700,
             ],
