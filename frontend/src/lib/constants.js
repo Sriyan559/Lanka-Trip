@@ -326,6 +326,37 @@ export const FOOTER_LINKS = {
   ],
 };
 
+export const FOOTER_LEGAL_LINKS = [
+  { label: 'Terms & Conditions', href: '/terms' },
+  { label: 'Fees & Payments', href: '/fees-payments' },
+  { label: 'Cancellation & Refund Policy', href: '/cancellation-refund-policy' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Shipping & Delivery Policy', href: '/shipping-delivery-policy' },
+  { label: 'Rewards Policy', href: '/rewards-policy' },
+  { label: 'Promotions Terms & Conditions', href: '/promotions-terms' },
+];
+
+export const FOOTER_APP_LINKS = [
+  {
+    enabled: true,
+    alt: 'Get the SL Beauty app on Google Play',
+    store: 'Google Play',
+    href: null,
+    imageUrl: '/images/app-badges/google-play-badge.png',
+    width: 646,
+    height: 250,
+  },
+  {
+    enabled: true,
+    alt: 'Download the SL Beauty app on the App Store',
+    store: 'App Store',
+    href: null,
+    imageUrl: '/images/app-badges/app-store-badge.svg',
+    width: 120,
+    height: 40,
+  },
+];
+
 export const NAV_DROPDOWNS = {
   'Makeup': {
     columns: [

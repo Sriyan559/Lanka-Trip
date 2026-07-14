@@ -233,12 +233,15 @@ export default function Header() {
             )}
           </Link>
 
-          <div className="relative">
+          <div className={`relative ${accountOpen ? 'z-[70]' : ''}`}>
             {isAuthenticated ? (
               <button
                 type="button"
                 onClick={() => setAccountOpen((open) => !open)}
                 className="ml-1 flex h-10 items-center gap-2 rounded-full border border-[#e4e4e4] bg-[#f7f7f7] px-2 pr-3 text-sm font-semibold text-gray-800 transition hover:bg-[#f1f1f1]"
+                aria-expanded={accountOpen}
+                aria-haspopup="menu"
+                aria-controls="profile-dropdown"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
                   {initials(user?.name || user?.email || 'User')}
@@ -256,7 +259,11 @@ export default function Header() {
             )}
 
             {accountOpen && isAuthenticated && (
-              <div className="absolute right-0 top-12 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-xl">
+              <div
+                id="profile-dropdown"
+                role="menu"
+                className="absolute right-0 top-full z-[80] mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-xl"
+              >
                 <Link href="/dashboard" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   Dashboard
                 </Link>
