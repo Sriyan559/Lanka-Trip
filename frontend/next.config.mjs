@@ -23,6 +23,11 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.tirabeauty.com',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {

@@ -5,46 +5,55 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import useCategories from '@/hooks/useCategories';
 
-const HOME_CATEGORY_CAROUSEL = [
+const CATEGORY_CAROUSEL_ITEMS = [
   {
+    slug: 'makeup',
     name: 'Makeup',
-    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=720&q=85',
+    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Hp-Makeup-Top-categories-1775901570015.jpeg',
     link: '/categories/makeup',
   },
   {
+    slug: 'skincare',
     name: 'Skincare',
-    image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=720&q=85',
+    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Skincare-1775740065304.jpeg',
     link: '/categories/skincare',
   },
   {
+    slug: 'hair-care',
     name: 'Hair',
-    image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=720&q=85',
+    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Hair-1775743606558.jpeg',
     link: '/categories/hair-care',
   },
   {
+    slug: 'fragrance',
     name: 'Fragrance',
-    image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=720&q=85',
+    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Frag-1775742093518.jpeg',
     link: '/categories/fragrance',
   },
   {
+    slug: 'bath-body',
     name: 'Bath & Body',
-    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=720&q=85',
+    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Bath-and-body-1775741959054.jpeg',
     link: '/categories/bath-body',
   },
   {
+    slug: 'mens-grooming',
     name: 'Men',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=720&q=85',
+    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Men-1775742004145.jpeg',
     link: '/categories/mens-grooming',
   },
   {
+    slug: 'wellness',
     name: 'Wellness',
-    image: '/images/categories/wellness.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=720&q=85',
     link: '/categories/wellness',
   },
 ];
 
 export default function HomeCategoryCarousel() {
+  const { categories } = useCategories();
   const [swiper, setSwiper] = useState(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
@@ -53,6 +62,14 @@ export default function HomeCategoryCarousel() {
     setAtStart(instance.isBeginning);
     setAtEnd(instance.isEnd);
   };
+
+  const carouselItems = CATEGORY_CAROUSEL_ITEMS.map((item) => {
+    const dbCategory = categories.find((cat) => cat.slug === item.slug);
+    return {
+      ...item,
+      image: dbCategory?.image || item.fallbackImage,
+    };
+  });
 
   return (
     <section aria-label="Shop product categories" className="bg-white pb-5 pt-6 sm:pb-6 sm:pt-7 lg:pt-8">
@@ -76,7 +93,7 @@ export default function HomeCategoryCarousel() {
             1280: { slidesPerView: 6, spaceBetween: 20 },
           }}
         >
-          {HOME_CATEGORY_CAROUSEL.map((category, index) => (
+          {carouselItems.map((category, index) => (
             <SwiperSlide key={category.name} className="pb-1">
               <Link
                 href={category.link}

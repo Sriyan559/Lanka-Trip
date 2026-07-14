@@ -26,14 +26,14 @@ class SlBeautyCategoryAlignmentSeeder extends Seeder
                 'name' => 'Skincare',
                 'slug' => 'skincare',
                 'description' => 'Cleansers, serums, moisturizers, sunscreen, masks, and skin treatment products.',
-                'image' => 'https://images.unsplash.com/photo-1608248597481-496100c80836?auto=format&fit=crop&w=900&q=80',
+                'image' => 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Skincare-1775740065304.jpeg',
                 'sort_order' => 1000,
             ],
             [
                 'name' => 'Bath & Body',
                 'slug' => 'bath-body',
                 'description' => 'Body wash, lotion, scrubs, hand care, body oils, and daily body care.',
-                'image' => 'https://images.unsplash.com/photo-1556228578-0085a7ab8dfa?auto=format&fit=crop&w=900&q=80',
+                'image' => 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Bath-and-body-1775741959054.jpeg',
                 'sort_order' => 1040,
             ],
             [
@@ -47,7 +47,7 @@ class SlBeautyCategoryAlignmentSeeder extends Seeder
                 'name' => "Men's Grooming",
                 'slug' => 'mens-grooming',
                 'description' => 'Shaving, beard care, hair styling, deodorant, and men skin care products.',
-                'image' => 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=900&q=80',
+                'image' => 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Men-1775742004145.jpeg',
                 'sort_order' => 1070,
             ],
             [
