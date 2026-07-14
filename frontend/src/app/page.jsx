@@ -9,6 +9,7 @@ import HomePromoVideo     from '@/components/home/HomePromoVideo';
 import HomePromotionalCarousels from '@/components/home/HomePromotionalCarousels';
 import BeautyProductShowcases from '@/components/home/BeautyProductShowcases';
 import HomeDiscoverySections from '@/components/home/HomeDiscoverySections';
+import AfterMonsoonSections from '@/components/home/AfterMonsoonSections';
 import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
 export const metadata = {
@@ -67,6 +68,7 @@ export default function HomePage() {
         <CategoryGridSection section={BEAUTY_CATEGORY_SECTION} />
         <HomePromoVideo />
         <HomePromotionalCarousels />
+        <AfterMonsoonSections />
 
       </main>
       <Footer />
