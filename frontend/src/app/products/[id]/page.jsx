@@ -21,6 +21,8 @@ const slugify = (value = '') => String(value)
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-+|-+$/g, '');
 
+const productPrimaryActionClass = 'flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
+
 function productCardFromConstant(item) {
   return {
     id: item.slug,
@@ -144,6 +146,18 @@ export default function ProductDetailPage() {
     router.push('/checkout');
   };
 
+  const handleOpenInquiry = () => {
+    const params = new URLSearchParams({
+      productId: String(product.id),
+      productName: product.name,
+      supplierName: brand?.company_name || brand?.name || 'Supplier',
+      image: images[activeImg],
+      qty: String(Math.max(product.minOrder || 1, Number(qty) || 1)),
+    });
+
+    router.push(`/inquiry/create?${params.toString()}`);
+  };
+
   return (
     <>
       <Header />
@@ -249,7 +263,7 @@ export default function ProductDetailPage() {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={buyNowLoading || qty < (product.minOrder || 1)}
-                className="w-full h-12 rounded-xl bg-primary-800 px-5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-primary-900 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
+                className={productPrimaryActionClass}
               >
                 {buyNowLoading ? (
                   <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
@@ -260,8 +274,16 @@ export default function ProductDetailPage() {
               </button>
               <button
                 type="button"
+                onClick={handleOpenInquiry}
+                className={productPrimaryActionClass}
+              >
+                <MessageCircle size={16} aria-hidden="true" />
+                <span>Send Inquiry</span>
+              </button>
+              <button
+                type="button"
                 onClick={handleChat}
-                className="w-full h-12 bg-accent-500 hover:bg-neutral-800 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                className={productPrimaryActionClass}
               >
                 <Send size={16} /> Contact Seller
               </button>

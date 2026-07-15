@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             ReportDefinitionSeeder::class,
             SettingGroupSeeder::class,
             SystemSettingSeeder::class,
+            FooterAppBadgeSeeder::class,
             FeatureFlagSeeder::class,
             PlatformConfigurationSeeder::class,
             SlBeautyConfigurationSeeder::class,

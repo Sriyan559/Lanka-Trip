@@ -1,14 +1,35 @@
-import Image from 'next/image';
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Youtube, Linkedin } from 'lucide-react';
 import { FOOTER_APP_LINKS, FOOTER_LEGAL_LINKS, FOOTER_LINKS } from '@/lib/constants';
-
-const APP_BADGE_CLASS = 'inline-flex h-[48px] w-[150px] flex-none items-center justify-center overflow-hidden rounded-md leading-none sm:h-[54px] sm:w-[170px] sm:basis-[170px]';
-const APP_BADGE_IMAGE_CLASS = 'block h-full w-full max-w-none object-contain object-center';
+import { api } from '@/lib/api/client';
+import FooterAppBadge from './FooterAppBadge';
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const enabledAppLinks = FOOTER_APP_LINKS.filter((app) => app.enabled && app.imageUrl);
+  const fallbackAppLinks = FOOTER_APP_LINKS.filter((app) => app.enabled && app.imageUrl);
+  const [enabledAppLinks, setEnabledAppLinks] = useState(fallbackAppLinks);
+
+  useEffect(() => {
+    let active = true;
+
+    api.get('/public/footer-app-badges')
+      .then((response) => {
+        const badges = response?.data?.appBadges ?? response?.appBadges;
+        if (active && Array.isArray(badges) && badges.length > 0) {
+          setEnabledAppLinks(badges.filter((app) => app.imageUrl));
+        }
+      })
+      .catch((error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Footer app badges API unavailable; using local fallback.', error);
+        }
+      });
+
+    return () => { active = false; };
+  }, []);
   return (
     <footer className="bg-gray-100 border-t border-gray-200 mt-12">
       {/* Main links grid */}
@@ -98,36 +119,10 @@ export default function Footer() {
           </nav>
 
           {enabledAppLinks.length > 0 && (
-            <div className="flex shrink-0 flex-wrap items-center gap-3 lg:justify-end" aria-label="SL Beauty mobile app availability">
-              {enabledAppLinks.map((app) => {
-                const badge = (
-                  <Image
-                    src={app.imageUrl}
-                    alt={app.alt}
-                    width={app.width}
-                    height={app.height}
-                    unoptimized
-                    className={APP_BADGE_IMAGE_CLASS}
-                  />
-                );
-
-                return app.href ? (
-                  <a
-                    key={app.store}
-                    href={app.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={app.alt}
-                  className={`${APP_BADGE_CLASS} transition duration-200 hover:-translate-y-px hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-4`}
-                  >
-                    {badge}
-                  </a>
-                ) : (
-                  <span key={app.store} className={APP_BADGE_CLASS} aria-label={app.alt}>
-                    {badge}
-                  </span>
-                );
-              })}
+            <div className="flex shrink-0 flex-wrap items-center gap-3 lg:justify-end" aria-label="Download the SL Beauty mobile app">
+              {enabledAppLinks.map((app) => (
+                <FooterAppBadge key={app.platform} app={app} />
+              ))}
             </div>
           )}
         </div>

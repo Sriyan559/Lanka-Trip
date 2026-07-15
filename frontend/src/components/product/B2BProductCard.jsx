@@ -7,7 +7,6 @@
  *  - Price range display
  *  - Brand verification badges
  *  - Add-to-basket CTA button
- *  - Chat icon button
  *  - Works in both grid and list view modes
  *
  * Connect to Laravel: product data comes from GET /api/products?... 
@@ -16,21 +15,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { BadgeCheck, Eye, MapPin, MessageCircle, PackageCheck, Star } from 'lucide-react';
+import { BadgeCheck, Eye, MapPin, PackageCheck, Star } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency } from '@/lib/utils';
 import { FALLBACK_PRODUCT_IMAGE, normalizeProduct } from '@/lib/products';
 import WishlistButton from './WishlistButton';
-import { conversationsApi } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { loginUrlFor } from '@/lib/authRedirect';
-import toast from 'react-hot-toast';
 
 export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const { addItem } = useCart();
-  const { isAuthenticated, isBuyer } = useAuth();
-  const router = useRouter();
   const normalized = normalizeProduct(product);
 
   const {
@@ -78,29 +70,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const handleInquire = (e) => {
     e.preventDefault();
     addItem(normalized);
-  };
-
-  const handleChat = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      router.push(loginUrlFor(`${window.location.pathname}${window.location.search}`));
-      return;
-    }
-    if (!isBuyer) {
-      toast.error('Only shopper accounts can start brand conversations.');
-      return;
-    }
-    if (!normalized.supplier_id) {
-      toast.error('Brand information is unavailable for this product.');
-      return;
-    }
-    try {
-      const response = await conversationsApi.create({ supplier_id: normalized.supplier_id });
-      const conversationId = response?.conversation?.id;
-      router.push(conversationId ? `/messages?id=${conversationId}` : '/messages');
-    } catch (error) {
-      toast.error(error.message || 'Could not start this conversation.');
-    }
   };
 
   /* ── Grid view (default) ──────────────────────────────── */
@@ -237,14 +206,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           >
             Add to Basket
           </button>
-          <button
-            type="button"
-            onClick={handleChat}
-            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-primary-300 hover:text-primary-700 sm:flex"
-            title="Chat with brand"
-          >
-            <MessageCircle size={14} />
-          </button>
         </div>
       </div>
     );
@@ -351,7 +312,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           </div>
           <div className="text-xs text-gray-400">/{displayUnit}</div>
         </div>
-        <div className="mt-3 grid grid-cols-1 gap-1.5 min-[420px]:grid-cols-3 sm:flex sm:w-auto sm:flex-col">
+        <div className="mt-3 grid grid-cols-1 gap-1.5 min-[420px]:grid-cols-2 sm:flex sm:w-auto sm:flex-col">
           <Link
             href={productHref}
             className="flex w-full items-center justify-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-center text-xs font-semibold text-gray-700 transition-colors hover:border-primary-300 hover:text-primary-800 sm:py-1.5"
@@ -363,13 +324,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
             className="w-full whitespace-nowrap rounded-lg bg-gradient-to-r from-primary-800 to-rose-500 px-4 py-2 text-xs font-semibold text-white transition duration-200 hover:from-primary-900 hover:to-rose-600 sm:py-1.5 shadow-sm border-0 antialiased"
           >
             Add to Basket
-          </button>
-          <button
-            type="button"
-            onClick={handleChat}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-center text-xs text-gray-600 transition-colors hover:border-primary-300 hover:text-primary-700 sm:py-1.5"
-          >
-            <MessageCircle size={12} /> Chat
           </button>
         </div>
       </div>

@@ -338,22 +338,20 @@ export const FOOTER_LEGAL_LINKS = [
 
 export const FOOTER_APP_LINKS = [
   {
+    platform: 'google_play',
+    label: 'Get it on Google Play',
     enabled: true,
-    alt: 'Get the SL Beauty app on Google Play',
-    store: 'Google Play',
-    href: null,
+    imageAlt: 'Get the SL Beauty app on Google Play',
+    storeUrl: null,
     imageUrl: '/images/app-badges/google-play-badge.png',
-    width: 646,
-    height: 250,
   },
   {
+    platform: 'app_store',
+    label: 'Download on the App Store',
     enabled: true,
-    alt: 'Download the SL Beauty app on the App Store',
-    store: 'App Store',
-    href: null,
+    imageAlt: 'Download the SL Beauty app on the App Store',
+    storeUrl: null,
     imageUrl: '/images/app-badges/app-store-badge.svg',
-    width: 120,
-    height: 40,
   },
 ];
 
