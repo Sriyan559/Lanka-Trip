@@ -11,8 +11,14 @@ const PRODUCT_IMAGES = {
   perfume: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=240&q=80',
   lotion: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=240&q=80',
   mask: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=240&q=80',
-  hairOil: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&w=240&q=80',
-  tools: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=240&q=80',
+  cream1: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=240&q=80',
+  cream2: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=240&q=80',
+  cream3: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=240&q=80',
+  cream4: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=240&q=80',
+  cream5: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=240&q=80',
+  cream6: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=240&q=80',
+  cream7: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=240&q=80',
+  cream8: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=240&q=80',
 };
 
 // This single configuration array controls panel content, artwork, images, and every destination URL.
@@ -29,12 +35,12 @@ const BEAUTY_SHOWCASES = [
   },
   {
     id: 'premium-beauty-picks', title: 'Premium Beauty Picks', viewAllUrl: '/products?collection=premium-beauty', introTitle: 'Brands To Love',
-    introDescription: 'Hair oil, beauty tools, luxury fragrance, and authorized seller favourites', shopUrl: '/brands',
+    introDescription: 'Moisturizing creams, night creams, eye creams, and everyday facial skin formulas', shopUrl: '/brands',
     backgroundImageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=80',
     introBackgroundImageUrl: 'https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?auto=format&fit=crop&w=700&q=80', variant: 'dark',
     products: [
-      ['spf-50-daily-sunscreen', 'SPF 50 Daily Sunscreen', 'sunscreen'], ['long-wear-matte-lipstick', 'Long Wear Matte Lipstick', 'lipstick'], ['bond-repair-shampoo', 'Bond Repair Shampoo', 'shampoo'], ['signature-eau-de-parfum', 'Signature Eau de Parfum', 'perfume'],
-      ['soft-glow-body-lotion', 'Soft Glow Body Lotion', 'lotion'], ['pore-care-clay-face-mask', 'Pore Care Clay Face Mask', 'mask'], ['nourishing-hair-oil', 'Nourishing Hair Oil', 'hairOil'], ['essential-beauty-tools-set', 'Essential Beauty Tools Set', 'tools'],
+      ['daily-moisturizing-cream', 'Daily Moisturizing Cream', 'cream1'], ['retinol-night-cream', 'Retinol Night Cream', 'cream2'], ['brightening-eye-cream', 'Brightening Eye Cream', 'cream3'], ['anti-wrinkle-day-cream', 'Anti-Wrinkle Day Cream', 'cream4'],
+      ['soothing-aloe-vera-cream', 'Soothing Aloe Vera Cream', 'cream5'], ['clarifying-blemish-cream', 'Clarifying Blemish Cream', 'cream6'], ['deep-hydration-water-cream', 'Deep Hydration Water Cream', 'cream7'], ['vitamin-c-radiance-cream', 'Vitamin C Radiance Cream', 'cream8'],
     ],
   },
 ].map((showcase) => ({
@@ -60,11 +66,33 @@ function ShowcasePanel({ showcase }) {
       </header>
 
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-[minmax(11rem,24%)_1fr]">
-        <aside className={`relative flex min-h-[172px] flex-col overflow-hidden p-4 sm:min-h-[220px] sm:p-5 ${dark ? 'text-white' : 'text-[#442c26]'}`}>
-          <Image src={showcase.introBackgroundImageUrl} alt="" fill unoptimized sizes="(max-width: 640px) 100vw, 280px" className="pointer-events-none object-cover" />
-          <span aria-hidden="true" className={`absolute inset-0 ${dark ? 'bg-gradient-to-br from-[#6f4b88]/90 to-[#a75062]/72' : 'bg-gradient-to-br from-[#f5cfbf]/92 to-[#f7e5bf]/72'}`} />
-          <div className="relative"><h3 className="text-sm font-bold sm:text-[15px]">{showcase.introTitle}</h3><p className={`mt-1 max-w-[13rem] text-[11px] leading-[1.45] ${dark ? 'text-white/85' : 'text-[#543832]/85'}`}>{showcase.introDescription}</p></div>
-          <Link href={showcase.shopUrl} className={`relative mt-auto inline-flex self-start rounded-full px-4 py-2 text-xs font-bold shadow-[0_5px_12px_rgba(56,28,23,0.20)] transition-shadow duration-300 hover:shadow-[0_8px_18px_rgba(56,28,23,0.32)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 motion-reduce:transition-none ${dark ? 'bg-[#fff5ed]/90 text-[#633344] focus-visible:ring-offset-[#76425b]' : 'bg-[#8b5949] text-white focus-visible:ring-offset-[#f6d7ca]'}`}>Shop Now</Link>
+        <aside className={`relative flex min-h-[172px] flex-col overflow-hidden p-4 sm:min-h-[235px] sm:p-5`}>
+          <Image 
+            src={showcase.introBackgroundImageUrl} 
+            alt="" 
+            fill 
+            unoptimized 
+            sizes="(max-width: 640px) 100vw, 280px" 
+            className="pointer-events-none object-cover blur-[0.5px]" 
+          />
+          <span 
+            aria-hidden="true" 
+            className={`absolute inset-0 bg-gradient-to-br ${dark ? 'from-[#3c172a]/92 via-[#5c2436]/85 to-[#1c081e]/90' : 'from-[#fffdfa]/95 via-[#fdf2ee]/90 to-[#f6dbcf]/85'}`} 
+          />
+          
+          <div className={`relative z-10 p-3.5 rounded-2xl border backdrop-blur-md shadow-sm ${dark ? 'bg-black/25 border-white/10 text-white' : 'bg-white/40 border-white/50 text-[#3c221a]'}`}>
+            <h3 className="text-[13px] font-extrabold uppercase tracking-wider">{showcase.introTitle}</h3>
+            <p className={`mt-1.5 max-w-[13rem] text-[11px] font-semibold leading-relaxed ${dark ? 'text-white/90' : 'text-[#5a382e]'}`}>
+              {showcase.introDescription}
+            </p>
+          </div>
+          
+          <Link 
+            href={showcase.shopUrl} 
+            className={`relative z-10 mt-auto inline-flex self-start rounded-full px-5 py-2.5 text-xs font-bold tracking-wide shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 ${dark ? 'bg-white text-stone-900 hover:bg-stone-50 focus-visible:ring-offset-[#5c2436]' : 'bg-stone-950 text-white hover:bg-stone-900 focus-visible:ring-offset-[#f6dbcf]'}`}
+          >
+            Shop Now
+          </Link>
         </aside>
 
         <ul className={`relative grid grid-cols-2 bg-white sm:grid-cols-4 ${gridBorder} border-l`}>

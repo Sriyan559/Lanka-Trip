@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Search,
   ShoppingBasket,
+  ShoppingCart,
   User,
   X,
   ChevronDown,
@@ -36,7 +37,6 @@ const BEAUTY_NAV = [
   { label: 'Hair', href: '/categories/hair' },
   { label: 'Bath & Body', href: '/categories/bath-and-body' },
   { label: 'Mini Size', href: '/categories/mini-size' },
-  { label: 'Brands', href: '/brands' },
   { label: 'Gifts & Value Sets', href: '/categories/gift-sets' },
   { label: 'Gift Cards', href: '/gift-cards' },
   { label: 'Sale & Offers', href: '/categories/sale' },
@@ -53,7 +53,11 @@ const PRIMARY_NAV = [
 export default function Header() {
   const router = useRouter();
   const { isAuthenticated, user, logout } = useAuth();
-  const { count: cartCount } = useCart();
+  const { count: cartCount, total: cartTotal } = useCart();
+  const formattedTotal = `Rs ${Number(cartTotal || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
   const [query, setQuery] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -140,6 +144,11 @@ export default function Header() {
           <Link href="/orders" className="transition-colors hover:text-primary-700">Track Order</Link>
           <span aria-hidden="true" className="h-3 border-l border-[#d9d3d2]" />
           <Link href="/help-center" className="transition-colors hover:text-primary-700">Help Centre</Link>
+          <span aria-hidden="true" className="h-3 border-l border-[#d9d3d2]" />
+          <Link href={isAuthenticated ? '/dashboard' : '/login'} className="flex items-center gap-1.5 transition-colors hover:text-primary-700">
+            <User size={13} className="text-[#36302f]" />
+            <span>{isAuthenticated ? `Welcome, ${user?.name?.split(' ')[0] || 'User'}` : 'Login'}</span>
+          </Link>
         </div>
       </div>
       {homepageConfig.announcement && (
@@ -157,11 +166,6 @@ export default function Header() {
             <span className="block text-base font-bold tracking-normal text-black">SL Beauty</span>
             <span className="block text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">Platform</span>
           </span>
-        </Link>
-
-        <Link href={isAuthenticated ? '/dashboard' : '/login'} className="hidden min-w-fit border-l border-[#e7e2e1] pl-3 text-xs leading-5 text-[#242020] transition-colors hover:text-primary-700 lg:block">
-          <span className="block">{isAuthenticated ? `Welcome, ${user?.name?.split(' ')[0] || 'Beauty Lover'}` : 'Welcome'}</span>
-          <span className="font-semibold">{isAuthenticated ? 'My Account →' : 'Login / Sign Up →'}</span>
         </Link>
 
         <nav aria-label="Primary navigation" className="hidden items-center gap-6 xl:flex">
@@ -185,7 +189,7 @@ export default function Header() {
           </button>
         </form>
 
-        <div className="ml-auto hidden items-center gap-1 md:flex">
+        <div className="ml-auto hidden items-center gap-4 md:flex">
           <Link
             href="/messages"
             className="flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#f1f1f1] hover:text-primary-700"
@@ -222,63 +226,58 @@ export default function Header() {
           </div>
           <Link
             href="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#514a49] transition hover:bg-[#f1f1f1] hover:text-primary-700"
+            className="flex items-center gap-2 text-sm font-medium text-gray-800 hover:text-primary-700 transition-colors"
             aria-label="Cart"
           >
-            <ShoppingBasket size={20} />
-            {cartCount > 0 && (
-              <span className="absolute right-0 top-0 min-w-[17px] rounded-full bg-primary-700 px-1 text-center text-[10px] font-bold leading-[17px] text-white">
-                {cartCount > 99 ? '99+' : cartCount}
+            <div className="relative p-1">
+              <ShoppingCart size={22} className="text-gray-900 stroke-[1.5]" />
+              <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-black text-[9px] font-bold text-white px-1 leading-none">
+                {cartCount || 0}
               </span>
-            )}
+            </div>
+            <span className="text-[15px] font-medium text-gray-900">Cart ({formattedTotal})</span>
           </Link>
 
-          <div className={`relative ${accountOpen ? 'z-[70]' : ''}`}>
-            {isAuthenticated ? (
+          {isAuthenticated && (
+            <div className={`relative ${accountOpen ? 'z-[70]' : ''}`}>
               <button
                 type="button"
                 onClick={() => setAccountOpen((open) => !open)}
-                className="ml-1 flex h-10 items-center gap-2 rounded-full border border-[#e4e4e4] bg-[#f7f7f7] px-2 pr-3 text-sm font-semibold text-gray-800 transition hover:bg-[#f1f1f1]"
+                className="flex items-center gap-2 text-sm font-medium text-gray-800 hover:text-primary-700 transition-colors"
                 aria-expanded={accountOpen}
                 aria-haspopup="menu"
                 aria-controls="profile-dropdown"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-950 bg-black text-[11px] font-bold text-white transition hover:bg-gray-800">
                   {initials(user?.name || user?.email || 'User')}
+                </div>
+                <span className="text-[15px] font-medium text-gray-900 max-w-[120px] truncate">
+                  {user?.name?.split(' ')[0] || 'Account'}
                 </span>
-                <span className="max-w-[120px] truncate">{user?.name || 'Account'}</span>
               </button>
-            ) : (
-              <Link
-                href="/login"
-                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#f7f7f7] text-primary-700 transition hover:bg-[#f1f1f1]"
-                aria-label="Login or create an account"
-              >
-                <User size={19} />
-              </Link>
-            )}
 
-            {accountOpen && isAuthenticated && (
-              <div
-                id="profile-dropdown"
-                role="menu"
-                className="absolute right-0 top-full z-[80] mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-xl"
-              >
-                <Link href="/dashboard" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  Dashboard
-                </Link>
-                <Link href="/orders" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  Orders
-                </Link>
-                <Link href="/settings" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  Settings
-                </Link>
-                <button onClick={handleLogout} className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50">
-                  <LogOut size={14} /> Sign Out
-                </button>
-              </div>
-            )}
-          </div>
+              {accountOpen && (
+                <div
+                  id="profile-dropdown"
+                  role="menu"
+                  className="absolute right-0 top-full z-[80] mt-2 w-56 overflow-hidden rounded-xl border border-gray-250 bg-white py-2 shadow-xl"
+                >
+                  <Link href="/dashboard" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    Dashboard
+                  </Link>
+                  <Link href="/orders" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    Orders
+                  </Link>
+                  <Link href="/settings" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    Settings
+                  </Link>
+                  <button onClick={handleLogout} className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50">
+                    <LogOut size={14} /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <button
