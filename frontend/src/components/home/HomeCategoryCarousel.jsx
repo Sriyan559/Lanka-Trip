@@ -9,6 +9,12 @@ import useCategories from '@/hooks/useCategories';
 
 const CATEGORY_CAROUSEL_ITEMS = [
   {
+    slug: 'beauty-tools',
+    name: 'Brushes',
+    fallbackImage: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=720&q=85',
+    link: '/categories/beauty-tools',
+  },
+  {
     slug: 'makeup',
     name: 'Makeup',
     fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Hp-Makeup-Top-categories-1775901570015.jpeg',
