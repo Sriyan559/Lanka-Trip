@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\FooterAppBadgeController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\InquiryCartController;
 use App\Http\Controllers\Api\MessageController;
@@ -35,6 +36,8 @@ Route::get('/health', fn () => response()->json([
     'app' => 'EcomLanka',
     'version' => '1.0.0',
 ]));
+
+Route::get('/public/footer-app-badges', [FooterAppBadgeController::class, 'index']);
 
 Route::get('/nav/menus', [HomeController::class, 'navMenus']);
 Route::get('/categories/trending', [HomeController::class, 'trendingCategories']);

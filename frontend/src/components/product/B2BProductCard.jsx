@@ -7,7 +7,6 @@
  *  - Price range display
  *  - Brand verification badges
  *  - Add-to-basket CTA button
- *  - Chat icon button
  *  - Works in both grid and list view modes
  *
  * Connect to Laravel: product data comes from GET /api/products?... 
@@ -16,21 +15,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { BadgeCheck, Eye, MapPin, MessageCircle, PackageCheck, Star } from 'lucide-react';
+import { BadgeCheck, Eye, MapPin, PackageCheck, Star } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency } from '@/lib/utils';
 import { FALLBACK_PRODUCT_IMAGE, normalizeProduct } from '@/lib/products';
 import WishlistButton from './WishlistButton';
-import { conversationsApi } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { loginUrlFor } from '@/lib/authRedirect';
-import toast from 'react-hot-toast';
 
 export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const { addItem } = useCart();
-  const { isAuthenticated, isBuyer } = useAuth();
-  const router = useRouter();
   const normalized = normalizeProduct(product);
 
   const {
@@ -80,28 +72,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
     addItem(normalized);
   };
 
-  const handleChat = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      router.push(loginUrlFor(`${window.location.pathname}${window.location.search}`));
-      return;
-    }
-    if (!isBuyer) {
-      toast.error('Only shopper accounts can start brand conversations.');
-      return;
-    }
-    if (!normalized.supplier_id) {
-      toast.error('Brand information is unavailable for this product.');
-      return;
-    }
-    try {
-      const response = await conversationsApi.create({ supplier_id: normalized.supplier_id });
-      const conversationId = response?.conversation?.id;
-      router.push(conversationId ? `/messages?id=${conversationId}` : '/messages');
-    } catch (error) {
-      toast.error(error.message || 'Could not start this conversation.');
-    }
-  };
   /* ── Grid view (default) ──────────────────────────────── */
   if (viewMode === 'grid') {
     return (
@@ -220,14 +190,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           >
             Add to Basket
           </button>
-          <button
-            type="button"
-            onClick={handleChat}
-            className="hidden h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700 transition-colors sm:flex cursor-pointer"
-            title="Chat with brand"
-          >
-            <MessageCircle size={14} />
-          </button>
         </div>
       </div>
     );
@@ -328,28 +290,29 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           </div>
           <div className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">/{displayUnit}</div>
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:w-full sm:flex-col sm:gap-2">
-          <Link
-            href={productHref}
-            className="flex items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white hover:border-stone-300 px-3 py-2 text-center text-xs font-bold uppercase tracking-wider text-stone-700 transition-colors sm:py-2"
-          >
-            <Eye size={12} /> Details
-          </Link>
-          <button
-            onClick={handleInquire}
-            className="whitespace-nowrap rounded-xl bg-gradient-to-r from-stone-950 via-stone-900 to-rose-900 hover:from-black hover:to-rose-950 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white transition-all duration-300 sm:py-2 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-[0.98] border-0 cursor-pointer"
-          >
-            Add to Basket
-          </button>
-          <button
-            type="button"
-            onClick={handleChat}
-            className="flex items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-center text-xs font-bold uppercase tracking-wider text-stone-500 hover:border-stone-300 hover:text-stone-700 transition-colors sm:py-2 cursor-pointer"
-          >
-            <MessageCircle size={12} /> Chat
-          </button>
+        <div className="mt-3 grid grid-cols-1 gap-1.5 min-[420px]:grid-cols-2 sm:flex sm:w-auto sm:flex-col">
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:w-full sm:flex-col sm:gap-2">
+            <Link
+              href={productHref}
+              className="flex items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white hover:border-stone-300 px-3 py-2 text-center text-xs font-bold uppercase tracking-wider text-stone-700 transition-colors sm:py-2"
+            >
+              <Eye size={12} /> Details
+            </Link>
+            <button
+              onClick={handleInquire}
+              className="whitespace-nowrap rounded-xl bg-gradient-to-r from-stone-950 via-stone-900 to-rose-900 hover:from-black hover:to-rose-950 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white transition-all duration-300 sm:py-2 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-[0.98] border-0 cursor-pointer"
+            >
+              Add to Basket
+            </button>
+            <button
+              type="button"
+              onClick={handleChat}
+              className="flex items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-center text-xs font-bold uppercase tracking-wider text-stone-500 hover:border-stone-300 hover:text-stone-700 transition-colors sm:py-2 cursor-pointer"
+            >
+              <MessageCircle size={12} /> Chat
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+      );
 }
