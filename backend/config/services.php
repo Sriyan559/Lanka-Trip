@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'beauty_advisor' => [
+        'enabled' => env('AI_BEAUTY_ADVISOR_ENABLED', true),
+        'provider' => env('AI_BEAUTY_ADVISOR_PROVIDER', 'gemini'),
+        'gemini' => [
+            'api_key' => env('AI_BEAUTY_ADVISOR_API_KEY'),
+            'model' => env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-1.5-flash'),
+            'timeout' => env('AI_BEAUTY_ADVISOR_TIMEOUT_SECONDS', 30),
+        ],
+    ],
+
 ];

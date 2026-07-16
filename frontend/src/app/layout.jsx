@@ -1,6 +1,7 @@
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
+import AIBeautyAdvisorWrapper from '@/components/layout/AIBeautyAdvisorWrapper';
 import './globals.css';
 
 export const metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <CartProvider>
             {children}
+            <AIBeautyAdvisorWrapper />
             <Toaster
               position="top-right"
               toastOptions={{
