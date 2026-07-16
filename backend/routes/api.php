@@ -275,3 +275,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/uploads/document', [UploadController::class, 'document']);
     Route::delete('/uploads/{id}', [UploadController::class, 'destroy'])->whereNumber('id');
 });
+
+// AI Beauty Advisor Endpoints
+Route::prefix('beauty-advisor')->group(function () {
+    Route::post('/conversations', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'startConversation']);
+    Route::get('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
+    Route::post('/conversations/{id}/new', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'newConversation'])->whereNumber('id');
+    Route::delete('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
+    Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'sendMessage'])->whereNumber('id');
+    Route::post('/conversations/{id}/profile', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'savePlan']);
+        Route::get('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'getPlans']);
+    });
+});

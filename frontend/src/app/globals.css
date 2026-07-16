@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 @import 'swiper/css';
 @import 'swiper/css/navigation';
 @import 'swiper/css/pagination';
@@ -177,6 +176,17 @@ input:focus, textarea:focus, select:focus {
 
 .animate-fade-in  { animation: fadeIn  0.18s ease both; }
 .animate-slide-up { animation: slideUp 0.18s ease both; }
+
+@keyframes voiceListeningPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); }
+  50% { box-shadow: 0 0 0 5px rgba(220, 38, 38, 0); }
+}
+
+.voice-listening-indicator { animation: voiceListeningPulse 1.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-listening-indicator { animation: none; }
+}
 
 /* ── Scrollbar none utility ── */
 .scrollbar-none::-webkit-scrollbar { display: none; }

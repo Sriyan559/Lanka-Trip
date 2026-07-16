@@ -39,11 +39,13 @@ import {
   getSlBeautyBrands,
   slBeautyPublicApi,
 } from './api/slBeauty';
+import { beautyAdvisorApi } from './api/beautyAdvisor';
 
 export {
   API_BASE,
   api,
   authApi,
+  beautyAdvisorApi,
   categoriesApi,
   clearAuthToken,
   getAuthToken,

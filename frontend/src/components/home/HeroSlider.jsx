@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import { HERO_SLIDES } from '@/lib/constants';
-import 'swiper/css';
-import 'swiper/css/pagination';
 
 export default function HeroSlider() {
   const slides = HERO_SLIDES;
