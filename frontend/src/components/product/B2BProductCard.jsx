@@ -15,14 +15,21 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { BadgeCheck, Eye, MapPin, PackageCheck, Star } from 'lucide-react';
+import { BadgeCheck, Eye, MapPin, PackageCheck, Star, MessageCircle } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency } from '@/lib/utils';
 import { FALLBACK_PRODUCT_IMAGE, normalizeProduct } from '@/lib/products';
 import WishlistButton from './WishlistButton';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { conversationsApi } from '@/lib/api';
+import { loginUrlFor } from '@/lib/authRedirect';
+import toast from 'react-hot-toast';
 
 export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const { addItem } = useCart();
+  const router = useRouter();
+  const { isAuthenticated, isBuyer } = useAuth();
   const normalized = normalizeProduct(product);
 
   const {
@@ -33,6 +40,7 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
     image,
     supplier, supplierLocation,
     audited = false, category,
+    supplier_id,
   } = normalized;
 
   const displayUnit = unit || moqUnit || 'Piece';
@@ -70,6 +78,24 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
   const handleInquire = (e) => {
     e.preventDefault();
     addItem(normalized);
+  };
+
+  const handleChat = async () => {
+    if (!isAuthenticated) {
+      router.push(loginUrlFor(`/products/${id || slug || ''}`));
+      return;
+    }
+    if (!isBuyer) {
+      toast.error('Only shopper accounts can start brand conversations.');
+      return;
+    }
+    try {
+      const response = await conversationsApi.create({ supplier_id: supplier?.id || supplier_id });
+      const conversationId = response?.conversation?.id;
+      router.push(conversationId ? `/messages?id=${conversationId}` : '/messages');
+    } catch (chatError) {
+      toast.error(chatError?.message || 'Could not start this conversation.');
+    }
   };
 
   /* ── Grid view (default) ──────────────────────────────── */
@@ -314,5 +340,6 @@ export default function B2BProductCard({ product, viewMode = 'grid' }) {
           </div>
         </div>
       </div>
-      );
+    </div>
+  );
 }
