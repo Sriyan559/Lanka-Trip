@@ -79,12 +79,11 @@ export default function Header() {
     closeMenuTimerRef.current = window.setTimeout(() => setHoveredCategory(null), 150);
   };
 
-  const handleOpenAdvisor = (event) => {
+  const closeHeaderMenus = () => {
     setHoveredCategory(null);
     setAccountOpen(false);
     setNotificationsOpen(false);
     setMobileOpen(false);
-    window.dispatchEvent(new CustomEvent('sl-beauty:open-ai-advisor', { detail: { origin: event.currentTarget } }));
   };
 
   const toggleMobileCategory = (label) => {
@@ -267,7 +266,7 @@ export default function Header() {
               </div>
             )}
           </div>
-          <HeaderAIAdvisorButton onOpen={handleOpenAdvisor} />
+          <HeaderAIAdvisorButton onNavigate={closeHeaderMenus} />
           <Link
             href="/cart"
             className="flex items-center gap-2 text-sm font-medium text-gray-800 hover:text-primary-700 transition-colors"
@@ -325,7 +324,7 @@ export default function Header() {
         </div>
 
         <div className="ml-auto flex items-center gap-1 md:hidden">
-          <HeaderAIAdvisorButton onOpen={handleOpenAdvisor} mobile />
+          <HeaderAIAdvisorButton mobile onNavigate={closeHeaderMenus} />
           <Link href="/cart" className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-800 hover:bg-gray-100" aria-label={`Cart with ${cartCount || 0} items`}>
             <ShoppingCart size={21} />
             <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-1 text-[9px] font-bold text-white">{cartCount || 0}</span>

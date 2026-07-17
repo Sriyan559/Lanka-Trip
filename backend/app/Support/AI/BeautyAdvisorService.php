@@ -112,6 +112,10 @@ class BeautyAdvisorService
             'content' => $userMessage,
         ]);
 
+        if (empty($conversation->title)) {
+            $conversation->update(['title' => mb_strimwidth(trim($userMessage), 0, 70, '…')]);
+        }
+
         $profile = $conversation->profile_context ?: [];
         $language = $this->languages->normalize($profile['language'] ?? $conversation->language);
         $intent = $this->intents->classify($userMessage);

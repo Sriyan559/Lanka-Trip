@@ -4,7 +4,7 @@ namespace App\Support\AI;
 
 class BeautyAdvisorLanguageService
 {
-    public const SUPPORTED = ['en', 'si', 'ta', 'zh-CN', 'zh-TW', 'ko', 'hi'];
+    public const SUPPORTED = ['en', 'si', 'ta', 'zh-CN', 'zh-TW', 'ko', 'hi', 'dv'];
 
     public function normalize(?string $language): string
     {

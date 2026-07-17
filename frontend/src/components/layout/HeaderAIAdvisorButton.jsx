@@ -1,17 +1,25 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-export default function HeaderAIAdvisorButton({ onOpen, mobile = false }) {
+export default function HeaderAIAdvisorButton({ mobile = false, onNavigate }) {
+  const pathname = usePathname();
+  const active = pathname === '/ai-advisor';
   return (
     <div className="header-ai-advisor-wrap">
-      <button
-        type="button"
-        className={`header-ai-advisor-button ${mobile ? 'header-ai-advisor-button--mobile' : ''}`}
+      <Link
+        href="/ai-advisor"
+        className={`header-ai-advisor-button ${mobile ? 'header-ai-advisor-button--mobile' : ''} ${active ? 'header-ai-advisor-button--active' : ''}`}
         aria-label="Open SL Beauty AI Advisor"
+        aria-current={active ? 'page' : undefined}
         aria-describedby={mobile ? undefined : 'header-ai-advisor-tooltip'}
         title="SL Beauty AI Advisor"
-        onClick={onOpen}
+        onClick={(event) => {
+          onNavigate?.();
+          if (active) event.preventDefault();
+        }}
       >
         <Image
           src="/images/ai-advisor/diamond-icon.png"
@@ -22,7 +30,7 @@ export default function HeaderAIAdvisorButton({ onOpen, mobile = false }) {
           priority={false}
           className="header-ai-advisor-icon"
         />
-      </button>
+      </Link>
       {!mobile && <span id="header-ai-advisor-tooltip" role="tooltip" className="header-ai-advisor-tooltip">SL Beauty AI Advisor</span>}
 
       <style jsx global>{`
@@ -45,6 +53,7 @@ export default function HeaderAIAdvisorButton({ onOpen, mobile = false }) {
         }
         .header-ai-advisor-icon { position: relative; z-index: 2; display: block; width: 31px; height: 31px; object-fit: contain; filter: drop-shadow(0 0 4px rgba(96,205,255,.8)); }
         .header-ai-advisor-button:hover { background: #f7f7f7; transform: translateY(-1px); }
+        .header-ai-advisor-button--active { background: #eefaff; box-shadow: inset 0 0 0 1px rgba(56,189,248,.35); }
         .header-ai-advisor-button:active { transform: scale(.96); }
         .header-ai-advisor-button:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
         .header-ai-advisor-tooltip {

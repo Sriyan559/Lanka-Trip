@@ -6,6 +6,7 @@ export const ADVISOR_LANGUAGES = [
   { code: 'zh-TW', label: '繁體中文', speech: 'zh-TW' },
   { code: 'ko', label: '한국어', speech: 'ko-KR' },
   { code: 'hi', label: 'हिन्दी', speech: 'hi-IN' },
+  { code: 'dv', label: 'ދިވެހި', speech: 'dv-MV' },
 ];
 
 const en = {
@@ -23,6 +24,7 @@ export const advisorTranslations = {
   'zh-TW': { ...en, subtitle:'您的私人美容顧問', start:'開始諮詢', back:'返回', skip:'跳過', continue:'繼續', step:'第 {current} 步，共 {total} 步', welcome:'今天需要什麼協助？', review:'查看您的美容檔案', edit:'編輯', retry:'重試', finish:'建立我的美容方案', sources:'來源', helpful:'有幫助', notHelpful:'沒有幫助', searching:'正在搜尋可信美容來源…', placeholder:'詢問護膚、彩妝、香水或產品…' },
   ko: { ...en, subtitle:'나만의 뷰티 큐레이터', start:'상담 시작', back:'뒤로', skip:'건너뛰기', continue:'계속', step:'{total}단계 중 {current}단계', welcome:'오늘 무엇을 도와드릴까요?', review:'뷰티 프로필 검토', edit:'수정', retry:'다시 시도', finish:'뷰티 플랜 만들기', sources:'출처', helpful:'도움이 됨', notHelpful:'도움이 안 됨', searching:'신뢰할 수 있는 뷰티 출처를 검색 중…', placeholder:'스킨케어, 메이크업, 향수 또는 제품에 대해 물어보세요…' },
   hi: { ...en, subtitle:'आपका निजी ब्यूटी क्यूरेटर', start:'परामर्श शुरू करें', back:'वापस', skip:'छोड़ें', continue:'जारी रखें', step:'{total} में से चरण {current}', welcome:'आज आपको किस चीज़ में मदद चाहिए?', review:'अपनी ब्यूटी प्रोफ़ाइल देखें', edit:'संपादित करें', retry:'फिर कोशिश करें', finish:'मेरा ब्यूटी प्लान बनाएँ', sources:'स्रोत', helpful:'मददगार', notHelpful:'मददगार नहीं', searching:'विश्वसनीय ब्यूटी स्रोत खोजे जा रहे हैं…', placeholder:'स्किनकेयर, मेकअप, खुशबू या उत्पादों के बारे में पूछें…' },
+  dv: { ...en, subtitle:'ތިބާގެ އަމިއްލަ ރީތިކަން ލަފާދެންތެރި', start:'މަޝްވަރާ ފަށަން', back:'ފަހަތަށް', continue:'ކުރިއަށް', welcome:'މިއަދު ކޮން ކަމަކަށް އެހީވެދެވޭނީ؟', retry:'އަލުން އުޅޭ', sources:'މަސްދަރުތައް', helpful:'ފައިދާހުރި', notHelpful:'ފައިދާއެއް ނެތް', searching:'އިތުބާރުހުރި ރީތިކަން މަސްދަރުތައް ހޯދަނީ…', placeholder:'ސްކިންކެއަރ، މޭކަޕ، ވަސް ނުވަތަ ޕްރޮޑަކްޓްތަކާ މެދު ސުވާލު ކުރޭ…' },
 };
 
 export const tAdvisor = (language, key, vars = {}) => {

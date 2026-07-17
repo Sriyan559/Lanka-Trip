@@ -11,6 +11,23 @@ export const beautyAdvisorApi = {
         return api.get(`/beauty-advisor/conversations/${id}`, { headers });
     },
 
+    listConversations: (guestSessionId = null) => {
+        const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
+        return api.get('/beauty-advisor/conversations', { headers });
+    },
+    activateConversation: (id, guestSessionId = null) => {
+        const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
+        return api.post(`/beauty-advisor/conversations/${id}/activate`, {}, { headers });
+    },
+    renameConversation: (id, title, guestSessionId = null) => {
+        const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
+        return api.patch(`/beauty-advisor/conversations/${id}`, { title }, { headers });
+    },
+    deleteConversation: (id, guestSessionId = null) => {
+        const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
+        return api.delete(`/beauty-advisor/conversations/${id}`, { headers });
+    },
+
     newConversation: (id, guestSessionId = null) => {
         const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
         return api.post(`/beauty-advisor/conversations/${id}/new`, {}, { headers });

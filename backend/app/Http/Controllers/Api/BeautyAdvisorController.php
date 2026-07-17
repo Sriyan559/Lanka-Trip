@@ -106,6 +106,51 @@ class BeautyAdvisorController extends Controller
         ]);
     }
 
+    public function listConversations(Request $request): JsonResponse
+    {
+        $user = $request->user('sanctum');
+        $guest = $request->header('X-Guest-Session-Id') ?: $request->input('guest_session_id');
+        if (!$user && !$guest) return $this->errorResponse('Guest session identifier is required.', Response::HTTP_BAD_REQUEST);
+        $query = AiAdvisorConversation::query()->withCount('messages')->with(['messages' => fn ($q) => $q->where('role', 'user')->oldest()->limit(1)]);
+        $user ? $query->where('user_id', $user->id) : $query->where('guest_session_id', $guest);
+        $conversations = $query->latest('updated_at')->limit(30)->get()->map(function ($conversation) {
+            $conversation->title = $conversation->title ?: mb_strimwidth($conversation->messages->first()?->content ?: 'New conversation', 0, 70, '…');
+            unset($conversation->messages);
+            return $conversation;
+        });
+        return $this->successResponse(['conversations' => $conversations]);
+    }
+
+    public function activateConversation(Request $request, int $id): JsonResponse
+    {
+        $conversation = AiAdvisorConversation::findOrFail($id);
+        if (!$this->checkOwnership($conversation, $request)) return $this->errorResponse('Access denied to conversation.', Response::HTTP_FORBIDDEN);
+        DB::transaction(function () use ($conversation) {
+            AiAdvisorConversation::query()->whereKeyNot($conversation->id)
+                ->when($conversation->user_id, fn ($q) => $q->where('user_id', $conversation->user_id), fn ($q) => $q->where('guest_session_id', $conversation->guest_session_id))
+                ->where('status', 'active')->update(['status' => 'archived']);
+            $conversation->update(['status' => 'active']);
+        });
+        return $this->successResponse(['conversation' => $conversation->fresh()]);
+    }
+
+    public function renameConversation(Request $request, int $id): JsonResponse
+    {
+        $conversation = AiAdvisorConversation::findOrFail($id);
+        if (!$this->checkOwnership($conversation, $request)) return $this->errorResponse('Access denied to conversation.', Response::HTTP_FORBIDDEN);
+        $data = $request->validate(['title' => 'required|string|max:160']);
+        $conversation->update(['title' => trim($data['title'])]);
+        return $this->successResponse(['conversation' => $conversation->fresh()]);
+    }
+
+    public function deleteConversation(Request $request, int $id): JsonResponse
+    {
+        $conversation = AiAdvisorConversation::findOrFail($id);
+        if (!$this->checkOwnership($conversation, $request)) return $this->errorResponse('Access denied to conversation.', Response::HTTP_FORBIDDEN);
+        $conversation->delete();
+        return $this->successResponse([], 'Conversation deleted.');
+    }
+
     /**
      * Archive the current conversation and create a fresh active conversation.
      */

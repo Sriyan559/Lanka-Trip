@@ -279,8 +279,12 @@ Route::middleware('auth:sanctum')->group(function () {
 // AI Beauty Advisor Endpoints
 Route::prefix('beauty-advisor')->group(function () {
     Route::post('/conversations', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'startConversation']);
+    Route::get('/conversations', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'listConversations']);
     Route::get('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
     Route::post('/conversations/{id}/new', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'newConversation'])->whereNumber('id');
+    Route::post('/conversations/{id}/activate', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'activateConversation'])->whereNumber('id');
+    Route::patch('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'renameConversation'])->whereNumber('id');
+    Route::delete('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'deleteConversation'])->whereNumber('id');
     Route::delete('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
     Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'sendMessage'])->middleware('throttle:30,1')->whereNumber('id');
     Route::post('/conversations/{id}/profile', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');

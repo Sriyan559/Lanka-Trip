@@ -20,16 +20,16 @@ export default function AIBeautyAdvisorWrapper() {
   }, []);
 
   useEffect(() => {
-    const openFromHeader = (event) => {
-      originElementRef.current = event.detail?.origin || null;
-      setIsOpen(true);
-    };
-    window.addEventListener('sl-beauty:open-ai-advisor', openFromHeader);
-    return () => window.removeEventListener('sl-beauty:open-ai-advisor', openFromHeader);
-  }, []);
-
-  useEffect(() => {
     if (!hasMounted) return;
+
+    if (pathname === '/ai-advisor') {
+      setIsOpen(false);
+      if (autoOpenTimerRef.current) {
+        window.clearTimeout(autoOpenTimerRef.current);
+        autoOpenTimerRef.current = null;
+      }
+      return;
+    }
 
     if (pathname !== '/') {
       hasAutoOpenedRef.current = false;
@@ -65,9 +65,11 @@ export default function AIBeautyAdvisorWrapper() {
     setIsOpen(false);
   };
 
+  if (pathname === '/ai-advisor') return null;
+
   return (
     <>
-      <AIBeautyAdvisorLauncher onClick={handleOpen} isOpen={isOpen} />
+      {pathname !== '/ai-advisor' && <AIBeautyAdvisorLauncher onClick={handleOpen} isOpen={isOpen} />}
       <AIBeautyAdvisorModal 
         isOpen={isOpen} 
         onClose={handleClose} 

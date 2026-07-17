@@ -12,6 +12,7 @@ class AiAdvisorConversation extends Model
         'user_id',
         'guest_session_id',
         'status',
+        'title',
         'language',
         'stage',
         'prompt_version',

@@ -269,6 +269,10 @@ class AIBeautyAdvisorApiTest extends TestCase
         $this->actingAs($this->user, 'sanctum')->postJson("/api/beauty-advisor/conversations/{$conversation->id}/profile", [
             'profile_context' => ['language' => 'zh-CN'],
         ])->assertOk()->assertJsonPath('conversation.profile_context.language', 'zh-CN');
+
+        $this->actingAs($this->user, 'sanctum')->postJson("/api/beauty-advisor/conversations/{$conversation->id}/profile", [
+            'profile_context' => ['language' => 'dv'],
+        ])->assertOk()->assertJsonPath('conversation.profile_context.language', 'dv');
     }
 
     public function test_safety_sensitive_question_is_intercepted_without_product_recommendations(): void
@@ -292,5 +296,23 @@ class AIBeautyAdvisorApiTest extends TestCase
         $this->postJson("/api/beauty-advisor/messages/{$message->id}/feedback", ['feedback_type' => 'helpful'], ['X-Guest-Session-Id' => $guest])
             ->assertOk()->assertJsonPath('feedback.language', 'ta');
         $this->assertDatabaseHas('ai_advisor_feedback', ['message_id' => $message->id, 'feedback_type' => 'helpful']);
+    }
+
+    public function test_user_can_manage_owned_conversation_history(): void
+    {
+        $older = AiAdvisorConversation::create(['user_id' => $this->user->id, 'status' => 'archived', 'title' => 'Dry skin routine']);
+        $active = AiAdvisorConversation::create(['user_id' => $this->user->id, 'status' => 'active', 'title' => 'Current chat']);
+        $foreign = AiAdvisorConversation::create(['user_id' => $this->otherUser->id, 'status' => 'active', 'title' => 'Private']);
+
+        $this->actingAs($this->user, 'sanctum')->getJson('/api/beauty-advisor/conversations')
+            ->assertOk()->assertJsonCount(2, 'conversations');
+        $this->actingAs($this->user, 'sanctum')->patchJson("/api/beauty-advisor/conversations/{$older->id}", ['title' => 'Renamed routine'])
+            ->assertOk()->assertJsonPath('conversation.title', 'Renamed routine');
+        $this->actingAs($this->user, 'sanctum')->postJson("/api/beauty-advisor/conversations/{$older->id}/activate")
+            ->assertOk()->assertJsonPath('conversation.status', 'active');
+        $this->assertSame('archived', $active->fresh()->status);
+        $this->actingAs($this->user, 'sanctum')->deleteJson("/api/beauty-advisor/conversations/{$foreign->id}")->assertForbidden();
+        $this->actingAs($this->user, 'sanctum')->deleteJson("/api/beauty-advisor/conversations/{$older->id}")->assertOk();
+        $this->assertDatabaseMissing('ai_advisor_conversations', ['id' => $older->id]);
     }
 }
