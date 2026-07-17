@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AiAdvisorConversation;
 use App\Models\AiAdvisorSavedPlan;
+use App\Models\AiAdvisorMessage;
+use App\Models\AiAdvisorFeedback;
 use App\Support\AI\BeautyAdvisorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -176,6 +178,31 @@ class BeautyAdvisorController extends Controller
         ]);
     }
 
+    public function feedback(Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate([
+            'feedback_type' => ['required', Rule::in(['helpful', 'not_helpful', 'incorrect_product', 'outdated_information', 'translation_problem', 'source_problem', 'unsafe', 'other'])],
+            'comment' => 'nullable|string|max:1000',
+        ]);
+        $message = AiAdvisorMessage::with('conversation')->findOrFail($id);
+        if ($message->role !== 'assistant' || !$this->checkOwnership($message->conversation, $request)) {
+            return $this->errorResponse('Access denied to message.', Response::HTTP_FORBIDDEN);
+        }
+        $structured = $message->structured_data ?: [];
+        $actor = $request->user('sanctum');
+        $guest = $actor ? null : ($request->header('X-Guest-Session-Id') ?: $request->input('guest_session_id'));
+        $feedback = AiAdvisorFeedback::updateOrCreate([
+            'message_id' => $message->id, 'user_id' => $actor?->id, 'guest_session_id' => $guest,
+        ], [
+            'conversation_id' => $message->conversation_id, 'feedback_type' => $data['feedback_type'],
+            'language' => $structured['language'] ?? 'en', 'intent' => $structured['intent'] ?? null,
+            'source_urls' => array_values(array_filter(array_column($structured['sources'] ?? [], 'url'))),
+            'prompt_version' => (string) config('services.beauty_advisor.prompt_version'),
+            'model_version' => $message->model, 'comment' => $data['comment'] ?? null,
+        ]);
+        return $this->successResponse(['feedback' => $feedback], 'Thank you for your feedback.');
+    }
+
     /**
      * Update user profile context inside conversation.
      */
@@ -183,7 +210,7 @@ class BeautyAdvisorController extends Controller
     {
         $request->validate([
             'profile_context' => 'required|array',
-            'profile_context.language' => ['sometimes', Rule::in(['en', 'si', 'ta'])],
+            'profile_context.language' => ['sometimes', Rule::in(\App\Support\AI\BeautyAdvisorLanguageService::SUPPORTED)],
             'profile_context.goal' => ['sometimes', Rule::in(['skincare', 'haircare', 'makeup', 'fragrance', 'ingredients', 'gift', 'routine', 'offers'])],
             'profile_context.consultationStep' => 'sometimes|integer|min:0|max:20',
             'profile_context.concerns' => 'sometimes|array|max:12',
@@ -220,7 +247,7 @@ class BeautyAdvisorController extends Controller
             'title' => 'required|string|max:255',
             'profile_context' => 'required|array',
             'routine_data' => 'required|array',
-            'language' => ['sometimes', Rule::in(['en', 'si', 'ta'])],
+            'language' => ['sometimes', Rule::in(\App\Support\AI\BeautyAdvisorLanguageService::SUPPORTED)],
             'recommended_product_ids' => 'sometimes|array|max:30',
             'recommended_product_ids.*' => 'integer|exists:products,id',
             'estimated_total' => 'sometimes|numeric|min:0',

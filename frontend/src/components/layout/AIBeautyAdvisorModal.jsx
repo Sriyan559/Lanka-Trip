@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Sparkles, Trash2, BookOpen, AlertCircle, ShoppingBag, MessageSquarePlus, Mic, MicOff, RefreshCw, ShieldAlert } from 'lucide-react';
+import { X, Send, Sparkles, Trash2, BookOpen, AlertCircle, ShoppingBag, MessageSquarePlus, Mic, MicOff, RefreshCw, ShieldAlert, ThumbsUp, ThumbsDown, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { beautyAdvisorApi } from '@/lib/api';
 import { starRating, formatCurrency } from '@/lib/utils';
@@ -76,7 +76,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
       }
       setGuestSessionId(gid);
       const savedLanguage = localStorage.getItem('slBeautyAdvisorLanguage');
-      if (['en', 'si', 'ta'].includes(savedLanguage)) setLanguage(savedLanguage);
+      if (ADVISOR_LANGUAGES.some((item) => item.code === savedLanguage)) setLanguage(savedLanguage);
     }
   }, []);
 
@@ -460,6 +460,15 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
     }
   };
 
+  const handleFeedback = async (messageId, feedbackType) => {
+    try {
+      await beautyAdvisorApi.sendFeedback(messageId, feedbackType, guestSessionId);
+      toast.success('Thank you for helping us improve.');
+    } catch {
+      toast.error('Could not save feedback. Please retry.');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -593,6 +602,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
                 {/* Message Bubble */}
                 <div className="space-y-3">
                   <div
+                    lang={data.language || language}
                     className={`rounded-2xl p-3 text-xs sm:text-sm leading-relaxed shadow-sm ${
                       isAssistant
                         ? 'bg-white border border-[#edebeb] text-gray-700'
@@ -646,6 +656,29 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
                       <span className="text-[9px] sm:text-[10px] text-amber-800 leading-normal">
                         {data.disclaimer}
                       </span>
+                    </div>
+                  )}
+
+                  {isAssistant && data.sources?.length > 0 && (
+                    <details className="max-w-sm rounded-xl border border-gray-200 bg-white p-3 text-xs">
+                      <summary className="cursor-pointer font-bold text-gray-800">{tAdvisor(language, 'sources')} ({data.sources.length})</summary>
+                      <ol className="mt-2 space-y-2">
+                        {data.sources.map((source, sourceIndex) => (
+                          <li key={source.url} className="text-gray-600">
+                            <a href={source.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-700 underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700" aria-label={`${source.title} (opens in a new tab)`}>
+                              [{sourceIndex + 1}] {source.title} <ExternalLink size={11} className="inline" />
+                            </a>
+                            <span className="block text-[10px]">{source.publisher}{source.publishedAt ? ` · ${source.publishedAt}` : ''}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  )}
+
+                  {isAssistant && msg.id && (
+                    <div className="flex items-center gap-1" aria-label="Rate this answer">
+                      <button type="button" onClick={() => handleFeedback(msg.id, 'helpful')} className="flex min-h-11 items-center gap-1 rounded-lg px-2 text-[10px] text-gray-500 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700"><ThumbsUp size={12}/>{tAdvisor(language,'helpful')}</button>
+                      <button type="button" onClick={() => handleFeedback(msg.id, 'not_helpful')} className="flex min-h-11 items-center gap-1 rounded-lg px-2 text-[10px] text-gray-500 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700"><ThumbsDown size={12}/>{tAdvisor(language,'notHelpful')}</button>
                     </div>
                   )}
 
@@ -721,7 +754,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
               </div>
               <div className="bg-white rounded-2xl border border-[#edebeb] p-3 text-xs text-gray-500 flex items-center gap-1.5 shadow-sm select-none">
                 <RefreshCw size={12} className="animate-spin text-primary-700" />
-                Searching grounding database and formulating advice...
+                {tAdvisor(language, 'searching')}
               </div>
             </div>
           )}
@@ -839,7 +872,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
               }}
               maxLength={1000}
               rows={1}
-              placeholder="Ask about skincare, makeup, fragrance, or products..."
+              placeholder={tAdvisor(language, 'placeholder')}
               className="max-h-24 min-h-10 flex-1 resize-none bg-transparent px-3 py-2 text-xs sm:text-sm text-gray-800 outline-none placeholder:text-gray-400 border-0"
               disabled={isLoading}
               aria-label="Ask about skincare, makeup, fragrance, or products"

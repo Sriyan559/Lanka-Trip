@@ -42,8 +42,19 @@ return [
         'provider' => env('AI_BEAUTY_ADVISOR_PROVIDER', 'gemini'),
         'gemini' => [
             'api_key' => env('AI_BEAUTY_ADVISOR_API_KEY'),
-            'model' => env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-1.5-flash'),
+            'model' => env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-2.5-flash'),
             'timeout' => env('AI_BEAUTY_ADVISOR_TIMEOUT_SECONDS', 30),
+        ],
+        'web' => [
+            'enabled' => env('AI_BEAUTY_WEB_SEARCH_ENABLED', false),
+            'provider' => env('AI_BEAUTY_WEB_SEARCH_PROVIDER'),
+            'api_key' => env('AI_BEAUTY_WEB_SEARCH_API_KEY'),
+            'endpoint' => env('AI_BEAUTY_WEB_SEARCH_ENDPOINT'),
+            'max_results' => env('AI_BEAUTY_WEB_SEARCH_MAX_RESULTS', 6),
+            'timeout' => env('AI_BEAUTY_WEB_SEARCH_TIMEOUT_SECONDS', 15),
+            'cache_minutes' => env('AI_BEAUTY_WEB_SEARCH_CACHE_MINUTES', 60),
+            'allowed_domains' => env('AI_BEAUTY_SEARCH_ALLOWED_DOMAINS', ''),
+            'blocked_domains' => env('AI_BEAUTY_SEARCH_BLOCKED_DOMAINS', ''),
         ],
     ],
 

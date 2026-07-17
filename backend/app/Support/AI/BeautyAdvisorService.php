@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class BeautyAdvisorService
 {
+    public function __construct(
+        private BeautyAdvisorLanguageService $languages,
+        private BeautyAdvisorIntentService $intents,
+        private BeautyAdvisorSafetyService $safety,
+        private BeautyAdvisorWebSearchService $webSearch,
+        private BeautyAdvisorResponseValidator $validator,
+    ) {}
     /**
      * Get the active AI provider based on configuration.
      */
@@ -27,7 +34,7 @@ class BeautyAdvisorService
 
         if ($provider === 'gemini') {
             $apiKey = config('services.beauty_advisor.gemini.api_key', env('AI_BEAUTY_ADVISOR_API_KEY'));
-            $model = config('services.beauty_advisor.gemini.model', env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-1.5-flash'));
+            $model = config('services.beauty_advisor.gemini.model', env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-2.5-flash'));
             $timeout = (int) config('services.beauty_advisor.gemini.timeout', env('AI_BEAUTY_ADVISOR_TIMEOUT_SECONDS', 30));
             if (empty($apiKey)) {
                 throw new \RuntimeException('Beauty Advisor provider is not configured.');
@@ -105,6 +112,19 @@ class BeautyAdvisorService
             'content' => $userMessage,
         ]);
 
+        $profile = $conversation->profile_context ?: [];
+        $language = $this->languages->normalize($profile['language'] ?? $conversation->language);
+        $intent = $this->intents->classify($userMessage);
+
+        // Deterministic safety handling happens before any external provider call.
+        if ($safeResponse = $this->safety->intercept($userMessage, $language)) {
+            return AiAdvisorMessage::create([
+                'conversation_id' => $conversation->id, 'role' => 'assistant',
+                'content' => $safeResponse['reply'], 'structured_data' => $safeResponse,
+                'provider' => 'safety', 'model' => 'rules-v1',
+            ]);
+        }
+
         // 2. Load conversation history
         $history = $conversation->messages()
             ->orderBy('id', 'asc')
@@ -113,26 +133,23 @@ class BeautyAdvisorService
             ->toArray();
 
         // 3. Fetch grounding products
-        $profile = $conversation->profile_context ?: [];
         $groundingProducts = $this->getGroundingProducts($profile);
+
+        $web = $intent['requires_web'] ? $this->webSearch->search($userMessage, $language) : ['sources' => [], 'unavailable' => false];
+        $profile['_advisor_language'] = $language;
+        $profile['_intent'] = $intent['intent'];
+        $profile['_web_sources'] = $web['sources'];
+        $profile['_web_verification_unavailable'] = $web['unavailable'] && $intent['requires_web'];
 
         // 4. Invoke provider
         $provider = $this->getProvider();
         $response = $provider->respond($history, $profile, $groundingProducts);
 
-        // 5. Validate output product IDs against database
-        $validatedProductIds = [];
-        if (!empty($response['recommendedProductIds'])) {
-            $groundedIds = array_map(fn ($product) => (int) $product['id'], $groundingProducts);
-            $rawIds = array_intersect(array_map('intval', $response['recommendedProductIds']), $groundedIds);
-            $validatedProductIds = Product::query()
-                ->active()
-                ->whereIn('id', $rawIds)
-                ->pluck('id')
-                ->map(fn($id) => (string) $id)
-                ->toArray();
-        }
-        $response['recommendedProductIds'] = $validatedProductIds;
+        // 5. Validate all model-controlled fields and revalidate product IDs.
+        $groundedIds = array_map(fn ($product) => (int) $product['id'], $groundingProducts);
+        $activeIds = Product::query()->active()->whereIn('id', $groundedIds)->pluck('id')->all();
+        $response = $this->validator->validate($response, $language, $intent['intent'], $activeIds, $web['sources']);
+        $validatedProductIds = $response['recommendedProductIds'];
 
         // Strip invalid productIds from routine steps
         if (!empty($response['routine'])) {
@@ -150,7 +167,7 @@ class BeautyAdvisorService
             'content' => $response['reply'] ?? '',
             'structured_data' => $response,
             'provider' => config('services.beauty_advisor.provider', 'gemini'),
-            'model' => env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-1.5-flash'),
+            'model' => config('services.beauty_advisor.gemini.model'),
         ]);
 
         return $assistantMsg;

@@ -282,8 +282,9 @@ Route::prefix('beauty-advisor')->group(function () {
     Route::get('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
     Route::post('/conversations/{id}/new', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'newConversation'])->whereNumber('id');
     Route::delete('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
-    Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'sendMessage'])->whereNumber('id');
+    Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'sendMessage'])->middleware('throttle:30,1')->whereNumber('id');
     Route::post('/conversations/{id}/profile', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');
+    Route::post('/messages/{id}/feedback', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'feedback'])->middleware('throttle:20,1')->whereNumber('id');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'savePlan']);

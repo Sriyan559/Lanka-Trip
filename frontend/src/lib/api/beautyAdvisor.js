@@ -26,6 +26,11 @@ export const beautyAdvisorApi = {
         return api.post(`/beauty-advisor/conversations/${id}/messages`, { message }, { headers });
     },
 
+    sendFeedback: (id, feedbackType, guestSessionId = null, comment = null) => {
+        const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
+        return api.post(`/beauty-advisor/messages/${id}/feedback`, { feedback_type: feedbackType, comment }, { headers });
+    },
+
     updateProfile: (id, profileContext, guestSessionId = null) => {
         const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
         return api.post(`/beauty-advisor/conversations/${id}/profile`, { profile_context: profileContext }, { headers });

@@ -262,4 +262,35 @@ class AIBeautyAdvisorApiTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonCount(1, 'plans');
     }
+
+    public function test_supported_multilingual_language_is_persisted(): void
+    {
+        $conversation = AiAdvisorConversation::create(['user_id' => $this->user->id, 'status' => 'active']);
+        $this->actingAs($this->user, 'sanctum')->postJson("/api/beauty-advisor/conversations/{$conversation->id}/profile", [
+            'profile_context' => ['language' => 'zh-CN'],
+        ])->assertOk()->assertJsonPath('conversation.profile_context.language', 'zh-CN');
+    }
+
+    public function test_safety_sensitive_question_is_intercepted_without_product_recommendations(): void
+    {
+        $conversation = AiAdvisorConversation::create(['user_id' => $this->user->id, 'status' => 'active', 'profile_context' => ['language' => 'en']]);
+        $this->actingAs($this->user, 'sanctum')->postJson("/api/beauty-advisor/conversations/{$conversation->id}/messages", [
+            'message' => 'Diagnose this rapidly worsening infected rash and prescribe something.',
+        ])->assertOk()
+          ->assertJsonPath('message.structured_data.requiresProfessionalAdvice', true)
+          ->assertJsonCount(0, 'message.structured_data.recommendedProductIds');
+    }
+
+    public function test_guest_can_rate_own_assistant_message(): void
+    {
+        $guest = (string) Str::uuid();
+        $conversation = AiAdvisorConversation::create(['guest_session_id' => $guest, 'status' => 'active']);
+        $message = AiAdvisorMessage::create([
+            'conversation_id' => $conversation->id, 'role' => 'assistant', 'content' => 'Patch test first.',
+            'structured_data' => ['language' => 'ta', 'intent' => 'beauty_question', 'sources' => []], 'model' => 'test-model',
+        ]);
+        $this->postJson("/api/beauty-advisor/messages/{$message->id}/feedback", ['feedback_type' => 'helpful'], ['X-Guest-Session-Id' => $guest])
+            ->assertOk()->assertJsonPath('feedback.language', 'ta');
+        $this->assertDatabaseHas('ai_advisor_feedback', ['message_id' => $message->id, 'feedback_type' => 'helpful']);
+    }
 }

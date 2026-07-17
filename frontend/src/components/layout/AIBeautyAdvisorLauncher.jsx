@@ -102,7 +102,7 @@ export default function AIBeautyAdvisorLauncher({ onClick, isOpen }) {
         type="button"
         className="ai-advisor-launcher"
         onClick={onClick}
-        aria-label="Open SL Beauty AI Advisor"
+        aria-label="Open SL Beauty AI Analyser"
       >
         <svg
           width="32"
