@@ -1,5 +1,25 @@
 export const homepageConfig = {
   announcement: { label: 'Complimentary delivery on qualifying beauty orders', href: '/products?collection=beauty-offers' },
+  aiDiagnostics: {
+    enabled: true,
+    eyebrow: 'Next-Gen Diagnostics',
+    title: 'Meet Your Personal AI Beauty Analyser',
+    description: 'Explore intelligent beauty guidance designed to help you understand your skin, review product ingredients, and discover personalised beauty routines.',
+    prompts: [
+      'I have oily skin. What type of routine should I consider?',
+      'Help me find products for uneven-looking skin tone.',
+      'Help me understand the ingredients in my current night cream.',
+    ],
+    buttonLabel: 'Launch AI Advisor',
+    imageUrl: '/images/beauty/ai-beauty-diagnostics.png',
+    imageAlt: 'SL Beauty artificial intelligence beauty consultation preview',
+    dialog: {
+      title: 'AI Beauty Diagnostics — Coming Soon',
+      message: 'Our next-generation beauty diagnostics experience is currently being prepared. Soon, you will be able to explore guided skin insights, ingredient support, and personalised beauty routines.',
+      supportingText: 'You can continue using the existing SL Beauty AI Advisor for product and routine guidance.',
+      closeLabel: 'Got It',
+    },
+  },
   concerns: [
     ['Acne & Blemishes', 'skincare&q=acne', 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80'],
     ['Dryness', 'skincare&q=hydration', 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=600&q=80'],

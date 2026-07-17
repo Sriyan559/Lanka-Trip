@@ -21,8 +21,7 @@ class GeminiBeautyAdvisorProvider implements BeautyAdvisorProvider
     public function respond(array $history, array $profile, array $groundingProducts): array
     {
         if (empty($this->apiKey)) {
-            Log::warning('Gemini API key is missing. Falling back to Mock mode.');
-            return (new MockBeautyAdvisorProvider())->respond($history, $profile, $groundingProducts);
+            throw new \RuntimeException('Gemini API key is missing.');
         }
 
         $systemPrompt = $this->buildSystemPrompt($profile, $groundingProducts);
@@ -93,8 +92,7 @@ class GeminiBeautyAdvisorProvider implements BeautyAdvisorProvider
 
         } catch (\Exception $e) {
             Log::error('GeminiBeautyAdvisorProvider Exception: ' . $e->getMessage());
-            // Fall back to Mock mode so we don't crash
-            return (new MockBeautyAdvisorProvider())->respond($history, $profile, $groundingProducts);
+            throw new \RuntimeException('Beauty Advisor provider is temporarily unavailable.', 0, $e);
         }
     }
 

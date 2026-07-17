@@ -42,5 +42,11 @@ export const beautyAdvisorApi = {
 
     getPlans: () => {
         return api.get('/beauty-advisor/plans');
-    }
+    },
+
+    getProduct: (id) => api.get(`/products/${id}`),
+    getPlan: (id) => api.get(`/beauty-advisor/plans/${id}`),
+    updatePlan: (id, data) => api.patch(`/beauty-advisor/plans/${id}`, data),
+    archivePlan: (id) => api.delete(`/beauty-advisor/plans/${id}`),
+    downloadPlanUrl: (id) => `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/beauty-advisor/plans/${id}/download`,
 };

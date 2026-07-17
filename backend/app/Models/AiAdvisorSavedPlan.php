@@ -11,8 +11,15 @@ class AiAdvisorSavedPlan extends Model
         'user_id',
         'conversation_id',
         'title',
+        'language',
         'profile_context',
         'routine_data',
+        'recommended_product_ids',
+        'estimated_total',
+        'currency',
+        'version',
+        'status',
+        'generated_at',
     ];
 
     protected function casts(): array
@@ -20,6 +27,9 @@ class AiAdvisorSavedPlan extends Model
         return [
             'profile_context' => 'array',
             'routine_data' => 'array',
+            'recommended_product_ids' => 'array',
+            'estimated_total' => 'decimal:2',
+            'generated_at' => 'datetime',
         ];
     }
 

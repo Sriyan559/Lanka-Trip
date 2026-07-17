@@ -9,6 +9,7 @@ import HomePromoVideo     from '@/components/home/HomePromoVideo';
 import HomePromotionalCarousels from '@/components/home/HomePromotionalCarousels';
 import BeautyProductShowcases from '@/components/home/BeautyProductShowcases';
 import HomeDiscoverySections from '@/components/home/HomeDiscoverySections';
+import AIBeautyDiagnosticsSection from '@/components/home/AIBeautyDiagnosticsSection';
 import AfterMonsoonSections from '@/components/home/AfterMonsoonSections';
 import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
 
@@ -62,7 +63,7 @@ export default function HomePage() {
 
         <BeautyProductShowcases />
 
-        <HomeDiscoverySections />
+        <HomeDiscoverySections afterStories={<AIBeautyDiagnosticsSection />} />
 
         {/* ── Beauty product category sections, using public SL Beauty display data ── */}
         <CategoryGridSection section={BEAUTY_CATEGORY_SECTION} />

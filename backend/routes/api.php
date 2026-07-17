@@ -288,5 +288,9 @@ Route::prefix('beauty-advisor')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'savePlan']);
         Route::get('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'getPlans']);
+        Route::get('/plans/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showPlan'])->whereNumber('id');
+        Route::patch('/plans/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updatePlan'])->whereNumber('id');
+        Route::delete('/plans/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'deletePlan'])->whereNumber('id');
+        Route::get('/plans/{id}/download', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'downloadPlan'])->whereNumber('id');
     });
 });

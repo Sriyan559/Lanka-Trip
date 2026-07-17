@@ -37,6 +37,8 @@ return [
 
     'beauty_advisor' => [
         'enabled' => env('AI_BEAUTY_ADVISOR_ENABLED', true),
+        'mock_mode' => env('AI_BEAUTY_ADVISOR_MOCK_MODE', false),
+        'prompt_version' => env('BEAUTY_ADVISOR_PROMPT_VERSION', 2),
         'provider' => env('AI_BEAUTY_ADVISOR_PROVIDER', 'gemini'),
         'gemini' => [
             'api_key' => env('AI_BEAUTY_ADVISOR_API_KEY'),

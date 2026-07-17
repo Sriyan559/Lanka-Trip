@@ -17,18 +17,25 @@ class BeautyAdvisorService
         $enabled = config('services.beauty_advisor.enabled', true);
         $provider = config('services.beauty_advisor.provider', 'gemini');
 
-        if (!$enabled) {
+        if (config('services.beauty_advisor.mock_mode', false)) {
             return new MockBeautyAdvisorProvider();
+        }
+
+        if (!$enabled) {
+            throw new \RuntimeException('Beauty Advisor is disabled.');
         }
 
         if ($provider === 'gemini') {
             $apiKey = config('services.beauty_advisor.gemini.api_key', env('AI_BEAUTY_ADVISOR_API_KEY'));
             $model = config('services.beauty_advisor.gemini.model', env('AI_BEAUTY_ADVISOR_MODEL', 'gemini-1.5-flash'));
             $timeout = (int) config('services.beauty_advisor.gemini.timeout', env('AI_BEAUTY_ADVISOR_TIMEOUT_SECONDS', 30));
+            if (empty($apiKey)) {
+                throw new \RuntimeException('Beauty Advisor provider is not configured.');
+            }
             return new GeminiBeautyAdvisorProvider($apiKey, $model, $timeout);
         }
 
-        return new MockBeautyAdvisorProvider();
+        throw new \RuntimeException('Unsupported Beauty Advisor provider.');
     }
 
     /**
@@ -116,8 +123,8 @@ class BeautyAdvisorService
         // 5. Validate output product IDs against database
         $validatedProductIds = [];
         if (!empty($response['recommendedProductIds'])) {
-            $rawIds = array_map('intval', $response['recommendedProductIds']);
-            // Verify they exist in our grounded product list or database and are active
+            $groundedIds = array_map(fn ($product) => (int) $product['id'], $groundingProducts);
+            $rawIds = array_intersect(array_map('intval', $response['recommendedProductIds']), $groundedIds);
             $validatedProductIds = Product::query()
                 ->active()
                 ->whereIn('id', $rawIds)

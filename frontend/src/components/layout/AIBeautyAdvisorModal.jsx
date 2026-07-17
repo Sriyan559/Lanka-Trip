@@ -8,6 +8,8 @@ import { starRating, formatCurrency } from '@/lib/utils';
 import AISkinTypeSelector from './AISkinTypeSelector';
 import AIAdvisorProductCard from './AIAdvisorProductCard';
 import AIAdvisorRoutine from './AIAdvisorRoutine';
+import AIAdvisorConsultationFlow from './AIAdvisorConsultationFlow';
+import { ADVISOR_LANGUAGES, tAdvisor } from '@/lib/beautyAdvisorTranslations';
 import toast from 'react-hot-toast';
 
 const QUICK_ACTIONS = [
@@ -34,6 +36,9 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [voiceState, setVoiceState] = useState('idle');
   const [voiceStatus, setVoiceStatus] = useState('');
+  const [language, setLanguage] = useState('en');
+  const [retryNonce, setRetryNonce] = useState(0);
+  const [showConsultation, setShowConsultation] = useState(true);
   
   // Curated Plan State
   const [isCuratingPlan, setIsCuratingPlan] = useState(false);
@@ -70,6 +75,8 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
         localStorage.setItem('slBeautyAdvisorGuestSession', gid);
       }
       setGuestSessionId(gid);
+      const savedLanguage = localStorage.getItem('slBeautyAdvisorLanguage');
+      if (['en', 'si', 'ta'].includes(savedLanguage)) setLanguage(savedLanguage);
     }
   }, []);
 
@@ -131,7 +138,30 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
     if (guestSessionId || isAuthenticated) {
       initConversation();
     }
-  }, [isOpen, guestSessionId, isAuthenticated]);
+  }, [isOpen, guestSessionId, isAuthenticated, retryNonce]);
+
+  const handleLanguageChange = async (nextLanguage) => {
+    setLanguage(nextLanguage);
+    localStorage.setItem('slBeautyAdvisorLanguage', nextLanguage);
+    setProfileContext((current) => ({ ...current, language: nextLanguage }));
+    if (conversationId) {
+      try { await beautyAdvisorApi.updateProfile(conversationId, { language: nextLanguage }, guestSessionId); }
+      catch { toast.error(tAdvisor(nextLanguage, 'unavailable')); }
+    }
+  };
+
+  const handleConsultationChange = async (nextProfile) => {
+    setProfileContext(nextProfile);
+    localStorage.setItem('slBeautyAdvisorDraft', JSON.stringify(nextProfile));
+    if (!conversationId) return;
+    try { await beautyAdvisorApi.updateProfile(conversationId, nextProfile, guestSessionId); }
+    catch { toast.error(tAdvisor(language, 'unavailable')); }
+  };
+
+  const handleConsultationComplete = (profile) => {
+    setShowConsultation(false);
+    handleSendMessage(`Create a practical personalised beauty plan from this validated profile: ${JSON.stringify(profile)}`);
+  };
 
   // Focus trap and accessibility keyboard handlers
   useEffect(() => {
@@ -241,12 +271,9 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
       // Loop and fetch matching products
       const prods = [];
       for (const id of ids) {
-        const prodRes = await fetch(`http://localhost:8000/api/products/${id}`);
-        if (prodRes.ok) {
-          const body = await prodRes.json();
-          if (body.success && body.id) {
-            prods.push(body);
-          }
+        const body = await beautyAdvisorApi.getProduct(id);
+        if (body?.success && body.id) {
+          prods.push(body);
         }
       }
       setGroundedProducts(prods);
@@ -361,7 +388,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
     if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
-    recognition.lang = navigator.language || 'en-US';
+    recognition.lang = ADVISOR_LANGUAGES.find((item) => item.code === language)?.speech || 'en-LK';
     recognition.interimResults = false;
     recognition.continuous = false;
     recognition.maxAlternatives = 1;
@@ -481,6 +508,10 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
+            <label className="sr-only" htmlFor="advisor-language">Advisor language</label>
+            <select id="advisor-language" value={language} onChange={(event) => handleLanguageChange(event.target.value)} className="h-11 max-w-[86px] rounded-xl border border-gray-200 bg-white px-2 text-xs font-bold text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700">
+              {ADVISOR_LANGUAGES.map((item) => <option key={item.code} value={item.code}>{item.label}</option>)}
+            </select>
             <button
               type="button"
               onClick={handleNewConversation}
@@ -520,8 +551,11 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
           className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fcfbfa]"
           aria-live="polite"
         >
+          {showConsultation && !errorState && (
+            <AIAdvisorConsultationFlow language={language} profile={{ language, ...profileContext }} onChange={handleConsultationChange} onComplete={handleConsultationComplete} />
+          )}
           {/* Welcome Greet Bubble */}
-          <div className="flex gap-2.5 max-w-[85%]">
+          {!showConsultation && <div className="flex gap-2.5 max-w-[85%]">
             <div className="w-7 h-7 rounded-full bg-gradient-to-r from-primary-800 to-rose-500 flex items-center justify-center text-white text-[10px] font-bold shadow-sm shrink-0 select-none">
               AI
             </div>
@@ -531,7 +565,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
                 Ask me about routines, makeup, matching shades, ingredient safety, or finding the perfect product!
               </p>
             </div>
-          </div>
+          </div>}
 
           {/* Render Messages */}
           {messages.map((msg, index) => {
@@ -696,8 +730,11 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
           {errorState && (
             <div className="p-3 bg-red-50 border border-red-100 rounded-2xl flex gap-2">
               <ShieldAlert className="text-red-600 shrink-0" size={16} />
-              <div className="text-xs text-red-800">
-                {errorState}
+              <div className="flex-1 text-xs text-red-800">
+                <p>{tAdvisor(language, 'unavailable')}</p>
+                <button type="button" onClick={() => setRetryNonce((value) => value + 1)} className="mt-2 min-h-11 rounded-xl border border-red-200 bg-white px-3 font-bold text-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600">
+                  {tAdvisor(language, 'retry')}
+                </button>
               </div>
             </div>
           )}
