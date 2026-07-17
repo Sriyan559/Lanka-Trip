@@ -20,6 +20,15 @@ export default function AIBeautyAdvisorWrapper() {
   }, []);
 
   useEffect(() => {
+    const openFromHeader = (event) => {
+      originElementRef.current = event.detail?.origin || null;
+      setIsOpen(true);
+    };
+    window.addEventListener('sl-beauty:open-ai-advisor', openFromHeader);
+    return () => window.removeEventListener('sl-beauty:open-ai-advisor', openFromHeader);
+  }, []);
+
+  useEffect(() => {
     if (!hasMounted) return;
 
     if (pathname !== '/') {

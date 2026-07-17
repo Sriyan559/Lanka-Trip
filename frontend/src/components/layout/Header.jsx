@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
+import HeaderAIAdvisorButton from './HeaderAIAdvisorButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { notificationsApi } from '@/lib/api';
@@ -51,6 +52,8 @@ const PRIMARY_NAV = [
 
 
 export default function Header() {
+  const headerRef = useRef(null);
+  const closeMenuTimerRef = useRef(null);
   const router = useRouter();
   const { isAuthenticated, user, logout } = useAuth();
   const { count: cartCount, total: cartTotal } = useCart();
@@ -65,6 +68,24 @@ export default function Header() {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [activeMobileCategories, setActiveMobileCategories] = useState({});
+
+  const openMegaMenu = (label) => {
+    if (closeMenuTimerRef.current) window.clearTimeout(closeMenuTimerRef.current);
+    setHoveredCategory(label);
+  };
+
+  const scheduleMegaMenuClose = () => {
+    if (closeMenuTimerRef.current) window.clearTimeout(closeMenuTimerRef.current);
+    closeMenuTimerRef.current = window.setTimeout(() => setHoveredCategory(null), 150);
+  };
+
+  const handleOpenAdvisor = (event) => {
+    setHoveredCategory(null);
+    setAccountOpen(false);
+    setNotificationsOpen(false);
+    setMobileOpen(false);
+    window.dispatchEvent(new CustomEvent('sl-beauty:open-ai-advisor', { detail: { origin: event.currentTarget } }));
+  };
 
   const toggleMobileCategory = (label) => {
     setActiveMobileCategories((prev) => ({
@@ -108,6 +129,28 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    const closeOnOutsideClick = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setHoveredCategory(null);
+        setAccountOpen(false);
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+      if (closeMenuTimerRef.current) window.clearTimeout(closeMenuTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') {
         setHoveredCategory(null);
@@ -138,7 +181,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#e6e3e3] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+    <header ref={headerRef} className="sticky top-0 z-[100] overflow-visible border-b border-[#e6e3e3] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
       <div className="hidden border-b border-[#eeeaea] lg:block">
         <div className="mx-auto flex h-8 max-w-screen-xl items-center justify-end gap-3 px-4 text-[12px] font-medium text-[#36302f]">
           <Link href="/orders" className="transition-colors hover:text-primary-700">Track Order</Link>
@@ -219,11 +262,12 @@ export default function Header() {
               )}
             </button>
             {notificationsOpen && (
-              <div className="absolute right-0 top-12 w-[360px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
+              <div className="absolute right-0 top-12 z-[250] w-[360px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
                 <NotificationCenter compact pageSize={5} />
               </div>
             )}
           </div>
+          <HeaderAIAdvisorButton onOpen={handleOpenAdvisor} />
           <Link
             href="/cart"
             className="flex items-center gap-2 text-sm font-medium text-gray-800 hover:text-primary-700 transition-colors"
@@ -239,7 +283,7 @@ export default function Header() {
           </Link>
 
           {isAuthenticated && (
-            <div className={`relative ${accountOpen ? 'z-[70]' : ''}`}>
+            <div className={`relative ${accountOpen ? 'z-[250]' : ''}`}>
               <button
                 type="button"
                 onClick={() => setAccountOpen((open) => !open)}
@@ -260,7 +304,7 @@ export default function Header() {
                 <div
                   id="profile-dropdown"
                   role="menu"
-                  className="absolute right-0 top-full z-[80] mt-2 w-56 overflow-hidden rounded-xl border border-gray-250 bg-white py-2 shadow-xl"
+                  className="absolute right-0 top-full z-[250] mt-2 w-56 overflow-hidden rounded-xl border border-gray-250 bg-white py-2 shadow-xl"
                 >
                   <Link href="/dashboard" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                     Dashboard
@@ -280,17 +324,25 @@ export default function Header() {
           )}
         </div>
 
+        <div className="ml-auto flex items-center gap-1 md:hidden">
+          <HeaderAIAdvisorButton onOpen={handleOpenAdvisor} mobile />
+          <Link href="/cart" className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-800 hover:bg-gray-100" aria-label={`Cart with ${cartCount || 0} items`}>
+            <ShoppingCart size={21} />
+            <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-1 text-[9px] font-bold text-white">{cartCount || 0}</span>
+          </Link>
+        </div>
+
         <button
           type="button"
           onClick={() => setMobileOpen((open) => !open)}
-          className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100 md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100 md:hidden"
           aria-label="Menu"
         >
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      <nav className="relative border-t border-[#eee9e8] bg-white text-[#211c1b]" onMouseLeave={() => setHoveredCategory(null)}>
+      <nav className="relative hidden border-t border-[#eee9e8] bg-white text-[#211c1b] md:block" onMouseLeave={scheduleMegaMenuClose}>
         <div className="mx-auto flex h-14 max-w-screen-xl items-center gap-1 overflow-x-auto px-4 sm:px-5">
           {BEAUTY_NAV.map((item) => {
             const hasDropdown = !!NAV_DROPDOWNS[item.label];
@@ -299,21 +351,21 @@ export default function Header() {
                 key={item.label}
                 className="relative flex h-14 flex-shrink-0 items-center"
                 onMouseEnter={() => {
-                  if (hasDropdown) setHoveredCategory(item.label);
+                  if (hasDropdown) openMegaMenu(item.label);
                   else setHoveredCategory(null);
                 }}
                 onFocus={() => {
-                  if (hasDropdown) setHoveredCategory(item.label);
+                  if (hasDropdown) openMegaMenu(item.label);
                 }}
               >
-                <Link
-                  href={item.href}
-                  className={`flex h-14 items-center px-3 text-[15px] font-medium transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-inset ${hoveredCategory === item.label ? 'text-primary-700' : 'text-[#211c1b]'}`}
-                  aria-haspopup={hasDropdown ? 'true' : undefined}
-                  aria-expanded={hasDropdown ? hoveredCategory === item.label : undefined}
-                >
-                  {item.label}
-                </Link>
+                {hasDropdown ? <button
+                  type="button"
+                  onClick={() => hoveredCategory === item.label ? setHoveredCategory(null) : openMegaMenu(item.label)}
+                  className={`relative flex h-14 items-center px-3 text-[15px] font-medium transition-colors hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-inset after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-black after:transition-transform ${hoveredCategory === item.label ? 'text-black after:scale-x-100' : 'text-[#211c1b] after:scale-x-0'}`}
+                  aria-haspopup="menu"
+                  aria-expanded={hoveredCategory === item.label}
+                  aria-controls={`mega-menu-${item.label.toLowerCase().replaceAll(' ', '-')}`}
+                >{item.label}</button> : <Link href={item.href} className="flex h-14 items-center px-3 text-[15px] font-medium text-[#211c1b] transition-colors hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-inset">{item.label}</Link>}
               </div>
             );
           })}
@@ -322,8 +374,11 @@ export default function Header() {
         {/* Mega Menu Dropdown Panel */}
         {hoveredCategory && NAV_DROPDOWNS[hoveredCategory] && (
           <div
-            className="absolute left-0 right-0 top-full z-50 border-t border-[#ece8e8] bg-white text-[#171717] shadow-[0_14px_35px_rgba(0,0,0,0.09)] animate-slide-up"
-            onMouseEnter={() => setHoveredCategory(hoveredCategory)}
+            id={`mega-menu-${hoveredCategory.toLowerCase().replaceAll(' ', '-')}`}
+            role="menu"
+            className="absolute left-0 right-0 top-full z-[200] max-h-[min(70vh,620px)] overflow-y-auto border-t border-[#e8e8e8] bg-white text-[#171717] shadow-[0_16px_38px_rgba(0,0,0,0.1)] animate-slide-up"
+            onMouseEnter={() => openMegaMenu(hoveredCategory)}
+            onMouseLeave={scheduleMegaMenuClose}
           >
             <div className="mx-auto max-w-screen-xl px-5 py-8 sm:px-8">
               <div className="grid grid-cols-5 gap-8">
@@ -333,7 +388,7 @@ export default function Header() {
                     <div key={colIdx} className="space-y-6">
                       {column.sections.map((section) => (
                         <div key={section.title}>
-                          <h4 className="mb-2.5 text-[12px] font-semibold tracking-[0.04em] text-black uppercase border-b border-gray-100 pb-1">
+                          <h4 className="mb-2.5 border-b border-gray-100 pb-2 text-[14px] font-bold text-black">
                             {section.title}
                           </h4>
                           <ul className="space-y-1.5">
@@ -341,7 +396,7 @@ export default function Header() {
                               <li key={link.label}>
                                 <Link
                                   href={link.href}
-                                  className="text-[13px] text-gray-600 hover:text-red-800 hover:font-semibold transition-colors duration-150 block"
+                                  className="flex min-h-9 items-center rounded-lg px-2 text-[14px] text-[#5f5f5f] transition-colors duration-150 hover:bg-[#f5f5f5] hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
                                 >
                                   {link.label}
                                 </Link>
@@ -388,7 +443,7 @@ export default function Header() {
       </nav>
 
       {mobileOpen && (
-        <div className="border-t border-gray-100 bg-white shadow-lg md:hidden max-h-[80vh] overflow-y-auto">
+        <div className="max-h-[calc(100dvh-104px)] overflow-y-auto border-t border-gray-100 bg-white shadow-lg md:hidden">
           <form onSubmit={handleSearch} className="p-4">
             <div className="relative">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />

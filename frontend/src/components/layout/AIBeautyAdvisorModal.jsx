@@ -475,7 +475,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
     <>
       {/* Backdrop blur overlay */}
       <div
-        className="fixed inset-0 z-50 bg-[#111827]/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 z-[1000] bg-[#111827]/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -486,7 +486,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
         role="dialog"
         aria-modal="true"
         aria-labelledby="ai-advisor-title"
-        className="fixed z-50 flex flex-col bg-white border border-[#edebeb] shadow-2xl transition-all
+        className="fixed z-[1000] flex flex-col bg-white border border-[#edebeb] shadow-2xl transition-all
                    right-1/2 bottom-1/2 translate-x-1/2 translate-y-1/2
                    w-[calc(100vw-20px)] max-h-[92dvh] rounded-[24px]
                    md:right-6 md:bottom-6 md:translate-x-0 md:translate-y-0
