@@ -3,6 +3,7 @@ import Footer             from '@/components/layout/Footer';
 import HomeCategoryCarousel from '@/components/home/HomeCategoryCarousel';
 import HeroSlider         from '@/components/home/HeroSlider';
 import FeaturedCards      from '@/components/home/FeaturedCards';
+import BeautyFeatureSections from '@/components/home/BeautyFeatureSections';
 import TrendingProducts   from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
 import HomePromoVideo     from '@/components/home/HomePromoVideo';
@@ -57,6 +58,9 @@ export default function HomePage() {
 
         {/* ── Featured service cards ─────────────────────────── */}
         <FeaturedCards />
+
+        {/* ── Custom detailed section targets ─────────────────── */}
+        <BeautyFeatureSections />
 
         {/* ── Trending products grid ─────────────────────────── */}
         <TrendingProducts />
