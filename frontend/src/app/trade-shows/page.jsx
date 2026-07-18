@@ -11,8 +11,8 @@ const TRADE_SHOWS = [
     date: '2027-03-07', date_end: '2027-03-10', location: 'Makuhari Messe, Chiba, Japan',
     description: 'Asia\'s leading international food and beverage trade show. Connect with Japan\'s top importers and distributors.',
     exhibitors: 3200, visitors: 82000, sri_lanka_suppliers: 24,
-    image: 'https://placehold.co/800x400/e8f5e9/155e2c?text=FoodEx+Japan+2027',
-    badge: '🇯🇵', deadline: '2026-12-01', ecomlanka_booth: true,
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+    badge: '🇯🇵', deadline: '2026-12-01', sl_beauty_booth: true,
     tags: ['Tea', 'Coconut', 'Spices', 'Seafood'],
   },
   {
@@ -21,8 +21,8 @@ const TRADE_SHOWS = [
     date: '2027-10-04', date_end: '2027-10-08', location: 'Cologne Exhibition Centre, Germany',
     description: 'The world\'s leading food and beverage trade fair. 8 days, 170 countries, 7,900+ exhibitors.',
     exhibitors: 7900, visitors: 170000, sri_lanka_suppliers: 41,
-    image: 'https://placehold.co/800x400/e3f2fd/0d47a1?text=Anuga+2027',
-    badge: '🇩🇪', deadline: '2027-04-01', ecomlanka_booth: true,
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+    badge: '🇩🇪', deadline: '2027-04-01', sl_beauty_booth: true,
     tags: ['Tea', 'Organic', 'Spices', 'Confectionery'],
   },
   {
@@ -31,8 +31,8 @@ const TRADE_SHOWS = [
     date: '2027-02-17', date_end: '2027-02-21', location: 'Dubai World Trade Centre, UAE',
     description: 'The Middle East\'s premier food and hospitality show. Gateway to GCC markets.',
     exhibitors: 5000, visitors: 97000, sri_lanka_suppliers: 19,
-    image: 'https://placehold.co/800x400/fff3e0/e65100?text=Gulfood+2027',
-    badge: '🇦🇪', deadline: '2026-10-15', ecomlanka_booth: false,
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+    badge: '🇦🇪', deadline: '2026-10-15', sl_beauty_booth: false,
     tags: ['Tea', 'Coconut', 'Rice', 'Fish'],
   },
   {
@@ -41,8 +41,8 @@ const TRADE_SHOWS = [
     date: '2027-04-15', date_end: '2027-05-05', location: 'Guangzhou, China',
     description: 'China\'s largest import/export fair. Over 24,000 exhibitors across all sectors.',
     exhibitors: 24000, visitors: 190000, sri_lanka_suppliers: 8,
-    image: 'https://placehold.co/800x400/fce4ec/880e4f?text=Canton+Fair',
-    badge: '🇨🇳', deadline: '2026-12-30', ecomlanka_booth: false,
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+    badge: '🇨🇳', deadline: '2026-12-30', sl_beauty_booth: false,
     tags: ['General', 'Textiles', 'Gems', 'Rubber'],
   },
   {
@@ -51,8 +51,8 @@ const TRADE_SHOWS = [
     date: '2026-04-20', date_end: '2026-04-22', location: 'Virtual / Online',
     description: 'South Asian International Trade Exhibition — online edition for Sri Lankan exporters.',
     exhibitors: 340, visitors: 12000, sri_lanka_suppliers: 95,
-    image: 'https://placehold.co/800x400/f3e5f5/7e22ce?text=SAITEX+2026',
-    badge: '🇱🇰', deadline: null, ecomlanka_booth: true,
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+    badge: '🇱🇰', deadline: null, sl_beauty_booth: true,
     tags: ['All Categories'],
   },
   {
@@ -61,8 +61,8 @@ const TRADE_SHOWS = [
     date: '2027-02-11', date_end: '2027-02-14', location: 'Nuremberg, Germany',
     description: 'The world\'s leading trade fair for organic food. Essential for certified organic exporters.',
     exhibitors: 3100, visitors: 49000, sri_lanka_suppliers: 12,
-    image: 'https://placehold.co/800x400/e0f2f1/00695c?text=BIOFACH+2027',
-    badge: '🇩🇪', deadline: '2026-09-01', ecomlanka_booth: false,
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+    badge: '🇩🇪', deadline: '2026-09-01', sl_beauty_booth: false,
     tags: ['Organic', 'Tea', 'Coconut', 'Spices'],
   },
 ];
@@ -94,12 +94,12 @@ export default function TradeShowsPage() {
         <p className="text-sm text-gray-500 mt-1">Exhibit at global trade fairs and connect with international buyers</p>
       </div>
 
-      {/* EcomLanka booth banner */}
+      {/* SL Beauty booth banner */}
       <div className="bg-gradient-to-r from-primary-800 to-primary-600 rounded-2xl p-6 text-white">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex-1">
             <p className="text-primary-200 text-xs font-semibold uppercase tracking-wider mb-1">🇱🇰 Sri Lanka Pavilion</p>
-            <h2 className="text-xl font-bold mb-1">Exhibit under the EcomLanka Brand</h2>
+            <h2 className="text-xl font-bold mb-1">Exhibit under the SL Beauty Brand</h2>
             <p className="text-primary-100 text-sm">Share a booth with us at FoodEx Japan, Anuga, and other key shows. Reduced costs, shared logistics, translation support.</p>
           </div>
           <Link href="/contact-support?subject=trade-show"
@@ -158,8 +158,8 @@ export default function TradeShowsPage() {
                     </div>
                   </div>
                   <div className="absolute top-3 right-3 flex gap-1">
-                    {show.ecomlanka_booth && (
-                      <span className="badge-pill bg-primary-800 text-white text-[10px] font-bold">🇱🇰 EcomLanka Booth</span>
+                    {show.sl_beauty_booth && (
+                      <span className="badge-pill bg-primary-800 text-white text-[10px] font-bold">🇱🇰 SL Beauty Booth</span>
                     )}
                     <span className="badge-pill bg-green-500 text-white text-[10px] font-bold">Featured</span>
                   </div>
@@ -210,7 +210,7 @@ export default function TradeShowsPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-gray-800 group-hover:text-primary-700 transition-colors">{show.name}</h3>
                     {show.status === 'past' && <span className="badge-pill bg-gray-100 text-gray-500 text-[10px]">Past</span>}
-                    {show.ecomlanka_booth && <span className="badge-pill bg-primary-50 text-primary-700 text-[10px]">🇱🇰 LK Booth</span>}
+                    {show.sl_beauty_booth && <span className="badge-pill bg-primary-50 text-primary-700 text-[10px]">🇱🇰 LK Booth</span>}
                   </div>
                   <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                     <span className="flex items-center gap-1 text-xs text-gray-400"><Calendar size={11} /> {show.date}</span>

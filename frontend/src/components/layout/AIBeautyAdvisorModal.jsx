@@ -788,8 +788,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
                   type="button"
                   onClick={() => handleSendMessage(action.text)}
                   className="w-full text-left p-2 bg-[#fcfbfa] hover:bg-[#fff9f8] border border-[#edebeb] hover:border-primary-200 rounded-xl text-xs font-semibold text-gray-700 transition-colors cursor-pointer"
-                >
-                  ✨ {action.label}
+                >{action.label}
                 </button>
               ))}
             </div>

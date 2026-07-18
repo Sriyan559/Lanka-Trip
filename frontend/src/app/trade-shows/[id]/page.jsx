@@ -22,7 +22,7 @@ const MOCK_SHOW = {
   organizer: 'Japan Management Association (JMA)',
   exhibitors: 3200, visitors: 82000, countries: 80, edition: '52nd',
   sri_lanka_suppliers: 24,
-  ecomlanka_booth: true,
+  sl_beauty_booth: true,
   description: `FoodEx Japan is Asia's largest international food and beverage trade show, held annually at Makuhari Messe near Tokyo. The 52nd edition in 2027 will bring together over 3,200 exhibitors from 80 countries and regions.
 
 For Sri Lankan exporters, FoodEx Japan offers direct access to Japan's USD 650B food import market. Japan is the world's second-largest importer of Ceylon tea and a major buyer of coconut products, spices, and seafood.`,
@@ -36,10 +36,10 @@ For Sri Lankan exporters, FoodEx Japan offers direct access to Japan's USD 650B 
   suitable_for: ['Tea & Beverages', 'Coconut Products', 'Spices & Herbs', 'Seafood & Fish', 'Fruits & Vegetables', 'Processed Foods'],
   packages: [
     {
-      name: 'EcomLanka Shared Booth',
+      name: 'SL Beauty Shared Booth',
       price: 'USD 2,800',
       per: 'company',
-      includes: ['1 table + 2 chairs in LK Pavilion', 'Product display space (1m × 1m)', 'Exhibitor badges (2 persons)', 'Japanese translation support', 'EcomLanka profile boost 3 months', 'Catalogue listing'],
+      includes: ['1 table + 2 chairs in LK Pavilion', 'Product display space (1m × 1m)', 'Exhibitor badges (2 persons)', 'Japanese translation support', 'SL Beauty profile boost 3 months', 'Catalogue listing'],
       recommended: true,
     },
     {
@@ -53,7 +53,7 @@ For Sri Lankan exporters, FoodEx Japan offers direct access to Japan's USD 650B 
       name: 'Virtual Exhibitor',
       price: 'USD 450',
       per: 'company',
-      includes: ['Online product listing on FoodEx platform', 'Video presentation (5 min)', 'Virtual meeting slots (5 sessions)', 'EcomLanka profile boost 1 month'],
+      includes: ['Online product listing on FoodEx platform', 'Video presentation (5 min)', 'Virtual meeting slots (5 sessions)', 'SL Beauty profile boost 1 month'],
       recommended: false,
     },
   ],
@@ -67,7 +67,7 @@ For Sri Lankan exporters, FoodEx Japan offers direct access to Japan's USD 650B 
   ],
   contact: {
     name: 'Dilini Perera', role: 'Trade Show Coordinator',
-    email: 'tradeshows@ecomlanka.lk', phone: '+94 11 234 5678',
+    email: 'tradeshows@slbeauty.lk', phone: '+94 11 234 5678',
   },
 };
 
@@ -139,7 +139,7 @@ export default function TradeShowDetailPage() {
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <span className="badge-pill bg-white/20 text-white text-[11px]">{s.category}</span>
               <span className="badge-pill bg-white/20 text-white text-[11px]">{s.edition}</span>
-              {s.ecomlanka_booth && <span className="badge-pill bg-amber-400 text-white text-[11px] font-bold">🇱🇰 EcomLanka Booth</span>}
+              {s.sl_beauty_booth && <span className="badge-pill bg-amber-400 text-white text-[11px] font-bold">🇱🇰 SL Beauty Booth</span>}
             </div>
             <h1 className="text-3xl font-bold mb-1">{s.name}</h1>
             <p className="text-primary-100">{s.tagline}</p>

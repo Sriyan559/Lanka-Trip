@@ -5,10 +5,10 @@ import Footer from '@/components/layout/Footer';
 
 const PAGE_CONTENT = {
   about: {
-    title: 'About EcomLanka',
+    title: 'About SL Beauty',
     eyebrow: 'Company',
     summary:
-      'EcomLanka connects international buyers with verified Sri Lankan exporters across agriculture, manufacturing, textiles, gems, and more.',
+      'SL Beauty connects international buyers with verified Sri Lankan exporters across agriculture, manufacturing, textiles, gems, and more.',
     bullets: [
       'Verified supplier network',
       'Secure payment support',
@@ -50,7 +50,7 @@ const PAGE_CONTENT = {
     ],
   },
   advertise: {
-    title: 'Advertise on EcomLanka',
+    title: 'Advertise on SL Beauty',
     eyebrow: 'Marketing',
     summary: 'Promote your products, brand, and sourcing services with premium campaigns and buyer-facing placements.',
     bullets: [
@@ -76,7 +76,7 @@ const PAGE_CONTENT = {
     eyebrow: 'Help center',
     summary: 'Reach out to our support team for account issues, business inquiries, or platform assistance.',
     bullets: [
-      'Email: support@ecomlanka.com',
+      'Email: support@slbeauty.lk',
       'Phone: +94 11 234 5678',
       'WhatsApp: +94 77 000 0000',
       'Business hours: Mon–Sat, 8:30 AM–6:00 PM',
@@ -96,7 +96,7 @@ const PAGE_CONTENT = {
   terms: {
     title: 'Terms of Service',
     eyebrow: 'Policies',
-    summary: 'These terms explain how you can use the EcomLanka platform and the responsibilities of buyers and suppliers.',
+    summary: 'These terms explain how you can use the SL Beauty platform and the responsibilities of buyers and suppliers.',
     bullets: [
       'Accurate registration data required',
       'No misuse of buyer or supplier information',
@@ -281,7 +281,7 @@ const PAGE_CONTENT = {
     ],
   },
   apps: {
-    title: 'EcomLanka Apps',
+    title: 'SL Beauty Apps',
     eyebrow: 'Mobile',
     summary: 'Mobile app distribution is being prepared. Use the responsive web marketplace for the full buyer and supplier workflow today.',
     bullets: [

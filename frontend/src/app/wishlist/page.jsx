@@ -97,7 +97,7 @@ export default function WishlistPage() {
                 </button>
                 <Link href={`/products/${wishlist.product.id}`}>
                   <Image
-                    src={wishlist.product.featured_image || 'https://placehold.co/160x160/f0fdf4/155e2c?text=Product'}
+                    src={wishlist.product.featured_image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80'}
                     alt={wishlist.product.name}
                     width={160}
                     height={160}

@@ -600,7 +600,7 @@ function DashboardContent() {
                     {wishlist.slice(0, 6).map((item) => (
                       <Link key={item.id} href={`/products/${item.product.id}`} className="rounded-xl border border-gray-100 p-2 hover:border-primary-200">
                         <Image
-                          src={item.product.featured_image || 'https://placehold.co/120x120/f0fdf4/155e2c?text=Product'}
+                          src={item.product.featured_image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80'}
                           alt={item.product.name || 'Product'}
                           width={120}
                           height={120}
@@ -783,7 +783,7 @@ function DashboardContent() {
                 {wishlist.map((item) => (
                   <Link key={item.id} href={`/products/${item.product.id}`} className="bg-white rounded-xl border border-gray-100 p-3 hover-lift block">
                     <Image
-                      src={item.product.featured_image || 'https://placehold.co/160x160/f0fdf4/155e2c?text=Product'}
+                      src={item.product.featured_image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80'}
                       alt={item.product.name || 'Product'}
                       width={160}
                       height={160}

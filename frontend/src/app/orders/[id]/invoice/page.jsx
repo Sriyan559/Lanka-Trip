@@ -101,7 +101,7 @@ export default function OrderInvoicePage() {
                 <div className="w-8 h-8 rounded-lg bg-primary-800 flex items-center justify-center">
                   <span className="text-white text-xs font-bold">E</span>
                 </div>
-                <span className="text-xl font-bold text-primary-800">EcomLanka</span>
+                <span className="text-xl font-bold text-primary-800">SL Beauty</span>
               </div>
               <p className="text-xs text-gray-400">Sri Lanka&apos;s Premier B2B Marketplace</p>
             </div>
@@ -219,8 +219,8 @@ export default function OrderInvoicePage() {
 
           {/* Footer */}
           <div className="border-t border-gray-100 pt-4 text-center text-xs text-gray-400">
-            <p>EcomLanka — Sri Lanka&apos;s Premier B2B Export Marketplace · ecomlanka.lk</p>
-            <p className="mt-0.5">This is an automatically generated invoice. For disputes, contact support@ecomlanka.lk</p>
+            <p>SL Beauty — Sri Lanka&apos;s Premier B2B Export Marketplace · slbeauty.lk</p>
+            <p className="mt-0.5">This is an automatically generated invoice. For disputes, contact support@slbeauty.lk</p>
           </div>
         </div>
       </div>

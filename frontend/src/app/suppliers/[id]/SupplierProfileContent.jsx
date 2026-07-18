@@ -110,9 +110,9 @@ export default function SupplierProfileContent({ id }) {
   const supplierName = supplier.company_name;
   const location = [supplier.city, supplier.country].filter(Boolean).join(', ');
   const logo = supplier.logo
-    || `https://placehold.co/160x160/f0fdf4/155e2c?text=${encodeURIComponent(supplierName.slice(0, 3))}`;
+    || `https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80))}`;
   const coverImage = supplier.cover_image
-    || `https://placehold.co/1200x300/155e2c/ffffff?text=${encodeURIComponent(supplierName)}`;
+    || `https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80)}`;
 
   const products = latestProducts.map((product) => ({
     ...product,

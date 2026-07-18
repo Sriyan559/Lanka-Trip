@@ -33,7 +33,7 @@ export default function InquiryCreateContent() {
   const productId     = searchParams.get('productId')     || '';
   const productName    = searchParams.get('productName')   || 'Selected Product';
   const supplierName   = searchParams.get('supplierName')  || 'Supplier';
-  const productImage   = searchParams.get('image') || `https://placehold.co/96x96/f0fdf4/155e2c?text=${encodeURIComponent(productName.slice(0, 10))}`;
+  const productImage   = searchParams.get('image') || `https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80))}`;
 
   const [qty, setQty]         = useState(Number(searchParams.get('qty')) || '');
   const [unit, setUnit]       = useState('Pieces');

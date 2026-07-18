@@ -69,7 +69,7 @@ export default function CartPage() {
                   className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex gap-4 items-start"
                 >
                   <Image
-                    src={item.image || `https://placehold.co/80x80/f0fdf4/155e2c?text=Product`}
+                    src={item.image || `https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80`}
                     alt={item.name}
                     width={80}
                     height={80}

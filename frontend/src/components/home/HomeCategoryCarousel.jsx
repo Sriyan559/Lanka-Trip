@@ -1,81 +1,68 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import useCategories from '@/hooks/useCategories';
+import { SRI_LANKA_CATEGORIES } from '@/lib/constants';
 
-const CATEGORY_CAROUSEL_ITEMS = [
-  {
-    slug: 'beauty-tools',
-    name: 'Brushes',
-    fallbackImage: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=720&q=85',
-    link: '/categories/beauty-tools',
-  },
-  {
-    slug: 'makeup',
-    name: 'Makeup',
-    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Hp-Makeup-Top-categories-1775901570015.jpeg',
-    link: '/categories/makeup',
-  },
-  {
-    slug: 'skincare',
-    name: 'Skincare',
-    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Skincare-1775740065304.jpeg',
-    link: '/categories/skincare',
-  },
-  {
-    slug: 'hair-care',
-    name: 'Hair',
-    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Hair-1775743606558.jpeg',
-    link: '/categories/hair-care',
-  },
-  {
-    slug: 'fragrance',
-    name: 'Fragrance',
-    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Frag-1775742093518.jpeg',
-    link: '/categories/fragrance',
-  },
-  {
-    slug: 'bath-body',
-    name: 'Bath & Body',
-    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Bath-and-body-1775741959054.jpeg',
-    link: '/categories/bath-body',
-  },
-  {
-    slug: 'mens-grooming',
-    name: 'Men',
-    fallbackImage: 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/company/1/applications/62d53777f5ad942d3e505f77/theme/pictures/free/original/Men-1775742004145.jpeg',
-    link: '/categories/mens-grooming',
-  },
-  {
-    slug: 'wellness',
-    name: 'Wellness',
-    fallbackImage: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=720&q=85',
-    link: '/categories/wellness',
-  },
+const FEATURED_CATEGORY_SLUGS = [
+  'makeup',
+  'skincare',
+  'hair-care',
+  'fragrance',
+  'bath-body',
+  'tools-brushes',
+  'mens-grooming',
+  'wellness',
 ];
+
+const FALLBACK_IMAGE = '/images/categories/wellness.jpg';
+
+function isSupportedImageSource(src) {
+  if (!src) return false;
+  if (String(src).startsWith('/')) return true;
+
+  try {
+    const { hostname } = new URL(src);
+    return hostname === 'images.unsplash.com' || hostname === 'localhost';
+  } catch {
+    return false;
+  }
+}
+
+function getCategoryImage(category, dbCategory) {
+  const dbImage = dbCategory?.image || dbCategory?.image_url || dbCategory?.thumbnail;
+  if (isSupportedImageSource(dbImage)) return dbImage;
+  return category.image || FALLBACK_IMAGE;
+}
 
 export default function HomeCategoryCarousel() {
   const { categories } = useCategories();
   const [swiper, setSwiper] = useState(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+  const [failedImages, setFailedImages] = useState({});
 
   const updatePosition = (instance) => {
     setAtStart(instance.isBeginning);
     setAtEnd(instance.isEnd);
   };
 
-  const carouselItems = CATEGORY_CAROUSEL_ITEMS.map((item) => {
-    const dbCategory = categories.find((cat) => cat.slug === item.slug);
+  const carouselItems = useMemo(() => FEATURED_CATEGORY_SLUGS.map((slug) => {
+    const category = SRI_LANKA_CATEGORIES.find((item) => item.slug === slug);
+    if (!category) return null;
+
+    const dbCategory = categories.find((item) => item.slug === slug);
     return {
-      ...item,
-      image: dbCategory?.image || item.fallbackImage,
+      ...category,
+      image: failedImages[slug] ? FALLBACK_IMAGE : getCategoryImage(category, dbCategory),
+      label: dbCategory?.label || dbCategory?.name || category.label,
+      href: category.href,
     };
-  });
+  }).filter(Boolean), [categories, failedImages]);
 
   return (
     <section aria-label="Shop product categories" className="bg-white pb-5 pt-6 sm:pb-6 sm:pt-7 lg:pt-8">
@@ -100,23 +87,24 @@ export default function HomeCategoryCarousel() {
           }}
         >
           {carouselItems.map((category, index) => (
-            <SwiperSlide key={category.name} className="pb-1">
+            <SwiperSlide key={category.slug} className="pb-1">
               <Link
-                href={category.link}
+                href={category.href}
                 className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2"
               >
                 <span className="relative block aspect-square overflow-hidden rounded-lg bg-gray-100">
                   <Image
                     src={category.image}
-                    alt={`${category.name} beauty category`}
+                    alt={category.imageAlt || category.label}
                     fill
                     priority={index < 2}
                     sizes="(max-width: 640px) 56vw, (max-width: 1024px) 24vw, 190px"
                     className="object-cover transition-transform duration-300 group-hover:scale-[1.035]"
+                    onError={() => setFailedImages((current) => ({ ...current, [category.slug]: true }))}
                   />
                 </span>
                 <span className="mt-3 block text-left text-base font-medium leading-snug text-gray-950 sm:text-[17px]">
-                  {category.name}
+                  {category.label}
                 </span>
               </Link>
             </SwiperSlide>

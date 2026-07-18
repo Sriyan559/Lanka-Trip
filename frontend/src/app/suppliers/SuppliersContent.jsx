@@ -115,7 +115,7 @@ export default function SuppliersContent() {
                   className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover-lift block">
                   <div className="flex items-start gap-3 mb-3">
                     <Image
-                      src={s.logo || s.image || 'https://placehold.co/64x64/f3f4f6/6b7280?text=Supplier'}
+                      src={s.logo || s.image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80'}
                       alt={s.name || s.company_name}
                       width={56}
                       height={56}

@@ -52,7 +52,7 @@ export default function SupplierGuideContent() {
       <div className="bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-8 text-white mb-6">
         <p className="text-primary-100 text-xs font-bold uppercase tracking-wider mb-1">Help Center / Supplier Guide</p>
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">The Complete Supplier&apos;s Guide</h1>
-        <p className="text-primary-100 max-w-xl">Set up your storefront, get verified, and start exporting to global buyers through EcomLanka.</p>
+        <p className="text-primary-100 max-w-xl">Set up your storefront, get verified, and start exporting to global buyers through SL Beauty.</p>
       </div>
 
       <div className="flex gap-6 items-start">
@@ -165,7 +165,7 @@ export default function SupplierGuideContent() {
             <ul className="space-y-2 mb-4">
               {[
                 'Upgrade to Premium for featured placement and unlimited listings.',
-                'Join a Trade Show under the EcomLanka pavilion — shared booth costs, real buyer meetings.',
+                'Join a Trade Show under the SL Beauty pavilion — shared booth costs, real buyer meetings.',
                 'Keep your response rate above 95% — it\'s a visible filter buyers actively use.',
                 'Ask satisfied buyers to leave a review — supplier rating is one of the strongest ranking signals.',
               ].map((tip) => (

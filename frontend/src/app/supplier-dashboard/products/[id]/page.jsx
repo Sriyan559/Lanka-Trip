@@ -17,20 +17,20 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'LKR'];
 
 // Mock product prefill
 const MOCK_PRODUCT = {
-  id: 1, name: 'Premium BOPF Black Tea 500g', category: 'tea-beverages',
-  description: 'Our premium BOPF Ceylon black tea sourced from Nuwara Eliya.', 
+  id: 1, name: 'Vitamin C Brightening Serum 30ml', category: 'skincare',
+  description: 'A brightening vitamin C serum prepared for daily skincare routines.',
   price_min: '12.50', price_max: '18.00', currency: 'USD',
-  moq: '50', moq_unit: 'Kg', stock: '2000',
+  moq: '12', moq_unit: 'Piece', stock: '2000',
   lead_time_min: '7', lead_time_max: '21',
   specifications: [
-    { key: 'Grade', value: 'BOPF' }, { key: 'Origin', value: 'Nuwara Eliya' },
-    { key: 'Moisture', value: '≤5%' }, { key: 'Shelf Life', value: '24 months' },
+    { key: 'Skin Type', value: 'All skin types' }, { key: 'Finish', value: 'Radiant' },
+    { key: 'Volume', value: '30ml' }, { key: 'Shelf Life', value: '24 months' },
   ],
   certifications: ['ISO 22000', 'Rainforest Alliance'],
-  packaging: '25kg kraft bag or custom', hs_code: '0902.30',
+  packaging: 'Glass bottle with retail carton', hs_code: '3304.99',
   country_of_origin: 'Sri Lanka', shipping_note: '',
   status: 'active',
-  existingImages: ['https://placehold.co/400x400/e8f5e9/155e2c?text=Tea'],
+  existingImages: ['https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=800&q=80'],
 };
 
 function Field({ label, required, hint, children }) {
@@ -133,7 +133,7 @@ export default function EditProductPage() {
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Category" required>
               <select value={form.category} onChange={set('category')} className={inputCls}>
-                {SRI_LANKA_CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.icon} {c.label}</option>)}
+                {SRI_LANKA_CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
               </select>
             </Field>
             <Field label="Status">

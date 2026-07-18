@@ -17,7 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const PARTICIPANT_PLACEHOLDER =
-  'https://placehold.co/96x96/f0fdf4/155e2c?text=User';
+  'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80';
 
 function participantName(conversation) {
   return conversation?.participant?.name

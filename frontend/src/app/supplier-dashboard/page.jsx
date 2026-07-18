@@ -179,7 +179,7 @@ export default function SupplierDashboardPage() {
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-bold">Welcome back, {user?.name?.split(' ')[0] || 'Supplier'} 👋</h1>
-          <p className="text-primary-100 text-sm">{user?.company || 'EcomLanka Supplier'}</p>
+          <p className="text-primary-100 text-sm">{user?.company || 'SL Beauty Supplier'}</p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
           <Link href="/supplier-dashboard/products/new" className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-primary-800 text-xs font-semibold rounded-lg hover:bg-primary-50 transition-colors">

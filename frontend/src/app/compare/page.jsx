@@ -16,7 +16,7 @@ import toast from 'react-hot-toast';
 const MOCK_PRODUCTS = [
   {
     id: 1, name: 'Premium BOPF Ceylon Black Tea 500g', supplier: 'Ceylon Exports (Pvt) Ltd.', supplier_verified: true,
-    image: 'https://placehold.co/200x200/e8f5e9/155e2c?text=Tea', category: 'Tea & Beverages',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80', category: 'Tea & Beverages',
     price: { min: 12.50, max: 18.00, currency: 'USD' }, moq: '50 Kg', lead_time: '14–21 days',
     rating: 4.8, reviews: 142, orders: 380, response_rate: '98%',
     certifications: ['ISO 22000', 'Rainforest Alliance', 'Organic Certified'],
@@ -26,7 +26,7 @@ const MOCK_PRODUCTS = [
   },
   {
     id: 2, name: 'BOPF Ceylon Tea Export Grade 1Kg', supplier: 'High Grown Tea Co.', supplier_verified: true,
-    image: 'https://placehold.co/200x200/f3e5f5/7e22ce?text=Tea2', category: 'Tea & Beverages',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80', category: 'Tea & Beverages',
     price: { min: 11.00, max: 16.50, currency: 'USD' }, moq: '100 Kg', lead_time: '10–18 days',
     rating: 4.6, reviews: 87, orders: 210, response_rate: '95%',
     certifications: ['ISO 22000', 'Halal'],
@@ -36,7 +36,7 @@ const MOCK_PRODUCTS = [
   },
   {
     id: 3, name: 'Organic Ceylon Green Tea 200g Premium', supplier: 'Lanka Organic Exports', supplier_verified: false,
-    image: 'https://placehold.co/200x200/e0f2f1/00695c?text=Green', category: 'Tea & Beverages',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80', category: 'Tea & Beverages',
     price: { min: 16.00, max: 24.00, currency: 'USD' }, moq: '20 Kg', lead_time: '21–30 days',
     rating: 4.4, reviews: 54, orders: 95, response_rate: '89%',
     certifications: ['Organic Certified', 'Fair Trade'],

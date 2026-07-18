@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SOURCING_SOLUTIONS, SRI_LANKA_CATEGORIES } from '@/lib/constants';
 
-// Show 3 category thumbnail icons under each solution card
 const SOLUTION_CATS = [
   ['makeup', 'skincare', 'fragrance'],
   ['hair-care', 'bath-body', 'wellness'],
@@ -26,7 +25,6 @@ export default function SourcingSolutions() {
               href={card.href}
               className="group bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover-lift block"
             >
-              {/* Image header */}
               <div className="relative h-36 overflow-hidden">
                 <Image src={card.bg} alt={card.title} width={600} height={360} unoptimized className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -36,13 +34,20 @@ export default function SourcingSolutions() {
                 </div>
               </div>
 
-              {/* Sub-categories */}
-              <div className="p-3 flex items-center gap-3">
+              <div className="p-3 grid grid-cols-3 gap-2">
                 {cats.map((cat) => (
-                  <div key={cat.slug} className="flex flex-col items-center gap-1 flex-1">
-                    <div className="text-2xl">{cat.icon}</div>
-                    <span className="text-[10px] text-gray-500 text-center leading-tight line-clamp-2">
-                      {cat.label.split(' ')[0]}
+                  <div key={cat.slug} className="min-w-0">
+                    <div className="relative mx-auto aspect-square w-11 overflow-hidden rounded-md bg-gray-100 ring-1 ring-gray-100">
+                      <Image
+                        src={cat.image}
+                        alt={cat.imageAlt || cat.label}
+                        fill
+                        sizes="44px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="mt-1 block text-center text-[10px] leading-tight text-gray-500 line-clamp-2">
+                      {cat.label}
                     </span>
                   </div>
                 ))}

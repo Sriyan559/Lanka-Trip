@@ -4,7 +4,7 @@ import BuyerGuideContent from './BuyerGuideContent';
 
 export const metadata = {
   title: 'Buyer\'s Guide',
-  description: 'Learn how to source, vet suppliers, post RFQs, and order confidently from Sri Lankan exporters on EcomLanka.',
+  description: 'Learn how to source, vet suppliers, post RFQs, and order confidently from Sri Lankan exporters on SL Beauty.',
 };
 
 export default function BuyerGuidePage() {

@@ -32,7 +32,7 @@ const VERIFICATION_LEVELS = [
     name: 'Top Supplier',
     badge: '🏆',
     color: 'text-purple-700 bg-purple-50 border-purple-200',
-    requirements: ['All Premium documents', 'Factory Inspection Report', '2+ years on EcomLanka', 'Min. 50 verified orders', 'Rating ≥ 4.5'],
+    requirements: ['All Premium documents', 'Factory Inspection Report', '2+ years on SL Beauty', 'Min. 50 verified orders', 'Rating ≥ 4.5'],
     benefits: ['Exclusive Top Supplier badge', 'Homepage featured placement', 'Dedicated account manager', 'Priority trade show placement'],
     status: 'locked',
   },

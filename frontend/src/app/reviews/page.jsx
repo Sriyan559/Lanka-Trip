@@ -15,7 +15,7 @@ import Pagination from '@/components/ui/Pagination';
 const MOCK_REVIEWS = [
   {
     id: 1, type: 'product',
-    product: { id: 42, name: 'Premium BOPF Ceylon Black Tea 500g', image: 'https://placehold.co/56x56/e8f5e9/155e2c?text=Tea' },
+    product: { id: 42, name: 'Premium BOPF Ceylon Black Tea 500g', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80' },
     supplier: { id: 7, name: 'Ceylon Exports (Pvt) Ltd.' },
     buyer: 'Nature Direct USA', buyer_country: 'US',
     date: '2026-06-18',
@@ -28,7 +28,7 @@ const MOCK_REVIEWS = [
   },
   {
     id: 2, type: 'product',
-    product: { id: 19, name: 'Virgin Coconut Oil 5L — Export Grade', image: 'https://placehold.co/56x56/fff9c4/7b5e00?text=Oil' },
+    product: { id: 19, name: 'Virgin Coconut Oil 5L — Export Grade', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80' },
     supplier: { id: 12, name: 'Lanka Coconut Products' },
     buyer: 'Wellness World GmbH', buyer_country: 'DE',
     date: '2026-06-10',
@@ -54,7 +54,7 @@ const MOCK_REVIEWS = [
   },
   {
     id: 4, type: 'product',
-    product: { id: 33, name: 'Ceylon Cinnamon Sticks 1Kg', image: 'https://placehold.co/56x56/fbe9e7/bf360c?text=Cin' },
+    product: { id: 33, name: 'Ceylon Cinnamon Sticks 1Kg', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80' },
     supplier: { id: 9, name: 'High Grown Tea Exporters' },
     buyer: 'Spice Route LLC', buyer_country: 'AE',
     date: '2026-05-28',
@@ -67,7 +67,7 @@ const MOCK_REVIEWS = [
   },
   {
     id: 5, type: 'product',
-    product: { id: 51, name: 'Batik Sarong Mixed Set — Handmade', image: 'https://placehold.co/56x56/fce4ec/880e4f?text=Btk' },
+    product: { id: 51, name: 'Batik Sarong Mixed Set — Handmade', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80' },
     supplier: { id: 18, name: 'Lanka Handloom Arts' },
     buyer: 'Kanzuki Trading JP', buyer_country: 'JP',
     date: '2026-05-15',

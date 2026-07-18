@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 
 const ROLES = [
   { value: 'buyer',    label: '🛒 Shopper',  desc: 'Shop authentic beauty products and favourite brands' },
-  { value: 'supplier', label: '🏷️ Brand Partner',  desc: 'Manage beauty products, offers, and brand collections' },
+  { value: 'supplier', label: 'Brand Partner',  desc: 'Manage beauty products, offers, and brand collections' },
 ];
 
 export default function RegisterForm() {

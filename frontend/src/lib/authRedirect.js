@@ -12,9 +12,9 @@ export function sanitizeInternalRedirect(value, fallback = '/dashboard') {
   }
 
   try {
-    const url = new URL(candidate, 'https://ecomlanka.local');
+    const url = new URL(candidate, 'https://slbeauty.local');
 
-    if (url.origin !== 'https://ecomlanka.local') {
+    if (url.origin !== 'https://slbeauty.local') {
       return fallback;
     }
 

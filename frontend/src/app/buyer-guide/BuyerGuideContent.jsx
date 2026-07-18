@@ -52,7 +52,7 @@ export default function BuyerGuideContent() {
       <div className="bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl p-8 text-white mb-6">
         <p className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Help Center / Buyer Guide</p>
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">The Complete Buyer&apos;s Guide</h1>
-        <p className="text-blue-100 max-w-xl">Everything you need to source, vet, and order confidently from Sri Lankan exporters on EcomLanka.</p>
+        <p className="text-blue-100 max-w-xl">Everything you need to source, vet, and order confidently from Sri Lankan exporters on SL Beauty.</p>
       </div>
 
       <div className="flex gap-6 items-start">
@@ -93,7 +93,7 @@ export default function BuyerGuideContent() {
 
           <Section id="finding-suppliers" title="Finding the Right Supplier" icon={ShieldCheck}>
             <p className="text-sm text-gray-600 leading-relaxed mb-4">
-              Not all suppliers are equal. EcomLanka uses a three-tier verification system so you can quickly judge trustworthiness before you commit.
+              Not all suppliers are equal. SL Beauty uses a three-tier verification system so you can quickly judge trustworthiness before you commit.
             </p>
             <div className="grid sm:grid-cols-3 gap-3 mb-4">
               {[
@@ -139,7 +139,7 @@ export default function BuyerGuideContent() {
 
           <Section id="payment" title="Payment & Trade Assurance" icon={CreditCard}>
             <p className="text-sm text-gray-600 leading-relaxed mb-4">
-              EcomLanka supports Bank Transfer (TT), PayPal, Credit/Debit Card, and Letter of Credit. All payments made through checkout are protected by <strong>Trade Assurance Escrow</strong> — your funds are held securely and only released to the supplier after you confirm delivery.
+              SL Beauty supports Bank Transfer (TT), PayPal, Credit/Debit Card, and Letter of Credit. All payments made through checkout are protected by <strong>Trade Assurance Escrow</strong> — your funds are held securely and only released to the supplier after you confirm delivery.
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
               {[

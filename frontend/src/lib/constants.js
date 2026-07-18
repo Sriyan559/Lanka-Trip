@@ -2,20 +2,117 @@
 import { SL_BEAUTY_CATEGORY_SLUGS } from './slBeautyConfig';
 
 export const SRI_LANKA_CATEGORIES = [
-  { slug: 'makeup',          label: 'Makeup',          icon: '💄' },
-  { slug: 'skincare',        label: 'Skincare',        icon: '🧴' },
-  { slug: 'fragrance',       label: 'Fragrance',       icon: '✨' },
-  { slug: 'hair-care',       label: 'Haircare',        icon: '💇' },
-  { slug: 'bath-body',       label: 'Bath & Body',     icon: '🫧' },
-  { slug: 'tools-brushes',   label: 'Beauty Tools',    icon: '🖌️' },
-  { slug: 'mens-grooming',   label: 'Men’s Grooming',  icon: '🪒' },
-  { slug: 'wellness',        label: 'Wellness',        icon: '🌿' },
-  { slug: 'luxury-beauty',   label: 'Luxury Beauty',   icon: '💎' },
-  { slug: 'k-beauty',        label: 'K-Beauty',        icon: '🌸' },
-  { slug: 'mini-size',       label: 'Mini Size',       icon: '👜' },
-  { slug: 'gift-sets',       label: 'Gift Sets',       icon: '🎁' },
-  { slug: 'sale',            label: 'Sale & Offers',   icon: '🏷️' },
-  { slug: 'new-arrivals',    label: 'New Arrivals',    icon: '🆕' },
+  {
+    slug: 'makeup',
+    label: 'Makeup',
+    image:
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Premium makeup products and cosmetics',
+    href: '/categories/makeup',
+  },
+  {
+    slug: 'skincare',
+    label: 'Skincare',
+    image:
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Premium skincare bottles and beauty products',
+    href: '/categories/skincare',
+  },
+  {
+    slug: 'fragrance',
+    label: 'Fragrance',
+    image:
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Luxury fragrance and perfume bottles',
+    href: '/categories/fragrance',
+  },
+  {
+    slug: 'hair-care',
+    label: 'Hair Care',
+    image:
+      'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Professional hair-care products and styling essentials',
+    href: '/categories/hair-care',
+  },
+  {
+    slug: 'bath-body',
+    label: 'Bath & Body',
+    image:
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Premium bath and body-care products',
+    href: '/categories/bath-body',
+  },
+  {
+    slug: 'tools-brushes',
+    label: 'Beauty Tools',
+    image:
+      'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Professional makeup brushes and beauty tools',
+    href: '/categories/tools-brushes',
+  },
+  {
+    slug: 'mens-grooming',
+    label: 'Men’s Grooming',
+    image:
+      'https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Premium men’s grooming products and accessories',
+    href: '/categories/mens-grooming',
+  },
+  {
+    slug: 'wellness',
+    label: 'Wellness',
+    image: '/images/categories/wellness.jpg',
+    imageAlt: 'Beauty wellness and self-care collection',
+    href: '/categories/wellness',
+  },
+  {
+    slug: 'luxury-beauty',
+    label: 'Luxury Beauty',
+    image:
+      'https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Luxury beauty and skincare collection',
+    href: '/categories/luxury-beauty',
+  },
+  {
+    slug: 'k-beauty',
+    label: 'K-Beauty',
+    image:
+      'https://images.unsplash.com/photo-1608979048467-6194dabc6a3d?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Korean beauty and skincare collection',
+    href: '/categories/k-beauty',
+  },
+  {
+    slug: 'mini-size',
+    label: 'Mini Size',
+    image:
+      'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Travel-size and miniature beauty products',
+    href: '/categories/mini-size',
+  },
+  {
+    slug: 'gift-sets',
+    label: 'Gift Sets',
+    image:
+      'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Curated premium beauty gift sets',
+    href: '/categories/gift-sets',
+  },
+  {
+    slug: 'sale',
+    label: 'Sale & Offers',
+    image:
+      'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Beauty products available through promotional offers',
+    href: '/categories/sale',
+  },
+  {
+    slug: 'new-arrivals',
+    label: 'New Arrivals',
+    image:
+      'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Recently introduced beauty and skincare products',
+    href: '/categories/new-arrivals',
+  },
 ].filter((category) => SL_BEAUTY_CATEGORY_SLUGS.includes(category.slug));
 
 export const HERO_SLIDES = [
@@ -594,11 +691,11 @@ export const NAV_DROPDOWNS = {
               { label: 'Bestsellers', href: '/products?category=fragrance&sort=popular' },
               { label: 'Gift Sets', href: '/products?category=fragrance&q=set' },
               { label: 'Sets & Bundles', href: '/products?category=fragrance&q=bundle' },
-              { label: 'Tira Loves', href: '/products?category=fragrance' },
+              { label: 'SL Beauty Loves', href: '/products?category=fragrance' },
             ]
           },
           {
-            title: 'Tira Red',
+            title: 'Luxury Edit',
             links: [
               { label: 'Yves Saint Laurent', href: '/brands' },
               { label: 'Burberry', href: '/brands' },

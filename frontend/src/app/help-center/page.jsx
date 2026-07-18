@@ -140,15 +140,15 @@ export default function HelpCenterPage() {
       <div>
         <h2 className="font-bold text-gray-900 mb-4 text-center">Browse by Topic</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
+          {CATEGORIES.map((topic) => {
+            const Icon = topic['icon'];
             return (
-              <Link key={cat.href} href={cat.href}
+              <Link key={topic.href} href={topic.href}
                 className="flex flex-col items-center gap-2.5 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-center group">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${cat.color}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${topic.color}`}>
                   <Icon size={19} />
                 </div>
-                <span className="text-xs font-semibold text-gray-700 group-hover:text-primary-800 transition-colors">{cat.label}</span>
+                <span className="text-xs font-semibold text-gray-700 group-hover:text-primary-800 transition-colors">{topic.label}</span>
               </Link>
             );
           })}
@@ -219,21 +219,21 @@ export default function HelpCenterPage() {
         <div className="grid sm:grid-cols-3 gap-4">
           {[
             { icon: MessageCircle, label: 'Live Chat',     desc: 'Chat with us now', href: '/messages', cta: 'Start Chat',   color: 'bg-primary-800' },
-            { icon: Mail,          label: 'Email Support', desc: 'support@ecomlanka.lk', href: 'mailto:support@ecomlanka.lk', cta: 'Send Email', color: 'bg-blue-600' },
+            { icon: Mail,          label: 'Email Support', desc: 'support@slbeauty.lk', href: 'mailto:support@slbeauty.lk', cta: 'Send Email', color: 'bg-blue-600' },
             { icon: Phone,         label: 'Phone Support', desc: '+94 11 234 5678', href: 'tel:+94112345678', cta: 'Call Now', color: 'bg-green-600' },
-          ].map((c) => {
-            const Icon = c.icon;
+          ].map((channel) => {
+            const Icon = channel['icon'];
             return (
-              <Link key={c.label} href={c.href}
+              <Link key={channel.label} href={channel.href}
                 className="flex flex-col items-center gap-3 p-5 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all text-center group">
-                <div className={`w-12 h-12 rounded-xl ${c.color} flex items-center justify-center`}>
+                <div className={`w-12 h-12 rounded-xl ${channel.color} flex items-center justify-center`}>
                   <Icon size={22} className="text-white" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800 group-hover:text-primary-700 transition-colors">{c.label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{c.desc}</p>
+                  <p className="font-semibold text-gray-800 group-hover:text-primary-700 transition-colors">{channel.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{channel.desc}</p>
                 </div>
-                <span className={`px-4 py-1.5 ${c.color} text-white text-xs font-semibold rounded-full`}>{c.cta}</span>
+                <span className={`px-4 py-1.5 ${channel.color} text-white text-xs font-semibold rounded-full`}>{channel.cta}</span>
               </Link>
             );
           })}

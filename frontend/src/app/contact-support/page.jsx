@@ -24,7 +24,7 @@ const SUBJECT_OPTIONS = [
 
 const CHANNELS = [
   { icon: MessageCircle, label: 'Live Chat',     value: 'Available now', color: 'bg-primary-800', href: '/messages' },
-  { icon: Mail,          label: 'Email',         value: 'support@ecomlanka.lk', color: 'bg-blue-600', href: 'mailto:support@ecomlanka.lk' },
+  { icon: Mail,          label: 'Email',         value: 'support@slbeauty.lk', color: 'bg-blue-600', href: 'mailto:support@slbeauty.lk' },
   { icon: Phone,         label: 'Phone',         value: '+94 11 234 5678', color: 'bg-green-600', href: 'tel:+94112345678' },
 ];
 
@@ -88,17 +88,17 @@ function ContactSupportContent() {
 
       {/* Channel cards */}
       <div className="grid sm:grid-cols-3 gap-3">
-        {CHANNELS.map((c) => {
-          const Icon = c.icon;
+        {CHANNELS.map((contact) => {
+          const Icon = contact['icon'];
           return (
-            <Link key={c.label} href={c.href}
+            <Link key={contact.label} href={contact.href}
               className="flex items-center gap-3 bg-white border border-gray-100 shadow-sm rounded-xl p-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className={`w-10 h-10 rounded-xl ${c.color} flex items-center justify-center flex-shrink-0`}>
+              <div className={`w-10 h-10 rounded-xl ${contact.color} flex items-center justify-center flex-shrink-0`}>
                 <Icon size={18} className="text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-800">{c.label}</p>
-                <p className="text-xs text-gray-400 truncate">{c.value}</p>
+                <p className="text-sm font-semibold text-gray-800">{contact.label}</p>
+                <p className="text-xs text-gray-400 truncate">{contact.value}</p>
               </div>
             </Link>
           );

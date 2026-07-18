@@ -28,7 +28,7 @@ const MOCK_CONVERSATION = {
   product: {
     id: 42,
     name: 'Premium BOPF Ceylon Black Tea — 500g Export Pack',
-    image: 'https://placehold.co/48x48/e8f5e9/155e2c?text=Tea',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
     price: 'USD 12.50/Kg',
     moq: '50 Kg',
   },

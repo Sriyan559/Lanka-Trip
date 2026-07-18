@@ -143,7 +143,7 @@ export default function AddProductPage() {
         </button>
         <div>
           <h1 className="text-xl font-bold text-gray-900">Add New Product</h1>
-          <p className="text-sm text-gray-500">Fill in the details to list your product on EcomLanka</p>
+          <p className="text-sm text-gray-500">Fill in the details to list your product on SL Beauty</p>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ export default function AddProductPage() {
         <Section title="Basic Information" icon={Info}>
           <div className="pt-4 grid gap-4">
             <Field label="Product Name" required hint="Use a clear, descriptive name buyers would search for">
-              <input type="text" value={form.name} onChange={set('name')} placeholder="e.g. Premium BOPF Ceylon Black Tea — 500g Export Pack" className={inputCls} />
+              <input type="text" value={form.name} onChange={set('name')} placeholder="e.g. Vitamin C Brightening Serum - 30ml Retail Pack" className={inputCls} />
             </Field>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -160,7 +160,7 @@ export default function AddProductPage() {
                 <select value={form.category} onChange={set('category')} className={inputCls}>
                   <option value="">Select category…</option>
                   {SRI_LANKA_CATEGORIES.map((c) => (
-                    <option key={c.slug} value={c.slug}>{c.icon} {c.label}</option>
+                    <option key={c.slug} value={c.slug}>{c.label}</option>
                   ))}
                 </select>
               </Field>
@@ -174,7 +174,7 @@ export default function AddProductPage() {
                 value={form.description}
                 onChange={set('description')}
                 rows={5}
-                placeholder="Describe your product in detail — quality, origin, certifications, packaging options, suitable markets…"
+                placeholder="Describe your product in detail — ingredients, benefits, usage notes, packaging, and retail availability…"
                 className={textareaCls}
               />
               <p className="text-[11px] text-gray-400 mt-1 text-right">{form.description.length} chars</p>
@@ -280,14 +280,14 @@ export default function AddProductPage() {
               <div key={i} className="flex gap-2 items-center">
                 <input
                   type="text"
-                  placeholder="Attribute (e.g. Grade)"
+                  placeholder="Attribute (e.g. Skin Type)"
                   value={spec.key}
                   onChange={(e) => setSpec(i, 'key', e.target.value)}
                   className={`${inputCls} flex-1`}
                 />
                 <input
                   type="text"
-                  placeholder="Value (e.g. BOPF)"
+                  placeholder="Value (e.g. All skin types)"
                   value={spec.value}
                   onChange={(e) => setSpec(i, 'value', e.target.value)}
                   className={`${inputCls} flex-1`}
@@ -320,10 +320,10 @@ export default function AddProductPage() {
               <input type="text" value={form.packaging} onChange={set('packaging')} className={inputCls} placeholder="Describe packaging…" />
             </Field>
             <Field label="HS Code" hint="Harmonized System code for export customs">
-              <input type="text" value={form.hs_code} onChange={set('hs_code')} className={inputCls} placeholder="e.g. 0902.30" />
+              <input type="text" value={form.hs_code} onChange={set('hs_code')} className={inputCls} placeholder="e.g. 3304.99" />
             </Field>
             <Field label="Shipping Notes" hint="Any special handling or export restrictions" className="sm:col-span-2">
-              <textarea value={form.shipping_note} onChange={set('shipping_note')} rows={2} className={textareaCls} placeholder="e.g. Requires phytosanitary certificate for EU…" />
+              <textarea value={form.shipping_note} onChange={set('shipping_note')} rows={2} className={textareaCls} placeholder="e.g. Fragile beauty items require careful carton packing…" />
             </Field>
           </div>
         </Section>

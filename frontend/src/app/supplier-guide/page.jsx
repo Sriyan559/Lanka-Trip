@@ -4,7 +4,7 @@ import SupplierGuideContent from './SupplierGuideContent';
 
 export const metadata = {
   title: 'Supplier\'s Guide',
-  description: 'Set up your storefront, get verified, list products, and start exporting to global buyers through EcomLanka.',
+  description: 'Set up your storefront, get verified, list products, and start exporting to global buyers through SL Beauty.',
 };
 
 export default function SupplierGuidePage() {

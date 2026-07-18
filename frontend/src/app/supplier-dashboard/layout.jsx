@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer';
 import SupplierSidebar from '@/components/supplier/SupplierSidebar';
 
 export const metadata = {
-  title: 'Supplier Dashboard | EcomLanka',
+  title: 'Supplier Dashboard | SL Beauty',
 };
 
 export default function SupplierDashboardLayout({ children }) {

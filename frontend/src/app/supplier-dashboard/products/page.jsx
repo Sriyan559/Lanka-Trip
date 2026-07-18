@@ -16,32 +16,39 @@ import toast from 'react-hot-toast';
 const MOCK_PRODUCTS = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   name: [
-    'Premium BOPF Black Tea 500g',
-    'Cinnamon Sticks Export Grade 1kg',
-    'Virgin Coconut Oil 5L',
-    'Blue Sapphire Gemstone 3ct',
-    'Batik Sarong Mixed Set',
-    'Industrial Rubber Sheets',
-    'Ayurvedic Coconut Hair Oil',
-    'Hand-Woven Coir Doormat',
-    'Ceylon Pepper Whole 1kg',
-    'Green Tea Organic 200g',
-    'Rubber Gloves Industrial XL',
-    'Hand-Painted Batik Fabric 2m',
+    'Vitamin C Brightening Serum 30ml',
+    'Hydrating Gel Cleanser 150ml',
+    'Long Wear Matte Lipstick',
+    'Repair Shampoo 250ml',
+    'Signature Eau de Parfum 50ml',
+    'Soft Glow Body Lotion',
+    'Pore Care Clay Face Mask',
+    'Nourishing Hair Oil',
+    'Essential Beauty Tools Set',
+    'Rose Glow Blush Palette',
+    'Retinol Night Cream',
+    'Micellar Cleansing Water',
   ][i],
-  sku: `ECL-${1001 + i}`,
-  category: ['Tea & Beverages', 'Spices', 'Coconut', 'Gems', 'Textiles', 'Rubber'][i % 6],
-  price: [12.50, 8.00, 22.00, 450, 35, 18, 14, 9, 11, 16, 24, 42][i],
-  moq: [50, 100, 20, 1, 12, 10, 30, 20, 100, 50, 200, 5][i],
-  stock: [500, 2000, 300, 8, 60, 150, 400, 250, 800, 600, 1500, 40][i],
+  sku: `SLB-${1001 + i}`,
+  category: ['Skincare', 'Skincare', 'Makeup', 'Hair Care', 'Fragrance', 'Bath & Body'][i % 6],
+  price: [3900, 4200, 3200, 4500, 18500, 2900, 5600, 9200, 7400, 9800, 7600, 5100][i],
+  moq: [12, 12, 24, 12, 6, 12, 12, 12, 6, 6, 12, 12][i],
+  stock: [500, 720, 420, 380, 120, 560, 260, 180, 90, 140, 220, 340][i],
   views: [1240, 860, 2100, 540, 380, 920, 670, 310, 1100, 490, 730, 210][i],
   orders: [38, 22, 47, 5, 12, 19, 26, 9, 33, 15, 28, 6][i],
   status: i % 5 === 4 ? 'draft' : 'active',
-  image: `https://placehold.co/64x64/${['e8f5e9', 'fbe9e7', 'fff9c4', 'e8eaf6', 'fce4ec', 'f3e5f5'][i % 6]}/${['155e2c', 'bf360c', 'f57f17', '1a237e', '880e4f', '4a148c'][i % 6]}?text=${encodeURIComponent(['Tea','Spice','Coco','Gem','Batik','Rubber'][i % 6])}`,
+  image: [
+    'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
+  ][i % 6],
 }));
 
 const STATUS_TABS = ['All', 'Active', 'Draft', 'Out of Stock'];
-const PRODUCT_PLACEHOLDER_IMAGE = 'https://placehold.co/64x64/e8f5e9/155e2c?text=Product';
+const PRODUCT_PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80';
 
 function safeNumber(value, fallback = 0) {
   const number = Number(value);
