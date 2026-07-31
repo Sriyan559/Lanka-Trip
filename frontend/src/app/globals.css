@@ -19,6 +19,16 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  
+  /* Admin Shared Colors */
+  --burgundy: #741d35;
+  --ink: #111827;
+  --muted: #6b7280;
+  --canvas: #f3f4f6;
+  --line: #e5e7eb;
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
 }
 
 /* ── Swiper customisation ── */
@@ -202,3 +212,107 @@ input:focus, textarea:focus, select:focus {
 .product-img-zoom:hover img {
   transform: scale(1.07);
 }
+
+/* ── Legacy Admin Global Mappings ── */
+@layer components {
+  .card, .table-card, .filter-panel {
+    @apply bg-white rounded-2xl border border-[#eaeaea] shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] transition-all duration-300;
+  }
+  .card:hover, .table-card:hover {
+    @apply shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] -translate-y-[2px] border-[#e2e2e2];
+  }
+  .metrics-grid, .kpis {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+  .workspace-grid {
+    @apply grid gap-6;
+  }
+  .main-column {
+    @apply space-y-6;
+  }
+  .metric-card {
+    @apply bg-white p-6 rounded-2xl border border-[#eaeaea] shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.1)];
+  }
+  .data-table, table {
+    @apply w-full text-left text-sm whitespace-nowrap;
+  }
+  th {
+    @apply bg-canvas text-muted font-semibold border-b border-line px-6 py-4 uppercase tracking-wider text-[11px];
+  }
+  td {
+    @apply px-6 py-4 border-b border-line text-ink;
+  }
+  .button {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium rounded-xl transition-all duration-300 text-sm border border-line bg-white hover:bg-canvas shadow-sm active:scale-95 cursor-pointer;
+  }
+  .button.primary {
+    @apply bg-primary-900 text-white hover:bg-primary-800 shadow-[0_4px_14px_rgba(107,33,63,0.3)] hover:shadow-[0_6px_20px_rgba(107,33,63,0.4)] border-transparent;
+  }
+  .button.secondary {
+    @apply bg-white text-ink hover:bg-canvas border-line hover:border-slate-300;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-muted;
+  }
+  .badge.warning, .badge-warning {
+    @apply bg-yellow-100 text-warning;
+  }
+  .badge.success, .badge-success {
+    @apply bg-green-100 text-success;
+  }
+  .badge.danger, .badge-danger {
+    @apply bg-red-100 text-danger;
+  }
+  .badge.primary, .badge-primary {
+    @apply bg-primary-100 text-primary-900;
+  }
+  .skeleton {
+    @apply animate-pulse bg-canvas rounded;
+  }
+  .page {
+    @apply p-6 lg:p-8 max-w-[1600px] mx-auto flex flex-col gap-6;
+  }
+  .breadcrumbs {
+    @apply text-sm text-muted font-medium mb-2;
+  }
+  .page-header {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2;
+  }
+  .page-header h1 {
+    @apply text-2xl font-bold text-ink mb-1.5;
+  }
+  .page-header p {
+    @apply text-sm text-muted;
+  }
+  .table-responsive, .table-wrap {
+    @apply overflow-x-auto;
+  }
+  .icon-button {
+    @apply text-muted hover:text-primary-900 transition-colors p-2 rounded-full hover:bg-canvas;
+  }
+  .header-button-group {
+    @apply flex items-center gap-3;
+  }
+  .loading-card {
+    @apply bg-white rounded-xl border border-line shadow-sm p-6;
+  }
+  .input-field {
+    @apply w-full px-4 py-2 bg-canvas border border-line rounded-lg focus:outline-none focus:border-primary-900 text-sm;
+  }
+  .filter-header {
+    @apply flex justify-between items-center mb-4;
+  }
+  .filter-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+  }
+  .filter-label {
+    @apply block text-sm font-medium text-muted mb-1.5;
+  }
+  .search-input-wrapper {
+    @apply relative;
+  }
+  .search-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-muted;
+  }
+}
+

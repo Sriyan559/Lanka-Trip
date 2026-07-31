@@ -48,12 +48,17 @@ export default function LoginForm() {
     setFieldErrors({});
     setLoading(true);
     try {
-      await login({
+      const data = await login({
         email:    form._el_id.trim(),
         password: form._el_pw,
       });
       toast.success('Welcome back!');
-      router.replace(redirectTo);
+      
+      if (data?.user?.role === 'admin') {
+        router.replace('/admin/dashboard');
+      } else {
+        router.replace(redirectTo);
+      }
     } catch (err) {
       setFieldErrors(err.errors || {});
       setError(err.message || 'Invalid credentials. Please try again.');

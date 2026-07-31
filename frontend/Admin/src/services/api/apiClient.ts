@@ -1,0 +1,2 @@
+export class ApiError extends Error{constructor(message:string,public status:number,public details?:unknown){super(message)}}
+export async function apiClient<T>(path:string,options:RequestInit={}){const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),10000);try{const response=await fetch(path,{...options,signal:options.signal??controller.signal});if(!response.ok)throw new ApiError("Request failed",response.status,await response.text());return await response.json() as T}finally{clearTimeout(timeout)}}

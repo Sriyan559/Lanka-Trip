@@ -55,7 +55,7 @@ export default function Header() {
   const headerRef = useRef(null);
   const closeMenuTimerRef = useRef(null);
   const router = useRouter();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin } = useAuth();
   const { count: cartCount, total: cartTotal } = useCart();
   const formattedTotal = `Rs ${Number(cartTotal || 0).toLocaleString('en-US', {
     minimumFractionDigits: 2,
@@ -305,6 +305,11 @@ export default function Header() {
                   role="menu"
                   className="absolute right-0 top-full z-[250] mt-2 w-56 overflow-hidden rounded-xl border border-gray-250 bg-white py-2 shadow-xl"
                 >
+                  {isAdmin && (
+                    <Link href="/admin/dashboard" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm font-semibold text-burgundy hover:bg-red-50 border-b border-gray-100">
+                      Admin Dashboard
+                    </Link>
+                  )}
                   <Link href="/dashboard" onClick={() => setAccountOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                     Dashboard
                   </Link>
@@ -522,6 +527,11 @@ export default function Header() {
           <div className="grid grid-cols-2 gap-2 border-t border-gray-100 p-4">
             {isAuthenticated ? (
               <>
+                {isAdmin && (
+                  <Link href="/admin/dashboard" onClick={() => setMobileOpen(false)} className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm font-semibold text-burgundy">
+                    Admin Dashboard
+                  </Link>
+                )}
                 <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="rounded-lg bg-gray-50 px-3 py-2 text-center text-sm font-semibold text-gray-800">
                   Dashboard
                 </Link>
