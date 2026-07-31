@@ -1,9 +1,9 @@
-import { api } from './client';
+import { API_BASE, api } from './client';
 
 export const beautyAdvisorApi = {
     startConversation: (guestSessionId = null) => {
         const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
-        return api.post('/beauty-advisor/conversations', { guest_session_id: guestSessionId }, { headers });
+        return api.post('/beauty-advisor/conversations', { guest_session_id: guestSessionId }, { headers, timeout: 15000 });
     },
 
     getConversation: (id, guestSessionId = null) => {
@@ -40,7 +40,7 @@ export const beautyAdvisorApi = {
 
     sendMessage: (id, message, guestSessionId = null) => {
         const headers = guestSessionId ? { 'X-Guest-Session-Id': guestSessionId } : {};
-        return api.post(`/beauty-advisor/conversations/${id}/messages`, { message }, { headers });
+        return api.post(`/beauty-advisor/conversations/${id}/messages`, { message }, { headers, timeout: 60000 });
     },
 
     sendFeedback: (id, feedbackType, guestSessionId = null, comment = null) => {
@@ -70,5 +70,5 @@ export const beautyAdvisorApi = {
     getPlan: (id) => api.get(`/beauty-advisor/plans/${id}`),
     updatePlan: (id, data) => api.patch(`/beauty-advisor/plans/${id}`, data),
     archivePlan: (id) => api.delete(`/beauty-advisor/plans/${id}`),
-    downloadPlanUrl: (id) => `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/beauty-advisor/plans/${id}/download`,
+    downloadPlanUrl: (id) => `${API_BASE}/beauty-advisor/plans/${id}/download`,
 };

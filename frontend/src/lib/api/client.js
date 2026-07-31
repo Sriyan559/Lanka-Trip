@@ -4,7 +4,11 @@ import { loginUrlFor } from '../authRedirect';
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:8000/api';
+  '/api';
+
+if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_API_BASE_URL) {
+  console.warn('NEXT_PUBLIC_API_BASE_URL is not set; using the same-origin /api proxy.');
+}
 
 const COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_COOKIE || '_el_tok';
 const PUBLIC_AUTH_ENDPOINTS = new Set([
@@ -75,7 +79,12 @@ export async function request(endpoint, options = {}) {
   let response;
 
   try {
-    response = await fetch(url, { ...options, headers });
+    response = await fetch(url, {
+      ...options,
+      credentials: options.credentials ?? 'include',
+      headers,
+      signal: options.signal || AbortSignal.timeout(options.timeout ?? 30000),
+    });
   } catch {
     throw new Error('Network error — please check your connection.');
   }
@@ -118,6 +127,13 @@ export async function request(endpoint, options = {}) {
     error.status = response.status;
     error.data = data;
     error.errors = errors;
+    error.category = data?.error?.category || (
+      response.status === 401 ? 'AUTH_REQUIRED'
+        : response.status === 429 ? 'RATE_LIMITED'
+          : response.status >= 500 ? 'API_UNAVAILABLE'
+            : 'VALIDATION_ERROR'
+    );
+    error.referenceId = data?.reference_id || null;
     throw error;
   }
 

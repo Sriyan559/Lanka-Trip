@@ -111,6 +111,7 @@ export default function AIAdvisorPageClient() {
         if (ids.length) await loadProducts(ids);
       }
     } catch {
+      setMessages((current) => current.filter((message) => message.id !== optimistic.id));
       setInput(text);
       setError('Your message was not sent. It has been restored so you can retry.');
     } finally { setLoading(false); setStatus(''); }

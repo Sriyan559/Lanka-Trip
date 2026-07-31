@@ -38,6 +38,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
   const [voiceStatus, setVoiceStatus] = useState('');
   const [language, setLanguage] = useState('en');
   const [retryNonce, setRetryNonce] = useState(0);
+  const [isOnline, setIsOnline] = useState(true);
   const [showConsultation, setShowConsultation] = useState(true);
   
   // Curated Plan State
@@ -78,6 +79,17 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
       const savedLanguage = localStorage.getItem('slBeautyAdvisorLanguage');
       if (ADVISOR_LANGUAGES.some((item) => item.code === savedLanguage)) setLanguage(savedLanguage);
     }
+  }, []);
+
+  useEffect(() => {
+    const updateOnlineState = () => setIsOnline(navigator.onLine);
+    updateOnlineState();
+    window.addEventListener('online', updateOnlineState);
+    window.addEventListener('offline', updateOnlineState);
+    return () => {
+      window.removeEventListener('online', updateOnlineState);
+      window.removeEventListener('offline', updateOnlineState);
+    };
   }, []);
 
   useEffect(() => {
@@ -129,7 +141,13 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
         }
       } catch (err) {
         console.error(err);
-        setErrorState('Our Beauty Advisor is temporarily unavailable. Please try again shortly.');
+        setErrorState({
+          category: err.category || 'API_UNAVAILABLE',
+          message: !navigator.onLine
+            ? 'You appear to be offline. Reconnect to the internet and try again.'
+            : err.message || 'Our Beauty Advisor is temporarily unavailable. Please try again shortly.',
+          referenceId: err.referenceId || null,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -239,7 +257,6 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
     const text = (textToSend || inputText).trim();
     if (!text || isLoading || !conversationId) return;
 
-    setInputText('');
     setErrorState(null);
     setIsLoading(true);
 
@@ -250,6 +267,7 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
     try {
       const res = await beautyAdvisorApi.sendMessage(conversationId, text, guestSessionId);
       if (res.success && res.message) {
+        setInputText('');
         setMessages(prev => [...prev, res.message]);
         
         // Extract grounded products from the structured response if present
@@ -259,7 +277,14 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
       }
     } catch (err) {
       console.error(err);
-      setErrorState('Could not send message. Please check your connection and retry.');
+      setMessages(prev => prev.filter((message) => message.id !== tempUserMsg.id));
+      setErrorState({
+        category: err.category || 'API_UNAVAILABLE',
+        message: !navigator.onLine
+          ? 'You appear to be offline. Reconnect to the internet and try again.'
+          : err.message || 'Could not send message. Please check your connection and retry.',
+        referenceId: err.referenceId || null,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -764,9 +789,10 @@ export default function AIBeautyAdvisorModal({ isOpen, onClose, originElement })
             <div className="p-3 bg-red-50 border border-red-100 rounded-2xl flex gap-2">
               <ShieldAlert className="text-red-600 shrink-0" size={16} />
               <div className="flex-1 text-xs text-red-800">
-                <p>{tAdvisor(language, 'unavailable')}</p>
-                <button type="button" onClick={() => setRetryNonce((value) => value + 1)} className="mt-2 min-h-11 rounded-xl border border-red-200 bg-white px-3 font-bold text-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600">
-                  {tAdvisor(language, 'retry')}
+                <p>{errorState.message || tAdvisor(language, 'unavailable')}</p>
+                {errorState.referenceId && <p className="mt-1 text-[10px]">Reference: {errorState.referenceId}</p>}
+                <button type="button" disabled={isLoading || !isOnline} onClick={() => setRetryNonce((value) => value + 1)} className="mt-2 min-h-11 rounded-xl border border-red-200 bg-white px-3 font-bold text-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-50">
+                  {isLoading ? 'Retryingâ€¦' : tAdvisor(language, 'retry')}
                 </button>
               </div>
             </div>

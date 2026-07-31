@@ -4,6 +4,7 @@ use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -74,6 +75,21 @@ return Application::configure(basePath: dirname(__DIR__))
                 'success' => false,
                 'message' => 'Resource not found',
             ], 404);
+        });
+
+        $exceptions->render(function (QueryException $exception, Request $request) {
+            if (! $request->is('api/*')) {
+                return null;
+            }
+
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'The service database is temporarily unavailable. Please retry shortly.',
+                'error' => ['category' => 'DATABASE_UNAVAILABLE'],
+                'reference_id' => $request->headers->get('X-Request-Id'),
+            ], 503);
         });
 
         $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
