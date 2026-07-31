@@ -1,2 +1,16 @@
-import {notFound} from "next/navigation";import {DetailPage} from "@/components/admin/common/DetailPage";import {authorizations} from "@/mocks/admin/fixtures";
-export default async function Page({params}:{params:Promise<{authorizationId:string}>}){const {authorizationId}=await params;const r=authorizations.find(x=>x.id===authorizationId);if(!r)notFound();return <DetailPage title={`${r.brand} authorization`} description={`Authorization review · Internal ID ${r.id}`} reference={r.publicReference} id={r.id} status={r.status} backHref="/admin/verification/brand-authorizations" tabs={["Authorization","Findings","Documents","Audit"]} links={[{label:"Review related products",href:`/admin/catalogue/product-approvals?authorizationId=${r.id}`}]} capabilities={r.capabilities} sections={[{title:"Authorization information",items:[r.brand,r.supplier,r.type]},{title:"Scope",items:[`Territory: ${r.territory}`,"Channel: Marketplace","Category: Skin care"]},{title:"Validation findings",items:["Signatory verified",`Expiry: ${r.expiry}`]},{title:"Conflicts",items:[r.conflictStatus]},{title:"Supporting documents",items:["Authorization letter","Brand registry extract"]},{title:"Final decision",items:["Awaiting administrator decision"]}]} />}
+import { notFound } from "next/navigation";
+import { AuthorizationDetailView } from "@/components/admin/verification/authorization-detail/AuthorizationDetailView";
+import { getBrandAuthorizationDetail } from "@/services/api/authorizationDetailService";
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ authorizationId: string }>;
+}) {
+  const { authorizationId } = await params;
+  const authorizationCase = await getBrandAuthorizationDetail(authorizationId);
+
+  if (!authorizationCase) notFound();
+
+  return <AuthorizationDetailView initialCase={authorizationCase} />;
+}

@@ -90,6 +90,10 @@ describe("shared admin layout", () => {
       .toHaveAttribute("href", "/admin/logistics");
     expect(screen.getByRole("link", { name: "Customer Support" }))
       .toHaveAttribute("href", "/admin/customer-support/cases");
+    expect(screen.getByRole("link", { name: "Analytics" }))
+      .toHaveAttribute("href", "/admin/analytics");
+    expect(screen.getByRole("link", { name: "Ecosystem Modules" }))
+      .toHaveAttribute("href", "/admin/ecosystem-modules");
   });
 
   it("renders unimplemented modules as disabled non-links", () => {
@@ -98,10 +102,10 @@ describe("shared admin layout", () => {
       '.nav-link-rich[aria-disabled="true"]',
     );
 
-    expect(disabledItems).toHaveLength(6);
+    expect(disabledItems).toHaveLength(4);
     expect(screen.queryByRole("link", { name: /Customers/ }))
       .not.toBeInTheDocument();
-    expect(screen.getAllByText("Coming Soon")).toHaveLength(6);
+    expect(screen.getAllByText("Coming Soon")).toHaveLength(4);
   });
 
   it("keeps all enabled routes centralized and absolute", () => {

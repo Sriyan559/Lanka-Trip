@@ -149,15 +149,26 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     id: "analytics",
     label: "Analytics",
     icon: BarChart3,
-    disabled: true,
-    badge: "Coming Soon",
+    href: "/admin/analytics",
+    children: [
+      {
+        id: "analytics-overview",
+        label: "Analytics & BI",
+        href: "/admin/analytics",
+        exact: true,
+      },
+      {
+        id: "analytics-reports",
+        label: "Reports",
+        href: "/admin/analytics/reports",
+      },
+    ],
   },
   {
     id: "ecosystem-modules",
     label: "Ecosystem Modules",
     icon: LayoutGrid,
-    disabled: true,
-    badge: "Coming Soon",
+    href: "/admin/ecosystem-modules",
   },
   {
     id: "administration",

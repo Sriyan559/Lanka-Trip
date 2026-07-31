@@ -1,181 +1,363 @@
 'use client';
 
-import React from 'react';
-import { useSearchParams, useRouter, useParams } from 'next/navigation';
+import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, LifeBuoy, AlertTriangle, CheckCircle, ShieldCheck, User } from 'lucide-react';
-import { mockSupportCases } from '@/mocks/admin/customerSupport.mock';
-import { sanitizeInternalRedirect } from '@/lib/authRedirect';
+import { useParams, useSearchParams, useRouter, usePathname } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-export default function CustomerSupportCaseDetailPage() {
+import type { CaseDetailFullData, CaseTabType, ChecklistItem } from '@/types/customerSupportDetail';
+import {
+  fetchCaseDetail,
+  addCustomerMessage,
+  addInternalNote,
+  toggleChecklistItem,
+  assignCase,
+  changePriority,
+  escalateCase,
+  markCaseResolved,
+  closeCase,
+} from '@/services/api/customerSupportDetailService';
+
+import { CaseDetailHeader } from '@/components/admin/customer-support/detail/CaseDetailHeader';
+import { CaseIdentitySummary } from '@/components/admin/customer-support/detail/CaseIdentitySummary';
+import { CaseStatusStrip } from '@/components/admin/customer-support/detail/CaseStatusStrip';
+import { CaseTabsBar } from '@/components/admin/customer-support/detail/CaseTabsBar';
+import { CaseOverviewTab } from '@/components/admin/customer-support/detail/CaseOverviewTab';
+import { ConversationTab } from '@/components/admin/customer-support/detail/ConversationTab';
+import { InternalNotesTab } from '@/components/admin/customer-support/detail/InternalNotesTab';
+import { AuditHistoryTab } from '@/components/admin/customer-support/detail/AuditHistoryTab';
+import {
+  CustomerContextTab,
+  RelatedRecordsTab,
+  AttachmentsTab,
+  InvestigationTab,
+  SlaEscalationTab,
+  ResolutionWorkspaceTab,
+  CommunicationsTab,
+  OperationalIssuesTab,
+} from '@/components/admin/customer-support/detail/GenericDetailTabs';
+import { RightWorkspaceRail } from '@/components/admin/customer-support/detail/RightWorkspaceRail';
+import {
+  AddNoteModal,
+  SendUpdateModal,
+  AssignAgentModal,
+  MarkResolvedModal,
+  CloseCaseModal,
+} from '@/components/admin/customer-support/detail/CaseDetailModals';
+import { sanitizeInternalRedirect } from '@/lib/authRedirect';
+
+import styles from './page.module.css';
+
+function CustomerSupportCaseDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [resolved, setResolved] = React.useState(false);
+  const pathname = usePathname();
 
-  const caseId = params?.caseId as string;
-  const returnTo = sanitizeInternalRedirect(
+  const caseId = String(params?.caseId ?? '');
+
+  // 1. Safe returnTo URL validation
+  const returnToUrl = sanitizeInternalRedirect(
     searchParams.get('returnTo'),
     '/admin/customer-support/cases',
   );
 
-  const caseData = mockSupportCases.find(
-    (item) =>
-      item.id === caseId
-      || item.dbCaseId === caseId
-      || item.caseReference === caseId,
-  );
+  // 2. Tab state with URL persistence (?tab=conversation etc.)
+  const rawTab = searchParams.get('tab') as CaseTabType;
+  const activeTab: CaseTabType = rawTab || 'overview';
 
-  if (!caseData) {
+  const handleSelectTab = (tab: CaseTabType) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    if (tab === 'overview') {
+      current.delete('tab');
+    } else {
+      current.set('tab', tab);
+    }
+    const search = current.toString();
+    const query = search ? `?${search}` : '';
+    router.replace(`${pathname}${query}`, { scroll: false });
+  };
+
+  // 3. State management
+  const [caseDetail, setCaseDetail] = useState<CaseDetailFullData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Modals state
+  const [modalState, setModalState] = useState<{
+    note: boolean;
+    update: boolean;
+    assign: boolean;
+    resolve: boolean;
+    close: boolean;
+  }>({
+    note: false,
+    update: false,
+    assign: false,
+    resolve: false,
+    close: false,
+  });
+
+  const loadDetail = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await fetchCaseDetail(caseId);
+      setCaseDetail(data);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load case details');
+      toast.error('Failed to load support case details.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [caseId]);
+
+  useEffect(() => {
+    loadDetail();
+  }, [loadDetail]);
+
+  // Mutation handlers
+  const handleSendMessage = async (text: string) => {
+    try {
+      await addCustomerMessage(caseId, text);
+      toast.success('Customer update sent successfully.');
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to send customer message.');
+    }
+  };
+
+  const handleAddNote = async (text: string, visibility: 'Internal Only' | 'Team Leads Only' = 'Internal Only') => {
+    try {
+      await addInternalNote(caseId, text, visibility);
+      toast.success('Internal note added.');
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to add internal note.');
+    }
+  };
+
+  const handleToggleChecklist = async (item: ChecklistItem) => {
+    const nextStatus = item.status === 'Completed' ? 'Pending' : 'Completed';
+    try {
+      await toggleChecklistItem(caseId, item.id, nextStatus);
+      toast.success(`Task "${item.task}" marked as ${nextStatus}.`);
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to update task status.');
+    }
+  };
+
+  const handleAssignAgent = async (agentName: string, team: string, reason: string) => {
+    try {
+      await assignCase(caseId, agentName, undefined, team, reason);
+      toast.success(`Case assigned to ${agentName} (${team}).`);
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to assign case.');
+    }
+  };
+
+  const handleEscalate = async () => {
+    try {
+      await escalateCase(caseId, 'Compliance Lead', 'Logistics Operations', 'Delivery breach SLA at risk');
+      toast.success('Case escalated to Logistics Operations.');
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to escalate case.');
+    }
+  };
+
+  const handleChangePriority = async () => {
+    try {
+      await changePriority(caseId, 'Critical', 'Priority updated from the case resolution workspace.');
+      toast.success('Priority set to Critical.');
+      loadDetail();
+    } catch {
+      toast.error('Failed to change case priority.');
+    }
+  };
+
+  const handleResolve = async (cat: string, sum: string, outcome: string) => {
+    try {
+      await markCaseResolved(caseId, cat, sum, outcome);
+      toast.success('Case marked as Resolved.');
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to resolve case.');
+    }
+  };
+
+  const handleCloseCaseAction = async (reason: string) => {
+    try {
+      await closeCase(caseId, reason);
+      toast.success('Case closed successfully.');
+      loadDetail();
+    } catch (err) {
+      toast.error('Failed to close case.');
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="p-8 text-center">
-        <h1 className="text-xl font-bold text-slate-900">Support case not found</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          The requested case does not exist in the available support data.
-        </p>
-        <Link
-          href="/admin/customer-support/cases"
-          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#722140]"
-        >
-          <ArrowLeft size={16} />
-          Back to Support Queue
-        </Link>
+      <div className={styles.screen17Page}>
+        <div className="p-12 text-center text-slate-500 font-semibold">
+          Loading Customer Support Case details...
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !caseDetail) {
+    return (
+      <div className={styles.screen17Page}>
+        <div className="p-12 text-center font-semibold">
+          <p className="text-red-600">{error || 'Support Case Not Found.'}</p>
+          <Link className="mt-4 inline-flex text-slate-700 underline" href={returnToUrl}>
+            Back to Customer Support Cases
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="case-detail-page p-6 bg-slate-50 min-h-screen text-slate-800 text-xs">
-      {/* Return to Queue Navigation Link */}
-      <div className="mb-4">
-        <Link
-          href={returnTo}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#722140] hover:underline"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Support Queue</span>
-        </Link>
-      </div>
+    <div className={styles.screen17Page}>
+      {/* Header with Breadcrumbs & Actions */}
+      <CaseDetailHeader
+        caseReference={caseDetail.caseInfo.caseReference}
+        subject={caseDetail.caseInfo.subject}
+        returnToUrl={returnToUrl}
+        onOpenAddNote={() => setModalState((prev) => ({ ...prev, note: true }))}
+        onOpenSendUpdate={() => setModalState((prev) => ({ ...prev, update: true }))}
+        onOpenMoreActions={() => setModalState((prev) => ({ ...prev, assign: true }))}
+      />
 
-      {/* Case Header Card */}
-      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-6 shadow-sm">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-base font-extrabold text-[#722140]">
-                {caseData.caseReference}
-              </span>
-              <span className="text-slate-400 font-mono text-xs">(DB ID: {caseData.dbCaseId})</span>
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded">
-                {caseData.priority} Priority
-              </span>
-              <span className="px-2.5 py-0.5 text-[10px] font-semibold bg-sky-100 text-sky-800 rounded-full">
-                {caseData.caseStatus}
-              </span>
-            </div>
-            <h1 className="text-xl font-bold text-slate-900 mt-1">{caseData.subject}</h1>
-            <p className="text-slate-500 mt-1 text-xs">
-              Customer: <span className="font-semibold text-slate-800">{caseData.customerName}</span> ({caseData.customerId}) • Channel: {caseData.channel} • Created: {caseData.createdAt}
-            </p>
-          </div>
+      {/* Case Identity Summary Card */}
+      <CaseIdentitySummary caseInfo={caseDetail.caseInfo} />
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => router.push(returnTo)}
-              className="px-4 py-2 text-xs font-semibold bg-white border border-slate-300 rounded hover:bg-slate-50 text-slate-700"
-            >
-              Return to Cases Queue
-            </button>
-            <button
-              type="button"
-              disabled={resolved}
-              onClick={() => {
-                setResolved(true);
-                toast.success('Case marked as resolved in this mock workspace.');
-              }}
-              className="px-4 py-2 text-xs font-semibold bg-[#722140] text-white rounded hover:bg-[#5a1a33]"
-            >
-              {resolved ? 'Case Resolved' : 'Resolve Case'}
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Case Status Strip */}
+      <CaseStatusStrip caseInfo={caseDetail.caseInfo} />
 
-      {/* Detail Summary Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-4">
-          <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm space-y-3">
-            <h2 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2">
-              Case Information & Communication
-            </h2>
+      {/* 12 Approved Tabs Navigation */}
+      <CaseTabsBar
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
+        counts={{
+          messages: caseDetail.messages.length,
+          internalNotes: caseDetail.internalNotes.length,
+          attachments: caseDetail.attachments.length,
+          blockingIssues: caseDetail.blockingIssues.length,
+          auditEvents: caseDetail.auditEvents.length,
+        }}
+      />
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-2.5 bg-slate-50 rounded">
-                <span className="text-slate-400 block font-medium">Category</span>
-                <span className="font-semibold text-slate-800">{caseData.caseCategory}</span>
-              </div>
-              <div className="p-2.5 bg-slate-50 rounded">
-                <span className="text-slate-400 block font-medium">Issue Type</span>
-                <span className="font-semibold text-slate-800">{caseData.issueType}</span>
-              </div>
-              <div className="p-2.5 bg-slate-50 rounded">
-                <span className="text-slate-400 block font-medium">Assigned Agent</span>
-                <span className="font-semibold text-slate-800">{caseData.assignedAgentName || 'Unassigned'}</span>
-              </div>
-              <div className="p-2.5 bg-slate-50 rounded">
-                <span className="text-slate-400 block font-medium">Assigned Team</span>
-                <span className="font-semibold text-slate-800">{caseData.assignedTeam || 'General Support'}</span>
-              </div>
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded border border-slate-200 mt-2">
-              <span className="text-slate-500 font-semibold block mb-1">Latest Customer Message</span>
-              <p className="text-slate-800 italic">&quot;{caseData.lastCustomerMessage}&quot;</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm space-y-3">
-            <h2 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2">
-              Commerce Relationship Context
-            </h2>
-
-            {caseData.relatedOrderReference && (
-              <div className="flex items-center justify-between p-2.5 bg-blue-50/50 border border-blue-200 rounded">
-                <div>
-                  <span className="text-[10px] text-blue-600 font-bold block uppercase">Related Order</span>
-                  <span className="font-mono font-bold text-blue-900">{caseData.relatedOrderReference}</span>
-                </div>
-                <Link
-                  href={`/admin/marketplace/orders/${caseData.relatedOrderReference}`}
-                  className="px-2 py-1 bg-blue-600 text-white text-[10px] font-semibold rounded hover:bg-blue-700"
-                >
-                  View Order
-                </Link>
-              </div>
+      {/* Main Grid: Workspace & Right Rail */}
+      <div className={styles.caseWorkspace}>
+        <div className={styles.caseMain}>
+          {/* Active Tab Content Panel */}
+          <div id={`panel-${activeTab}`} role="tabpanel">
+            {activeTab === 'overview' && (
+              <CaseOverviewTab
+                data={caseDetail}
+                onToggleChecklist={handleToggleChecklist}
+              />
             )}
-
-            {caseData.relatedShipmentReference && (
-              <div className="flex items-center justify-between p-2.5 bg-teal-50/50 border border-teal-200 rounded">
-                <div>
-                  <span className="text-[10px] text-teal-600 font-bold block uppercase">Related Shipment</span>
-                  <span className="font-mono font-bold text-teal-900">{caseData.relatedShipmentReference}</span>
-                </div>
-              </div>
+            {activeTab === 'conversation' && (
+              <ConversationTab
+                messages={caseDetail.messages}
+                onSendMessage={handleSendMessage}
+              />
             )}
-
-            {caseData.relatedProductName && (
-              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded">
-                <span className="text-[10px] text-slate-400 font-bold block uppercase">Product</span>
-                <span className="font-semibold text-slate-800">{caseData.relatedProductName}</span>
-              </div>
+            {activeTab === 'customer-context' && (
+              <CustomerContextTab data={caseDetail} />
+            )}
+            {activeTab === 'related-records' && (
+              <RelatedRecordsTab data={caseDetail} />
+            )}
+            {activeTab === 'evidence' && (
+              <AttachmentsTab data={caseDetail} />
+            )}
+            {activeTab === 'investigation' && (
+              <InvestigationTab data={caseDetail} />
+            )}
+            {activeTab === 'sla-escalation' && (
+              <SlaEscalationTab data={caseDetail} />
+            )}
+            {activeTab === 'resolution' && (
+              <ResolutionWorkspaceTab
+                data={caseDetail}
+                onResolve={() => setModalState((prev) => ({ ...prev, resolve: true }))}
+              />
+            )}
+            {activeTab === 'internal-notes' && (
+              <InternalNotesTab
+                notes={caseDetail.internalNotes}
+                onAddNote={handleAddNote}
+              />
+            )}
+            {activeTab === 'communications' && (
+              <CommunicationsTab data={caseDetail} />
+            )}
+            {activeTab === 'operational-issues' && (
+              <OperationalIssuesTab data={caseDetail} />
+            )}
+            {activeTab === 'audit-history' && (
+              <AuditHistoryTab auditEvents={caseDetail.auditEvents} />
             )}
           </div>
         </div>
+
+        {/* Right-Side Column Workspace Rail (300px) */}
+        <RightWorkspaceRail
+          data={caseDetail}
+          onOpenSendUpdate={() => setModalState((prev) => ({ ...prev, update: true }))}
+          onOpenAssign={() => setModalState((prev) => ({ ...prev, assign: true }))}
+          onOpenChangePriority={handleChangePriority}
+          onOpenEscalate={handleEscalate}
+          onOpenMarkResolved={() => setModalState((prev) => ({ ...prev, resolve: true }))}
+          onOpenCloseCase={() => setModalState((prev) => ({ ...prev, close: true }))}
+        />
       </div>
+
+      {/* Interactive Action Modals */}
+      <AddNoteModal
+        isOpen={modalState.note}
+        onClose={() => setModalState((prev) => ({ ...prev, note: false }))}
+        onSubmitNote={(text) => handleAddNote(text)}
+      />
+
+      <SendUpdateModal
+        isOpen={modalState.update}
+        onClose={() => setModalState((prev) => ({ ...prev, update: false }))}
+        onSubmitUpdate={(msg) => handleSendMessage(msg)}
+      />
+
+      <AssignAgentModal
+        isOpen={modalState.assign}
+        onClose={() => setModalState((prev) => ({ ...prev, assign: false }))}
+        onAssign={(agent, team, reason) => handleAssignAgent(agent, team, reason)}
+      />
+
+      <MarkResolvedModal
+        isOpen={modalState.resolve}
+        onClose={() => setModalState((prev) => ({ ...prev, resolve: false }))}
+        onResolve={(cat, sum, outcome) => handleResolve(cat, sum, outcome)}
+      />
+
+      <CloseCaseModal
+        isOpen={modalState.close}
+        onClose={() => setModalState((prev) => ({ ...prev, close: false }))}
+        onCloseCase={(reason) => handleCloseCaseAction(reason)}
+      />
     </div>
+  );
+}
+
+export default function CustomerSupportCaseDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-slate-500">Loading Case Detail...</div>}>
+      <CustomerSupportCaseDetailContent />
+    </Suspense>
   );
 }
