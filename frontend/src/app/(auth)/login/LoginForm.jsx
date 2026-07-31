@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { sanitizeInternalRedirect } from '@/lib/authRedirect';
+import { authenticatedDestination, sanitizeInternalRedirect } from '@/lib/authRedirect';
 import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 import toast from 'react-hot-toast';
 
@@ -17,7 +17,13 @@ export default function LoginForm() {
     '/dashboard',
   );
 
-  const { login } = useAuth();
+  const { login, user, loading: authLoading, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+
+    router.replace(authenticatedDestination(user, redirectTo));
+  }, [authLoading, isAuthenticated, redirectTo, router, user]);
 
   const [form, setForm]       = useState({ _el_id: '', _el_pw: '' });
   const [showPw, setShowPw]   = useState(false);
@@ -49,19 +55,19 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const data = await login({
-        email:    form._el_id.trim(),
+        login:    form._el_id.trim(),
         password: form._el_pw,
       });
       toast.success('Welcome back!');
-      
-      if (data?.user?.role === 'admin') {
-        router.replace('/admin/dashboard');
-      } else {
-        router.replace(redirectTo);
-      }
+
+      router.replace(authenticatedDestination(data?.user, redirectTo, data?.redirect_to));
     } catch (err) {
       setFieldErrors(err.errors || {});
-      setError(err.message || 'Invalid credentials. Please try again.');
+      setError(
+        err.status === 401 || err.status === 403
+          ? 'Invalid credentials. Please try again.'
+          : (err.message || 'Unable to sign in. Please try again.'),
+      );
     } finally {
       setLoading(false);
     }
@@ -97,25 +103,25 @@ export default function LoginForm() {
             {/* Email */}
             <div>
               <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                Email or Username
               </label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   id="login-email"
-                  type="email"
+                  type="text"
                   name="_el_id"
-                  autoComplete="email"
+                  autoComplete="username"
                   value={form._el_id}
                   onChange={handleChange}
-                  placeholder="you@company.com"
+                  placeholder="Email address or username"
                   required
                   className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
                 />
               </div>
-              {firstFieldError(fieldErrors, 'email') && (
+              {firstFieldError(fieldErrors, 'login') && (
                 <p className="mt-1 text-xs text-red-600">
-                  {firstFieldError(fieldErrors, 'email')}
+                  {firstFieldError(fieldErrors, 'login')}
                 </p>
               )}
             </div>

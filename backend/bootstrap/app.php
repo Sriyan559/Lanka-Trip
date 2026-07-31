@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\EnsureAdministrator;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'admin' => EnsureAdministrator::class,
+        ]);
         $middleware->appendToGroup('api', SecurityHeaders::class);
         $middleware->appendToGroup('api', 'throttle:global');
         $middleware->preventRequestsDuringMaintenance(except: [

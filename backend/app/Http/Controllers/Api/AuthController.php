@@ -77,24 +77,27 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->validated('email'))->first();
+        $identifier = $request->validated('login');
+        $user = User::query()
+            ->where('email', $identifier)
+            ->orWhere('username', $identifier)
+            ->first();
 
         if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
             Log::channel('security')->warning('Failed login attempt', [
-                'email' => $request->validated('email'),
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
 
             return $this->errorResponse(
-                'Invalid email or password.',
+                'Invalid credentials.',
                 Response::HTTP_UNAUTHORIZED,
             );
         }
 
-        if ($user->status !== 'active') {
+        if ($user->status !== 'active' || ($user->account_status !== null && $user->account_status !== 'active')) {
             return $this->errorResponse(
-                'Your account is inactive.',
+                'Invalid credentials.',
                 Response::HTTP_FORBIDDEN,
             );
         }
@@ -108,6 +111,7 @@ class AuthController extends Controller
         return $this->successResponse([
             'token' => $user->createToken('ecomlanka-web')->plainTextToken,
             'user' => UserResource::make($user)->resolve($request),
+            'redirect_to' => $user->isSuperAdmin() ? '/admin/dashboard' : null,
         ], 'Logged in successfully.');
     }
 

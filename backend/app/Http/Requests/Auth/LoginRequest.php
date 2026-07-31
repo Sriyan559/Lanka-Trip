@@ -16,8 +16,10 @@ class LoginRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $identifier = $this->input('login', $this->input('email'));
+
         $this->merge([
-            'email' => is_string($this->email) ? mb_strtolower(trim($this->email)) : $this->email,
+            'login' => is_string($identifier) ? mb_strtolower(trim($identifier)) : $identifier,
             'password' => $this->decodeFrontendPassword($this->password),
         ]);
     }
@@ -25,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ];
     }

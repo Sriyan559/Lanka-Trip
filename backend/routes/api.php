@@ -147,43 +147,45 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store'])->whereNumber('id');
     Route::post('/suppliers/{id}/reviews', [SupplierReviewController::class, 'store'])->whereNumber('id');
 
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
+    Route::middleware('admin')->group(function () {
+        Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
 
-    Route::get('/admin/users', [AdminController::class, 'users']);
-    Route::get('/admin/users/{id}', [AdminController::class, 'user'])->whereNumber('id');
-    Route::put('/admin/users/{id}/status', [AdminController::class, 'updateUserStatus'])->whereNumber('id');
+        Route::get('/admin/users', [AdminController::class, 'users']);
+        Route::get('/admin/users/{id}', [AdminController::class, 'user'])->whereNumber('id');
+        Route::put('/admin/users/{id}/status', [AdminController::class, 'updateUserStatus'])->whereNumber('id');
 
-    Route::get('/admin/suppliers', [AdminController::class, 'suppliers']);
-    Route::get('/admin/suppliers/{id}', [AdminController::class, 'supplier'])->whereNumber('id');
-    Route::put('/admin/suppliers/{id}/verify', [AdminController::class, 'verifySupplier'])->whereNumber('id');
+        Route::get('/admin/suppliers', [AdminController::class, 'suppliers']);
+        Route::get('/admin/suppliers/{id}', [AdminController::class, 'supplier'])->whereNumber('id');
+        Route::put('/admin/suppliers/{id}/verify', [AdminController::class, 'verifySupplier'])->whereNumber('id');
 
-    Route::get('/admin/products', [AdminController::class, 'products']);
-    Route::get('/admin/products/{id}', [AdminController::class, 'product'])->whereNumber('id');
-    Route::put('/admin/products/{id}/status', [AdminController::class, 'updateProductStatus'])->whereNumber('id');
-    Route::delete('/admin/products/{id}', [AdminController::class, 'deleteProduct'])->whereNumber('id');
+        Route::get('/admin/products', [AdminController::class, 'products']);
+        Route::get('/admin/products/{id}', [AdminController::class, 'product'])->whereNumber('id');
+        Route::put('/admin/products/{id}/status', [AdminController::class, 'updateProductStatus'])->whereNumber('id');
+        Route::delete('/admin/products/{id}', [AdminController::class, 'deleteProduct'])->whereNumber('id');
 
-    Route::get('/admin/rfqs', [AdminController::class, 'rfqs']);
-    Route::get('/admin/quotations', [AdminController::class, 'quotations']);
-    Route::get('/admin/orders', [AdminController::class, 'orders']);
-    Route::get('/admin/messages', [AdminController::class, 'messages']);
-    Route::get('/admin/horizon/status', [AdminController::class, 'horizonStatus']);
-    Route::get('/admin/activity-logs', [AdminController::class, 'activityLogs']);
-    Route::get('/admin/system', [AdminController::class, 'system']);
-    Route::get('/admin/backups', [AdminController::class, 'backups']);
-    Route::post('/admin/maintenance/enable', [AdminController::class, 'enableMaintenance']);
-    Route::post('/admin/maintenance/disable', [AdminController::class, 'disableMaintenance']);
+        Route::get('/admin/rfqs', [AdminController::class, 'rfqs']);
+        Route::get('/admin/quotations', [AdminController::class, 'quotations']);
+        Route::get('/admin/orders', [AdminController::class, 'orders']);
+        Route::get('/admin/messages', [AdminController::class, 'messages']);
+        Route::get('/admin/horizon/status', [AdminController::class, 'horizonStatus']);
+        Route::get('/admin/activity-logs', [AdminController::class, 'activityLogs']);
+        Route::get('/admin/system', [AdminController::class, 'system']);
+        Route::get('/admin/backups', [AdminController::class, 'backups']);
+        Route::post('/admin/maintenance/enable', [AdminController::class, 'enableMaintenance']);
+        Route::post('/admin/maintenance/disable', [AdminController::class, 'disableMaintenance']);
 
-    Route::prefix('admin/sl-beauty')->group(function () {
-        Route::get('/brands', [AdminBrandController::class, 'index']);
-        Route::post('/brands', [AdminBrandController::class, 'store']);
-        Route::get('/brands/{brand}', [AdminBrandController::class, 'show'])
-            ->whereNumber('brand');
-        Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])
-            ->whereNumber('brand');
-        Route::patch('/brands/{brand}/status', [AdminBrandController::class, 'updateStatus'])
-            ->whereNumber('brand');
-        Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])
-            ->whereNumber('brand');
+        Route::prefix('admin/sl-beauty')->group(function () {
+            Route::get('/brands', [AdminBrandController::class, 'index']);
+            Route::post('/brands', [AdminBrandController::class, 'store']);
+            Route::get('/brands/{brand}', [AdminBrandController::class, 'show'])
+                ->whereNumber('brand');
+            Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])
+                ->whereNumber('brand');
+            Route::patch('/brands/{brand}/status', [AdminBrandController::class, 'updateStatus'])
+                ->whereNumber('brand');
+            Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])
+                ->whereNumber('brand');
+        });
     });
 
     Route::get('/supplier/company-profile', [SupplierProfileController::class, 'getCompanyProfile']);

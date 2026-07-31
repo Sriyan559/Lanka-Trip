@@ -8,6 +8,11 @@ use Illuminate\Database\Seeder;
 
 class ProductImageSeeder extends Seeder
 {
+    private const FALLBACK_IMAGES = [
+        'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=900&q=80',
+        'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?auto=format&fit=crop&w=900&q=80',
+    ];
+
     public function run(): void
     {
         $galleryImages = [
@@ -84,11 +89,17 @@ class ProductImageSeeder extends Seeder
         ];
 
         Product::query()->each(function (Product $product) use ($galleryImages): void {
-            $images = $galleryImages[$product->slug] ?? [
-                $product->featured_image,
-                'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=900&q=80',
-                'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?auto=format&fit=crop&w=900&q=80',
-            ];
+            $images = $galleryImages[$product->slug]
+                ?? [$product->featured_image, ...self::FALLBACK_IMAGES];
+
+            $images = array_values(array_filter(
+                $images,
+                static fn (mixed $image): bool => is_string($image) && trim($image) !== '',
+            ));
+
+            if ($images === []) {
+                $images = self::FALLBACK_IMAGES;
+            }
 
             foreach ($images as $sortOrder => $image) {
                 ProductImage::updateOrCreate(

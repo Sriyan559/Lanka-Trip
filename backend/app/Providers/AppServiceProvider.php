@@ -18,6 +18,7 @@ use App\Models\RFQ;
 use App\Models\SellerBrandAuthorization;
 use App\Models\Supplier;
 use App\Models\SupplierReview;
+use App\Models\User;
 use App\Policies\BrandPolicy;
 use App\Policies\MessagePolicy;
 use App\Policies\OrderPolicy;
@@ -52,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::before(fn (User $user): ?bool => $user->isSuperAdmin() ? true : null);
+
         ResetPassword::createUrlUsing(function (mixed $notifiable, string $token): string {
             $frontendUrl = rtrim((string) config('app.frontend_url'), '/');
 

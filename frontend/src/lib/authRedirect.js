@@ -35,3 +35,15 @@ export function loginUrlFor(returnUrl, reason) {
 
   return `/login?${params.toString()}`;
 }
+
+export function authenticatedDestination(user, requested, serverRedirect) {
+  if (user?.role === 'super_admin') {
+    return sanitizeInternalRedirect(serverRedirect, '/admin/dashboard');
+  }
+
+  if (user?.role === 'admin') {
+    return '/admin/dashboard';
+  }
+
+  return sanitizeInternalRedirect(requested, '/dashboard');
+}

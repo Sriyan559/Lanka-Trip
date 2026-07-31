@@ -17,6 +17,11 @@ class RoleSeeder extends Seeder
                 'description' => 'Full platform administration access.',
             ],
             [
+                'name' => 'super_admin',
+                'display_name' => 'Super Administrator',
+                'description' => 'Highest-privilege platform administration access.',
+            ],
+            [
                 'name' => 'buyer',
                 'display_name' => 'Buyer',
                 'description' => 'Buyer account for sourcing products, RFQs, quotations, and orders.',

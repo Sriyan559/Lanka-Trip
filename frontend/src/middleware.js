@@ -18,6 +18,7 @@ const PROTECTED = [
   '/compare',
   '/supplier-dashboard',
   '/company-verification',
+  '/admin',
 ];
 
 // Routes that should redirect authenticated users away (login/register)
@@ -44,10 +45,6 @@ export function middleware(request) {
 
   // ── Redirect logged-in users away from login/register ──
   const isAuthRoute = AUTH_ONLY.some((route) => matchesRoute(pathname, route));
-  if (isAuthRoute && token) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
   return NextResponse.next();
 }
 

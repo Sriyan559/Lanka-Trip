@@ -127,7 +127,8 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateUser,
-    isAdmin:    state.user?.role === 'admin',
+    isAdmin:    ['admin', 'super_admin'].includes(state.user?.role),
+    isSuperAdmin: state.user?.role === 'super_admin',
     isSupplier: state.user?.role === 'supplier',
     isBuyer:    state.user?.role === 'buyer',
   };

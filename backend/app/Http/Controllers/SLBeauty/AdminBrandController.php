@@ -217,7 +217,7 @@ class AdminBrandController extends Controller
 
     private function ensureAdmin(Request $request): void
     {
-        abort_unless($request->user()?->role === 'admin', Response::HTTP_FORBIDDEN);
+        abort_unless($request->user()?->isAdministrator(), Response::HTTP_FORBIDDEN);
     }
 
     private function featureEnabled(string $featureKey, bool $default = false): bool
