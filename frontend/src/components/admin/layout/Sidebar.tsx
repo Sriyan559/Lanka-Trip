@@ -96,7 +96,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                     {item.children.map((child) => {
                       const childActive =
                         pathname === child.href ||
-                        pathname.startsWith(`${child.href}/`);
+                        (!child.exact && pathname.startsWith(`${child.href}/`));
                       return (
                         <Link
                           key={child.href}
@@ -125,12 +125,12 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
               <Link href="/" className="sidebar-user-menu-item">
                 <ExternalLink size={15} /> View Storefront
               </Link>
-              <button className="sidebar-user-menu-item">
+              <Link href="/profile" className="sidebar-user-menu-item" onClick={onClose}>
                 <UserRound size={15} /> My Profile
-              </button>
-              <button className="sidebar-user-menu-item">
+              </Link>
+              <Link href="/settings" className="sidebar-user-menu-item" onClick={onClose}>
                 <Settings size={15} /> Account Settings
-              </button>
+              </Link>
               <div className="sidebar-user-menu-divider" />
               <button onClick={handleLogout} className="sidebar-user-menu-item danger">
                 <LogOut size={15} /> Sign Out

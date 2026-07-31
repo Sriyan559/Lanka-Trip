@@ -1,4 +1,10 @@
 import { Shipment, LogisticsPartner, LogisticsMetrics } from "@/types/logistics";
+import type {
+  LogisticsShipment,
+  ShipmentDetailViewModel,
+  ShipmentMetrics,
+  PriorityAlertItem,
+} from "@/types/admin";
 
 export const mockShipments: Shipment[] = [
   {
@@ -77,3 +83,121 @@ export const mockLogisticsMetrics: LogisticsMetrics = {
   exceptions: 12,
   activePartners: 3,
 };
+export const mockShipmentDetail: ShipmentDetailViewModel = {
+  shipment: {
+    id: "1",
+    publicReference: "SHP-90210",
+    dbShipmentId: "shp_58190291",
+    orderReference: "ORD-5012",
+    status: "In Transit",
+    pickupStatus: "Completed",
+    deliveryStatus: "Delayed",
+    packageStatus: "Intact",
+    codStatus: "Pending",
+    riskLevel: "High",
+    slaStatus: "Breached",
+    carrier: "ExpressLogistics",
+    customerName: "Jane Doe",
+    destination: "Colombo 03",
+    flags: ["Priority", "Fragile"],
+    isPriority: true,
+  },
+  lifecycle: [
+    { id: "1", name: "Order Created", status: "completed", timestamp: "2026-07-20T08:00:00Z" },
+    { id: "2", name: "Allocated", status: "completed", timestamp: "2026-07-20T09:30:00Z" },
+    { id: "3", name: "Packed", status: "completed", timestamp: "2026-07-20T11:00:00Z" },
+    { id: "4", name: "Ready for Pickup", status: "completed", timestamp: "2026-07-20T11:15:00Z" },
+    { id: "5", name: "Carrier Assigned", status: "completed", timestamp: "2026-07-20T12:00:00Z" },
+    { id: "6", name: "Pickup Scheduled", status: "completed", timestamp: "2026-07-21T08:00:00Z" },
+    { id: "7", name: "Picked Up", status: "completed", timestamp: "2026-07-21T14:30:00Z" },
+    { id: "8", name: "In Transit", status: "active", timestamp: "2026-07-21T18:00:00Z" },
+    { id: "9", name: "Exception Logged", status: "failed", timestamp: "2026-07-22T09:00:00Z" },
+    { id: "10", name: "Out for Delivery", status: "pending" },
+    { id: "11", name: "Delivery Attempted", status: "pending" },
+    { id: "12", name: "Delivered", status: "pending" },
+    { id: "13", name: "Settled", status: "pending" },
+  ],
+  tracking: [
+    { id: "t1", timestamp: "2026-07-22T09:00:00Z", location: "Sorting Center A", description: "Package delayed due to vehicle breakdown", status: "Exception", isException: true },
+    { id: "t2", timestamp: "2026-07-21T18:00:00Z", location: "Transit Hub", description: "Package departed facility", status: "In Transit" },
+    { id: "t3", timestamp: "2026-07-21T14:30:00Z", location: "Supplier Warehouse", description: "Package picked up by courier", status: "Picked Up" },
+  ],
+  related: {
+    orderId: "ord_1",
+    orderReference: "ORD-5012",
+    customerId: "cust_1",
+    customerName: "Jane Doe",
+    supplierId: "sup_1",
+    supplierName: "Glow Cosmetics",
+    carrierId: "car_1",
+    carrierName: "ExpressLogistics",
+    batchId: "batch_88",
+  },
+  metrics: {
+    healthScore: 65,
+    confidenceLevel: "Medium",
+    riskLevel: "High",
+    slaStatus: "Breached",
+    slaTimeRemaining: "-4h 30m",
+  },
+  capabilities: {
+    canConfirmPickup: false,
+    canChangeCarrier: true,
+    canMarkException: true,
+    canCancel: false,
+  }
+};
+
+export const mockLogisticsShipments: LogisticsShipment[] = [
+  mockShipmentDetail.shipment,
+  {
+    id: "2",
+    publicReference: "SHP-88192",
+    dbShipmentId: "shp_58190292",
+    orderReference: "ORD-5013",
+    status: "Pending",
+    pickupStatus: "Scheduled",
+    deliveryStatus: "Not Dispatched",
+    packageStatus: "Pending",
+    codStatus: "N/A",
+    riskLevel: "Low",
+    slaStatus: "On Track",
+    carrier: "CityCouriers",
+    customerName: "John Smith",
+    destination: "Kandy",
+    flags: [],
+    isPriority: false,
+  },
+  {
+    id: "3",
+    publicReference: "SHP-77211",
+    dbShipmentId: "shp_58190293",
+    orderReference: "ORD-5014",
+    status: "In Transit",
+    pickupStatus: "Completed",
+    deliveryStatus: "In Progress",
+    packageStatus: "Intact",
+    codStatus: "Collected",
+    riskLevel: "Medium",
+    slaStatus: "At Risk",
+    carrier: "ExpressLogistics",
+    customerName: "Alice Brown",
+    destination: "Galle",
+    flags: ["COD"],
+    isPriority: false,
+  }
+];
+
+export const mockShipmentMetrics: ShipmentMetrics = {
+  totalActive: 412,
+  pendingPickup: 154,
+  inTransit: 210,
+  deliveredToday: 89,
+  exceptions: 12
+};
+
+export const mockPriorityAlerts: PriorityAlertItem[] = [
+  { id: "a1", type: "SLA Breach", shipmentReference: "SHP-90210", severity: "High" },
+  { id: "a2", type: "Failed Delivery", shipmentReference: "SHP-88192", severity: "High" },
+  { id: "a3", type: "High Risk", shipmentReference: "SHP-77211", severity: "Medium" }
+];

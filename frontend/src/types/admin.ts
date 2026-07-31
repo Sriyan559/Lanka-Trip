@@ -90,9 +90,11 @@ export interface OrderMetricSummary {
 export interface PriorityAlertItem {
   id: string;
   type: string;
-  orderReference: string;
-  orderId: string;
-  tone: "warning" | "danger" | "info";
+  orderReference?: string;
+  orderId?: string;
+  tone?: "warning" | "danger" | "info";
+  shipmentReference?: string;
+  severity?: "High" | "Medium" | "Low";
 }
 
 export interface PaymentSummaryMetrics {
@@ -715,6 +717,106 @@ export interface ReturnCaseDetails extends ReturnCaseItem {
   communications: ReturnCommunicationItem[];
   operationalIssues: OperationalIssueItem[];
   auditHistory: AuditEventItem[];
+}
+
+// Logistics Operations uses a richer view model than the existing Logistics Hub.
+// Both are retained because they represent separate Admin screens.
+export interface LogisticsShipment {
+  id: string;
+  publicReference: string;
+  dbShipmentId: string;
+  orderReference: string;
+  status: string;
+  pickupStatus: string;
+  deliveryStatus: string;
+  packageStatus: string;
+  codStatus: string;
+  riskLevel: string;
+  slaStatus: string;
+  carrier: string;
+  customerName: string;
+  destination: string;
+  flags?: string[];
+  isPriority?: boolean;
+}
+
+export interface ShipmentFilterParams {
+  search?: string;
+  shipmentStatus?: string;
+  pickupStatus?: string;
+  deliveryStatus?: string;
+  packageStatus?: string;
+  codStatus?: string;
+  riskLevel?: string;
+  slaStatus?: string;
+  carrier?: string;
+  filterKey?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ShipmentMetrics {
+  totalActive: number;
+  pendingPickup: number;
+  inTransit: number;
+  outForDelivery?: number;
+  deliveredToday: number;
+  exceptions: number;
+  slaBreaches?: number;
+  highRisk?: number;
+}
+
+export interface ShipmentLifecycleStage {
+  id: string;
+  name: string;
+  status: "completed" | "active" | "failed" | "pending";
+  timestamp?: string;
+}
+
+export interface TrackingEvent {
+  id: string;
+  timestamp: string;
+  location: string;
+  description: string;
+  status: string;
+  isException?: boolean;
+}
+
+export interface ShipmentRelatedEntities {
+  orderId: string;
+  orderReference: string;
+  customerId: string;
+  customerName: string;
+  supplierId: string;
+  supplierName: string;
+  carrierId: string;
+  carrierName: string;
+  batchId: string;
+  returnId?: string;
+}
+
+export interface ShipmentDecisionMetrics {
+  healthScore: number;
+  confidenceLevel: string;
+  riskLevel: string;
+  slaStatus: string;
+  slaTimeRemaining: string;
+}
+
+export interface ShipmentCapabilities {
+  canConfirmPickup: boolean;
+  canChangeCarrier: boolean;
+  canMarkException: boolean;
+  canCancel: boolean;
+}
+
+export interface ShipmentDetailViewModel {
+  shipment: LogisticsShipment;
+  lifecycle: ShipmentLifecycleStage[];
+  tracking: TrackingEvent[];
+  related: ShipmentRelatedEntities;
+  metrics: ShipmentDecisionMetrics;
+  capabilities: ShipmentCapabilities;
 }
 
 

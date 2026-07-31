@@ -27,6 +27,7 @@ export type AdminNavigationItem = {
     id: string;
     label: string;
     href: string;
+    exact?: boolean;
   }>;
 };
 
@@ -124,13 +125,25 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     label: "Logistics",
     icon: Truck,
     href: "/admin/logistics",
+    children: [
+      {
+        id: "logistics-overview",
+        label: "Overview",
+        href: "/admin/logistics",
+        exact: true,
+      },
+      {
+        id: "shipment-operations",
+        label: "Shipment Operations",
+        href: "/admin/logistics/shipments",
+      },
+    ],
   },
   {
     id: "customer-support",
     label: "Customer Support",
     icon: LifeBuoy,
-    disabled: true,
-    badge: "Coming Soon",
+    href: "/admin/customer-support/cases",
   },
   {
     id: "analytics",

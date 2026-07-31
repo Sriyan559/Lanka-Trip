@@ -410,7 +410,7 @@ export function getMockOrderDetail(orderIdOrRef: string): OrderDetail | null {
       o.id.toLowerCase() === decoded.toLowerCase()
   );
 
-  if (!baseOrder) return primaryMockOrderDetail;
+  if (!baseOrder) return null;
 
   return {
     ...primaryMockOrderDetail,

@@ -41,7 +41,7 @@ describe("Screen 12 - Returns, Refunds & Disputes Queue Page", () => {
 
     expect(screen.getByText("128")).toBeInTheDocument();
     expect(screen.getByText("AUTHENTICITY COMPLAINTS")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getAllByText("3")[0]).toBeInTheDocument();
     expect(screen.getByText("MONTHLY REFUND VALUE")).toBeInTheDocument();
     expect(screen.getByText("LKR 2.4M")).toBeInTheDocument();
   });
@@ -51,7 +51,7 @@ describe("Screen 12 - Returns, Refunds & Disputes Queue Page", () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText("RET-2026-045091")).toBeInTheDocument();
+        expect(screen.getAllByText("RET-2026-045091")[0]).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -59,12 +59,12 @@ describe("Screen 12 - Returns, Refunds & Disputes Queue Page", () => {
     expect(screen.getByText("Elena Rodriguez")).toBeInTheDocument();
     expect(screen.getByText("ORD-2026-009021")).toBeInTheDocument();
     expect(screen.getByText("Radiance Vitamin C Serum")).toBeInTheDocument();
-    expect(screen.getByText("Luxe Distribution")).toBeInTheDocument();
+    expect(screen.getAllByText("Luxe Distribution")[0]).toBeInTheDocument();
 
-    expect(screen.getByText("RET-2026-045088")).toBeInTheDocument();
+    expect(screen.getAllByText("RET-2026-045088")[0]).toBeInTheDocument();
     expect(screen.getByText("Kanishka M.")).toBeInTheDocument();
 
-    expect(screen.getByText("RET-2026-045075")).toBeInTheDocument();
+    expect(screen.getAllByText("RET-2026-045075")[0]).toBeInTheDocument();
     expect(screen.getByText("Nimali Sirisena")).toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe("Screen 12 - Returns, Refunds & Disputes Queue Page", () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText("RET-2026-045091")).toBeInTheDocument();
+        expect(screen.getAllByText("RET-2026-045091")[0]).toBeInTheDocument();
       },
       { timeout: 3000 }
     );

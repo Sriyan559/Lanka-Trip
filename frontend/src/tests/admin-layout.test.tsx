@@ -8,6 +8,20 @@ import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
 vi.mock("next/navigation", () => ({
   usePathname: () =>
     "/admin/catalogue/product-approvals/product-uuid-001",
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
+
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: {
+      name: "Administrator",
+      email: "admin@example.test",
+      role: "super_admin",
+    },
+    logout: vi.fn(),
+  }),
 }));
 
 describe("shared admin layout", () => {
@@ -72,6 +86,10 @@ describe("shared admin layout", () => {
       .toHaveAttribute("href", "/admin/verification/brand-authorizations");
     expect(screen.getByRole("link", { name: "Verification & Compliance" }))
       .toHaveAttribute("href", "/admin/verification/suppliers");
+    expect(screen.getByRole("link", { name: "Logistics" }))
+      .toHaveAttribute("href", "/admin/logistics");
+    expect(screen.getByRole("link", { name: "Customer Support" }))
+      .toHaveAttribute("href", "/admin/customer-support/cases");
   });
 
   it("renders unimplemented modules as disabled non-links", () => {
@@ -80,10 +98,10 @@ describe("shared admin layout", () => {
       '.nav-link-rich[aria-disabled="true"]',
     );
 
-    expect(disabledItems).toHaveLength(8);
+    expect(disabledItems).toHaveLength(6);
     expect(screen.queryByRole("link", { name: /Customers/ }))
       .not.toBeInTheDocument();
-    expect(screen.getAllByText("Coming Soon")).toHaveLength(8);
+    expect(screen.getAllByText("Coming Soon")).toHaveLength(6);
   });
 
   it("keeps all enabled routes centralized and absolute", () => {
