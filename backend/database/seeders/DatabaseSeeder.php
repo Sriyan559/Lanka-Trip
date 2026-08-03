@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             SuperAdminSeeder::class,
             PermissionSeeder::class,
+            AdminLiveReferenceSeeder::class,
             CountrySeeder::class,
             CurrencySeeder::class,
             LanguageSeeder::class,

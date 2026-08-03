@@ -42,12 +42,18 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
   {
     id: "marketplace",
     label: "Marketplace",
-    href: "/admin/marketplace/orders",
+    href: "/admin/marketplace",
     icon: Store,
     children: [
       {
+        id: "command-center",
+        label: "Command Center",
+        href: "/admin/marketplace",
+        exact: true,
+      },
+      {
         id: "orders",
-        label: "Orders",
+        label: "Order Management",
         href: "/admin/marketplace/orders",
       },
       {

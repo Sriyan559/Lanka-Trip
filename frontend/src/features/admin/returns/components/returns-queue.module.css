@@ -2,9 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 24px;
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  min-height: calc(100vh - 68px);
+  margin: 0;
+  padding: clamp(18px, 1.4vw, 28px) clamp(18px, 1.65vw, 36px) 32px;
+  box-sizing: border-box;
   color: #1f2937;
   font-family: inherit;
 }
@@ -87,7 +91,7 @@
 /* 14 Summary Metric Cards Grid */
 .metricsGrid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(120px, 1fr));
   gap: 12px;
 }
 
@@ -307,14 +311,22 @@
 /* Two-Column Layout (Table vs Right Sidebar) */
 .mainContentLayout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 320px);
   gap: 20px;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1360px) {
   .mainContentLayout {
     grid-template-columns: 1fr;
   }
+}
+
+.workspaceColumn,
+.rightSidebar {
+  min-width: 0;
 }
 
 .leftTableContainer {
@@ -327,6 +339,8 @@
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .bulkBar {
@@ -345,6 +359,7 @@
 /* Return Table */
 .returnsTable {
   width: 100%;
+  min-width: 1500px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.8125rem;
@@ -480,19 +495,100 @@
   color: #6b7280;
 }
 
+.loadError {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.8125rem;
+}
+
+.loadError button {
+  min-height: 36px;
+  padding: 5px 12px;
+  border: 1px solid #991b1b;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #991b1b;
+  cursor: pointer;
+}
+
 .paginationControls {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
+}
+
+.pageSizeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 2px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.pageSizeSelect {
+  min-height: 36px;
+  padding: 4px 24px 4px 7px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #374151;
+}
+
+.pageNumberStrip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(390px, 40vw);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y;
+  user-select: none;
+  white-space: nowrap;
+  overscroll-behavior-x: contain;
 }
 
 .pageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  min-width: 36px;
+  min-height: 36px;
   padding: 4px 8px;
   border: 1px solid #d1d5db;
   background: #ffffff;
   border-radius: 4px;
   font-size: 0.75rem;
   cursor: pointer;
+  color: #4b5563;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.pageBtn:hover:not(:disabled):not(.pageBtnActive) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.pageBtn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.pageBtn:focus-visible,
+.pageSizeSelect:focus-visible {
+  outline: 2px solid #501625;
+  outline-offset: 2px;
 }
 
 .pageBtn:disabled {
@@ -504,6 +600,32 @@
   background: #501625;
   color: #ffffff;
   border-color: #501625;
+}
+
+.paginationEllipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  min-height: 36px;
+  color: #6b7280;
+}
+
+@media (max-width: 760px) {
+  .tableFooter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .paginationControls {
+    width: 100%;
+  }
+
+  .pageNumberStrip {
+    max-width: none;
+    flex: 1 1 auto;
+  }
 }
 
 /* Right Sidebar Panels */
@@ -632,8 +754,31 @@
   color: #501625;
 }
 
+@media (max-width: 1360px) {
+  .rightSidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .pageContainer {
+    padding: 16px 12px 24px;
+  }
+
+  .headerActionsRow > button {
+    flex: 1 1 180px;
+  }
+
+  .rightSidebar {
+    display: flex;
+  }
+}
+
 /* Modals */
-.modalBackdrop {
+.modalBackdrop,
+.modalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -654,10 +799,115 @@
   flex-direction: column;
   gap: 16px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
 }
 
 .modalTitle {
   font-size: 1.125rem;
   font-weight: 700;
   color: #111827;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 9px 10px;
+  color: #111827;
+  font: inherit;
+}
+
+.textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible,
+.modalHeader button:focus-visible {
+  outline: 2px solid #501625;
+  outline-offset: 2px;
+}
+
+.btnPrimary,
+.btnSecondary {
+  min-height: 40px;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  border: 1px solid #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+.btnSecondary {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+.btnPrimary:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 560px) {
+  .modalOverlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modalContent {
+    max-height: 92vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .modalFooter > button {
+    flex: 1;
+  }
 }

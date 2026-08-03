@@ -80,6 +80,21 @@ class Supplier extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function settlements(): HasMany
+    {
+        return $this->hasMany(SupplierSettlement::class);
+    }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(Payout::class);
+    }
+
+    public function returnCases(): HasMany
+    {
+        return $this->hasMany(ReturnCase::class);
+    }
+
     public function certificates(): HasMany
     {
         return $this->hasMany(SupplierCertificate::class);
