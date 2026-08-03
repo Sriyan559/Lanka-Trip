@@ -187,10 +187,17 @@ export default function Header() {
           <span aria-hidden="true" className="h-3 border-l border-[#d9d3d2]" />
           <Link href="/help-center" className="transition-colors hover:text-primary-700">Help Centre</Link>
           <span aria-hidden="true" className="h-3 border-l border-[#d9d3d2]" />
-          <Link href={isAuthenticated ? '/dashboard' : '/login'} className="flex items-center gap-1.5 transition-colors hover:text-primary-700">
-            <User size={13} className="text-[#36302f]" />
-            <span>{isAuthenticated ? `Welcome, ${user?.name?.split(' ')[0] || 'User'}` : 'Login'}</span>
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard" className="flex items-center gap-1.5 transition-colors hover:text-primary-700">
+              <User size={13} className="text-[#36302f]" />
+              <span>{`Welcome, ${user?.name?.split(' ')[0] || 'User'}`}</span>
+            </Link>
+          ) : (
+            <a href="/login" className="flex items-center gap-1.5 transition-colors hover:text-primary-700">
+              <User size={13} className="text-[#36302f]" />
+              <span>Login</span>
+            </a>
+          )}
         </div>
       </div>
       {homepageConfig.announcement && (
@@ -541,9 +548,9 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="rounded-lg bg-black px-3 py-2 text-center text-sm font-semibold text-white">
+                <a href="/login" onClick={() => setMobileOpen(false)} className="rounded-lg bg-black px-3 py-2 text-center text-sm font-semibold text-white">
                   Sign In
-                </Link>
+                </a>
                 <Link href="/register" onClick={() => setMobileOpen(false)} className="rounded-lg border border-black px-3 py-2 text-center text-sm font-semibold text-black">
                   Register
                 </Link>

@@ -52,6 +52,11 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
         exact: true,
       },
       {
+        id: "listings",
+        label: "Listings",
+        href: "/admin/marketplace/listings",
+      },
+      {
         id: "orders",
         label: "Order Management",
         href: "/admin/marketplace/orders",
