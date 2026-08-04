@@ -1,0 +1,1 @@
+export default function Cataloguemediapagetsx() { return <div className="p-6"><h2>Catalogue / media/page.tsx</h2></div>; }

@@ -1,0 +1,1 @@
+export default function Catalogueimportexportpagetsx() { return <div className="p-6"><h2>Catalogue / import-export/page.tsx</h2></div>; }

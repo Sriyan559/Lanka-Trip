@@ -1,0 +1,1 @@
+export default function Cataloguecategoriespagetsx() { return <div className="p-6"><h2>Catalogue / categories/page.tsx</h2></div>; }

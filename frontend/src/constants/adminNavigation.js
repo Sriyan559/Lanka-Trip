@@ -10,9 +10,17 @@ export const ADMIN_NAVIGATION = [
     {id:"orders",label:"Order Management",href:"/admin/marketplace/orders"},
     {id:"returns",label:"Returns & Disputes",href:"/admin/marketplace/returns"},
   ]},
-  {id:"catalogue",label:"Catalogue",href:"/admin/catalogue/product-approvals",icon:BookOpen,children:[
-    {id:"product-approvals",label:"Product Approvals",href:"/admin/catalogue/product-approvals"},
+  {id:"catalogue",label:"Catalogue",href:"/admin/catalogue",icon:BookOpen,children:[
+    {id:"command-center",label:"Command Center",href:"/admin/catalogue",exact:true},
+    {id:"product-approvals",label:"Product Approvals",href:"/admin/catalogue/approvals"},
+    {id:"product-masters",label:"Product Masters",href:"/admin/catalogue/products"},
     {id:"inventory",label:"Inventory & Expiry",href:"/admin/catalogue/inventory"},
+    {id:"categories",label:"Categories",href:"/admin/catalogue/categories"},
+    {id:"brands",label:"Brands",href:"/admin/catalogue/brands"},
+    {id:"attributes",label:"Attributes & Variants",href:"/admin/catalogue/attributes"},
+    {id:"media",label:"Media Assets",href:"/admin/catalogue/media"},
+    {id:"import-export",label:"Import & Export",href:"/admin/catalogue/import-export"},
+    {id:"quality",label:"Catalogue Quality",href:"/admin/catalogue/quality"},
   ]},
   {id:"brands-suppliers",label:"Brands & Suppliers",href:"/admin/verification/brand-authorizations",icon:Tags},
   {id:"verification",label:"Verification & Compliance",href:"/admin/verification/suppliers",icon:ShieldCheck,children:[
