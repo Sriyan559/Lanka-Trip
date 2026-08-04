@@ -2,7 +2,6 @@
 
 import React from 'react';
 import type { CaseTabType } from '@/types/customerSupportDetail';
-import styles from '@/app/admin/customer-support/cases/[caseId]/page.module.css';
 
 interface CaseTabsBarProps {
   activeTab: CaseTabType;
@@ -33,8 +32,8 @@ export function CaseTabsBar({ activeTab, onSelectTab, counts }: CaseTabsBarProps
   ];
 
   return (
-    <div className={styles.tabsWrapper} role="tablist" aria-label="Support Case Workspace Tabs">
-      <div className={styles.tabsList}>
+    <div className="w-full overflow-x-auto bg-white border-t border-line custom-scrollbar" role="tablist" aria-label="Support Case Workspace Tabs">
+      <div className="flex w-max min-w-full px-2 pt-2">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -45,12 +44,18 @@ export function CaseTabsBar({ activeTab, onSelectTab, counts }: CaseTabsBarProps
               role="tab"
               aria-selected={isActive}
               aria-controls={`panel-${tab.id}`}
-              className={`${styles.tabButton} ${isActive ? styles.tabButtonActive : ''}`}
+              className={`flex items-center justify-center px-4 py-2.5 text-[12px] font-bold border-b-2 transition-colors whitespace-nowrap outline-none ${
+                isActive
+                  ? 'border-primary-900 text-primary-900 bg-slate-50 rounded-t-lg'
+                  : 'border-transparent text-slate-500 hover:text-ink hover:bg-slate-50 rounded-t-lg'
+              }`}
               onClick={() => onSelectTab(tab.id)}
             >
               <span>{tab.label}</span>
               {typeof tab.count === 'number' && tab.count > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-slate-100 text-slate-700">
+                <span className={`ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded-full ${
+                  isActive ? 'bg-primary-100 text-primary-900' : 'bg-slate-100 text-slate-600'
+                }`}>
                   {tab.count}
                 </span>
               )}
@@ -61,4 +66,3 @@ export function CaseTabsBar({ activeTab, onSelectTab, counts }: CaseTabsBarProps
     </div>
   );
 }
-

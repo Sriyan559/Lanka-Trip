@@ -3,7 +3,6 @@
 import React from 'react';
 import { Search, RotateCcw, Bookmark, SlidersHorizontal } from 'lucide-react';
 import type { SupportCaseFilterParams } from '@/types/customerSupport';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface SupportCaseFiltersProps {
   filters: SupportCaseFilterParams;
@@ -26,36 +25,52 @@ export function SupportCaseFilters({
     onFilterChange(key, val);
   };
 
+  const renderSelect = (label: string, key: keyof SupportCaseFilterParams, options: { label: string; value: string }[]) => (
+    <div className="flex flex-col gap-1.5 min-w-[140px] flex-1">
+      <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{label}</label>
+      <select
+        value={(filters[key] as string) || 'all'}
+        onChange={(e) => handleChange(key, e.target.value)}
+        className="w-full h-[34px] px-2.5 text-[13px] bg-canvas border border-line rounded-lg text-ink focus:outline-none focus:ring-1 focus:ring-primary-900 focus:border-primary-900 transition-shadow appearance-none cursor-pointer"
+        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1em' }}
+      >
+        <option value="all">All</option>
+        {options.map(o => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+
   return (
-    <div className={styles.filterCard}>
+    <div className="space-y-5 pb-6 border-b border-line mb-6">
       {/* Top Search Bar Row */}
-      <div className={styles.filterSearchRow}>
-        <div className={styles.searchInputWrap}>
-          <Search size={16} className={styles.searchIcon} />
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="relative w-full max-w-3xl">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={filters.search || ''}
             onChange={(e) => handleChange('search', e.target.value)}
             placeholder="Search case ID, customer, email, phone, order, return, shipment, product, supplier or message..."
-            className={styles.searchInput}
+            className="w-full h-10 pl-10 pr-4 bg-canvas border border-line rounded-lg text-[13px] text-ink focus:outline-none focus:ring-2 focus:ring-primary-900/20 focus:border-primary-900 transition-all placeholder:text-slate-400"
           />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button type="button" onClick={onClearAll} className={styles.filterToolBtn}>
+        
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <button type="button" onClick={onClearAll} className="flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-slate-600 bg-white border border-line rounded-md hover:bg-canvas transition-colors whitespace-nowrap">
             <RotateCcw size={14} />
-            <span>Clear All</span>
+            Clear All
           </button>
-
-          <button type="button" onClick={onOpenSaveViewModal} className={styles.filterToolBtn}>
+          <button type="button" onClick={onOpenSaveViewModal} className="flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-slate-600 bg-white border border-line rounded-md hover:bg-canvas transition-colors whitespace-nowrap">
             <Bookmark size={14} />
-            <span>Save View</span>
+            Save View
           </button>
-
-          <button type="button" onClick={onOpenMoreFiltersDrawer} className={styles.filterToolBtn}>
+          <button type="button" onClick={onOpenMoreFiltersDrawer} className="flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-slate-600 bg-white border border-line rounded-md hover:bg-canvas transition-colors whitespace-nowrap relative">
             <SlidersHorizontal size={14} />
-            <span>More Filters</span>
+            More Filters
             {activeMoreFiltersCount > 0 && (
-              <span className={styles.kpiBadge} style={{ background: '#722140', color: '#fff', fontSize: '10px' }}>
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-900 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
                 {activeMoreFiltersCount}
               </span>
             )}
@@ -63,320 +78,139 @@ export function SupportCaseFilters({
         </div>
       </div>
 
-      {/* Filter Grid - 3 Rows x 8 Columns */}
-      <div className={styles.filterGrid}>
-        {/* Row 1 */}
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Case Status</label>
-          <select
-            value={filters.status || 'all'}
-            onChange={(e) => handleChange('status', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
-            <option value="waiting-for-customer">Waiting for Customer</option>
-            <option value="waiting-for-supplier">Waiting for Supplier</option>
-            <option value="waiting-for-logistics">Waiting for Logistics</option>
-            <option value="waiting-for-finance">Waiting for Finance</option>
-            <option value="escalated">Escalated</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
+      {/* Filter Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-x-4 gap-y-5">
+        {renderSelect('Case Status', 'status', [
+          { value: 'open', label: 'Open' },
+          { value: 'in-progress', label: 'In Progress' },
+          { value: 'waiting-for-customer', label: 'Waiting for Customer' },
+          { value: 'waiting-for-supplier', label: 'Waiting for Supplier' },
+          { value: 'waiting-for-logistics', label: 'Waiting for Logistics' },
+          { value: 'waiting-for-finance', label: 'Waiting for Finance' },
+          { value: 'escalated', label: 'Escalated' },
+          { value: 'resolved', label: 'Resolved' },
+          { value: 'closed', label: 'Closed' },
+        ])}
+        {renderSelect('Priority', 'priority', [
+          { value: 'low', label: 'Low' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'high', label: 'High' },
+          { value: 'urgent', label: 'Urgent' },
+          { value: 'critical', label: 'Critical' },
+        ])}
+        {renderSelect('SLA Status', 'sla', [
+          { value: 'within-target', label: 'Within Target' },
+          { value: 'at-risk', label: 'At Risk' },
+          { value: 'breached', label: 'Breached' },
+          { value: 'completed', label: 'Completed' },
+        ])}
+        {renderSelect('Escalation Status', 'escalation', [
+          { value: 'normal', label: 'Normal' },
+          { value: 'escalated', label: 'Escalated' },
+          { value: 'executive-escalation', label: 'Executive Escalation' },
+        ])}
+        {renderSelect('Case Category', 'category', [
+          { value: 'delivery-issue', label: 'Delivery Issue' },
+          { value: 'payment-issue', label: 'Payment Issue' },
+          { value: 'product-safety', label: 'Product Safety' },
+          { value: 'return-refund', label: 'Return & Refund' },
+          { value: 'authenticity', label: 'Authenticity' },
+          { value: 'supplier-issue', label: 'Supplier Issue' },
+          { value: 'general-inquiry', label: 'General Inquiry' },
+        ])}
+        {renderSelect('Issue Type', 'issueType', [
+          { value: 'shipment-not-dispatched', label: 'Shipment Not Dispatched' },
+          { value: 'payment-failed', label: 'Payment Failed' },
+          { value: 'skin-irritation', label: 'Skin Irritation' },
+          { value: 'wrong-shade', label: 'Wrong Shade' },
+          { value: 'fake-product-claim', label: 'Fake Product Claim' },
+          { value: 'damaged-goods', label: 'Damaged Goods' },
+        ])}
+        {renderSelect('Channel', 'channel', [
+          { value: 'in-app-chat', label: 'In-App Chat' },
+          { value: 'email', label: 'Email' },
+          { value: 'phone', label: 'Phone' },
+          { value: 'whatsapp', label: 'WhatsApp' },
+          { value: 'web-portal', label: 'Web Portal' },
+        ])}
+        {renderSelect('Customer', 'customer', [
+          { value: 'elena-rodriguez', label: 'Elena Rodriguez' },
+          { value: 'julian-vance', label: 'Julian Vance' },
+          { value: 'nimal-sirisena', label: 'Nimal Sirisena' },
+          { value: 'sarah-chen', label: 'Sarah Chen' },
+        ])}
 
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Priority</label>
-          <select
-            value={filters.priority || 'all'}
-            onChange={(e) => handleChange('priority', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="low">Low</option>
-            <option value="normal">Normal</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-            <option value="critical">Critical</option>
-          </select>
-        </div>
+        {renderSelect('Assigned Agent', 'assignedAgent', [
+          { value: 'unassigned', label: 'Unassigned' },
+          { value: 'amaya-perera', label: 'Amaya Perera' },
+          { value: 'dilan-perera', label: 'Dilan Perera' },
+          { value: 'nadeesha-silva', label: 'Nadeesha Silva' },
+          { value: 'elena-vance', label: 'Elena Vance' },
+        ])}
+        {renderSelect('Assigned Team', 'assignedTeam', [
+          { value: 'tier-1', label: 'Tier 1 Support' },
+          { value: 'tier-2', label: 'Tier 2 Support' },
+          { value: 'finance', label: 'Finance Team' },
+          { value: 'logistics', label: 'Logistics Ops' },
+          { value: 'safety', label: 'Safety & Quality' },
+        ])}
+        {renderSelect('Supplier', 'supplier', [
+          { value: 'luxe-distribution', label: 'Luxe Distribution Pvt Ltd' },
+          { value: 'vogue-supply', label: 'Vogue Beauty Supply' },
+          { value: 'pure-essence', label: 'Pure Essence Labs' },
+        ])}
+        {renderSelect('Product', 'product', [
+          { value: 'vitamin-c-serum', label: 'Radiance Vitamin C Serum' },
+          { value: 'matte-lipstick', label: 'Matte Silk Lipstick' },
+          { value: 'gold-cream', label: 'Gold-Infused Cream' },
+        ])}
+        {renderSelect('Order Status', 'orderStatus', [
+          { value: 'processing', label: 'Processing' },
+          { value: 'shipped', label: 'Shipped' },
+          { value: 'delivered', label: 'Delivered' },
+          { value: 'cancelled', label: 'Cancelled' },
+        ])}
+        {renderSelect('Return Status', 'returnStatus', [
+          { value: 'requested', label: 'Requested' },
+          { value: 'approved', label: 'Approved' },
+          { value: 'inspected', label: 'Inspected' },
+          { value: 'refunded', label: 'Refunded' },
+        ])}
+        {renderSelect('Shipment Status', 'shipmentStatus', [
+          { value: 'in-transit', label: 'In Transit' },
+          { value: 'delayed', label: 'Delayed' },
+          { value: 'delivered', label: 'Delivered' },
+        ])}
+        {renderSelect('Sentiment', 'sentiment', [
+          { value: 'positive', label: 'Positive' },
+          { value: 'neutral', label: 'Neutral' },
+          { value: 'concerned', label: 'Concerned' },
+          { value: 'frustrated', label: 'Frustrated' },
+          { value: 'distressed', label: 'Distressed' },
+        ])}
 
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>SLA Status</label>
-          <select
-            value={filters.sla || 'all'}
-            onChange={(e) => handleChange('sla', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="within-target">Within Target</option>
-            <option value="at-risk">At Risk</option>
-            <option value="breached">Breached</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Escalation Status</label>
-          <select
-            value={filters.escalation || 'all'}
-            onChange={(e) => handleChange('escalation', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="normal">Normal</option>
-            <option value="escalated">Escalated</option>
-            <option value="executive-escalation">Executive Escalation</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Case Category</label>
-          <select
-            value={filters.category || 'all'}
-            onChange={(e) => handleChange('category', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="delivery-issue">Delivery Issue</option>
-            <option value="payment-issue">Payment Issue</option>
-            <option value="product-safety">Product Safety</option>
-            <option value="return-refund">Return & Refund</option>
-            <option value="authenticity">Authenticity</option>
-            <option value="supplier-issue">Supplier Issue</option>
-            <option value="general-inquiry">General Inquiry</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Issue Type</label>
-          <select
-            value={filters.issueType || 'all'}
-            onChange={(e) => handleChange('issueType', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="shipment-not-dispatched">Shipment Not Dispatched</option>
-            <option value="payment-failed">Payment Failed</option>
-            <option value="skin-irritation">Skin Irritation</option>
-            <option value="wrong-shade">Wrong Shade</option>
-            <option value="fake-product-claim">Fake Product Claim</option>
-            <option value="damaged-goods">Damaged Goods</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Channel</label>
-          <select
-            value={filters.channel || 'all'}
-            onChange={(e) => handleChange('channel', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="in-app-chat">In-App Chat</option>
-            <option value="email">Email</option>
-            <option value="phone">Phone</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="web-portal">Web Portal</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Customer</label>
-          <select
-            value={filters.customer || 'all'}
-            onChange={(e) => handleChange('customer', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="elena-rodriguez">Elena Rodriguez</option>
-            <option value="julian-vance">Julian Vance</option>
-            <option value="nimal-sirisena">Nimal Sirisena</option>
-            <option value="sarah-chen">Sarah Chen</option>
-          </select>
-        </div>
-
-        {/* Row 2 */}
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Assigned Agent</label>
-          <select
-            value={filters.assignedAgent || 'all'}
-            onChange={(e) => handleChange('assignedAgent', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="unassigned">Unassigned</option>
-            <option value="amaya-perera">Amaya Perera</option>
-            <option value="dilan-perera">Dilan Perera</option>
-            <option value="nadeesha-silva">Nadeesha Silva</option>
-            <option value="elena-vance">Elena Vance</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Assigned Team</label>
-          <select
-            value={filters.assignedTeam || 'all'}
-            onChange={(e) => handleChange('assignedTeam', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="tier-1">Tier 1 Support</option>
-            <option value="tier-2">Tier 2 Support</option>
-            <option value="finance">Finance Team</option>
-            <option value="logistics">Logistics Ops</option>
-            <option value="safety">Safety & Quality</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Supplier</label>
-          <select
-            value={filters.supplier || 'all'}
-            onChange={(e) => handleChange('supplier', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="luxe-distribution">Luxe Distribution Pvt Ltd</option>
-            <option value="vogue-supply">Vogue Beauty Supply</option>
-            <option value="pure-essence">Pure Essence Labs</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Product</label>
-          <select
-            value={filters.product || 'all'}
-            onChange={(e) => handleChange('product', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="vitamin-c-serum">Radiance Vitamin C Serum</option>
-            <option value="matte-lipstick">Matte Silk Lipstick</option>
-            <option value="gold-cream">Gold-Infused Cream</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Order Status</label>
-          <select
-            value={filters.orderStatus || 'all'}
-            onChange={(e) => handleChange('orderStatus', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Return Status</label>
-          <select
-            value={filters.returnStatus || 'all'}
-            onChange={(e) => handleChange('returnStatus', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="requested">Requested</option>
-            <option value="approved">Approved</option>
-            <option value="inspected">Inspected</option>
-            <option value="refunded">Refunded</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Shipment Status</label>
-          <select
-            value={filters.shipmentStatus || 'all'}
-            onChange={(e) => handleChange('shipmentStatus', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="in-transit">In Transit</option>
-            <option value="delayed">Delayed</option>
-            <option value="delivered">Delivered</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Sentiment</label>
-          <select
-            value={filters.sentiment || 'all'}
-            onChange={(e) => handleChange('sentiment', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="positive">Positive</option>
-            <option value="neutral">Neutral</option>
-            <option value="concerned">Concerned</option>
-            <option value="frustrated">Frustrated</option>
-            <option value="distressed">Distressed</option>
-          </select>
-        </div>
-
-        {/* Row 3 */}
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Risk Level</label>
-          <select
-            value={filters.risk || 'all'}
-            onChange={(e) => handleChange('risk', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Created Date</label>
-          <select
-            value={filters.createdDate || 'all'}
-            onChange={(e) => handleChange('createdDate', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="today">Today</option>
-            <option value="last-7-days">Last 7 Days</option>
-            <option value="last-30-days">Last 30 Days</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>Last Updated Date</label>
-          <select
-            value={filters.updatedDate || 'all'}
-            onChange={(e) => handleChange('updatedDate', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="this-week">This Week</option>
-          </select>
-        </div>
-
-        <div className={styles.filterField}>
-          <label className={styles.filterLabel}>SLA Due Date</label>
-          <select
-            value={filters.slaDueDate || 'all'}
-            onChange={(e) => handleChange('slaDueDate', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All</option>
-            <option value="today">Today</option>
-            <option value="next-24h">Next 24 Hours</option>
-            <option value="overdue">Overdue</option>
-          </select>
-        </div>
+        {renderSelect('Risk Level', 'risk', [
+          { value: 'low', label: 'Low' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'high', label: 'High' },
+          { value: 'critical', label: 'Critical' },
+        ])}
+        {renderSelect('Created Date', 'createdDate', [
+          { value: 'today', label: 'Today' },
+          { value: 'last-7-days', label: 'Last 7 Days' },
+          { value: 'last-30-days', label: 'Last 30 Days' },
+        ])}
+        {renderSelect('Last Updated Date', 'updatedDate', [
+          { value: 'today', label: 'Today' },
+          { value: 'yesterday', label: 'Yesterday' },
+          { value: 'this-week', label: 'This Week' },
+        ])}
+        {renderSelect('SLA Due Date', 'slaDueDate', [
+          { value: 'today', label: 'Today' },
+          { value: 'next-24h', label: 'Next 24 Hours' },
+          { value: 'overdue', label: 'Overdue' },
+        ])}
       </div>
     </div>
   );
 }
-

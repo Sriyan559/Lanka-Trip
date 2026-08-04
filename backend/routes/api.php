@@ -288,6 +288,7 @@ Route::prefix('beauty-advisor')->group(function () {
     Route::patch('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'renameConversation'])->whereNumber('id');
     Route::delete('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'deleteConversation'])->whereNumber('id');
     Route::delete('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
+    Route::get('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
     Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'sendMessage'])->middleware('throttle:30,1')->whereNumber('id');
     Route::post('/conversations/{id}/profile', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');
     Route::post('/messages/{id}/feedback', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'feedback'])->middleware('throttle:20,1')->whereNumber('id');

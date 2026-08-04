@@ -1,19 +1,25 @@
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import type { StatusTone } from "../types";
-import shared from "../ecosystem-modules.module.css";
-import styles from "./moduleDetail.module.css";
 
-const toneClass = (tone: StatusTone) => shared[`tone${tone[0].toUpperCase()}${tone.slice(1)}`];
+export function StatusPill({ value, tone = "neutral" }: { value: string; tone?: StatusTone }) {
+  const getToneClasses = (t: StatusTone) => {
+    switch (t) {
+      case "success": return "bg-success/10 text-success";
+      case "warning": return "bg-warning/10 text-warning";
+      case "danger": return "bg-danger/10 text-danger";
+      case "info": return "bg-info/10 text-info";
+      default: return "bg-canvas text-muted";
+    }
+  };
 
-export function StatusPill({ value, tone }: { value: string; tone: StatusTone }) {
-  return <span className={`${shared.statusPill} ${toneClass(tone)}`}>{value}</span>;
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider ${getToneClasses(tone)}`}>{value}</span>;
 }
 
 export function ProgressBar({ value, tone = "success" as const }: { value: number; tone?: "success" | "warning" }) {
   return (
-    <span className={shared.metricTrack}>
-      <i className={tone === "warning" ? shared.metricWarning : shared.metricSuccess} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+    <span className="block w-full h-1.5 bg-line rounded-full overflow-hidden mt-1">
+      <i className={`block h-full rounded-full ${tone === "warning" ? "bg-warning" : "bg-success"}`} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </span>
   );
 }
@@ -32,16 +38,16 @@ export function SectionCard({
   scroll?: boolean;
 }) {
   return (
-    <section className={styles.sectionCard}>
-      <div className={styles.sectionHeading}>
+    <section className="bg-white rounded-xl shadow-sm border border-line flex flex-col overflow-hidden">
+      <div className="px-5 py-4 border-b border-line flex items-start justify-between gap-4">
         <div>
-          <h2>{title}</h2>
-          {description && <p>{description}</p>}
+          <h2 className="text-[13px] font-bold text-ink">{title}</h2>
+          {description && <p className="text-[11px] text-muted mt-1">{description}</p>}
         </div>
-        {aside}
+        {aside && <div className="shrink-0">{aside}</div>}
       </div>
-      <div className={styles.sectionBody}>
-        {scroll ? <div className={styles.tableScroll}>{children}</div> : children}
+      <div className="flex-1 min-h-0 bg-white">
+        {scroll ? <div className="overflow-x-auto">{children}</div> : children}
       </div>
     </section>
   );
@@ -49,7 +55,7 @@ export function SectionCard({
 
 export function ViewDetailsLink({ onClick, label = "View details" }: { onClick: () => void; label?: string }) {
   return (
-    <button type="button" className={styles.viewDetailsLink} onClick={onClick}>
+    <button type="button" className="text-[11px] font-bold text-[#741d35] flex items-center gap-1 hover:underline mt-auto pt-4" onClick={onClick}>
       {label} <ChevronRight size={12} />
     </button>
   );
@@ -58,10 +64,9 @@ export function ViewDetailsLink({ onClick, label = "View details" }: { onClick: 
 export function EmptyRow({ colSpan, message }: { colSpan: number; message: string }) {
   return (
     <tr>
-      <td colSpan={colSpan} style={{ textAlign: "center", color: "#8a919c", padding: "18px 10px" }}>
+      <td colSpan={colSpan} className="text-center text-muted py-5 text-[12px]">
         {message}
       </td>
     </tr>
   );
 }
-

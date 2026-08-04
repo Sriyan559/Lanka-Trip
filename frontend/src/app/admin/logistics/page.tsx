@@ -2,21 +2,31 @@
 
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, Download } from "lucide-react";
 import { PageHeader } from "@/components/admin/layout/PageHeader";
 import { LogisticsMetricsRow } from "@/features/admin/logistics/components/LogisticsMetricsRow";
 import { LogisticsFilterPanel } from "@/features/admin/logistics/components/LogisticsFilterPanel";
 import { ShipmentTable } from "@/features/admin/logistics/components/ShipmentTable";
-import { fetchLogisticsMetrics, fetchShipments } from "@/services/api/logisticsService";
-import { LogisticsMetrics, Shipment } from "@/types/logistics";
-import { mockLogisticsMetrics } from "@/mocks/admin/logistics.mock";
+import { LogisticsSidebars } from "@/features/admin/logistics/components/LogisticsSidebars";
+import { 
+  LogisticsMetrics, Shipment, OperationsHealth, PriorityAlert, QuickQueueItem, CarrierPerformance, CODFinancials 
+} from "@/types/logistics";
+import { 
+  mockLogisticsMetrics, mockShipments, mockOperationsHealth, 
+  mockPriorityAlerts, mockQuickQueue, mockCarrierPerformance, mockCODFinancials 
+} from "@/mocks/admin/logistics.mock";
 
 function LogisticsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [metrics, setMetrics] = useState<LogisticsMetrics>(mockLogisticsMetrics);
-  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [metrics] = useState<LogisticsMetrics>(mockLogisticsMetrics);
+  const [shipments] = useState<Shipment[]>(mockShipments);
+  const [operationsHealth] = useState<OperationsHealth>(mockOperationsHealth);
+  const [priorityAlerts] = useState<PriorityAlert[]>(mockPriorityAlerts);
+  const [quickQueue] = useState<QuickQueueItem[]>(mockQuickQueue);
+  const [carrierPerformance] = useState<CarrierPerformance[]>(mockCarrierPerformance);
+  const [codFinancials] = useState<CODFinancials>(mockCODFinancials);
+  
   const [loading, setLoading] = useState(true);
 
   const currentFilters = {
@@ -44,22 +54,11 @@ function LogisticsContent() {
   );
 
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [metricsRes, shipmentsRes] = await Promise.all([
-          fetchLogisticsMetrics(),
-          fetchShipments(currentFilters),
-        ]);
-        setMetrics(metricsRes);
-        setShipments(shipmentsRes.data);
-      } catch (err) {
-        console.error("Failed loading logistics data:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
+    // Simulate loading data
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 600);
+    return () => clearTimeout(timer);
   }, [searchParams]);
 
   const handleClearAllFilters = () => {
@@ -67,29 +66,41 @@ function LogisticsContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1920px] mx-auto pb-10">
       <PageHeader
-        crumbs={["Logistics", "Overview"]}
-        title="Logistics Hub"
-        description="Monitor active shipments, track logistics partners' performance, and handle exceptions."
+        crumbs={["Logistics", "Shipment Operations"]}
+        title="Logistics & Fulfilment Operations"
+        description="Monitor shipment status, supplier pickup readiness, package preparation, carrier assignment, dispatch, tracking, delivery exceptions, and reverse logistics."
         actions={
-          <div className="flex items-center gap-3">
-            <button type="button" className="inline-flex items-center gap-2 px-4 py-2 bg-primary-900 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
-              <Plus size={15} />
-              Add Partner
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Create Shipment
             </button>
-            <button type="button" className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-line text-ink text-sm font-medium rounded-lg hover:bg-canvas transition-colors shadow-sm">
-              <Download size={15} />
-              Export Data
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Bulk Assign Carrier
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Schedule Pickups
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Export Shipment Report
+            </button>
+            <button type="button" className="px-4 py-2 bg-primary-900 text-white text-[13px] font-semibold rounded-lg hover:bg-primary-800 transition-colors shadow-sm">
+              Review Priority Shipments
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1">
+              More Actions
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
           </div>
         }
       />
 
-      <LogisticsMetricsRow metrics={metrics} />
-
-      <div className="mt-6">
-        <div className="space-y-6">
+      <div className="flex flex-col xl:flex-row gap-6">
+        {/* MAIN CONTENT AREA */}
+        <div className="flex-1 min-w-0 space-y-6">
+          <LogisticsMetricsRow metrics={metrics} />
+          
           <LogisticsFilterPanel
             filters={currentFilters}
             onFilterChange={updateUrlFilters}
@@ -99,13 +110,21 @@ function LogisticsContent() {
           {loading ? (
             <div className="bg-white rounded-xl border border-line shadow-sm p-6 animate-pulse">
               <div className="h-10 bg-canvas rounded mb-4 w-full" />
-              <div className="h-8 bg-canvas rounded mb-3 w-full" />
-              <div className="h-8 bg-canvas rounded w-full" />
+              <div className="h-[400px] bg-canvas rounded w-full" />
             </div>
           ) : (
             <ShipmentTable shipments={shipments} />
           )}
         </div>
+
+        {/* RIGHT SIDEBARS */}
+        <LogisticsSidebars 
+          operationsHealth={operationsHealth}
+          priorityAlerts={priorityAlerts}
+          quickQueue={quickQueue}
+          carrierPerformance={carrierPerformance}
+          codFinancials={codFinancials}
+        />
       </div>
     </div>
   );

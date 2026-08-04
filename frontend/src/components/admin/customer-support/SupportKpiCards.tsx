@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { SupportCaseMetricSummary } from '@/types/customerSupport';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface SupportKpiCardsProps {
   metrics: SupportCaseMetricSummary | null;
@@ -34,11 +33,11 @@ export function SupportKpiCards({
 }: SupportKpiCardsProps) {
   if (!metrics) {
     return (
-      <div className="kpi-skeleton-container flex gap-3 flex-wrap">
+      <div className="flex gap-4 flex-wrap">
         {Array.from({ length: 14 }).map((_, i) => (
           <div
             key={i}
-            className="kpi-card-skeleton animate-pulse bg-slate-100 rounded-lg h-20 w-36"
+            className="animate-pulse bg-slate-100 rounded-xl h-24 flex-1 min-w-[150px]"
           />
         ))}
       </div>
@@ -51,8 +50,7 @@ export function SupportKpiCards({
       filterKey: 'status',
       filterVal: 'all',
       icon: Headset,
-      iconBg: '#eff6ff',
-      iconColor: '#2563eb',
+      iconColor: 'text-blue-600',
       label: 'Total Open Cases',
       value: metrics.totalOpenCases.toLocaleString(),
     },
@@ -61,8 +59,7 @@ export function SupportKpiCards({
       filterKey: 'quickFilter',
       filterVal: 'new-today',
       icon: FilePlus,
-      iconBg: '#f0fdf4',
-      iconColor: '#16a34a',
+      iconColor: 'text-green-600',
       label: 'New Cases Today',
       value: metrics.newCasesToday.toString(),
       badge: metrics.newCasesTodayTrendPercent ? `+${metrics.newCasesTodayTrendPercent}%` : undefined,
@@ -73,8 +70,7 @@ export function SupportKpiCards({
       filterKey: 'assignedAgent',
       filterVal: 'unassigned',
       icon: UserX,
-      iconBg: '#fff7ed',
-      iconColor: '#ea580c',
+      iconColor: 'text-orange-600',
       label: 'Unassigned Cases',
       value: metrics.unassignedCases.toString(),
     },
@@ -83,8 +79,7 @@ export function SupportKpiCards({
       filterKey: 'status',
       filterVal: 'in-progress',
       icon: Clock,
-      iconBg: '#eff6ff',
-      iconColor: '#0284c7',
+      iconColor: 'text-sky-600',
       label: 'In Progress',
       value: metrics.inProgress.toString(),
     },
@@ -93,8 +88,7 @@ export function SupportKpiCards({
       filterKey: 'status',
       filterVal: 'waiting-for-customer',
       icon: UserCheck,
-      iconBg: '#f5f3ff',
-      iconColor: '#7c3aed',
+      iconColor: 'text-purple-600',
       label: 'Waiting for Customer',
       value: metrics.waitingForCustomer.toString(),
     },
@@ -103,8 +97,7 @@ export function SupportKpiCards({
       filterKey: 'status',
       filterVal: 'waiting-for-supplier',
       icon: Building2,
-      iconBg: '#fff7ed',
-      iconColor: '#d97706',
+      iconColor: 'text-amber-600',
       label: 'Waiting for Supplier',
       value: metrics.waitingForSupplier.toString(),
     },
@@ -113,8 +106,7 @@ export function SupportKpiCards({
       filterKey: 'status',
       filterVal: 'waiting-for-logistics',
       icon: Truck,
-      iconBg: '#f0fdfa',
-      iconColor: '#0d9488',
+      iconColor: 'text-teal-600',
       label: 'Waiting for Logistics',
       value: metrics.waitingForLogistics.toString(),
     },
@@ -126,8 +118,7 @@ export function SupportKpiCards({
       filterKey: 'status',
       filterVal: 'waiting-for-finance',
       icon: Landmark,
-      iconBg: '#f0fdfa',
-      iconColor: '#0284c7',
+      iconColor: 'text-sky-600',
       label: 'Waiting for Finance',
       value: metrics.waitingForFinance.toString(),
     },
@@ -136,32 +127,27 @@ export function SupportKpiCards({
       filterKey: 'sla',
       filterVal: 'at-risk',
       icon: AlertTriangle,
-      iconBg: '#fffbe6',
-      iconColor: '#d97706',
+      iconColor: 'text-red-600',
       label: 'SLA At Risk',
       value: metrics.slaAtRisk.toString(),
       isHighlight: true,
-      highlightColor: '#d97706',
     },
     {
       key: 'sla-breaches',
       filterKey: 'sla',
       filterVal: 'breached',
       icon: ShieldAlert,
-      iconBg: '#fef2f2',
-      iconColor: '#dc2626',
+      iconColor: 'text-primary-900',
       label: 'SLA Breaches',
       value: metrics.slaBreaches.toString(),
       isHighlight: true,
-      highlightColor: '#dc2626',
     },
     {
       key: 'escalated-cases',
       filterKey: 'status',
       filterVal: 'escalated',
       icon: TrendingUp,
-      iconBg: '#faf5ff',
-      iconColor: '#9333ea',
+      iconColor: 'text-purple-600',
       label: 'Escalated Cases',
       value: metrics.escalatedCases.toString(),
     },
@@ -170,20 +156,17 @@ export function SupportKpiCards({
       filterKey: 'quickFilter',
       filterVal: 'safety-complaint',
       icon: Flame,
-      iconBg: '#fef2f2',
-      iconColor: '#b91c1c',
+      iconColor: 'text-primary-900',
       label: 'Safety Complaints',
       value: metrics.safetyComplaints.toString(),
       isHighlight: true,
-      highlightColor: '#b91c1c',
     },
     {
       key: 'resolved-today',
       filterKey: 'status',
       filterVal: 'resolved',
       icon: CheckCircle2,
-      iconBg: '#f0fdf4',
-      iconColor: '#16a34a',
+      iconColor: 'text-green-600',
       label: 'Resolved Today',
       value: metrics.resolvedToday.toString(),
     },
@@ -192,71 +175,67 @@ export function SupportKpiCards({
       filterKey: 'sentiment',
       filterVal: 'positive',
       icon: Star,
-      iconBg: '#fffbe6',
-      iconColor: '#ca8a04',
+      iconColor: 'text-green-600',
       label: 'Customer Satisfaction',
+      value: `${metrics.customerSatisfaction}%`,
     },
   ];
 
-interface KpiCardItemConfig {
-  key: string;
-  filterKey: string;
-  filterVal: string;
-  icon: LucideIcon;
-  iconBg: string;
-  iconColor: string;
-  label: string;
-  value?: string;
-  badge?: string;
-  badgePositive?: boolean;
-  isHighlight?: boolean;
-  highlightColor?: string;
-}
+  interface KpiCardItemConfig {
+    key: string;
+    filterKey: string;
+    filterVal: string;
+    icon: LucideIcon;
+    iconColor: string;
+    label: string;
+    value?: string;
+    badge?: string;
+    badgePositive?: boolean;
+    isHighlight?: boolean;
+  }
 
   const renderCard = (card: KpiCardItemConfig) => {
     const Icon = card.icon;
     const isActive = activeFilterKey === card.key || activeFilterKey === card.filterVal;
-
-    let cardClass = styles.kpiCard;
-    if (isActive) {
-      cardClass += ` ${styles.kpiCardActive}`;
-    } else if (card.key === 'sla-at-risk') {
-      cardClass += ` ${styles.kpiCardHighlightAmber}`;
-    } else if (card.key === 'sla-breaches' || card.key === 'safety-complaints') {
-      cardClass += ` ${styles.kpiCardHighlightRed}`;
-    }
 
     return (
       <button
         key={card.key}
         type="button"
         onClick={() => onSelectFilter(card.filterKey, card.filterVal)}
-        className={cardClass}
+        className={`flex-1 min-w-[150px] p-4 rounded-xl border bg-white flex flex-col items-start gap-1 text-left transition-all hover:-translate-y-1 hover:shadow-md ${
+          isActive
+            ? 'border-primary-900 ring-1 ring-primary-900 shadow-sm'
+            : card.isHighlight
+            ? 'border-red-200 hover:border-red-300'
+            : 'border-line hover:border-slate-300'
+        }`}
       >
-        <div className={styles.kpiHeader}>
-          <div
-            className={styles.kpiIconBox}
-            style={{ backgroundColor: card.iconBg, color: card.iconColor }}
-          >
-            <Icon size={16} />
+        <div className="flex items-center justify-between w-full mb-1">
+          <div className={`${card.iconColor}`}>
+            <Icon size={18} strokeWidth={2} />
           </div>
           {card.badge && (
-            <span className={styles.kpiBadge}>
-              <TrendingUp size={10} style={{ display: 'inline', marginRight: '2px' }} />
+            <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded-md">
+              <TrendingUp size={10} />
               {card.badge}
-            </span>
+            </div>
           )}
         </div>
-        <div className={styles.kpiValue}>{card.value}</div>
-        <div className={styles.kpiLabel}>{card.label}</div>
+        <div className={`text-2xl font-bold tracking-tight ${card.isHighlight ? 'text-red-700' : 'text-ink'}`}>
+          {card.value}
+        </div>
+        <div className={`text-[11px] font-medium uppercase tracking-wider ${card.isHighlight ? 'text-red-600' : 'text-slate-500'}`}>
+          {card.label}
+        </div>
       </button>
     );
   };
 
   return (
-    <div className={styles.kpiSection}>
-      <div className={styles.kpiGrid}>{row1.map(renderCard)}</div>
-      <div className={styles.kpiGrid}>{row2.map(renderCard)}</div>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-row gap-4">{row1.map(renderCard)}</div>
+      <div className="flex flex-row gap-4">{row2.map(renderCard)}</div>
     </div>
   );
 }

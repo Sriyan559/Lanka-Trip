@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { X, AlertCircle, Loader2 } from 'lucide-react';
 import type { SupportChannel, SupportPriority, CreateSupportCaseDto } from '@/types/customerSupport';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface CreateSupportCaseModalProps {
   isOpen: boolean;
@@ -82,59 +81,62 @@ export function CreateSupportCaseModal({
     }
   };
 
+  const inputClass = "w-full h-[38px] px-3 bg-white border border-line rounded-lg text-[13px] text-ink focus:outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 transition-shadow";
+  const labelClass = "block text-[11px] font-semibold text-slate-700 mb-1.5 uppercase tracking-wider";
+
   return (
-    <div className={styles.modalBackdrop} onClick={onClose}>
-      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-[800px] flex flex-col max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* Modal Header */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Create Support Case</h2>
-          <button type="button" onClick={onClose} className={styles.modalCloseBtn} aria-label="Close modal">
+        <div className="flex items-center justify-between p-5 border-b border-line bg-slate-50">
+          <h2 className="text-[16px] font-bold text-ink">Create Support Case</h2>
+          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors bg-white rounded-md p-1 border border-line shadow-sm">
             <X size={18} />
           </button>
         </div>
 
         {/* Error Banner */}
         {errorMsg && (
-          <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#b91c1c', marginTop: '12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="mx-5 mt-5 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-[12px] flex items-center gap-2">
             <AlertCircle size={16} />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Modal Body / Form */}
-        <form id="create-support-case-form" onSubmit={handleSubmit} className={styles.modalBody}>
-          <div className={styles.formGrid}>
+        <form id="create-support-case-form" onSubmit={handleSubmit} className="p-6 overflow-y-auto custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
             {/* Row 1 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Customer Name *</label>
+            <div>
+              <label className={labelClass}>Customer Name *</label>
               <input
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="e.g. Elena Rodriguez"
-                className={styles.formInput}
+                className={inputClass}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Customer ID</label>
+            <div>
+              <label className={labelClass}>Customer ID</label>
               <input
                 type="text"
                 value={customerId}
                 onChange={(e) => setCustomerId(e.target.value)}
                 placeholder="e.g. CUS-2026-01842"
-                className={styles.formInput}
+                className={inputClass}
               />
             </div>
 
             {/* Row 2 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Case Category *</label>
+            <div>
+              <label className={labelClass}>Case Category *</label>
               <select
                 value={caseCategory}
                 onChange={(e) => setCaseCategory(e.target.value)}
-                className={styles.formSelect}
+                className={inputClass}
               >
                 <option value="Delivery Issue">Delivery Issue</option>
                 <option value="Payment Issue">Payment Issue</option>
@@ -146,25 +148,25 @@ export function CreateSupportCaseModal({
               </select>
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Issue Type *</label>
+            <div>
+              <label className={labelClass}>Issue Type *</label>
               <input
                 type="text"
                 value={issueType}
                 onChange={(e) => setIssueType(e.target.value)}
                 placeholder="e.g. Shipment Not Dispatched"
-                className={styles.formInput}
+                className={inputClass}
                 required
               />
             </div>
 
             {/* Row 3 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Channel *</label>
+            <div>
+              <label className={labelClass}>Channel *</label>
               <select
                 value={channel}
                 onChange={(e) => setChannel(e.target.value as SupportChannel)}
-                className={styles.formSelect}
+                className={inputClass}
               >
                 <option value="In-App Chat">In-App Chat</option>
                 <option value="Email">Email</option>
@@ -174,12 +176,12 @@ export function CreateSupportCaseModal({
               </select>
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Priority *</label>
+            <div>
+              <label className={labelClass}>Priority *</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as SupportPriority)}
-                className={styles.formSelect}
+                className={inputClass}
               >
                 <option value="Low">Low</option>
                 <option value="Normal">Normal</option>
@@ -190,94 +192,94 @@ export function CreateSupportCaseModal({
             </div>
 
             {/* Row 4: Subject (Span 2) */}
-            <div className={`${styles.formGroup} ${styles.formColSpan2}`}>
-              <label className={styles.formLabel}>Subject *</label>
+            <div className="md:col-span-2">
+              <label className={labelClass}>Subject *</label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Summary of customer inquiry or complaint"
-                className={styles.formInput}
+                className={inputClass}
                 required
               />
             </div>
 
             {/* Row 5: Description (Span 2) */}
-            <div className={`${styles.formGroup} ${styles.formColSpan2}`}>
-              <label className={styles.formLabel}>Description *</label>
+            <div className="md:col-span-2">
+              <label className={labelClass}>Description *</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Detailed description of customer inquiry, order issue, or complaint details"
-                className={styles.formTextarea}
+                className="w-full min-h-[100px] p-3 bg-white border border-line rounded-lg text-[13px] text-ink focus:outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 transition-shadow resize-y"
                 required
               />
             </div>
 
             {/* Row 6 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Related Order ID</label>
+            <div>
+              <label className={labelClass}>Related Order ID</label>
               <input
                 type="text"
                 value={relatedOrderId}
                 onChange={(e) => setRelatedOrderId(e.target.value)}
                 placeholder="e.g. ORD-2026-009021"
-                className={styles.formInput}
+                className={inputClass}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Related Return ID</label>
+            <div>
+              <label className={labelClass}>Related Return ID</label>
               <input
                 type="text"
                 value={relatedReturnId}
                 onChange={(e) => setRelatedReturnId(e.target.value)}
                 placeholder="e.g. RET-2026-045075"
-                className={styles.formInput}
+                className={inputClass}
               />
             </div>
 
             {/* Row 7 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Related Shipment ID</label>
+            <div>
+              <label className={labelClass}>Related Shipment ID</label>
               <input
                 type="text"
                 value={relatedShipmentId}
                 onChange={(e) => setRelatedShipmentId(e.target.value)}
                 placeholder="e.g. SHP-2026-010293"
-                className={styles.formInput}
+                className={inputClass}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Related Product Name</label>
+            <div>
+              <label className={labelClass}>Related Product Name</label>
               <input
                 type="text"
                 value={relatedProductName}
                 onChange={(e) => setRelatedProductName(e.target.value)}
-                placeholder="e.g. Radiance Vitamin C Serum - 30 ml"
-                className={styles.formInput}
+                placeholder="e.g. Radiance Vitamin C Serum"
+                className={inputClass}
               />
             </div>
 
             {/* Row 8 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Supplier Name</label>
+            <div>
+              <label className={labelClass}>Supplier Name</label>
               <input
                 type="text"
                 value={supplierName}
                 onChange={(e) => setSupplierName(e.target.value)}
                 placeholder="e.g. Luxe Distribution Pvt Ltd"
-                className={styles.formInput}
+                className={inputClass}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Assigned Team *</label>
+            <div>
+              <label className={labelClass}>Assigned Team *</label>
               <select
                 value={assignedTeam}
                 onChange={(e) => setAssignedTeam(e.target.value)}
-                className={styles.formSelect}
+                className={inputClass}
               >
                 <option value="Tier 1 Support">Tier 1 Support</option>
                 <option value="Tier 2 Support">Tier 2 Support</option>
@@ -288,12 +290,12 @@ export function CreateSupportCaseModal({
             </div>
 
             {/* Row 9 */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Assigned Agent</label>
+            <div>
+              <label className={labelClass}>Assigned Agent</label>
               <select
                 value={assignedAgent}
                 onChange={(e) => setAssignedAgent(e.target.value)}
-                className={styles.formSelect}
+                className={inputClass}
               >
                 <option value="Unassigned">Unassigned</option>
                 <option value="Amaya Perera">Amaya Perera</option>
@@ -303,12 +305,12 @@ export function CreateSupportCaseModal({
               </select>
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>SLA Target *</label>
+            <div>
+              <label className={labelClass}>SLA Target *</label>
               <select
                 value={slaTarget}
                 onChange={(e) => setSlaTarget(e.target.value)}
-                className={styles.formSelect}
+                className={inputClass}
               >
                 <option value="4 Hours">4 Hours</option>
                 <option value="12 Hours">12 Hours</option>
@@ -320,20 +322,20 @@ export function CreateSupportCaseModal({
         </form>
 
         {/* Modal Footer */}
-        <div className={styles.modalFooter}>
-          <button type="button" onClick={onClose} className={styles.btnSecondary} disabled={isSubmitting}>
+        <div className="flex items-center justify-end gap-3 p-5 border-t border-line bg-slate-50">
+          <button type="button" onClick={onClose} className="px-5 py-2.5 bg-white border border-line text-slate-700 text-[13px] font-bold rounded-lg hover:bg-slate-50 transition-colors shadow-sm" disabled={isSubmitting}>
             Cancel
           </button>
 
           <button
             type="submit"
             form="create-support-case-form"
-            className={styles.btnPrimary}
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white text-[13px] font-bold rounded-lg hover:bg-primary-800 transition-colors shadow-sm disabled:opacity-70"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
-                <Loader2 size={14} className="animate-spin" />
+                <Loader2 size={16} className="animate-spin" />
                 <span>Creating Case...</span>
               </>
             ) : (
@@ -345,4 +347,3 @@ export function CreateSupportCaseModal({
     </div>
   );
 }
-

@@ -22,8 +22,6 @@ import {
 } from "lucide-react";
 import type { ConfigParameterRow, DetailTabKey, EcosystemModuleDetail, FeatureFlagRow } from "../types";
 import { StatusPill, SectionCard, ViewDetailsLink, ProgressBar } from "./shared";
-import styles from "./moduleDetail.module.css";
-
 export function OverviewTab({
   detail,
   onNavigateTab,
@@ -38,90 +36,97 @@ export function OverviewTab({
   const { governance, currentRelease, environmentSummary, configSummary, integrationSummary, dependencySummary } = detail;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <section className={styles.summaryCardGrid}>
-        <article className={styles.summaryCard}>
-          <h3 className={styles.summaryCardTitle}><Users size={14} /> Governance</h3>
-          <div className={styles.summaryRows}>
-            <div className={styles.summaryRow}><span>Business Owner</span><strong>{governance.businessOwner}</strong></div>
-            <div className={styles.summaryRow}><span>Technical Owner</span><strong>{governance.technicalOwner}</strong></div>
-            <div className={styles.summaryRow}><span>Last Review</span><strong>{governance.lastReview}</strong></div>
-            <div className={styles.summaryRow}><span>Approval Chain</span><strong>{governance.approvalChain}</strong></div>
+    <div className="flex flex-col gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <article className="bg-white rounded-xl shadow-sm border border-line p-5 flex flex-col h-[220px]">
+          <h3 className="text-[13px] font-bold text-ink flex items-center gap-2 mb-4 pb-3 border-b border-line"><Users size={14} className="text-[#741d35]" /> Governance</h3>
+          <div className="flex-1 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Business Owner</span><strong className="text-ink font-bold">{governance.businessOwner}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Technical Owner</span><strong className="text-ink font-bold">{governance.technicalOwner}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Last Review</span><strong className="text-ink font-bold">{governance.lastReview}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Approval Chain</span><strong className="text-ink font-bold">{governance.approvalChain}</strong></div>
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("audit-history")} />
         </article>
 
-        <article className={styles.summaryCard}>
-          <h3 className={styles.summaryCardTitle}><Boxes size={14} /> Current Release</h3>
-          <div className={styles.summaryRows}>
-            <div className={styles.summaryRow}><span>Current Version</span><strong>{currentRelease.currentVersion}</strong></div>
-            <div className={styles.summaryRow}><span>Target Version</span><strong>{currentRelease.targetVersion}</strong></div>
-            <div className={styles.summaryRow}><span>Release Status</span><StatusPill value={currentRelease.releaseStatus} tone={detail.statusDomains.find((f) => f.key === "release")?.tone ?? "neutral"} /></div>
-            <div className={styles.summaryRow}><span>Next Release</span><strong>{currentRelease.nextRelease}</strong></div>
-            <div className={styles.summaryRow}><span>Rollback Plan</span><StatusPill value={currentRelease.rollbackPlan} tone={currentRelease.rollbackPlan === "Required" ? "danger" : currentRelease.rollbackPlan === "Drafted" ? "warning" : "success"} /></div>
+        <article className="bg-white rounded-xl shadow-sm border border-line p-5 flex flex-col h-[220px]">
+          <h3 className="text-[13px] font-bold text-ink flex items-center gap-2 mb-4 pb-3 border-b border-line"><Boxes size={14} className="text-[#741d35]" /> Current Release</h3>
+          <div className="flex-1 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Current Version</span><strong className="text-ink font-bold">{currentRelease.currentVersion}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Target Version</span><strong className="text-ink font-bold">{currentRelease.targetVersion}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Release Status</span><StatusPill value={currentRelease.releaseStatus} /></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Next Release</span><strong className="text-ink font-bold">{currentRelease.nextRelease}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Rollback Plan</span><StatusPill value={currentRelease.rollbackPlan} /></div>
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("versions")} />
         </article>
 
-        <article className={styles.summaryCard}>
-          <h3 className={styles.summaryCardTitle}><Cloud size={14} /> Environment Summary</h3>
-          <div className={styles.summaryRows}>
-            <div className={styles.summaryRow}><span>Production Enablement</span><StatusPill value={environmentSummary.productionEnablement} tone={detail.statusDomains.find((f) => f.key === "production")?.tone ?? "neutral"} /></div>
-            <div className={styles.summaryRow}><span>Countries Enabled</span><strong>{environmentSummary.countriesEnabledSummary}</strong></div>
-            <div className={styles.summaryRow}><span>Primary Region</span><strong>{environmentSummary.primaryRegion}</strong></div>
-            <div className={styles.summaryRow}><span>Environment Health</span><StatusPill value={environmentSummary.environmentHealth} tone={environmentSummary.environmentHealth === "Healthy" ? "success" : "warning"} /></div>
+        <article className="bg-white rounded-xl shadow-sm border border-line p-5 flex flex-col h-[220px]">
+          <h3 className="text-[13px] font-bold text-ink flex items-center gap-2 mb-4 pb-3 border-b border-line"><Cloud size={14} className="text-[#741d35]" /> Environment Summary</h3>
+          <div className="flex-1 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Production Enablement</span><StatusPill value={environmentSummary.productionEnablement} /></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Countries Enabled</span><strong className="text-ink font-bold">{environmentSummary.countriesEnabledSummary}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Primary Region</span><strong className="text-ink font-bold">{environmentSummary.primaryRegion}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Environment Health</span><StatusPill value={environmentSummary.environmentHealth} /></div>
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("environments")} />
         </article>
 
-        <article className={styles.summaryCard}>
-          <h3 className={styles.summaryCardTitle}><Settings2 size={14} /> Configuration Summary</h3>
-          <div className={styles.summaryProgress}>
-            <div><span>Secrets-safe completion</span><strong>{configSummary.secretsSafeCompletion}%</strong></div>
-            <div><span>Parameter coverage</span><strong>{configSummary.parameterCoverage}%</strong></div>
-            <div><span>Configuration Progress</span><strong>{configSummary.configurationProgress}%</strong></div>
-            <ProgressBar value={configSummary.configurationProgress} tone={configSummary.configurationProgress >= 80 ? "success" : "warning"} />
+        <article className="bg-white rounded-xl shadow-sm border border-line p-5 flex flex-col h-[220px]">
+          <h3 className="text-[13px] font-bold text-ink flex items-center gap-2 mb-4 pb-3 border-b border-line"><Settings2 size={14} className="text-[#741d35]" /> Configuration Summary</h3>
+          <div className="flex-1 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Secrets-safe completion</span><strong className="text-ink font-bold">{configSummary.secretsSafeCompletion}%</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Parameter coverage</span><strong className="text-ink font-bold">{configSummary.parameterCoverage}%</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Configuration Progress</span><strong className="text-ink font-bold">{configSummary.configurationProgress}%</strong></div>
+            <ProgressBar value={configSummary.configurationProgress} />
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("configuration")} />
         </article>
 
-        <article className={styles.summaryCard}>
-          <h3 className={styles.summaryCardTitle}><Link2 size={14} /> Integration Summary</h3>
-          <div className={styles.summaryProgress}>
-            <div><span>Services-total completion</span><strong>{integrationSummary.servicesTotalCompletion}%</strong></div>
-            <div><span>Parameter coverage</span><strong>{integrationSummary.parameterCoverage}%</strong></div>
-            <div><span>Integration Progress</span><strong>{integrationSummary.integrationProgress}%</strong></div>
-            <ProgressBar value={integrationSummary.integrationProgress} tone={integrationSummary.integrationProgress >= 80 ? "success" : "warning"} />
+        <article className="bg-white rounded-xl shadow-sm border border-line p-5 flex flex-col h-[220px]">
+          <h3 className="text-[13px] font-bold text-ink flex items-center gap-2 mb-4 pb-3 border-b border-line"><Link2 size={14} className="text-[#741d35]" /> Integration Summary</h3>
+          <div className="flex-1 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Services-total completion</span><strong className="text-ink font-bold">{integrationSummary.servicesTotalCompletion}%</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Parameter coverage</span><strong className="text-ink font-bold">{integrationSummary.parameterCoverage}%</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Integration Progress</span><strong className="text-ink font-bold">{integrationSummary.integrationProgress}%</strong></div>
+            <ProgressBar value={integrationSummary.integrationProgress} />
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("integrations")} />
         </article>
 
-        <article className={styles.summaryCard}>
-          <h3 className={styles.summaryCardTitle}><Landmark size={14} /> Dependency Summary</h3>
-          <div className={styles.summaryRows}>
-            <div className={styles.summaryRow}><span>Critical Dependencies</span><strong>{dependencySummary.criticalDependencies}</strong></div>
-            <div className={styles.summaryRow}><span>Required Dependencies</span><strong>{dependencySummary.requiredDependencies}</strong></div>
-            <div className={styles.summaryRow}><span>Health Status</span><StatusPill value={dependencySummary.healthStatus} tone={detail.statusDomains.find((f) => f.key === "dependency")?.tone ?? "neutral"} /></div>
-            <div className={styles.summaryRow}><span>Impact Risk</span><StatusPill value={dependencySummary.impactRisk} tone={dependencySummary.impactRisk === "High" ? "danger" : dependencySummary.impactRisk === "Medium" ? "warning" : "success"} /></div>
+        <article className="bg-white rounded-xl shadow-sm border border-line p-5 flex flex-col h-[220px]">
+          <h3 className="text-[13px] font-bold text-ink flex items-center gap-2 mb-4 pb-3 border-b border-line"><Landmark size={14} className="text-[#741d35]" /> Dependency Summary</h3>
+          <div className="flex-1 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Critical Dependencies</span><strong className="text-ink font-bold">{dependencySummary.criticalDependencies}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Required Dependencies</span><strong className="text-ink font-bold">{dependencySummary.requiredDependencies}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Health Status</span><StatusPill value={dependencySummary.healthStatus} /></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Impact Risk</span><StatusPill value={dependencySummary.impactRisk} /></div>
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("dependencies")} />
         </article>
       </section>
 
       <SectionCard title="Feature Flags & Rollout" description="Flags, rollout percentage and audience for this module." aside={<ViewDetailsLink onClick={() => onNavigateTab("feature-flags")} label="Manage flags" />}>
-        <table className={styles.dataTable}>
+        <table className="w-full text-left text-[12px] border-collapse min-w-[800px]">
           <thead>
-            <tr><th>Flag Key</th><th>State</th><th>Audience</th><th>Rollout</th><th>Updated At</th><th>Action</th></tr>
+            <tr className="border-b border-line">
+              <th className="py-2.5 px-2 font-bold text-muted">Flag Key</th>
+              <th className="py-2.5 px-2 font-bold text-muted">State</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Audience</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Rollout</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Updated At</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Action</th>
+            </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-line">
             {detail.featureFlags.map((flag) => (
-              <tr key={flag.id}>
-                <td><strong>{flag.flagKey}</strong></td>
-                <td><StatusPill value={flag.state} tone={flag.state === "Enabled" ? "success" : "neutral"} /></td>
-                <td>{flag.audience}</td>
-                <td>{flag.rollout}%</td>
-                <td>{flag.updatedAt}</td>
-                <td><button type="button" className={styles.rowAction} onClick={() => onEditFlag(flag)}>Edit</button></td>
+              <tr key={flag.id} className="hover:bg-gray-50 transition-colors">
+                <td className="py-2.5 px-2 text-ink"><strong>{flag.flagKey}</strong></td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={flag.state} /></td>
+                <td className="py-2.5 px-2 text-ink">{flag.audience}</td>
+                <td className="py-2.5 px-2 text-ink">{flag.rollout}%</td>
+                <td className="py-2.5 px-2 text-ink">{flag.updatedAt}</td>
+                <td className="py-2.5 px-2 text-ink"><button type="button" className="text-[11px] font-bold text-[#741d35] hover:underline" onClick={() => onEditFlag(flag)}>Edit</button></td>
               </tr>
             ))}
           </tbody>
@@ -129,25 +134,38 @@ export function OverviewTab({
       </SectionCard>
 
       <SectionCard title="Active Configuration Parameters" description="Configuration key and environment variable are tracked separately. Secret values are never rendered." aside={<ViewDetailsLink onClick={() => onNavigateTab("configuration")} label="Manage configuration" />}>
-        <table className={`${styles.dataTable} ${styles.extraWide}`}>
+        <table className="w-full text-left text-[12px] border-collapse min-w-[1400px]">
           <thead>
-            <tr><th>Configuration Key</th><th>Environment Variable</th><th>Category</th><th>Environment</th><th>Current Value</th><th>Secret</th><th>Required</th><th>Validation Status</th><th>Source</th><th>Last Updated</th><th>Updated By</th><th>Action</th></tr>
+            <tr className="border-b border-line">
+              <th className="py-2.5 px-2 font-bold text-muted">Configuration Key</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Environment Variable</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Category</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Environment</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Current Value</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Secret</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Required</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Validation Status</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Source</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Last Updated</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Updated By</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Action</th>
+            </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-line">
             {detail.configParameters.map((parameter) => (
-              <tr key={parameter.id}>
-                <td>{parameter.configKey}</td>
-                <td>{parameter.envVariable}</td>
-                <td>{parameter.category}</td>
-                <td>{parameter.environment}</td>
-                <td>{parameter.secret ? <span className={styles.secretValue}>Secret Reference</span> : parameter.currentValue}</td>
-                <td><StatusPill value={parameter.secret ? "Yes" : "No"} tone={parameter.secret ? "warning" : "neutral"} /></td>
-                <td><StatusPill value={parameter.required ? "Yes" : "No"} tone={parameter.required ? "success" : "neutral"} /></td>
-                <td><StatusPill value={parameter.validationStatus} tone={parameter.validationStatus === "Pass" ? "success" : "warning"} /></td>
-                <td>{parameter.source}</td>
-                <td>{parameter.lastUpdated}</td>
-                <td>{parameter.updatedBy}</td>
-                <td><button type="button" className={styles.rowAction} onClick={() => onConfigAction(parameter)}>{parameter.secret ? "Rotate Secret" : "Edit"}</button></td>
+              <tr key={parameter.id} className="hover:bg-gray-50 transition-colors">
+                <td className="py-2.5 px-2 text-ink">{parameter.configKey}</td>
+                <td className="py-2.5 px-2 text-ink font-mono text-[11px]">{parameter.envVariable}</td>
+                <td className="py-2.5 px-2 text-ink">{parameter.category}</td>
+                <td className="py-2.5 px-2 text-ink">{parameter.environment}</td>
+                <td className="py-2.5 px-2 text-ink">{parameter.secret ? <span className="font-mono text-muted tracking-widest text-[10px]">••••••••</span> : parameter.currentValue}</td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={parameter.secret ? "Yes" : "No"} /></td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={parameter.required ? "Yes" : "No"} /></td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={parameter.validationStatus} /></td>
+                <td className="py-2.5 px-2 text-ink">{parameter.source}</td>
+                <td className="py-2.5 px-2 text-ink">{parameter.lastUpdated}</td>
+                <td className="py-2.5 px-2 text-ink">{parameter.updatedBy}</td>
+                <td className="py-2.5 px-2 text-ink"><button type="button" className="text-[11px] font-bold text-[#741d35] hover:underline" onClick={() => onConfigAction(parameter)}>{parameter.secret ? "Rotate Secret" : "Edit"}</button></td>
               </tr>
             ))}
           </tbody>
@@ -155,33 +173,43 @@ export function OverviewTab({
       </SectionCard>
 
       <SectionCard title="Country & Legal Readiness" description="Business, legal and privacy review status by market." aside={<ViewDetailsLink onClick={() => onNavigateTab("country-availability")} label="Manage countries" />}>
-        <table className={`${styles.dataTable} ${styles.wide}`}>
+        <table className="w-full text-left text-[12px] border-collapse min-w-[1000px]">
           <thead>
-            <tr><th>Country (Code)</th><th>Availability</th><th>Business Approval</th><th>Legal Review</th><th>Privacy Review</th><th>Languages</th><th>Currency</th><th>Environment</th><th>Effective Date</th></tr>
+            <tr className="border-b border-line">
+              <th className="py-2.5 px-2 font-bold text-muted">Country (Code)</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Availability</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Business Approval</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Legal Review</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Privacy Review</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Languages</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Currency</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Environment</th>
+              <th className="py-2.5 px-2 font-bold text-muted">Effective Date</th>
+            </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-line">
             {detail.countryReadiness.map((row) => (
-              <tr key={row.id}>
-                <td>{row.country} ({row.isoCode})</td>
-                <td><StatusPill value={row.availability} tone={row.availability.includes("Enabled") ? "success" : "info"} /></td>
-                <td><StatusPill value={row.businessApproval} tone={row.businessApproval === "Approved" ? "success" : "warning"} /></td>
-                <td><StatusPill value={row.legalReview} tone={row.legalReview === "Approved" ? "success" : "warning"} /></td>
-                <td><StatusPill value={row.privacyReview} tone={row.privacyReview === "Approved" ? "success" : "warning"} /></td>
-                <td>{row.languages}</td>
-                <td>{row.currency}</td>
-                <td>{row.environment}</td>
-                <td>{row.effectiveDate}</td>
+              <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                <td className="py-2.5 px-2 text-ink font-medium">{row.country} ({row.isoCode})</td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={row.availability} /></td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={row.businessApproval} /></td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={row.legalReview} /></td>
+                <td className="py-2.5 px-2 text-ink"><StatusPill value={row.privacyReview} /></td>
+                <td className="py-2.5 px-2 text-ink">{row.languages}</td>
+                <td className="py-2.5 px-2 text-ink">{row.currency}</td>
+                <td className="py-2.5 px-2 text-ink">{row.environment}</td>
+                <td className="py-2.5 px-2 text-ink">{row.effectiveDate}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </SectionCard>
 
-      <div className={styles.splitGrid}>
-        <article className={styles.chartCard}>
-          <h2><HeartPulse size={14} style={{ verticalAlign: "-2px", marginRight: 6 }} />Health & Performance Metrics (Last 7 Days)</h2>
-          <p className={styles.chartCaption}>Request Volume (Last 7 Days)</p>
-          <div style={{ width: "100%", height: 140 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <article className="bg-white rounded-xl shadow-sm border border-line flex flex-col p-5">
+          <h2 className="text-[13px] font-bold text-ink mb-1 flex items-center gap-2"><HeartPulse size={14} className="text-[#741d35]" />Health & Performance Metrics (Last 7 Days)</h2>
+          <p className="text-[11px] text-muted mb-4">Request Volume (Last 7 Days)</p>
+          <div className="w-full h-[140px] mb-4">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={detail.healthPerformance.requestVolume} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <XAxis dataKey="day" tick={{ fontSize: 9, fill: "#8a919c" }} axisLine={false} tickLine={false} />
@@ -191,57 +219,65 @@ export function OverviewTab({
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className={styles.chartStatsGrid}>
-            <div className={styles.chartStat}><span>Average Latency</span><strong>{detail.healthPerformance.averageLatency}</strong><em>{detail.healthPerformance.latencyTrend}</em></div>
-            <div className={styles.chartStat}><span>Uptime</span><strong>{detail.healthPerformance.uptime}</strong><em className={styles.trendUp}>{detail.healthPerformance.uptimeTrend}</em></div>
-            <div className={styles.chartStat}><span>Recommendation Success</span><strong>{detail.healthPerformance.recommendationSuccess}</strong><em className={styles.trendUp}>{detail.healthPerformance.recommendationTrend}</em></div>
-            <div className={styles.chartStat}><span>Error Trend</span><strong>{detail.healthPerformance.errorTrend}</strong><em className={styles.trendDown}>{detail.healthPerformance.errorTrendChange}</em></div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-auto">
+            <div className="flex flex-col gap-1"><span className="text-[11px] font-bold text-muted">Average Latency</span><strong className="text-[14px] text-ink">{detail.healthPerformance.averageLatency}</strong><em className="text-[11px] not-italic text-muted">{detail.healthPerformance.latencyTrend}</em></div>
+            <div className="flex flex-col gap-1"><span className="text-[11px] font-bold text-muted">Uptime</span><strong className="text-[14px] text-ink">{detail.healthPerformance.uptime}</strong><em className="text-[11px] not-italic text-success">{detail.healthPerformance.uptimeTrend}</em></div>
+            <div className="flex flex-col gap-1"><span className="text-[11px] font-bold text-muted">Recommendation Success</span><strong className="text-[14px] text-ink">{detail.healthPerformance.recommendationSuccess}</strong><em className="text-[11px] not-italic text-success">{detail.healthPerformance.recommendationTrend}</em></div>
+            <div className="flex flex-col gap-1"><span className="text-[11px] font-bold text-muted">Error Trend</span><strong className="text-[14px] text-ink">{detail.healthPerformance.errorTrend}</strong><em className="text-[11px] not-italic text-success">{detail.healthPerformance.errorTrendChange}</em></div>
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("health-performance")} label="View full health workspace" />
         </article>
 
-        <article className={styles.chartCard}>
-          <h2>User Adoption & Insights (This Month)</h2>
-          <div className={styles.insightList}>
-            <div className={styles.insightRow}><span>Monthly Active Users</span><div><strong>{detail.adoptionInsights.monthlyActiveUsers.toLocaleString()}</strong><em className={styles.trendUp}>{detail.adoptionInsights.activeUsersTrend}</em></div></div>
-            <div className={styles.insightRow}><span>Monthly Conversations</span><div><strong>{detail.adoptionInsights.monthlyConversations.toLocaleString()}</strong><em className={styles.trendUp}>{detail.adoptionInsights.conversationsTrend}</em></div></div>
-            <div className={styles.insightRow}><span>Adoption Rate</span><div><strong>{detail.adoptionInsights.adoptionRate}%</strong><em className={styles.trendUp}>{detail.adoptionInsights.adoptionTrend}</em></div></div>
+        <article className="bg-white rounded-xl shadow-sm border border-line flex flex-col p-5">
+          <h2 className="text-[13px] font-bold text-ink mb-4">User Adoption & Insights (This Month)</h2>
+          <div className="flex flex-col divide-y divide-line mb-4 flex-1 justify-center">
+            <div className="flex items-center justify-between py-3"><span className="text-[12px] text-muted">Monthly Active Users</span><div className="flex items-baseline gap-2"><strong className="text-[16px] text-ink font-bold">{detail.adoptionInsights.monthlyActiveUsers.toLocaleString()}</strong><em className="text-[11px] not-italic text-success">{detail.adoptionInsights.activeUsersTrend}</em></div></div>
+            <div className="flex items-center justify-between py-3"><span className="text-[12px] text-muted">Monthly Conversations</span><div className="flex items-baseline gap-2"><strong className="text-[16px] text-ink font-bold">{detail.adoptionInsights.monthlyConversations.toLocaleString()}</strong><em className="text-[11px] not-italic text-success">{detail.adoptionInsights.conversationsTrend}</em></div></div>
+            <div className="flex items-center justify-between py-3"><span className="text-[12px] text-muted">Adoption Rate</span><div className="flex items-baseline gap-2"><strong className="text-[16px] text-ink font-bold">{detail.adoptionInsights.adoptionRate}%</strong><em className="text-[11px] not-italic text-success">{detail.adoptionInsights.adoptionTrend}</em></div></div>
           </div>
           <ViewDetailsLink onClick={() => onNavigateTab("adoption")} label="View full adoption workspace" />
         </article>
       </div>
 
-      <div className={styles.splitGrid}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <SectionCard title="Security & Compliance Detail" scroll={false} aside={<ViewDetailsLink onClick={() => onNavigateTab("security")} label="Open security tab" />}>
-          <div className={styles.complianceGrid} style={{ padding: 0 }}>
-            <div className={styles.complianceStat}><span>Security Review Status</span><StatusPill value={detail.complianceDetail.securityReviewStatus} tone={detail.complianceDetail.securityReviewStatus === "Approved" ? "success" : "warning"} /></div>
-            <div className={styles.complianceStat}><span>Open Findings</span><strong>{detail.complianceDetail.openFindings}</strong></div>
-            <div className={styles.complianceStat}><span>Critical Findings</span><strong>{detail.complianceDetail.criticalFindings}</strong></div>
-            <div className={styles.complianceStat}><span>High Findings</span><strong>{detail.complianceDetail.highFindings}</strong></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5">
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Security Review Status</span><div><StatusPill value={detail.complianceDetail.securityReviewStatus} /></div></div>
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Open Findings</span><strong className="text-[12px] text-ink">{detail.complianceDetail.openFindings}</strong></div>
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Critical Findings</span><strong className="text-[12px] text-ink">{detail.complianceDetail.criticalFindings}</strong></div>
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">High Findings</span><strong className="text-[12px] text-ink">{detail.complianceDetail.highFindings}</strong></div>
           </div>
-          <div className={styles.complianceGrid} style={{ padding: "0", marginTop: 12 }}>
-            <div className={styles.complianceStat}><span>Privacy Review Required</span><StatusPill value={detail.complianceDetail.privacyReviewRequired} tone="success" /></div>
-            <div className={styles.complianceStat}><span>Consent Requirement</span><StatusPill value={detail.complianceDetail.consentRequirement} tone="warning" /></div>
-            <div className={styles.complianceStat}><span>Data Retention</span><StatusPill value={detail.complianceDetail.dataRetention} tone="info" /></div>
-            <div className={styles.complianceStat}><span>Sensitive Data Handling</span><StatusPill value={detail.complianceDetail.sensitiveDataHandling} tone={detail.complianceDetail.sensitiveDataHandling === "Restricted" ? "danger" : "neutral"} /></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 border-t border-line">
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Privacy Review Required</span><div><StatusPill value={detail.complianceDetail.privacyReviewRequired} /></div></div>
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Consent Requirement</span><div><StatusPill value={detail.complianceDetail.consentRequirement} /></div></div>
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Data Retention</span><div><StatusPill value={detail.complianceDetail.dataRetention} /></div></div>
+            <div className="flex flex-col gap-2"><span className="text-[11px] font-bold text-muted">Sensitive Data Handling</span><div><StatusPill value={detail.complianceDetail.sensitiveDataHandling} /></div></div>
           </div>
         </SectionCard>
 
         <SectionCard title="Module Access Control" description="Role-based permissions for this module." aside={<ViewDetailsLink onClick={() => onNavigateTab("access-roles")} label="Manage access roles" />}>
-          <table className={`${styles.dataTable} ${styles.wide}`}>
+          <table className="w-full text-left text-[12px] border-collapse min-w-[800px]">
             <thead>
-              <tr><th>Role</th><th>Scope</th><th>Environment</th><th>View</th><th>Configure</th><th>Release</th><th>Enable Prod.</th></tr>
+              <tr className="border-b border-line">
+                <th className="py-2.5 px-2 font-bold text-muted">Role</th>
+                <th className="py-2.5 px-2 font-bold text-muted">Scope</th>
+                <th className="py-2.5 px-2 font-bold text-muted">Environment</th>
+                <th className="py-2.5 px-2 font-bold text-muted">View</th>
+                <th className="py-2.5 px-2 font-bold text-muted">Configure</th>
+                <th className="py-2.5 px-2 font-bold text-muted">Release</th>
+                <th className="py-2.5 px-2 font-bold text-muted">Enable Prod.</th>
+              </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-line">
               {detail.accessRoles.slice(0, 5).map((row) => (
-                <tr key={row.id}>
-                  <td>{row.role}</td>
-                  <td>{row.permissionScope}</td>
-                  <td>{row.environment}</td>
-                  <td>{row.view}</td>
-                  <td>{row.configure}</td>
-                  <td>{row.release}</td>
-                  <td><StatusPill value={row.enableProduction} tone={row.enableProduction === "Yes" ? "success" : "neutral"} /></td>
+                <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="py-2.5 px-2 text-ink">{row.role}</td>
+                  <td className="py-2.5 px-2 text-ink">{row.permissionScope}</td>
+                  <td className="py-2.5 px-2 text-ink">{row.environment}</td>
+                  <td className="py-2.5 px-2 text-ink">{row.view}</td>
+                  <td className="py-2.5 px-2 text-ink">{row.configure}</td>
+                  <td className="py-2.5 px-2 text-ink">{row.release}</td>
+                  <td className="py-2.5 px-2 text-ink"><StatusPill value={row.enableProduction} /></td>
                 </tr>
               ))}
             </tbody>

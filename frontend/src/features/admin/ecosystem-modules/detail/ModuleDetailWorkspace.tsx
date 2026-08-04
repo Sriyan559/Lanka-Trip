@@ -29,8 +29,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import shared from "../ecosystem-modules.module.css";
-import styles from "./moduleDetail.module.css";
+import "../ecosystem.css";
 import { ErrorState, LoadingSkeleton, PermissionDeniedState } from "@/components/admin/common/States";
 import { sanitizeInternalRedirect } from "@/lib/authRedirect";
 import {
@@ -154,17 +153,17 @@ export function ModuleDetailWorkspace({ moduleKey }: { moduleKey: string }) {
   const forcedNotFound = screenState === "not-found";
 
   return (
-    <div className={styles.workspace}>
-      <div className={styles.breadcrumbRow}>
-        <Link href={returnTo} className={styles.backLink}>
+    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-canvas font-sans">
+      <div className="flex items-center gap-4 mb-6">
+        <Link href={returnTo} className="flex items-center gap-2 text-[12px] font-bold text-muted hover:text-ink transition-colors px-3 py-1.5 rounded-lg border border-transparent hover:border-line hover:bg-white">
           <ArrowLeft size={13} /> Back to Ecosystem Modules
         </Link>
-        <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-          <Link href="/admin/ecosystem-modules">Ecosystem Modules</Link>
-          <ChevronRight size={11} />
+        <nav className="flex items-center gap-2 text-[12px] font-medium text-muted bg-[#f8fafc] px-3 py-1.5 rounded-lg border border-line" aria-label="Breadcrumb">
+          <Link href="/admin/ecosystem-modules" className="hover:text-ink transition-colors">Ecosystem Modules</Link>
+          <ChevronRight size={11} className="opacity-50" />
           <span>Module Management</span>
-          <ChevronRight size={11} />
-          <strong>{detail ? detail.module.moduleName : "Module"}</strong>
+          <ChevronRight size={11} className="opacity-50" />
+          <strong className="text-ink font-bold">{detail ? detail.module.moduleName : "Module"}</strong>
         </nav>
       </div>
 
@@ -173,11 +172,11 @@ export function ModuleDetailWorkspace({ moduleKey }: { moduleKey: string }) {
       ) : screenState === "error" ? (
         <ErrorState message="Module details could not be loaded from the ecosystem module service. Try again in a moment." />
       ) : detail === null || forcedNotFound ? (
-        <div className={styles.notFound}>
+        <div className="py-16 px-4 bg-white rounded-xl shadow-sm border border-line flex flex-col items-center text-center gap-4">
           <SearchX size={36} color="#9aa1ab" />
-          <h2>Module not found</h2>
-          <p>We couldn&apos;t find a module matching &ldquo;{moduleKey}&rdquo;. It may have been removed, renamed, or the link may be out of date.</p>
-          <Link href={returnTo} className={shared.primaryButton}>Return to Ecosystem Modules</Link>
+          <h2 className="text-[18px] font-extrabold text-ink">Module not found</h2>
+          <p className="text-[14px] text-muted max-w-[400px]">We couldn&apos;t find a module matching &ldquo;{moduleKey}&rdquo;. It may have been removed, renamed, or the link may be out of date.</p>
+          <Link href={returnTo} className="mt-2 px-4 py-2 bg-[#741d35] text-white text-[12px] font-bold rounded-lg hover:bg-[#5d172a] transition-colors shadow-sm">Return to Ecosystem Modules</Link>
         </div>
       ) : (
         <ModuleDetailContent
@@ -222,15 +221,15 @@ export function ModuleDetailWorkspace({ moduleKey }: { moduleKey: string }) {
         <RotateSecretModal moduleKey={moduleKey} parameter={modal.parameter} onClose={() => setModal({ kind: "none" })} onSuccess={handleSuccess} />
       )}
       {modal.kind === "info" && (
-        <div className={shared.modalBackdrop} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setModal({ kind: "none" })}>
-          <div className={`${shared.modal} ${shared.standardDialog}`}>
-            <div className={shared.modalHeader}>
-              <h2>{modal.title}</h2>
-              <button className={shared.iconButton} type="button" onClick={() => setModal({ kind: "none" })} aria-label="Close dialog"><X size={18} /></button>
+        <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setModal({ kind: "none" })}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-[480px] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-5 py-4 border-b border-line flex items-center justify-between">
+              <h2 className="text-[14px] font-bold text-ink">{modal.title}</h2>
+              <button className="text-muted hover:text-ink hover:bg-canvas p-1 rounded-md transition-colors" type="button" onClick={() => setModal({ kind: "none" })} aria-label="Close dialog"><X size={18} /></button>
             </div>
-            <div className={shared.dialogBody}>{modal.body}</div>
-            <div className={shared.modalActions}>
-              <button className={shared.primaryButton} type="button" onClick={() => setModal({ kind: "none" })}>Close</button>
+            <div className="p-5 text-[13px] text-ink leading-relaxed">{modal.body}</div>
+            <div className="px-5 py-4 border-t border-line bg-[#f8fafc] flex justify-end gap-3">
+              <button className="px-4 py-2 rounded-lg text-[12px] font-bold text-white bg-[#741d35] border border-[#741d35] hover:bg-[#5d172a] transition-colors shadow-sm" type="button" onClick={() => setModal({ kind: "none" })}>Close</button>
             </div>
           </div>
         </div>
@@ -277,136 +276,141 @@ function ModuleDetailContent({
   return (
     <>
       {readOnly && (
-        <div className={shared.staleNotice}>
+        <div className="mb-6 px-4 py-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[13px] flex items-center gap-2">
           <Lock size={14} /> You have read-only access to this module. Controlled actions are disabled.
         </div>
       )}
       {screenState === "stale" && (
-        <div className={shared.staleNotice}>
+        <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2">
           <AlertTriangle size={14} /> This module&apos;s data may be stale — last refreshed at {module.lastUpdated}.
-          <button type="button" onClick={onRefresh} style={{ marginLeft: "auto", textDecoration: "underline", background: "none", border: 0, color: "inherit", cursor: "pointer" }}>Refresh</button>
+          <button type="button" onClick={onRefresh} className="ml-auto underline font-bold hover:text-yellow-900">Refresh</button>
         </div>
       )}
       {screenState === "partial" && (
-        <div className={shared.staleNotice}>
+        <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2">
           <AlertTriangle size={14} /> Some sections could not be loaded from every backing service. Showing the data that is available.
         </div>
       )}
       {notice && (
-        <div className={shared.successNotice}>
-          <Check size={14} /> {notice}
-          <button type="button" onClick={onDismissNotice} style={{ marginLeft: "auto", background: "none", border: 0, color: "inherit", cursor: "pointer" }} aria-label="Dismiss"><X size={14} /></button>
+        <div className="mb-6 px-4 py-3 bg-green-50 text-green-800 border border-green-200 rounded-lg text-[13px] flex items-center justify-between">
+          <div className="flex items-center gap-2"><Check size={14} /> {notice}</div>
+          <button type="button" onClick={onDismissNotice} className="hover:text-green-900" aria-label="Dismiss"><X size={14} /></button>
         </div>
       )}
 
-      <div className={styles.headerTop}>
-        <div className={styles.titleBlock}>
-          <h1>{module.moduleName}</h1>
-          <p>{detail.moduleDescription}</p>
-        </div>
-        <div className={styles.headerActionsStack}>
-          <div className={styles.headerActionsRow}>
-            <button type="button" className={shared.secondaryButton} onClick={() => info("Compare Versions", "Select two versions from Versions & Releases to compare configuration, health and adoption side by side. Full comparison connects once the backend endpoint is available.")}>
-              <GitCompare size={13} /> Compare Versions
-            </button>
-            <button type="button" className={shared.secondaryButton} onClick={() => onNavigateTab("audit-history")}>
-              <History size={13} /> View Audit
-            </button>
-            <button type="button" className={shared.priorityButton} onClick={() => info("Review Release Readiness", `Release readiness is currently ${detail.overviewMetrics.find((metric) => metric.id === "release-readiness")?.value ?? "-"}. Full readiness review checklist connects once the backend endpoint is available.`)}>
-              <ShieldCheck size={13} /> Review Release Readiness
-            </button>
+      <div className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-6">
+          <div>
+            <h1 className="text-[28px] font-extrabold text-ink leading-tight mb-2 tracking-tight">{module.moduleName}</h1>
+            <p className="text-[14px] text-muted max-w-[800px] leading-relaxed">{detail.moduleDescription}</p>
           </div>
-          <div className={styles.headerActionsRow}>
-            <button type="button" className={shared.secondaryButton} onClick={() => onNavigateTab("configuration")}>
-              <Settings2 size={13} /> Update Configuration
-            </button>
-            <button type="button" className={shared.secondaryButton} disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "security" })}>
-              <ShieldAlert size={13} /> Request Security Review
-            </button>
-            <button type="button" className={shared.secondaryButton} disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "compliance" })}>
-              <ShieldCheck size={13} /> Request Compliance Review
-            </button>
-            <div className={styles.moreActionsWrap}>
-              <button type="button" className={shared.secondaryButton} onClick={onToggleMore}>
-                More Actions <ChevronDown size={13} />
+          <div className="flex flex-col gap-3 shrink-0">
+            <div className="flex gap-3">
+              <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2" onClick={() => info("Compare Versions", "Select two versions from Versions & Releases to compare configuration, health and adoption side by side. Full comparison connects once the backend endpoint is available.")}>
+                <GitCompare size={14} /> Compare Versions
               </button>
-              {moreOpen && (
-                <div className={styles.moreActionsMenu} onMouseDown={(event) => event.stopPropagation()}>
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("dependencies")}><Network size={13} /> Manage Dependencies</button>
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("integrations")}><Plug size={13} /> Manage Integrations</button>
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("feature-flags")}><FlagIcon size={13} /> Manage Feature Flags</button>
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("country-availability")}><Globe2 size={13} /> Manage Countries</button>
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("access-roles")}><Lock size={13} /> Manage Access Roles</button>
-                  <div className={styles.moreActionsDivider} />
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("health-performance")}><HeartPulse size={13} /> View Health Events</button>
-                  <button type="button" className={styles.moreActionsItem} onClick={onExport}><Download size={13} /> Export Module Record</button>
-                  <button type="button" className={styles.moreActionsItem} onClick={() => onNavigateTab("audit-history")}><History size={13} /> View Audit History</button>
-                </div>
-              )}
+              <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2" onClick={() => onNavigateTab("audit-history")}>
+                <History size={14} /> View Audit
+              </button>
+              <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-white bg-[#741d35] border border-[#741d35] hover:bg-[#5d172a] hover:border-[#5d172a] transition-colors shadow-sm flex items-center gap-2" onClick={() => info("Review Release Readiness", `Release readiness is currently ${detail.overviewMetrics.find((metric) => metric.id === "release-readiness")?.value ?? "-"}. Full readiness review checklist connects once the backend endpoint is available.`)}>
+                <ShieldCheck size={14} /> Review Release Readiness
+              </button>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2" onClick={() => onNavigateTab("configuration")}>
+                <Settings2 size={14} /> Update Configuration
+              </button>
+              <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "security" })}>
+                <ShieldAlert size={14} /> Request Security Review
+              </button>
+              <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "compliance" })}>
+                <ShieldCheck size={14} /> Request Compliance Review
+              </button>
+              <div className="relative">
+                <button type="button" className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2" onClick={onToggleMore}>
+                  More Actions <ChevronDown size={14} />
+                </button>
+                {moreOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-[240px] bg-white border border-line rounded-xl shadow-xl py-2 z-50 flex flex-col" onMouseDown={(event) => event.stopPropagation()}>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("dependencies")}><Network size={14} className="text-muted" /> Manage Dependencies</button>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("integrations")}><Plug size={14} className="text-muted" /> Manage Integrations</button>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("feature-flags")}><FlagIcon size={14} className="text-muted" /> Manage Feature Flags</button>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("country-availability")}><Globe2 size={14} className="text-muted" /> Manage Countries</button>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("access-roles")}><Lock size={14} className="text-muted" /> Manage Access Roles</button>
+                    <div className="h-px bg-line my-2" />
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("health-performance")}><HeartPulse size={14} className="text-muted" /> View Health Events</button>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={onExport}><Download size={14} className="text-muted" /> Export Module Record</button>
+                    <button type="button" className="px-4 py-2 text-[12px] font-medium text-ink hover:bg-gray-50 flex items-center gap-3 text-left w-full transition-colors" onClick={() => onNavigateTab("audit-history")}><History size={14} className="text-muted" /> View Audit History</button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className={shared.dashboardLayout}>
-      <div className={shared.mainColumn}>
+      <div className="flex flex-col xl:flex-row gap-6">
+      <div className="flex-1 min-w-0 flex flex-col gap-6">
 
-      <div className={styles.identityCard}>
-        <div className={styles.identityField}><span>Public Module Reference</span><strong>{module.publicReference}</strong></div>
-        <div className={styles.identityField}><span>Database Module ID</span><strong>{module.databaseModuleId}</strong></div>
-        <div className={styles.identityField}><span>Module Key</span><strong>{module.moduleKey}</strong></div>
-        <div className={styles.identityField}><span>Category</span><strong>{module.category}</strong></div>
-        <div className={styles.identityField}><span>Business Owner</span><strong>{governance.businessOwner}</strong></div>
-        <div className={styles.identityField}><span>Technical Owner</span><strong>{governance.technicalOwner}</strong></div>
-        <div className={styles.identityField}><span>Next Release</span><strong>{currentRelease.nextRelease}</strong></div>
-        <div className={styles.identityField}><span>Last Updated</span><strong>{module.lastUpdated}</strong></div>
-      </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 bg-white rounded-xl shadow-sm border border-line p-5">
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Public Module Reference</span><strong className="text-[12px] text-ink">{module.publicReference}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Database Module ID</span><strong className="text-[12px] text-ink">{module.databaseModuleId}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Module Key</span><strong className="text-[12px] text-ink">{module.moduleKey}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Category</span><strong className="text-[12px] text-ink">{module.category}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Business Owner</span><strong className="text-[12px] text-ink">{governance.businessOwner}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Technical Owner</span><strong className="text-[12px] text-ink">{governance.technicalOwner}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Next Release</span><strong className="text-[12px] text-ink">{currentRelease.nextRelease}</strong></div>
+          <div className="flex flex-col gap-1.5"><span className="text-[11px] font-bold text-muted">Last Updated</span><strong className="text-[12px] text-ink">{module.lastUpdated}</strong></div>
+        </div>
 
-      <div className={styles.statusDomainCard}>
-        {detail.statusDomains.map((field) => (
-          <div key={field.key} className={styles.statusDomainItem}>
-            <span>{field.label}</span>
-            <div className={styles.statusDomainValue}><StatusPill value={field.value} tone={field.tone} /></div>
-          </div>
-        ))}
-      </div>
-
-      <nav className={styles.tabsNav} aria-label="Module detail sections">
-        {DETAIL_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            className={`${styles.tabButton} ${activeTab === tab.key ? styles.tabButtonActive : ""}`}
-            aria-current={activeTab === tab.key ? "page" : undefined}
-            onClick={() => onNavigateTab(tab.key)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-
-      <section className={styles.metricsGrid}>
-        {detail.overviewMetrics.map((metric) => (
-          <div key={metric.id} className={`${styles.metricCard} ${metric.tone === "danger" ? styles.metricDanger : metric.tone === "warning" ? styles.metricWarning : metric.tone === "success" ? styles.metricSuccessText : ""}`}>
-            <span>{metric.label}</span>
-            <strong>{metric.value}</strong>
-          </div>
-        ))}
-      </section>
-
-      <div className={styles.lifecycleCard}>
-        <div className={styles.lifecycleTrack}>
-          {detail.lifecycleStages.map((stage, index) => (
-            <div
-              key={stage.key}
-              className={`${styles.lifecycleStep} ${stage.state === "complete" ? styles.lifecycleStepComplete : stage.state === "current" ? styles.lifecycleStepCurrent : ""}`}
-            >
-              <span className={styles.lifecycleDot}>{stage.state === "complete" ? <Check size={14} /> : index + 1}</span>
-              <span>{stage.label}</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 bg-white rounded-xl shadow-sm border border-line p-5">
+          {detail.statusDomains.map((field) => (
+            <div key={field.key} className="flex flex-col gap-2">
+              <span className="text-[11px] font-bold text-muted">{field.label}</span>
+              <div><StatusPill value={field.value} /></div>
             </div>
           ))}
         </div>
-      </div>
+
+        <nav className="flex items-center gap-1 overflow-x-auto scrollbar-none border-b border-line pb-px" aria-label="Module detail sections">
+          {DETAIL_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              className={`px-4 py-2.5 text-[12px] font-bold border-b-[3px] transition-colors whitespace-nowrap outline-none ${activeTab === tab.key ? "border-[#741d35] text-[#741d35]" : "border-transparent text-muted hover:text-ink hover:border-line"}`}
+              aria-current={activeTab === tab.key ? "page" : undefined}
+              onClick={() => onNavigateTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {detail.overviewMetrics.map((metric) => (
+            <div key={metric.id} className={`bg-white rounded-xl shadow-sm border border-line p-4 flex flex-col items-center justify-center text-center gap-1.5 transition-transform hover-lift ${metric.tone === "danger" ? "border-red-200 bg-red-50" : metric.tone === "warning" ? "border-orange-200 bg-orange-50" : metric.tone === "success" ? "border-green-200 bg-green-50" : ""}`}>
+              <span className="text-[11px] font-bold text-muted">{metric.label}</span>
+              <strong className={`text-[20px] font-extrabold ${metric.tone === "danger" ? "text-danger" : metric.tone === "warning" ? "text-warning" : metric.tone === "success" ? "text-success" : "text-ink"}`}>{metric.value}</strong>
+            </div>
+          ))}
+        </section>
+
+        <div className="bg-white rounded-xl shadow-sm border border-line p-5">
+          <div className="flex items-center justify-between gap-2 overflow-x-auto scrollbar-none min-w-[600px]">
+            {detail.lifecycleStages.map((stage, index) => {
+              const isComplete = stage.state === "complete";
+              const isCurrent = stage.state === "current";
+              return (
+                <div key={stage.key} className="flex-1 flex flex-col items-center gap-2 relative z-10 group">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold transition-colors ${isComplete ? "bg-[#741d35] text-white" : isCurrent ? "bg-white border-2 border-[#741d35] text-[#741d35]" : "bg-canvas text-muted border border-line"}`}>
+                    {isComplete ? <Check size={14} /> : index + 1}
+                  </div>
+                  <span className={`text-[11px] font-bold text-center ${isComplete || isCurrent ? "text-ink" : "text-muted"}`}>{stage.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
       <div style={{ minHeight: 200 }}>
         {activeTab === "overview" && (
@@ -437,72 +441,76 @@ function ModuleDetailContent({
 
       </div>
 
-      <aside style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <section className={shared.sideCard}>
-          <h2><HeartPulse size={15} /> Module Health</h2>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-            <strong style={{ fontSize: 22, fontWeight: 800 }}>{module.healthScore}<span style={{ fontSize: 11, color: "#8a919c", fontWeight: 600 }}>/100</span></strong>
-            <StatusPill value={module.riskLevel} tone={module.riskLevel === "High" ? "danger" : module.riskLevel === "Medium" ? "warning" : "success"} />
-          </div>
-          <div className={styles.summaryRows}>
-            <div className={styles.summaryRow}><span>Availability</span><strong>{module.availability === null ? "-" : `${module.availability}%`}</strong></div>
-            <div className={styles.summaryRow}><span>Error Rate</span><strong className={(module.errorRate ?? 0) > 2 ? shared.dangerText : undefined}>{module.errorRate === null ? "-" : `${module.errorRate}%`}</strong></div>
-            <div className={styles.summaryRow}><span>Open Alerts</span><strong className={detail.alerts.length > 0 ? shared.dangerText : shared.successText}>{detail.overviewMetrics.find((m) => m.id === "open-alerts")?.value ?? detail.alerts.length}</strong></div>
-            <div className={styles.summaryRow}><span>Blocking Issues</span><strong className={shared.dangerText}>{detail.overviewMetrics.find((m) => m.id === "blocking-issues")?.value ?? "0"}</strong></div>
+      <aside className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
+        <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+          <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><HeartPulse size={15} className="text-[#741d35]" /> Module Health</h2>
+          <div className="p-5 flex flex-col gap-4">
+            <div className="flex items-baseline justify-between mb-2">
+              <strong className="text-[32px] font-extrabold text-ink leading-none tracking-tight">{module.healthScore}<span className="text-[14px] text-muted font-bold ml-1">/100</span></strong>
+              <StatusPill value={module.riskLevel} />
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Availability</span><strong className="text-ink font-bold">{module.availability === null ? "-" : `${module.availability}%`}</strong></div>
+              <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Error Rate</span><strong className={`font-bold ${(module.errorRate ?? 0) > 2 ? "text-danger" : "text-ink"}`}>{module.errorRate === null ? "-" : `${module.errorRate}%`}</strong></div>
+              <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Open Alerts</span><strong className={`font-bold ${detail.alerts.length > 0 ? "text-danger" : "text-success"}`}>{detail.overviewMetrics.find((m) => m.id === "open-alerts")?.value ?? detail.alerts.length}</strong></div>
+              <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Blocking Issues</span><strong className="text-danger font-bold">{detail.overviewMetrics.find((m) => m.id === "blocking-issues")?.value ?? "0"}</strong></div>
+            </div>
           </div>
         </section>
 
-        <section className={shared.sideCard}>
-          <h2><AlertTriangle size={15} /> Priority Alerts</h2>
+        <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+          <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><AlertTriangle size={15} className="text-warning" /> Priority Alerts</h2>
           {detail.alerts.length === 0 ? (
-            <p style={{ color: "#8a919c", fontSize: 11 }}>No priority alerts right now.</p>
+            <p className="p-5 text-[12px] text-muted font-medium">No priority alerts right now.</p>
           ) : (
-            detail.alerts.slice(0, 4).map((alert) => (
-              <button key={alert.id} type="button" className={shared.alertItem} onClick={() => onNavigateTab("alerts")}>
-                <AlertTriangle size={12} />
-                <span>{alert.message} <em style={{ color: "#8a919c", fontStyle: "normal" }}>— Due: {alert.due}</em></span>
-              </button>
-            ))
+            <div className="flex flex-col divide-y divide-line">
+              {detail.alerts.slice(0, 4).map((alert) => (
+                <button key={alert.id} type="button" className="p-4 flex items-start gap-3 text-left hover:bg-gray-50 transition-colors" onClick={() => onNavigateTab("alerts")}>
+                  <AlertTriangle size={14} className="text-warning shrink-0 mt-0.5" />
+                  <span className="text-[12px] text-ink leading-snug font-medium">{alert.message} <em className="text-muted not-italic block mt-1">Due: {alert.due}</em></span>
+                </button>
+              ))}
+              <button type="button" className="px-5 py-3 text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => onNavigateTab("alerts")}>View all alerts <ChevronRight size={13} /></button>
+            </div>
           )}
-          <button type="button" className={shared.sideLink} onClick={() => onNavigateTab("alerts")}>View all alerts <ChevronRight size={11} /></button>
         </section>
 
-        <section className={styles.recommendedAction}>
-          <h2><Star size={14} /> Recommended Next Action</h2>
-          <p>{detail.recommendedAction.message}</p>
-          <div className={styles.recommendedMeta}>
-            <div><span>Owner</span><strong>{detail.recommendedAction.owner}</strong></div>
-            <div><span>Due</span><strong>{detail.recommendedAction.due}</strong></div>
+        <section className="bg-[#111827] text-white rounded-xl shadow-sm border border-[#1f2937] overflow-hidden p-5 flex flex-col gap-3 relative">
+          <h2 className="text-[13px] font-bold flex items-center gap-2 text-white/90"><Star size={14} className="text-yellow-400" /> Recommended Next Action</h2>
+          <p className="text-[13px] leading-relaxed text-white/80">{detail.recommendedAction.message}</p>
+          <div className="flex flex-col gap-1.5 mt-2 pt-3 border-t border-white/10 text-[11px]">
+            <div className="flex justify-between"><span className="text-white/50">Owner</span><strong className="text-white/90">{detail.recommendedAction.owner}</strong></div>
+            <div className="flex justify-between"><span className="text-white/50">Due</span><strong className="text-white/90">{detail.recommendedAction.due}</strong></div>
           </div>
         </section>
 
-        <section className={shared.sideCard}>
-          <h2><Boxes size={15} /> Release Summary</h2>
-          <div className={styles.summaryRows}>
-            <div className={styles.summaryRow}><span>Current Version</span><strong>{detail.releaseSummary.currentVersion}</strong></div>
-            <div className={styles.summaryRow}><span>Target Version</span><strong>{detail.releaseSummary.targetVersion}</strong></div>
-            <div className={styles.summaryRow}><span>Release Status</span><StatusPill value={detail.releaseSummary.releaseStatus} tone={detail.statusDomains.find((f) => f.key === "release")?.tone ?? "neutral"} /></div>
-            <div className={styles.summaryRow}><span>Target Date</span><strong>{detail.releaseSummary.targetDate}</strong></div>
-            <div className={styles.summaryRow}><span>Approval Status</span><StatusPill value={detail.releaseSummary.approvalStatus} tone={detail.releaseSummary.approvalStatus === "Approved" ? "success" : detail.releaseSummary.approvalStatus === "Pending" ? "warning" : "neutral"} /></div>
-            <div className={styles.summaryRow}><span>Rollback Plan</span><StatusPill value={detail.releaseSummary.rollbackPlan} tone={detail.releaseSummary.rollbackPlan === "Required" ? "danger" : detail.releaseSummary.rollbackPlan === "Drafted" ? "warning" : "success"} /></div>
+        <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+          <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><Boxes size={15} className="text-muted" /> Release Summary</h2>
+          <div className="p-5 flex flex-col gap-3">
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Current Version</span><strong className="text-ink font-bold">{detail.releaseSummary.currentVersion}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Target Version</span><strong className="text-ink font-bold">{detail.releaseSummary.targetVersion}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Release Status</span><StatusPill value={detail.releaseSummary.releaseStatus} /></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Target Date</span><strong className="text-ink font-bold">{detail.releaseSummary.targetDate}</strong></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Approval Status</span><StatusPill value={detail.releaseSummary.approvalStatus} /></div>
+            <div className="flex items-center justify-between text-[12px]"><span className="text-muted">Rollback Plan</span><StatusPill value={detail.releaseSummary.rollbackPlan} /></div>
           </div>
         </section>
 
-        <section className={shared.sideCard}>
-          <h2><ShieldCheck size={15} /> Controlled Module Actions</h2>
-          <div className={styles.actionRowList}>
-            <button type="button" className={styles.actionRow} onClick={() => onNavigateTab("configuration")}><span className={styles.actionRowLeft}><Settings2 size={13} /><span>Update Configuration</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "security" })}><span className={styles.actionRowLeft}><ShieldAlert size={13} /><span>Request Security Review</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "compliance" })}><span className={styles.actionRowLeft}><ShieldCheck size={13} /><span>Request Compliance Review</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} onClick={() => onNavigateTab("dependencies")}><span className={styles.actionRowLeft}><Network size={13} /><span>Manage Dependencies</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} onClick={() => onNavigateTab("integrations")}><span className={styles.actionRowLeft}><Plug size={13} /><span>Manage Integrations</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} onClick={() => onNavigateTab("feature-flags")}><span className={styles.actionRowLeft}><FlagIcon size={13} /><span>Manage Feature Flags</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} onClick={() => onNavigateTab("country-availability")}><span className={styles.actionRowLeft}><Globe2 size={13} /><span>Manage Countries</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} onClick={() => info("Compare Versions", "Select two versions from Versions & Releases to compare configuration, health and adoption side by side.")}><span className={styles.actionRowLeft}><GitCompare size={13} /><span>Compare Versions</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} disabled={!permissions.canScheduleRelease} onClick={() => onOpenModal({ kind: "schedule-release" })}><span className={styles.actionRowLeft}><Calendar size={13} /><span>Schedule Release</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={styles.actionRow} disabled={!permissions.canRequestProductionEnablement} onClick={() => onOpenModal({ kind: "production-enablement" })}><span className={styles.actionRowLeft}><ShieldCheck size={13} /><span>Request Production Enablement</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={`${styles.actionRow} ${styles.actionRowDanger}`} disabled={!permissions.canSuspend} onClick={() => onOpenModal({ kind: "suspend" })}><span className={styles.actionRowLeft}><PauseCircle size={13} /><span>Suspend Module</span></span><ChevronRight size={13} /></button>
-            <button type="button" className={`${styles.actionRow} ${styles.actionRowDanger}`} disabled={!permissions.canRetire} onClick={() => onOpenModal({ kind: "retire" })}><span className={styles.actionRowLeft}><Trash2 size={13} /><span>Retire Module</span></span><ChevronRight size={13} /></button>
+        <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+          <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><ShieldCheck size={15} className="text-muted" /> Controlled Module Actions</h2>
+          <div className="flex flex-col">
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => onNavigateTab("configuration")}><span className="flex items-center gap-2"><Settings2 size={13} className="text-muted" />Update Configuration</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "security" })}><span className="flex items-center gap-2"><ShieldAlert size={13} className="text-muted" />Request Security Review</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canRequestReview} onClick={() => onOpenModal({ kind: "review", reviewKind: "compliance" })}><span className="flex items-center gap-2"><ShieldCheck size={13} className="text-muted" />Request Compliance Review</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => onNavigateTab("dependencies")}><span className="flex items-center gap-2"><Network size={13} className="text-muted" />Manage Dependencies</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => onNavigateTab("integrations")}><span className="flex items-center gap-2"><Plug size={13} className="text-muted" />Manage Integrations</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => onNavigateTab("feature-flags")}><span className="flex items-center gap-2"><FlagIcon size={13} className="text-muted" />Manage Feature Flags</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => onNavigateTab("country-availability")}><span className="flex items-center gap-2"><Globe2 size={13} className="text-muted" />Manage Countries</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors" onClick={() => info("Compare Versions", "Select two versions from Versions & Releases to compare configuration, health and adoption side by side.")}><span className="flex items-center gap-2"><GitCompare size={13} className="text-muted" />Compare Versions</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canScheduleRelease} onClick={() => onOpenModal({ kind: "schedule-release" })}><span className="flex items-center gap-2"><Calendar size={13} className="text-muted" />Schedule Release</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canRequestProductionEnablement} onClick={() => onOpenModal({ kind: "production-enablement" })}><span className="flex items-center gap-2"><ShieldCheck size={13} className="text-muted" />Request Production Enablement</span><ChevronRight size={13} className="text-muted" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-danger text-left hover:bg-red-50 flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canSuspend} onClick={() => onOpenModal({ kind: "suspend" })}><span className="flex items-center gap-2"><PauseCircle size={13} />Suspend Module</span><ChevronRight size={13} className="text-danger opacity-50" /></button>
+            <button type="button" className="px-5 py-3 border-b border-line text-[12px] font-medium text-danger text-left hover:bg-red-50 flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={!permissions.canRetire} onClick={() => onOpenModal({ kind: "retire" })}><span className="flex items-center gap-2"><Trash2 size={13} />Retire Module</span><ChevronRight size={13} className="text-danger opacity-50" /></button>
           </div>
         </section>
       </aside>
