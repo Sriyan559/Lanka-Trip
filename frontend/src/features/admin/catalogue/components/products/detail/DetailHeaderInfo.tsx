@@ -62,7 +62,7 @@ export function DetailHeaderInfo() {
             </div>
             <div>
               <div className="text-muted font-medium mb-1">Category</div>
-              <div className="font-bold text-ink">Skincare > Face Serum</div>
+              <div className="font-bold text-ink">Skincare &gt; Face Serum</div>
             </div>
             <div>
               <div className="text-muted font-medium mb-1">Product Type</div>

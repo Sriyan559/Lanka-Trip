@@ -109,7 +109,7 @@ export function ProductsTableSection() {
               <td className="py-3 px-3 text-[11px] text-muted">RAD-VITC-30ML</td>
               <td className="py-3 px-3 text-[11px] text-muted">8901234567895</td>
               <td className="py-3 px-3 text-[11px] text-muted">Estée Lauder</td>
-              <td className="py-3 px-3 text-[11px] text-muted">Skincare > Serums</td>
+              <td className="py-3 px-3 text-[11px] text-muted">Skincare &gt; Serums</td>
               <td className="py-3 px-3 text-[11px] font-medium text-blue-600">Initial Review</td>
             </tr>
             {/* Add more placeholder rows here if needed */}

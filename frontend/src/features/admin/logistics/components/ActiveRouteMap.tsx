@@ -47,7 +47,10 @@ const ActiveRouteMap = () => {
     try {
       if (routeData.routes && routeData.routes.length > 0) {
         const coordinates = routeData.routes[0].geometry.coordinates;
-        return coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+        return coordinates.map((coord): [number, number] => [
+          coord[1] ?? 0,
+          coord[0] ?? 0,
+        ]);
       }
     } catch (e) {
       console.error("Error parsing route data", e);

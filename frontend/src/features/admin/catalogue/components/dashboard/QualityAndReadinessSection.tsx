@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertCircle, FileX, ImageMinus, Copy, ShieldAlert, ListTree, CheckCircle2 } from "lucide-react";
+import { AlertCircle, ChevronRight, FileX, ImageMinus, Copy, ShieldAlert, ListTree, CheckCircle2 } from "lucide-react";
 
 export function QualityAndReadinessSection() {
   return (

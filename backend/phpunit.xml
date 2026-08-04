@@ -33,5 +33,7 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="AI_BEAUTY_ADVISOR_ENABLED" value="true" force="true"/>
+        <env name="AI_BEAUTY_ADVISOR_MOCK_MODE" value="true" force="true"/>
     </php>
 </phpunit>
