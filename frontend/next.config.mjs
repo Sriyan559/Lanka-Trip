@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
-    const backendApiUrl = (process.env.BACKEND_API_URL || 'http://localhost:8000/api').replace(/\/$/, '');
+    const backendApiUrl = (process.env.BACKEND_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
 
     return [
       {

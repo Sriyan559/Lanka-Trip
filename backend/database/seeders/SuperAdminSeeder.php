@@ -52,6 +52,7 @@ class SuperAdminSeeder extends Seeder
                 }
 
                 $user->forceFill([
+                    ...(! Hash::check($password, $user->password) ? ['password' => Hash::make($password)] : []),
                     ...($email !== '' ? ['email' => $email] : []),
                     'role' => 'super_admin',
                     'status' => 'active',
