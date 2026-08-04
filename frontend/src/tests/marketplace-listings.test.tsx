@@ -1,8 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import MarketplaceListingsPage from "@/app/admin/marketplace/listings/page";
 import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
 import { fetchMarketplaceListings } from "@/services/api/marketplaceListingsService";
+
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
 describe("Marketplace Listings Management", () => {
   it("loads the explicit typed fixture through its service", async () => {
@@ -41,11 +44,12 @@ describe("Marketplace Listings Management", () => {
     expect(screen.getByRole("dialog", { name: "Bulk Actions" })).toBeInTheDocument();
   });
 
-  it("keeps row actions in a drawer instead of opening missing routes", async () => {
+  it("routes listing moderation actions with the selected row ID", async () => {
     render(<MarketplaceListingsPage />);
     fireEvent.click(await screen.findByRole("button", { name: "Actions for Radiance Vitamin C Serum" }));
     fireEvent.click(screen.getByRole("button", { name: "View Listing" }));
-    expect(screen.getByRole("dialog", { name: "View Listing" })).toBeInTheDocument();
+    expect(push).toHaveBeenCalledWith("/admin/marketplace/listings/LST-0012456");
+    expect(screen.getByRole("link", { name: "LST-0012456" })).toHaveAttribute("href", "/admin/marketplace/listings/LST-0012456");
   });
 
   it("registers an active Listings child route", () => {

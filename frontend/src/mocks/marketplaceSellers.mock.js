@@ -1,0 +1,33 @@
+export const marketplaceSellersFixture = {
+  source: "frontend-fixture",
+  permissions: { canView: true, canExport: true, canManage: true },
+  lastUpdated: "03 Aug 2026, 2:10 PM",
+  context: { tenant: "SL Beauty", ecosystem: "Beauty Marketplace", businessUnit: "All Business Units", channel: "All Channels", region: "Sri Lanka", currency: "LKR", dateRange: "Last 30 Days" },
+  kpis: [
+    {id:"active",label:"Active Marketplace Sellers",value:"142",change:"5.2%",direction:"up",tone:"burgundy"},
+    {id:"new",label:"New Sellers This Month",value:"6",change:"20.0%",direction:"up",tone:"amber"},
+    {id:"review",label:"Sellers Under Review",value:"12",change:"7.7%",direction:"down",tone:"red"},
+    {id:"suspended",label:"Suspended Sellers",value:"4",change:"33.3%",direction:"down",tone:"burgundy"},
+    {id:"gmv",label:"Total Seller GMV",value:"LKR 45.2M",change:"12.4%",direction:"up",tone:"green"},
+    {id:"avg-gmv",label:"Average Seller GMV",value:"LKR 318K",change:"8.6%",direction:"up",tone:"orange"},
+    {id:"fulfilment",label:"Average Fulfilment Rate",value:"93.4%",change:"2.1 pp",direction:"up",tone:"green"},
+    {id:"cancel",label:"Average Cancellation Rate",value:"2.8%",change:"0.6 pp",direction:"downGood",tone:"red"},
+    {id:"return",label:"Average Return Rate",value:"3.6%",change:"0.4 pp",direction:"downGood",tone:"blue"},
+    {id:"rating",label:"Average Customer Rating",value:"4.5",change:"0.2",direction:"up",tone:"orange"},
+    {id:"sla",label:"SLA Breaches",value:"23",change:"15.0%",direction:"upBad",tone:"red"},
+    {id:"risk",label:"High-Risk Sellers",value:"9",change:"12.5%",direction:"upBad",tone:"red"},
+  ],
+  trend: [
+    {date:"08 Jul",gmv:7.7,fulfilment:96,cancellation:5.2,returns:2.1},{date:"10 Jul",gmv:7.8,fulfilment:95,cancellation:4.1,returns:2.0},{date:"12 Jul",gmv:7.9,fulfilment:97,cancellation:6.0,returns:2.5},{date:"15 Jul",gmv:7.8,fulfilment:94,cancellation:4.4,returns:2.1},{date:"17 Jul",gmv:7.9,fulfilment:96,cancellation:5.5,returns:2.3},{date:"19 Jul",gmv:8.0,fulfilment:95,cancellation:4.3,returns:2.1},{date:"22 Jul",gmv:7.8,fulfilment:90,cancellation:6.6,returns:2.5},{date:"24 Jul",gmv:7.9,fulfilment:92,cancellation:4.5,returns:2.2},{date:"26 Jul",gmv:8.1,fulfilment:95,cancellation:6.4,returns:2.4},{date:"29 Jul",gmv:8.0,fulfilment:93,cancellation:4.8,returns:2.2},{date:"01 Aug",gmv:7.9,fulfilment:94,cancellation:6.7,returns:2.4},{date:"05 Aug",gmv:8.0,fulfilment:96,cancellation:4.9,returns:2.3},
+  ],
+  risks: [{label:"Low Risk",value:82,percent:57.7,color:"#299436"},{label:"Medium Risk",value:39,percent:27.5,color:"#f3a000"},{label:"High Risk",value:16,percent:11.3,color:"#eb391c"},{label:"Critical",value:5,percent:3.5,color:"#9a001d"}],
+  scorecards: [{label:"Sales Performance",value:88,change:"5%",status:"Good"},{label:"Fulfilment",value:93,change:"3%",status:"Good"},{label:"Cancellation Control",value:91,change:"2%",status:"Good"},{label:"Return Control",value:86,change:"1%",status:"Good",negative:true},{label:"Customer Experience",value:90,change:"2%",status:"Good"},{label:"Listing Quality",value:84,change:"1%",status:"Watch",negative:true},{label:"Policy Compliance",value:89,change:"2%",status:"Good"},{label:"Financial Reliability",value:95,change:"3%",status:"Excellent"}],
+  sellers: [
+    {id:"SELL-2026-000142",name:"Ceylon Beauty Distributors",type:"Brand Owner",unit:"Consumer Beauty",channels:"Online Marketplace, Mobile App",listings:428,orders:"1,842",gmv:"LKR 8.42M",aov:"LKR 4,571",fulfilment:"97.8%",cancellation:"1.2%",returns:"2.1%",rating:"4.8",sla:1,findings:0,settlement:"Clear",risk:"Low",status:"Active",manager:"N. Perera",activity:"03 Aug 2026, 1:58 PM"},
+    {id:"SELL-2026-000118",name:"LankaSkin Wholesale",type:"Distributor",unit:"B2B Trade",channels:"Wholesale Portal",listings:286,orders:"1,194",gmv:"LKR 6.18M",aov:"LKR 5,176",fulfilment:"94.2%",cancellation:"2.8%",returns:"3.4%",rating:"4.5",sla:4,findings:2,settlement:"Pending",risk:"Medium",status:"Active",manager:"S. Fernando",activity:"03 Aug 2026, 1:35 PM"},
+    {id:"SELL-2026-000094",name:"Tokyo Beauty Ceylon",type:"Importer",unit:"Imported Beauty",channels:"Online Marketplace, Partner Storefront",listings:194,orders:"842",gmv:"LKR 4.96M",aov:"LKR 5,890",fulfilment:"88.6%",cancellation:"6.1%",returns:"5.8%",rating:"4.1",sla:9,findings:6,settlement:"Exception",risk:"High",status:"Under Review",manager:"E. Vance",activity:"03 Aug 2026, 12:48 PM"},
+    {id:"SELL-2026-000071",name:"Velvet Botanics Ltd.",type:"Local Brand",unit:"Local Brands",channels:"Online Marketplace, Mobile App",listings:121,orders:"682",gmv:"LKR 3.82M",aov:"LKR 5,601",fulfilment:"96.4%",cancellation:"1.7%",returns:"2.6%",rating:"4.7",sla:2,findings:1,settlement:"Clear",risk:"Low",status:"Active",manager:"A. Silva",activity:"03 Aug 2026, 12:22 PM"},
+  ],
+  health: [{label:"Seller Activation",value:94},{label:"Fulfilment Health",value:93},{label:"Customer Experience",value:90},{label:"Listing Quality",value:84},{label:"Policy Compliance",value:89},{label:"Financial Reliability",value:95}],
+  alerts: [{title:"High cancellation rate",detail:"Tokyo Beauty Ceylon (6.1%)",action:"Review Seller",tone:"danger"},{title:"Fulfilment SLA breached",detail:"Affected sellers: 5",action:"Open Queue",tone:"warning"},{title:"Settlement exception",detail:"LankaSkin Wholesale (LKR 185,000)",action:"Review Settlement",tone:"olive"},{title:"Policy violations increasing",detail:"Affected sellers: 4",action:"Review Findings",tone:"warning"},{title:"Customer rating deterioration",detail:"Affected sellers: 3",action:"Review Experience",tone:"danger"},{title:"Seller eligibility expiring",detail:"Affected sellers: 6",action:"Review Verification",tone:"warning"}],
+};

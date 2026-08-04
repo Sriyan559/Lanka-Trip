@@ -79,7 +79,7 @@ describe("shared admin layout", () => {
     expect(screen.getByRole("link", { name: "Dashboard" }))
       .toHaveAttribute("href", "/admin/dashboard");
     expect(screen.getByRole("link", { name: "Marketplace" }))
-      .toHaveAttribute("href", "/admin/marketplace/orders");
+      .toHaveAttribute("href", "/admin/marketplace");
     expect(screen.getByRole("link", { name: "Catalogue" }))
       .toHaveAttribute("href", "/admin/catalogue/product-approvals");
     expect(screen.getByRole("link", { name: "Brands & Suppliers" }))

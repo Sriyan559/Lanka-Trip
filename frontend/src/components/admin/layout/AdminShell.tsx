@@ -12,7 +12,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const isMarketplaceWorkspace =
     pathname === "/admin/marketplace" ||
     pathname.startsWith("/admin/marketplace/returns") ||
-    pathname.startsWith("/admin/marketplace/listings");
+    pathname.startsWith("/admin/marketplace/listings") ||
+    pathname.startsWith("/admin/marketplace/sellers");
 
   return (
     <div className="shell-rich">
