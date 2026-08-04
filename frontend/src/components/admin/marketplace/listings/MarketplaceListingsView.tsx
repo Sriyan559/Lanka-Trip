@@ -1,0 +1,70 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Archive, BarChart3, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CircleDollarSign, Copy, Download, Filter, MoreHorizontal, Package, Plus, RefreshCw, Search, ShieldAlert, SlidersHorizontal, X } from "lucide-react";
+import toast from "react-hot-toast";
+import { fetchMarketplaceListings } from "@/services/api/marketplaceListingsService";
+import type { ListingRow, MarketplaceListingsData } from "@/types/marketplaceListings";
+import styles from "./marketplace-listings.module.css";
+
+const filters = ["Listing Status","Seller","Brand","Category","Business Unit","Channel","Risk"];
+const rowActions = ["View Listing","Edit Listing","View Product Master","View Seller","Review Compliance","Review Pricing","View Inventory","Publish","Suspend","Reject","View Audit History"];
+
+function tone(value: string) {
+  if (["Live","Verified","Compliant","Low"].includes(value)) return styles.success;
+  if (["Rejected","Flagged","Violation","High"].includes(value)) return styles.danger;
+  if (["Pending Review","Medium"].includes(value)) return styles.warning;
+  return styles.neutral;
+}
+
+export function MarketplaceListingsView() {
+  const [data,setData]=useState<MarketplaceListingsData|null>(null);
+  const [error,setError]=useState(""); const [refreshing,setRefreshing]=useState(false);
+  const [active,setActive]=useState("all"); const [query,setQuery]=useState(""); const [selected,setSelected]=useState<string[]>([]);
+  const [menu,setMenu]=useState<string|null>(null); const [modal,setModal]=useState<string|null>(null); const [advanced,setAdvanced]=useState(false);
+  const [page,setPage]=useState(1); const [lastUpdated,setLastUpdated]=useState("");
+
+  const load=async(refresh=false)=>{ try{setError("");if(refresh)setRefreshing(true);const result=await fetchMarketplaceListings();setData(result);setLastUpdated(refresh?new Date().toLocaleString("en-LK",{dateStyle:"medium",timeStyle:"short"}):result.lastUpdated);if(refresh)toast.success("Listings refreshed");}catch(e){if((e as Error).name!=="AbortError")setError("Listings could not be loaded.");}finally{setRefreshing(false);} };
+  useEffect(()=>{const controller=new AbortController();void fetchMarketplaceListings(controller.signal).then(result=>{setData(result);setLastUpdated(result.lastUpdated)}).catch(e=>{if(e.name!=="AbortError")setError("Listings could not be loaded.")});return()=>controller.abort()},[]);
+
+  const rows=useMemo(()=>data?.listings.filter(row=>{
+    const matchesQuery=Object.values(row).join(" ").toLowerCase().includes(query.toLowerCase());
+    const matchesTab=active==="all" || (active==="live"&&row.status==="Live") || (active==="pending-review"&&row.status==="Pending Review") || (active==="rejected"&&row.status==="Rejected") || (active==="out-of-stock"&&row.stock===0) || (active==="low-stock"&&row.stock>0&&row.stock<50) || (active==="high-risk"&&row.risk==="High") || !["live","pending-review","rejected","out-of-stock","low-stock","high-risk"].includes(active);
+    return matchesQuery&&matchesTab;
+  })??[],[data,query,active]);
+  const applyFilter=(id:string)=>{setActive(id);setPage(1);if(typeof window!=="undefined"){const url=new URL(window.location.href);id==="all"?url.searchParams.delete("status"):url.searchParams.set("status",id);window.history.replaceState({},"",url);} };
+  const toggleAll=()=>setSelected(selected.length===rows.length?[]:rows.map(r=>r.id));
+  const doAction=(action:string,row?:ListingRow)=>{setMenu(null);if(["Publish","Suspend","Reject"].includes(action)){setModal(`${action}${row?` ${row.name}`:" selected listings"}`);return;}setModal(action);};
+
+  if(error&&!data)return <main className={styles.state} role="alert"><h1>Marketplace Listings Management</h1><p>{error}</p><button onClick={()=>void load()}>Retry</button></main>;
+  if(!data)return <main className={styles.state}><h1>Marketplace Listings Management</h1><p>Loading listings…</p></main>;
+
+  return <main className={styles.page}>
+    <header className={styles.pageHeader}><div><h1>Marketplace Listings Management</h1><p>Manage, verify, and monitor all product listings across the SL Beauty ecosystem.</p></div><div className={styles.headerActions}>
+      <button className={styles.secondary} onClick={()=>setModal("Export Listings")}><Download size={14}/> Export Listings</button>
+      <button className={styles.dark} disabled={!selected.length} onClick={()=>setModal("Bulk Actions")}><SlidersHorizontal size={14}/> Bulk Actions {selected.length?`(${selected.length})`:""}<ChevronDown size={13}/></button>
+      <button className={styles.primary} onClick={()=>setModal("Create Listing")}><Plus size={15}/> Create Listing</button>
+    </div></header>
+    <section className={styles.context} aria-label="Marketplace context"><div><span>Tenant: <b>SL Beauty</b></span><span>Ecosystem: <b>Beauty Marketplace</b></span><span>Business Unit: <b>All</b></span><span>Channel: <b>All</b></span><span>Region: <b>All</b></span><span>Currency: <b>LKR</b></span></div><aside><i/>Live data <small>Last updated: {lastUpdated}</small><button aria-label="Refresh listings" disabled={refreshing} onClick={()=>void load(true)}><RefreshCw className={refreshing?styles.spin:""} size={14}/></button></aside></section>
+    <div className={styles.layout}><div className={styles.workspace}>
+      <section className={styles.kpis} aria-label="Listing metrics">{data.metrics.map((metric,index)=><button key={metric.id} onClick={()=>applyFilter(metric.id)} className={`${styles.kpi} ${active===metric.id?styles.selectedKpi:""}`}><span>{metric.label}</span><strong>{metric.value.toLocaleString()}</strong><i className={styles[metric.tone]}>{index%4===0?<Package/>:index%4===1?<CheckCircle2/>:index%4===2?<AlertTriangle/>:<Archive/>}</i></button>)}</section>
+      <section className={styles.listCard}>
+        <div className={styles.tabs} role="tablist" aria-label="Listing status">{data.metrics.filter(m=>!["duplicate"].includes(m.id)).map(metric=><button role="tab" aria-selected={active===metric.id} className={active===metric.id?styles.activeTab:""} key={metric.id} onClick={()=>applyFilter(metric.id)}>{metric.label.replace(" Listings","")} <b>{metric.value.toLocaleString()}</b></button>)}</div>
+        <div className={styles.filterPanel}><div className={styles.filterRow}><label className={styles.search}><Search size={14}/><input value={query} onChange={e=>{setQuery(e.target.value);setPage(1)}} placeholder="Search listings..."/></label>{filters.map(label=><button key={label}>{label}<ChevronDown size={13}/></button>)}<button onClick={()=>setAdvanced(true)}><Filter size={13}/>More Filters</button></div><div className={styles.chips}><span>Filters:</span>{["Business Unit: All","Channel: All","Risk: All"].map(x=><button key={x}>{x}<X size={10}/></button>)}<button className={styles.clear} onClick={()=>{setQuery("");applyFilter("all")}}>Clear all</button></div></div>
+        <div className={styles.tableWrap}><table><thead><tr><th><input aria-label="Select all listings" type="checkbox" checked={rows.length>0&&selected.length===rows.length} onChange={toggleAll}/></th>{["Listing","Listing ID","Seller","Product","Brand","Business Unit","Channel","Selling Price","Stock","Sales (30D)","Conversion (30D)","Verification","Policy Status","Risk","Listing Status","Updated","Reviewer","Action"].map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{rows.length?rows.map((row,i)=><tr key={row.id}><td><input aria-label={`Select ${row.name}`} type="checkbox" checked={selected.includes(row.id)} onChange={()=>setSelected(s=>s.includes(row.id)?s.filter(id=>id!==row.id):[...s,row.id])}/></td><td><div className={`${styles.thumb} ${styles[`thumb${i+1}`]}`}/><b>{row.name}</b><small>{row.descriptor}</small></td><td>{row.id}</td><td>{row.seller}</td><td>{row.product}</td><td>{row.brand}</td><td>{row.businessUnit}</td><td>{row.channel}</td><td>{row.price}</td><td className={row.stock<50?styles.stockWarning:""}>{row.stock}</td><td>{row.sales}</td><td>{row.conversion}</td><td><span className={`${styles.badge} ${tone(row.verification)}`}>{row.verification}</span></td><td><span className={`${styles.badge} ${tone(row.policy)}`}>{row.policy}</span></td><td><span className={`${styles.badge} ${tone(row.risk)}`}>{row.risk}</span></td><td><span className={`${styles.badge} ${tone(row.status)}`}>{row.status}</span></td><td>{row.updated}</td><td>{row.reviewer}</td><td className={styles.actionCell}><button aria-label={`Actions for ${row.name}`} onClick={()=>setMenu(menu===row.id?null:row.id)}><MoreHorizontal size={16}/></button>{menu===row.id&&<div className={styles.rowMenu}>{rowActions.map(action=><button key={action} onClick={()=>doAction(action,row)}>{action}</button>)}</div>}</td></tr>):<tr><td className={styles.empty} colSpan={19}>No listings match the active filters.</td></tr>}</tbody></table></div>
+        <footer className={styles.pagination}><span>Showing {rows.length?1:0} to {rows.length} of {data.total.toLocaleString()} listings</span><div><button disabled={page===1} onClick={()=>setPage(p=>p-1)}><ChevronLeft size={13}/>Previous</button><button className={styles.current}>1</button><button onClick={()=>setPage(2)}>2</button><button onClick={()=>setPage(3)}>3</button><span>…</span><button onClick={()=>setPage(6225)}>6225</button><button disabled={page===6225} onClick={()=>setPage(p=>Math.min(6225,p+1))}>Next<ChevronRight size={13}/></button></div></footer>
+      </section>
+    </div><aside className={styles.rail}>
+      <section className={styles.railCard}><h2>Listing Health <BarChart3 size={14}/></h2><div className={styles.gauge}><div><strong>86</strong><span>/100</span><small>Good</small></div></div>{[["Compliance Rate","89%"],["Policy Accuracy","83%"],["Price Consistency","85%"]].map(x=><p className={styles.metric} key={x[0]}><span>{x[0]}</span><b>{x[1]} ↑</b></p>)}</section>
+      <section className={styles.railCard}><h2>Priority Alerts</h2><div className={styles.alerts}>{data.alerts.map(a=><button key={a.title} className={styles[a.tone]} onClick={()=>applyFilter(a.filter)}><AlertTriangle size={15}/><span><b>{a.title}</b><small>{a.detail}</small></span><em>{a.action}</em></button>)}</div></section>
+      <section className={styles.railCard}><h2>Review SLA / Verification SLA</h2>{[["Review SLA (48H)","312 / 600","52%"],["Verification SLA (72H)","218 / 320","68%"],["Express SLA (24H)","45 / 60","75%"]].map(x=><div className={styles.sla} key={x[0]}><p><span>{x[0]}</span><b>{x[1]}</b><em>{x[2]}</em></p><i><b style={{width:x[2]}}/></i></div>)}<button className={styles.fullButton} onClick={()=>setModal("All SLA Queues")}>View All SLAs</button></section>
+      <section className={styles.queues}><h2><Search size={14}/> Quick Queues</h2><div>{data.queues.map(q=><button key={q.label} onClick={()=>applyFilter(q.filter)}><span><i className={styles[q.tone]}><Copy size={13}/></i>{q.label}<b>{q.count}</b></span><ChevronRight size={14}/></button>)}</div><button onClick={()=>setModal("All Listing Queues")}>View All Queues <ChevronRight size={13}/></button></section>
+    </aside></div>
+    {(modal||advanced)&&<div className={styles.backdrop} onMouseDown={e=>{if(e.target===e.currentTarget){setModal(null);setAdvanced(false)}}}><section className={styles.modal} role="dialog" aria-modal="true" aria-label={advanced?"More Filters":modal??"Workflow"}><header><div><small>Marketplace Listings</small><h2>{advanced?"More Filters":modal}</h2></div><button aria-label="Close dialog" onClick={()=>{setModal(null);setAdvanced(false)}}><X/></button></header>{advanced?<><div className={styles.formGrid}>{["Verification status","Policy status","Stock range","Price range","Updated date","Reviewer","Publication state","SLA status"].map(x=><label key={x}>{x}<select defaultValue=""><option value="">All</option><option>Requires attention</option></select></label>)}</div><footer><button className={styles.secondary} onClick={()=>setAdvanced(false)}>Cancel</button><button className={styles.primary} onClick={()=>{setAdvanced(false);toast.success("Advanced filters applied")}}>Apply Filters</button></footer></>:<Workflow title={modal??""} selected={selected.length} onAction={action=>{setModal(null);toast.success(`${action} saved in local preview state`)}}/>}</section></div>}
+  </main>;
+}
+
+function Workflow({title,selected,onAction}:{title:string;selected:number;onAction:(x:string)=>void}) {
+  const sensitive=/Publish|Suspend|Reject/.test(title);
+  return <><p className={styles.modalIntro}>{sensitive?"This action is a frontend preview because no marketplace listing mutation endpoint exists in this repository.":title==="Bulk Actions"?`${selected} listing${selected===1?"":"s"} selected. Choose an action to continue.`:"Complete this workflow without leaving the Listings workspace."}</p>{title==="Bulk Actions"?<div className={styles.actionGrid}>{["Publish selected","Send for review","Suspend selected","Reject selected","Assign reviewer","Export selected"].map(x=><button key={x} onClick={()=>onAction(x)}>{x}</button>)}</div>:title==="Create Listing"?<div className={styles.formGrid}>{["Listing name","Product","Seller","Brand","Category","Business unit","Channel","SKU","Selling price","Stock quantity"].map(x=><label key={x}>{x}<input placeholder={x}/></label>)}</div>:title==="Export Listings"?<div className={styles.formGrid}><label>Export scope<select><option>Current page</option><option>Selected listings</option><option>All filtered listings</option></select></label><label>Format<select><option>CSV</option></select></label></div>:sensitive?<label className={styles.reason}>Reason<textarea required placeholder="Enter an audit reason"/></label>:<div className={styles.drawerCopy}><ShieldAlert/><p>The {title.toLowerCase()} view is available here as a safe frontend drawer; no undefined route is opened.</p></div>}<footer><button className={styles.secondary} onClick={()=>onAction("Workflow cancelled")}>Cancel</button><button className={styles.primary} onClick={()=>onAction(sensitive?title:"Continue")}>{sensitive?"Confirm action":"Continue"}</button></footer></>;
+}

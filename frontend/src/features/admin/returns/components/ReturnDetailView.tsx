@@ -6,7 +6,7 @@ import styles from "./return-detail.module.css";
 import type { ReturnCaseDetails } from "@/types/admin";
 import { fetchReturnCaseDetails } from "@/services/api/returnsService";
 import { ReturnCaseHeader } from "./ReturnCaseHeader";
-import { ReturnCaseTabs } from "./ReturnCaseTabs";
+import { ReturnCaseTabs, RETURN_DETAIL_TABS } from "./ReturnCaseTabs";
 import { ReturnDetailTabsContent } from "./ReturnDetailTabsContent";
 import { CaseDecisionPanel } from "./CaseDecisionPanel";
 import { ReturnCaseModals, ReturnDetailModalType } from "./ReturnCaseModals";
@@ -22,18 +22,24 @@ export function ReturnDetailView({ returnId }: ReturnDetailViewProps) {
   const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [details, setDetails] = useState<ReturnCaseDetails | null>(null);
   const [activeModal, setActiveModal] = useState<ReturnDetailModalType>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const activeTab = searchParams.get("tab") || "overview";
+  const requestedTab = searchParams.get("tab") || "overview";
+  const activeTab = RETURN_DETAIL_TABS.some((tab) => tab.id === requestedTab) ? requestedTab : "overview";
 
   const loadCase = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchReturnCaseDetails(returnId);
       setDetails(data);
     } catch (err) {
-      console.error("Failed to load return case details", err);
+      setLoadError(err instanceof Error ? err.message : "Unable to load this return case.");
+    } finally {
+      setLoading(false);
     }
   }, [returnId]);
 
@@ -55,6 +61,18 @@ export function ReturnDetailView({ returnId }: ReturnDetailViewProps) {
 
   if (loading && !details) {
     return <ReturnCaseSkeleton />;
+  }
+
+  if (loadError && !details) {
+    return (
+      <div className={styles.pageContainer}>
+        <div className={styles.card} role="alert">
+          <h2 className={styles.cardTitle}>Unable to load return case</h2>
+          <p>{loadError}</p>
+          <button type="button" className={styles.btnPrimaryDark} onClick={loadCase}>Retry</button>
+        </div>
+      </div>
+    );
   }
 
   if (!details) {
@@ -134,7 +152,6 @@ export function ReturnDetailView({ returnId }: ReturnDetailViewProps) {
             onRejectReturn={() => setActiveModal("reject_return")}
             onEscalateCase={() => setActiveModal("escalate_case")}
             onSuspendDecision={() => setActiveModal("suspend_decision")}
-            onOverrideInspection={() => setActiveModal("override_inspection")}
           />
         </div>
       </div>

@@ -1,8 +1,17 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\Admin\AdminReportController;
+use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
+use App\Http\Controllers\Api\Admin\EcosystemModuleController;
+use App\Http\Controllers\Api\Admin\LogisticsController;
+use App\Http\Controllers\Api\Admin\PayoutController;
+use App\Http\Controllers\Api\Admin\ReturnCaseController;
+use App\Http\Controllers\Api\Admin\SupportCaseController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BeautyAdvisorController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ConversationController;
@@ -149,6 +158,48 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
+        Route::get('/admin/dashboard/overview', AdminDashboardController::class);
+
+        Route::get('/admin/payouts/summary', [PayoutController::class, 'summary']);
+        Route::get('/admin/payouts/settlements', [PayoutController::class, 'settlements']);
+        Route::get('/admin/payouts', [PayoutController::class, 'index']);
+        Route::get('/admin/payouts/{payout}', [PayoutController::class, 'show'])->whereNumber('payout');
+        Route::patch('/admin/payouts/{payout}/status', [PayoutController::class, 'transition'])->whereNumber('payout');
+
+        Route::get('/admin/support/dashboard', [SupportCaseController::class, 'dashboard']);
+        Route::get('/admin/support/cases', [SupportCaseController::class, 'index']);
+        Route::post('/admin/support/cases', [SupportCaseController::class, 'store']);
+        Route::get('/admin/support/cases/{case}', [SupportCaseController::class, 'show'])->whereNumber('case');
+        Route::post('/admin/support/cases/{case}/assign', [SupportCaseController::class, 'assign'])->whereNumber('case');
+        Route::post('/admin/support/cases/{case}/replies', [SupportCaseController::class, 'reply'])->whereNumber('case');
+        Route::post('/admin/support/cases/{case}/notes', [SupportCaseController::class, 'note'])->whereNumber('case');
+        Route::patch('/admin/support/cases/{case}/status', [SupportCaseController::class, 'transition'])->whereNumber('case');
+        Route::post('/admin/support/cases/{case}/escalate', [SupportCaseController::class, 'escalate'])->whereNumber('case');
+        Route::get('/admin/support/cases/{case}/history', [SupportCaseController::class, 'history'])->whereNumber('case');
+
+        Route::get('/admin/returns', [ReturnCaseController::class, 'index']);
+        Route::get('/admin/returns/{returnCase}', [ReturnCaseController::class, 'show'])->whereNumber('returnCase');
+        Route::patch('/admin/returns/{returnCase}/status', [ReturnCaseController::class, 'transition'])->whereNumber('returnCase');
+        Route::post('/admin/returns/{returnCase}/inspections', [ReturnCaseController::class, 'inspect'])->whereNumber('returnCase');
+
+        Route::get('/admin/ecosystem/dashboard', [EcosystemModuleController::class, 'dashboard']);
+        Route::get('/admin/ecosystem/modules', [EcosystemModuleController::class, 'index']);
+        Route::get('/admin/ecosystem/modules/{module}', [EcosystemModuleController::class, 'show'])->whereNumber('module');
+        Route::put('/admin/ecosystem/modules/{module}/configuration', [EcosystemModuleController::class, 'configure'])->whereNumber('module');
+        Route::patch('/admin/ecosystem/modules/{module}/enabled', [EcosystemModuleController::class, 'toggle'])->whereNumber('module');
+        Route::get('/admin/ecosystem/modules/{module}/history', [EcosystemModuleController::class, 'audit'])->whereNumber('module');
+
+        Route::get('/admin/brand-authorizations', [BrandAuthorizationDecisionController::class, 'index']);
+        Route::get('/admin/brand-authorizations/{authorization}', [BrandAuthorizationDecisionController::class, 'show'])->whereNumber('authorization');
+        Route::post('/admin/brand-authorizations/{authorization}/decisions', [BrandAuthorizationDecisionController::class, 'decide'])->whereNumber('authorization');
+
+        Route::get('/admin/logistics/dashboard', [LogisticsController::class, 'dashboard']);
+        Route::get('/admin/logistics/shipments', [LogisticsController::class, 'index']);
+        Route::get('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'show'])->whereNumber('shipment');
+        Route::patch('/admin/logistics/shipments/{shipment}/status', [LogisticsController::class, 'updateStatus'])->whereNumber('shipment');
+
+        Route::get('/admin/reports', [AdminReportController::class, 'index']);
+        Route::get('/admin/reports/{report}', [AdminReportController::class, 'execute']);
 
         Route::get('/admin/users', [AdminController::class, 'users']);
         Route::get('/admin/users/{id}', [AdminController::class, 'user'])->whereNumber('id');
@@ -280,24 +331,24 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // AI Beauty Advisor Endpoints
 Route::prefix('beauty-advisor')->group(function () {
-    Route::post('/conversations', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'startConversation']);
-    Route::get('/conversations', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'listConversations']);
-    Route::get('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
-    Route::post('/conversations/{id}/new', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'newConversation'])->whereNumber('id');
-    Route::post('/conversations/{id}/activate', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'activateConversation'])->whereNumber('id');
-    Route::patch('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'renameConversation'])->whereNumber('id');
-    Route::delete('/conversations/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'deleteConversation'])->whereNumber('id');
-    Route::delete('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
-    Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'sendMessage'])->middleware('throttle:30,1')->whereNumber('id');
-    Route::post('/conversations/{id}/profile', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');
-    Route::post('/messages/{id}/feedback', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'feedback'])->middleware('throttle:20,1')->whereNumber('id');
+    Route::post('/conversations', [BeautyAdvisorController::class, 'startConversation']);
+    Route::get('/conversations', [BeautyAdvisorController::class, 'listConversations']);
+    Route::get('/conversations/{id}', [BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
+    Route::post('/conversations/{id}/new', [BeautyAdvisorController::class, 'newConversation'])->whereNumber('id');
+    Route::post('/conversations/{id}/activate', [BeautyAdvisorController::class, 'activateConversation'])->whereNumber('id');
+    Route::patch('/conversations/{id}', [BeautyAdvisorController::class, 'renameConversation'])->whereNumber('id');
+    Route::delete('/conversations/{id}', [BeautyAdvisorController::class, 'deleteConversation'])->whereNumber('id');
+    Route::delete('/conversations/{id}/messages', [BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
+    Route::post('/conversations/{id}/messages', [BeautyAdvisorController::class, 'sendMessage'])->middleware('throttle:30,1')->whereNumber('id');
+    Route::post('/conversations/{id}/profile', [BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');
+    Route::post('/messages/{id}/feedback', [BeautyAdvisorController::class, 'feedback'])->middleware('throttle:20,1')->whereNumber('id');
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'savePlan']);
-        Route::get('/plans', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'getPlans']);
-        Route::get('/plans/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'showPlan'])->whereNumber('id');
-        Route::patch('/plans/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'updatePlan'])->whereNumber('id');
-        Route::delete('/plans/{id}', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'deletePlan'])->whereNumber('id');
-        Route::get('/plans/{id}/download', [\App\Http\Controllers\Api\BeautyAdvisorController::class, 'downloadPlan'])->whereNumber('id');
+        Route::post('/plans', [BeautyAdvisorController::class, 'savePlan']);
+        Route::get('/plans', [BeautyAdvisorController::class, 'getPlans']);
+        Route::get('/plans/{id}', [BeautyAdvisorController::class, 'showPlan'])->whereNumber('id');
+        Route::patch('/plans/{id}', [BeautyAdvisorController::class, 'updatePlan'])->whereNumber('id');
+        Route::delete('/plans/{id}', [BeautyAdvisorController::class, 'deletePlan'])->whereNumber('id');
+        Route::get('/plans/{id}/download', [BeautyAdvisorController::class, 'downloadPlan'])->whereNumber('id');
     });
 });

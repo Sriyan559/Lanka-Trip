@@ -111,10 +111,12 @@ export async function fetchReturnCases(filters: ReturnFilterParams = {}): Promis
     }
   }
 
-  const page = filters.page && filters.page > 0 ? filters.page : 1;
-  const pageSize = filters.pageSize && filters.pageSize > 0 ? filters.pageSize : 10;
+  const supportedPageSizes = [10, 25, 50, 100];
+  const pageSize = filters.pageSize && supportedPageSizes.includes(filters.pageSize) ? filters.pageSize : 10;
   const total = filtered.length;
-  const totalPages = Math.ceil(total / pageSize) || 1;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const requestedPage = filters.page && Number.isInteger(filters.page) && filters.page > 0 ? filters.page : 1;
+  const page = Math.min(requestedPage, totalPages);
 
   const startIdx = (page - 1) * pageSize;
   const data = filtered.slice(startIdx, startIdx + pageSize);

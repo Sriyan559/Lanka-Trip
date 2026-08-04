@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -160,6 +161,7 @@ class ProductionReadinessApiTest extends TestCase
 
     public function test_admin_system_and_backup_apis_are_admin_only(): void
     {
+        Storage::fake('local');
         $buyer = User::factory()->create(['role' => 'buyer']);
         $admin = User::factory()->create(['role' => 'admin']);
 

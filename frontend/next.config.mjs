@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+<<<<<<< HEAD
   async rewrites() {
     const backendApiUrl = (process.env.BACKEND_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
 
@@ -11,6 +12,8 @@ const nextConfig = {
     ];
   },
 
+=======
+>>>>>>> 3dd30f19a664fb8659c42c58390fc175d82195c7
   images: {
     unoptimized: true,
     remotePatterns: [

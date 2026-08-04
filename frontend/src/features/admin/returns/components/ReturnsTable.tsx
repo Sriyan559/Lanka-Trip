@@ -3,9 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MoreVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import styles from "./returns-queue.module.css";
 import type { ReturnCaseItem } from "@/types/admin";
+import { ReturnsPagination } from "./ReturnsPagination";
 
 interface ReturnsTableProps {
   cases: ReturnCaseItem[];
@@ -13,6 +14,7 @@ interface ReturnsTableProps {
   page: number;
   pageSize: number;
   totalPages: number;
+  loading?: boolean;
   selectedIds: string[];
   onSelectRow: (id: string, checked: boolean) => void;
   onSelectAll: (checked: boolean) => void;
@@ -29,6 +31,7 @@ export function ReturnsTable({
   page,
   pageSize,
   totalPages,
+  loading = false,
   selectedIds,
   onSelectRow,
   onSelectAll,
@@ -253,42 +256,15 @@ export function ReturnsTable({
         </tbody>
       </table>
 
-      {/* Pagination Footer */}
-      <div className={styles.tableFooter}>
-        <div>
-          Showing <strong>{cases.length > 0 ? (page - 1) * pageSize + 1 : 0}</strong> to{" "}
-          <strong>{Math.min(page * pageSize, total)}</strong> of <strong>{total}</strong> cases
-        </div>
-
-        <div className={styles.paginationControls}>
-          <label style={{ marginRight: 8, fontSize: "0.75rem" }}>
-            Rows per page:
-            <select
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              style={{ marginLeft: 6, padding: "2px 4px", borderRadius: 4, border: "1px solid #d1d5db" }}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </label>
-
-          <button type="button" className={styles.pageBtn} disabled={page <= 1} onClick={() => onPageChange(1)}>
-            <ChevronsLeft size={14} />
-          </button>
-          <button type="button" className={styles.pageBtn} disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
-            <ChevronLeft size={14} />
-          </button>
-          <span className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</span>
-          <button type="button" className={styles.pageBtn} disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
-            <ChevronRight size={14} />
-          </button>
-          <button type="button" className={styles.pageBtn} disabled={page >= totalPages} onClick={() => onPageChange(totalPages)}>
-            <ChevronsRight size={14} />
-          </button>
-        </div>
-      </div>
+      <ReturnsPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+        loading={loading}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
     </div>
   );
 }

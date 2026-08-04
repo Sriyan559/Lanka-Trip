@@ -7,7 +7,7 @@ export const API_BASE =
   '/api';
 
 if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_API_BASE_URL) {
-  console.warn('NEXT_PUBLIC_API_BASE_URL is not set; using the same-origin /api proxy.');
+  console.warn('NEXT_PUBLIC_API_BASE_URL is not set; using the same-origin /api gateway.');
 }
 
 const COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_COOKIE || '_el_tok';
