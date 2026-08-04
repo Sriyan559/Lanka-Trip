@@ -117,7 +117,7 @@ class GeminiBeautyAdvisorProvider implements BeautyAdvisorProvider
                 "ID: %s | Name: %s | Brand: %s | Category: %s | Price: LKR %s | Description: %s\n",
                 $prod['id'],
                 $prod['name'],
-                $prod['supplier'] ?? 'SL Beauty',
+                $prod['supplier']['company_name'] ?? 'SL Beauty',
                 $prod['category']['name'] ?? 'General',
                 $prod['price'],
                 $desc

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import type { CustomerSentimentDistribution, CaseMixCategory } from '@/types/customerSupport';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface SentimentCaseMixProps {
   sentiment: CustomerSentimentDistribution | null;
@@ -15,26 +14,28 @@ export function SentimentCaseMix({ sentiment, caseMix }: SentimentCaseMixProps) 
   }
 
   const sentimentItems = [
-    { label: 'Positive', percent: sentiment.positivePercent, color: '#16a34a' },
-    { label: 'Neutral', percent: sentiment.neutralPercent, color: '#64748b' },
-    { label: 'Concerned', percent: sentiment.concernedPercent, color: '#d97706' },
-    { label: 'Frustrated', percent: sentiment.frustratedPercent, color: '#ea580c' },
-    { label: 'Distressed', percent: sentiment.distressedPercent, color: '#dc2626' },
+    { label: 'Positive', percent: sentiment.positivePercent, color: 'bg-green-600' },
+    { label: 'Neutral', percent: sentiment.neutralPercent, color: 'bg-slate-500' },
+    { label: 'Concerned', percent: sentiment.concernedPercent, color: 'bg-amber-500' },
+    { label: 'Frustrated', percent: sentiment.frustratedPercent, color: 'bg-orange-600' },
+    { label: 'Distressed', percent: sentiment.distressedPercent, color: 'bg-red-600' },
   ];
 
   return (
-    <div className={styles.rightCard}>
-      <h3 className={styles.rightCardTitle}>Customer Sentiment & Case Mix</h3>
+    <div className="bg-white rounded-xl border border-line shadow-sm p-5">
+      <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">
+        Customer Sentiment & Case Mix
+      </h3>
 
       {/* Donut Chart and Sentiment Legend */}
-      <div style={{ marginBottom: '14px' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
+      <div className="mb-4">
+        <span className="text-[11px] font-bold text-slate-700 block mb-3">
           Customer Sentiment
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div className="flex items-center gap-5">
           {/* SVG Donut Chart */}
-          <div style={{ position: 'relative', width: '70px', height: '70px', flexShrink: 0 }}>
-            <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+          <div className="relative w-[70px] h-[70px] flex-shrink-0">
+            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
               <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#64748b" strokeWidth="4" strokeDasharray="48 52" strokeDashoffset="0" />
               <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#16a34a" strokeWidth="4" strokeDasharray="22 78" strokeDashoffset="-48" />
               <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#d97706" strokeWidth="4" strokeDasharray="16 84" strokeDashoffset="-70" />
@@ -44,41 +45,40 @@ export function SentimentCaseMix({ sentiment, caseMix }: SentimentCaseMixProps) 
           </div>
 
           {/* Legend */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, fontSize: '11px' }}>
+          <div className="flex flex-col gap-1 flex-1 text-[11px]">
             {sentimentItems.map((item) => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '999px', backgroundColor: item.color, display: 'inline-block' }} />
-                  <span style={{ color: '#475467' }}>{item.label}</span>
+              <div key={item.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${item.color} inline-block`} />
+                  <span className="text-slate-600">{item.label}</span>
                 </div>
-                <span style={{ fontWeight: 700, color: '#0f172a' }}>{item.percent}%</span>
+                <span className="font-bold text-ink">{item.percent}%</span>
               </div>
             ))}
           </div>
         </div>
-        <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '6px', fontStyle: 'italic' }}>* Calculated from recent messages</p>
+        <p className="text-[10px] text-slate-400 mt-2 italic">* Calculated from recent messages</p>
       </div>
 
-      <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
+      <div className="border-t border-slate-100 pt-3">
+        <span className="text-[11px] font-bold text-slate-700 block mb-3">
           Case Mix
         </span>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="flex flex-col gap-2.5">
           {caseMix.map((cat) => (
             <div key={cat.label}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', marginBottom: '2px' }}>
-                <span style={{ color: '#475467' }}>{cat.label}</span>
-                <span style={{ fontWeight: 700, color: '#0f172a' }}>{cat.percent}%</span>
+              <div className="flex items-center justify-between text-[11px] mb-1">
+                <span className="text-slate-600">{cat.label}</span>
+                <span className="font-bold text-ink">{cat.percent}%</span>
               </div>
-              <div style={{ width: '100%', background: '#e2e8f0', height: '6px', borderRadius: '999px', overflow: 'hidden' }}>
-                <div style={{ background: '#722140', height: '100%', width: `${cat.percent}%`, borderRadius: '999px' }} />
+              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-primary-900 h-full rounded-full" style={{ width: `${cat.percent}%` }} />
               </div>
             </div>
           ))}
         </div>
-        <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '8px', fontStyle: 'italic' }}>* Calculated from open cases</p>
+        <p className="text-[10px] text-slate-400 mt-3 italic">* Calculated from open cases</p>
       </div>
     </div>
   );
 }
-

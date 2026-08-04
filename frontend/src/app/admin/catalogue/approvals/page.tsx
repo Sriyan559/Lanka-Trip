@@ -1,0 +1,1 @@
+export default function Catalogueapprovalspagetsx() { return <div className="p-6"><h2>Catalogue / approvals/page.tsx</h2></div>; }

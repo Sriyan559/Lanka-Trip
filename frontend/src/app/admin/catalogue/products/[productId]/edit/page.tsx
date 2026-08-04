@@ -1,0 +1,1 @@
+export default function CatalogueproductsproductIdeditpagetsx() { return <div className="p-6"><h2>Catalogue / products/[productId]/edit/page.tsx</h2></div>; }

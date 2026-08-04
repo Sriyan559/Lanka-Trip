@@ -339,6 +339,7 @@ Route::prefix('beauty-advisor')->group(function () {
     Route::patch('/conversations/{id}', [BeautyAdvisorController::class, 'renameConversation'])->whereNumber('id');
     Route::delete('/conversations/{id}', [BeautyAdvisorController::class, 'deleteConversation'])->whereNumber('id');
     Route::delete('/conversations/{id}/messages', [BeautyAdvisorController::class, 'clearConversation'])->whereNumber('id');
+    Route::get('/conversations/{id}/messages', [BeautyAdvisorController::class, 'showConversation'])->whereNumber('id');
     Route::post('/conversations/{id}/messages', [BeautyAdvisorController::class, 'sendMessage'])->middleware('throttle:30,1')->whereNumber('id');
     Route::post('/conversations/{id}/profile', [BeautyAdvisorController::class, 'updateProfile'])->whereNumber('id');
     Route::post('/messages/{id}/feedback', [BeautyAdvisorController::class, 'feedback'])->middleware('throttle:20,1')->whereNumber('id');

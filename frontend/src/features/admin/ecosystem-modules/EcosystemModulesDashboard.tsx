@@ -53,7 +53,6 @@ import type {
   ModuleRegistrationDraft,
   StatusTone,
 } from "./types";
-import styles from "./ecosystem-modules.module.css";
 
 const PAGE_SIZE = 5;
 
@@ -134,11 +133,23 @@ export function statusTone(value: string): StatusTone {
 }
 
 function StatusPill({ value }: { value: string }) {
-  return <span className={`${styles.statusPill} ${styles[`tone${statusTone(value)[0].toUpperCase()}${statusTone(value).slice(1)}`]}`}>{value}</span>;
+  const tone = statusTone(value);
+  const toneClasses = {
+    success: "text-[#059669] bg-[#ecfdf5] border-[#a7f3d0]",
+    danger: "text-[#dc2626] bg-[#fef2f2] border-[#fecaca]",
+    warning: "text-[#d97706] bg-[#fffbeb] border-[#fde68a]",
+    info: "text-[#2563eb] bg-[#eff6ff] border-[#bfdbfe]",
+    neutral: "text-[#6b7280] bg-[#f9fafb] border-[#e5e7eb]",
+  };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold border ${toneClasses[tone]}`}>{value}</span>;
 }
 
 function MetricBar({ value, tone = "success" }: { value: number; tone?: "success" | "warning" }) {
-  return <span className={styles.metricTrack}><i className={tone === "warning" ? styles.metricWarning : styles.metricSuccess} style={{ width: `${value}%` }} /></span>;
+  return (
+    <span className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden min-w-[60px]">
+      <i className={`block h-full rounded-full ${tone === "warning" ? "bg-[#d97706]" : "bg-[#059669]"}`} style={{ width: `${value}%` }} />
+    </span>
+  );
 }
 
 function formatMetric(value: number | null, suffix: string) {
@@ -180,23 +191,23 @@ function RegistrationModal({
   }
 
   return (
-    <div className={styles.modalBackdrop} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <form className={styles.modal} onSubmit={submit} aria-labelledby="register-module-title">
-        <div className={styles.modalHeader}>
-          <div><p className={styles.modalEyebrow}>Controlled frontend workflow</p><h2 id="register-module-title">Register module</h2></div>
-          <button className={styles.iconButton} type="button" onClick={onClose} aria-label="Close register module dialog"><X size={18} /></button>
+    <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <form className="bg-white rounded-xl shadow-xl w-full max-w-[500px] overflow-hidden flex flex-col" onSubmit={submit} aria-labelledby="register-module-title">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between bg-canvas/30">
+          <div><p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Controlled frontend workflow</p><h2 id="register-module-title" className="text-[14px] font-bold text-ink">Register module</h2></div>
+          <button className="text-muted hover:text-ink hover:bg-canvas p-1.5 rounded transition-colors" type="button" onClick={onClose} aria-label="Close register module dialog"><X size={18} /></button>
         </div>
-        <p className={styles.modalIntro}>New modules begin in a planned, non-production state. Production enablement requires a separate approved workflow.</p>
-        <div className={styles.formGrid}>
-          <label>Module name<input required value={draft.moduleName} onChange={(event) => update("moduleName", event.target.value)} placeholder="e.g. Client Portal" /></label>
-          <label>Module key<input required value={draft.moduleKey} onChange={(event) => update("moduleKey", event.target.value)} placeholder="client-portal" pattern="[a-z0-9-]+" /></label>
-          <label>Category<select value={draft.category} onChange={(event) => update("category", event.target.value)}><option>Operations</option><option>Commerce</option><option>AI</option><option>Analytics</option><option>Partner</option></select></label>
-          <label>Environment<select value={draft.environment} onChange={(event) => update("environment", event.target.value)}><option>Development</option><option>Staging</option></select></label>
-          <label>Primary owner<input required value={draft.primaryOwner} onChange={(event) => update("primaryOwner", event.target.value)} placeholder="Business owner" /></label>
-          <label>Technical owner<input required value={draft.technicalOwner} onChange={(event) => update("technicalOwner", event.target.value)} placeholder="Engineering owner" /></label>
+        <p className="px-6 py-4 text-[12px] text-muted border-b border-line bg-[#f8fafc]">New modules begin in a planned, non-production state. Production enablement requires a separate approved workflow.</p>
+        <div className="p-6 grid gap-4 max-h-[60vh] overflow-y-auto">
+          <label className="flex flex-col gap-1.5 text-[11px] font-bold text-ink">Module name<input required className="px-3 py-2 border border-line rounded text-[12px] font-medium outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 placeholder:text-gray-300" value={draft.moduleName} onChange={(event) => update("moduleName", event.target.value)} placeholder="e.g. Client Portal" /></label>
+          <label className="flex flex-col gap-1.5 text-[11px] font-bold text-ink">Module key<input required className="px-3 py-2 border border-line rounded text-[12px] font-medium outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 placeholder:text-gray-300" value={draft.moduleKey} onChange={(event) => update("moduleKey", event.target.value)} placeholder="client-portal" pattern="[a-z0-9-]+" /></label>
+          <label className="flex flex-col gap-1.5 text-[11px] font-bold text-ink">Category<select className="px-3 py-2 border border-line rounded text-[12px] font-medium outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white" value={draft.category} onChange={(event) => update("category", event.target.value)}><option>Operations</option><option>Commerce</option><option>AI</option><option>Analytics</option><option>Partner</option></select></label>
+          <label className="flex flex-col gap-1.5 text-[11px] font-bold text-ink">Environment<select className="px-3 py-2 border border-line rounded text-[12px] font-medium outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white" value={draft.environment} onChange={(event) => update("environment", event.target.value)}><option>Development</option><option>Staging</option></select></label>
+          <label className="flex flex-col gap-1.5 text-[11px] font-bold text-ink">Primary owner<input required className="px-3 py-2 border border-line rounded text-[12px] font-medium outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 placeholder:text-gray-300" value={draft.primaryOwner} onChange={(event) => update("primaryOwner", event.target.value)} placeholder="Business owner" /></label>
+          <label className="flex flex-col gap-1.5 text-[11px] font-bold text-ink">Technical owner<input required className="px-3 py-2 border border-line rounded text-[12px] font-medium outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900 placeholder:text-gray-300" value={draft.technicalOwner} onChange={(event) => update("technicalOwner", event.target.value)} placeholder="Engineering owner" /></label>
         </div>
-        {error && <p className={styles.formError} role="alert">{error}</p>}
-        <div className={styles.modalActions}><button className={styles.secondaryButton} type="button" onClick={onClose} disabled={saving}>Cancel</button><button className={styles.primaryButton} disabled={saving}>{saving ? "Registering..." : "Register module"}</button></div>
+        {error && <p className="mx-6 mb-4 px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded text-[12px] font-medium flex items-center gap-2" role="alert"><CircleAlert size={14} />{error}</p>}
+        <div className="px-6 py-4 border-t border-line bg-canvas flex justify-end gap-3"><button className="px-4 py-1.5 rounded text-[11px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors" type="button" onClick={onClose} disabled={saving}>Cancel</button><button className="px-4 py-1.5 rounded text-[11px] font-bold text-white bg-primary-900 hover:bg-[#5d172a] transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed" disabled={saving}>{saving ? "Registering..." : "Register module"}</button></div>
       </form>
     </div>
   );
@@ -204,7 +215,20 @@ function RegistrationModal({
 
 function StandardDialog({ content, onClose }: { content: DialogContent; onClose: () => void }) {
   if (!content) return null;
-  return <div className={styles.modalBackdrop} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className={`${styles.modal} ${styles.standardDialog}`} role="dialog" aria-modal="true" aria-labelledby="module-dialog-title"><div className={styles.modalHeader}><h2 id="module-dialog-title">{content.title}</h2><button className={styles.iconButton} type="button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></div><div className={styles.dialogBody}>{content.body}</div><div className={styles.modalActions}><button className={styles.primaryButton} type="button" onClick={onClose}>Done</button></div></section></div>;
+  return (
+    <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="bg-white rounded-xl shadow-xl w-full max-w-[450px] overflow-hidden flex flex-col" role="dialog" aria-modal="true" aria-labelledby="module-dialog-title">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between bg-canvas/30">
+          <h2 id="module-dialog-title" className="text-[14px] font-bold text-ink">{content.title}</h2>
+          <button className="text-muted hover:text-ink hover:bg-canvas p-1.5 rounded transition-colors" type="button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button>
+        </div>
+        <div className="p-6 text-[13px] text-muted leading-relaxed [&>p:not(:last-child)]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:my-3 [&>ul>li]:mb-1">{content.body}</div>
+        <div className="px-6 py-4 border-t border-line bg-canvas flex justify-end">
+          <button className="px-4 py-1.5 rounded text-[11px] font-bold text-white bg-primary-900 hover:bg-[#5d172a] transition-colors shadow-sm" type="button" onClick={onClose}>Done</button>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 export function EcosystemModulesDashboard() {
@@ -295,7 +319,7 @@ export function EcosystemModulesDashboard() {
   }
 
   function showReleaseCalendar() {
-    setDialog({ title: "Release calendar", body: <><p>The release calendar remains a controlled frontend view until scheduling is connected to the backend.</p><ul className={styles.dialogList}><li>Aug 1 - AI Beauty Advisor candidate review</li><li>Aug 8 - Salon & Spa Portal readiness checkpoint</li><li>Aug 15 - B2B Wholesale dependency review</li></ul></> });
+    setDialog({ title: "Release calendar", body: <><p>The release calendar remains a controlled frontend view until scheduling is connected to the backend.</p><ul className="list-disc pl-5 mt-3 space-y-1"><li>Aug 1 - AI Beauty Advisor candidate review</li><li>Aug 8 - Salon & Spa Portal readiness checkpoint</li><li>Aug 15 - B2B Wholesale dependency review</li></ul></> });
   }
 
   function onRegistered(module: EcosystemModule) {
@@ -307,48 +331,88 @@ export function EcosystemModulesDashboard() {
   if (screenState === "unauthorized") return <PermissionDeniedState />;
 
   return (
-    <div className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div><h1>Ecosystem Modules Management</h1><p>Monitor module health, track launches, ensure compliance, and maintain a healthy ecosystem.</p></div>
-        <div className={styles.headerActions}>
-          <button className={styles.priorityButton} type="button" onClick={() => selectMetric("needs-attention")}><AlertTriangle size={14} />Review Priority Modules</button>
-          <button className={styles.secondaryButton} type="button" disabled={!permissions.canRegister} onClick={() => setRegisterOpen(true)}><Plus size={14} />Register Module</button>
-          <button className={styles.secondaryButton} type="button" disabled={!permissions.canCompare} onClick={() => setDialog({ title: "Compare modules", body: <><p>Choose two module records from the registry to compare their health, readiness and release domains.</p><p className={styles.dialogNote}>Comparison is a frontend-only review and does not change module state.</p></> })}><SlidersHorizontal size={14} />Compare Modules</button>
-          <button className={styles.secondaryButton} type="button" disabled={!permissions.canExport} onClick={() => void exportReport()}><ArrowDownToLine size={14} />Export Module Report</button>
-          <button className={styles.secondaryButton} type="button" disabled={!permissions.canManageReleases} onClick={showReleaseCalendar}><CalendarDays size={14} />View Release Calendar</button>
+    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-canvas font-sans">
+      <header className="flex justify-between items-end mb-8 gap-4 flex-wrap">
+        <div>
+          <h1 className="text-[22px] font-bold text-ink mb-1">Ecosystem Modules Management</h1>
+          <p className="text-[13px] text-muted">Monitor module portfolio, track launches, ensure compliance, and maintain a healthy ecosystem.</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button className="px-4 py-1.5 rounded text-[11px] font-bold text-white bg-[#741d35] border border-[#741d35] hover:bg-[#5d172a] hover:border-[#5d172a] transition-colors shadow-sm flex items-center gap-2" type="button" onClick={() => selectMetric("needs-attention")}><AlertTriangle size={14} />Review Priority Modules</button>
+          <button className="px-4 py-1.5 rounded text-[11px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!permissions.canRegister} onClick={() => setRegisterOpen(true)}><Plus size={14} />Register Module</button>
+          <button className="px-4 py-1.5 rounded text-[11px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!permissions.canCompare} onClick={() => setDialog({ title: "Compare modules", body: <><p>Choose two module records from the registry to compare their health, readiness and release domains.</p><p className="text-warning mt-2 italic">Comparison is a frontend-only review and does not change module state.</p></> })}><SlidersHorizontal size={14} />Compare Modules</button>
+          <button className="px-4 py-1.5 rounded text-[11px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!permissions.canExport} onClick={() => void exportReport()}><ArrowDownToLine size={14} />Export Module Report</button>
+          <button className="px-4 py-1.5 rounded text-[11px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!permissions.canManageReleases} onClick={showReleaseCalendar}><CalendarDays size={14} />View Release Calendar</button>
         </div>
       </header>
 
-      {searchParams.get("access") === "read-only" && <div className={styles.permissionNotice}><ShieldCheck size={16} />Read-only access: registration, comparison, export and release actions are disabled for this session.</div>}
-      {notice && <div className={styles.successNotice} role="status"><CheckCircle2 size={16} /><span>{notice}</span><button type="button" aria-label="Dismiss confirmation" onClick={() => setNotice("")}><X size={14} /></button></div>}
-      {dashboard?.freshness === "stale" && <div className={styles.staleNotice}><CircleAlert size={16} />Showing the most recently generated portfolio aggregate from {dashboard.generatedAt}. A refresh is pending.</div>}
-      {dashboard?.freshness === "partial" && <div className={styles.staleNotice}><CircleAlert size={16} />Partial registry data: availability and error-rate values may be temporarily unavailable for selected modules.</div>}
+      {searchParams.get("access") === "read-only" && <div className="mb-6 px-4 py-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[13px] flex items-center gap-2"><ShieldCheck size={16} />Read-only access: registration, comparison, export and release actions are disabled for this session.</div>}
+      {notice && <div className="mb-6 px-4 py-3 bg-green-50 text-green-800 border border-green-200 rounded-lg text-[13px] flex items-center justify-between" role="status"><div className="flex items-center gap-2"><CheckCircle2 size={16} /><span>{notice}</span></div><button className="text-green-800 hover:text-green-900" type="button" aria-label="Dismiss confirmation" onClick={() => setNotice("")}><X size={14} /></button></div>}
+      {dashboard?.freshness === "stale" && <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2"><CircleAlert size={16} />Showing the most recently generated portfolio aggregate from {dashboard.generatedAt}. A refresh is pending.</div>}
+      {dashboard?.freshness === "partial" && <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2"><CircleAlert size={16} />Partial registry data: availability and error-rate values may be temporarily unavailable for selected modules.</div>}
 
-      {loading ? <LoadingSkeleton /> : error ? <ErrorState message={error} /> : dashboard && registry ? <div className={styles.dashboardLayout}>
-        <div className={styles.mainColumn}>
-          <section className={styles.kpiGrid} aria-label="Module portfolio key performance indicators">
+      {loading ? <LoadingSkeleton /> : error ? <ErrorState message={error} /> : dashboard && registry ? <div className="flex flex-col xl:flex-row gap-6">
+        <div className="flex-1 min-w-0 flex flex-col gap-6">
+          <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3" aria-label="Module portfolio key performance indicators">
             {dashboard.kpis.map((metric) => {
               const Icon = kpiIcons[metric.id as keyof typeof kpiIcons] ?? Gauge;
               const selected = filters.metric === metric.id || (metric.id === "total" && !filters.metric && !filters.quick);
-              return <button className={`${styles.kpiCard} ${selected ? styles.kpiSelected : ""}`} type="button" key={metric.id} onClick={() => selectMetric(metric.id)} aria-pressed={selected}><span className={`${styles.kpiIcon} ${styles[`tone${metric.tone[0].toUpperCase()}${metric.tone.slice(1)}`]}`}><Icon size={18} /></span><span className={styles.kpiLabel}>{metric.label}</span><strong className={metric.tone === "danger" ? styles.dangerValue : ""}>{metric.value}</strong><small>{metric.detail}</small></button>;
+              const toneClass = metric.tone === "danger" ? "text-danger" : metric.tone === "warning" ? "text-warning" : metric.tone === "success" ? "text-success" : "text-muted";
+              return <button className={`bg-white rounded-lg border p-4 flex flex-col items-start gap-1 text-left transition-all hover-lift ${selected ? "border-[#741d35] ring-1 ring-[#741d35] shadow-sm" : "border-line"}`} type="button" key={metric.id} onClick={() => selectMetric(metric.id)} aria-pressed={selected}><span className={`mb-1 ${toneClass}`}><Icon size={18} /></span><span className="text-[11px] font-bold text-muted">{metric.label}</span><strong className={`text-[18px] leading-tight ${metric.tone === "danger" ? "text-danger" : "text-ink"}`}>{metric.value}</strong><small className="text-[11px] text-muted">{metric.detail}</small></button>;
             })}
           </section>
 
-          <section className={styles.portfolioSummary}>
-            <div className={styles.summaryHeader}><div><h2>Module Portfolio Health Summary</h2><p>{dashboard.source} - generated {dashboard.generatedAt}</p></div><span className={styles.freshness}><CheckCircle2 size={13} />{dashboard.freshness === "fresh" ? "Fresh" : dashboard.freshness}</span></div>
-            <div className={styles.portfolioMetrics}>{dashboard.portfolioHealth.map((metric) => <div className={styles.portfolioMetric} key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong><MetricBar value={metric.progress} tone={metric.tone} /></div>)}</div>
+          <section className="bg-white rounded-xl shadow-sm border border-line p-5">
+            <div className="flex items-center justify-between mb-5">
+              <div><h2 className="text-[13px] font-bold text-ink">Module Portfolio Health Summary</h2><p className="text-[11px] text-muted">{dashboard.source} - generated {dashboard.generatedAt}</p></div>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-success rounded text-[11px] font-bold border border-green-100"><CheckCircle2 size={13} />{dashboard.freshness === "fresh" ? "Fresh" : dashboard.freshness}</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6">
+              {dashboard.portfolioHealth.map((metric) => (
+                <div className="flex flex-col gap-1.5" key={metric.label}>
+                  <span className="text-[11px] text-muted">{metric.label}</span>
+                  <strong className="text-[16px] text-ink">{metric.value}</strong>
+                  <MetricBar value={metric.progress} tone={metric.tone} />
+                </div>
+              ))}
+            </div>
           </section>
 
-          <section className={styles.registryWorkspace} aria-label="Module registry workspace">
-            <form className={styles.searchRow} onSubmit={(event) => { event.preventDefault(); updateQuery({ search }); }}>
-              <label className={styles.searchField}><Search size={16} /><input aria-label="Search modules" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search modules by name, key, owner, or reference..." /></label>
-              <button className={styles.filterButton} type="button" onClick={() => setDialog({ title: "Applied registry filters", body: <p>All selected filters, sorting and the current page are stored in the address bar so this operational view can be shared.</p> })}><Filter size={16} />Filters</button>
+          <section className="bg-white rounded-xl shadow-sm border border-line flex flex-col" aria-label="Module registry workspace">
+            <form className="p-4 border-b border-line flex items-center justify-between gap-4" onSubmit={(event) => { event.preventDefault(); updateQuery({ search }); }}>
+              <label className="flex-1 flex items-center gap-2 bg-canvas px-3 py-2 rounded-lg border border-line focus-within:border-primary-900 focus-within:ring-1 focus-within:ring-primary-900 transition-shadow">
+                <Search size={16} className="text-muted" />
+                <input className="flex-1 bg-transparent border-none outline-none text-[13px] text-ink placeholder:text-gray-400" aria-label="Search modules" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search modules by name, key, owner, or reference..." />
+              </label>
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-line rounded-lg text-[12px] font-bold text-ink hover:bg-gray-50 transition-colors" type="button" onClick={() => setDialog({ title: "Applied registry filters", body: <p>All selected filters, sorting and the current page are stored in the address bar so this operational view can be shared.</p> })}><Filter size={16} />Filters</button>
             </form>
-            <div className={styles.filterGrid}>{selectFilters.map((filter) => <label key={filter.key}>{filter.label}<select aria-label={filter.label} value={filters[filter.key] ?? ""} onChange={(event) => updateQuery({ [filter.key]: event.target.value } as QueryUpdate)}><option value="">All {filter.label === "Status" ? "Statuses" : `${filter.label}s`}</option>{filter.options.map((option) => <option key={option}>{option}</option>)}</select></label>)}</div>
-            <div className={styles.quickFilterRow}><span>Quick Filters:</span>{quickFilters.map((filter) => <button key={filter.id} type="button" onClick={() => selectQuickFilter(filter.id)} className={`${styles.quickFilter} ${filters.quick === filter.id ? styles.quickFilterActive : ""}`}><i className={`${styles.quickDot} ${styles[`tone${filter.tone[0].toUpperCase()}${filter.tone.slice(1)}`]}`} />{filter.label}</button>)}<button className={styles.clearFilters} type="button" onClick={() => { setSearch(""); router.push(pathname, { scroll: false }); }}>Clear All</button></div>
+            
+            <div className="p-4 border-b border-line grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {selectFilters.map((filter) => (
+                <label className="flex flex-col gap-1.5 text-[11px] font-bold text-muted" key={filter.key}>
+                  {filter.label}
+                  <select className="px-2.5 py-1.5 bg-white border border-line rounded text-[12px] font-medium text-ink outline-none focus:border-primary-900 focus:ring-1 focus:ring-primary-900" aria-label={filter.label} value={filters[filter.key] ?? ""} onChange={(event) => updateQuery({ [filter.key]: event.target.value } as QueryUpdate)}>
+                    <option value="">All {filter.label === "Status" ? "Statuses" : `${filter.label}s`}</option>
+                    {filter.options.map((option) => <option key={option}>{option}</option>)}
+                  </select>
+                </label>
+              ))}
+            </div>
+            
+            <div className="p-4 bg-[#f8fafc] flex flex-wrap items-center gap-3">
+              <span className="text-[12px] font-bold text-muted">Quick Filters:</span>
+              {quickFilters.map((filter) => {
+                const isActive = filters.quick === filter.id;
+                const dotColor = filter.tone === "danger" ? "bg-danger" : filter.tone === "warning" ? "bg-warning" : filter.tone === "success" ? "bg-success" : filter.tone === "info" ? "bg-info" : "bg-muted";
+                return <button key={filter.id} type="button" onClick={() => selectQuickFilter(filter.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold transition-colors border ${isActive ? "bg-white border-[#741d35] text-[#741d35] shadow-sm" : "bg-white border-line text-muted hover:bg-gray-50"}`}>
+                  <i className={`w-2 h-2 rounded-full ${dotColor}`} />{filter.label}
+                </button>;
+              })}
+              <button className="ml-auto text-[11px] font-bold text-[#741d35] hover:underline" type="button" onClick={() => { setSearch(""); router.push(pathname, { scroll: false }); }}>Clear All</button>
+            </div>
           </section>
 
-          {!registry.data.length ? <div className={styles.emptyRegistry}><EmptyState title="No modules match this registry view" /><button className={styles.secondaryButton} type="button" onClick={() => router.push(pathname)}>Clear registry filters</button></div> : <ModuleRegistryTable registry={registry} filters={filters} returnTo={returnTo} onSort={updateSort} onPageChange={(page) => updateQuery({ page: String(page) }, false)} />}
+          {!registry.data.length ? <div className="py-12 flex flex-col items-center gap-4 bg-white rounded-xl border border-line shadow-sm"><EmptyState title="No modules match this registry view" /><button className="px-4 py-2 rounded-lg border border-line text-[12px] font-bold bg-white hover:bg-gray-50 transition-colors" type="button" onClick={() => router.push(pathname)}>Clear registry filters</button></div> : <ModuleRegistryTable registry={registry} filters={filters} returnTo={returnTo} onSort={updateSort} onPageChange={(page) => updateQuery({ page: String(page) }, false)} />}
 
           <PortfolioPanels onAction={(title, body) => setDialog({ title, body })} />
         </div>
@@ -415,7 +479,51 @@ function ModuleRegistryTable({
   const resultStart = registry.total ? (registry.page - 1) * registry.pageSize + 1 : 0;
   const resultEnd = Math.min(registry.page * registry.pageSize, registry.total);
 
-  return <section className={styles.tableSection}><div className={styles.tableHeading}><div><h2>Module Registry</h2><p>30-field module data model - horizontal scrolling keeps every status domain available.</p></div><span>{registry.total} module{registry.total === 1 ? "" : "s"}</span></div><div className={styles.tableScroll}><table className={styles.registryTable}><thead><tr>{columns.map((column) => <th key={column.key} scope="col"><button type="button" onClick={() => onSort(column.key)}>{column.label}<ArrowUpDown size={11} className={filters.sort === column.key ? styles.activeSort : ""} /></button></th>)}<th scope="col">Action</th></tr></thead><tbody>{registry.data.map((module) => <tr key={module.id}>{columns.map((column) => <td key={column.key}>{column.render(module)}</td>)}<td><Link className={styles.openModule} href={`${adminRoute.ecosystemModule(module.moduleKey)}?returnTo=${encodeURIComponent(returnTo)}`}>Open Module</Link></td></tr>)}</tbody></table></div><div className={styles.tableFooter}><span>Showing {resultStart}-{resultEnd} of {registry.total} modules</span><div><button className={styles.iconButton} type="button" aria-label="Previous module registry page" disabled={registry.page === 1} onClick={() => onPageChange(registry.page - 1)}><ChevronLeft size={16} /></button><strong>{registry.page} / {registry.totalPages}</strong><button className={styles.iconButton} type="button" aria-label="Next module registry page" disabled={registry.page === registry.totalPages} onClick={() => onPageChange(registry.page + 1)}><ChevronRight size={16} /></button></div></div></section>;
+  return <section className="bg-white rounded-xl shadow-sm border border-line flex flex-col overflow-hidden">
+    <div className="p-5 border-b border-line flex items-center justify-between">
+      <div><h2 className="text-[13px] font-bold text-ink">Module Registry</h2><p className="text-[11px] text-muted">30-field module data model - horizontal scrolling keeps every status domain available.</p></div>
+      <span className="text-[12px] font-bold text-muted bg-canvas px-2.5 py-1 rounded-md border border-line">{registry.total} module{registry.total === 1 ? "" : "s"}</span>
+    </div>
+    <div className="overflow-x-auto scrollbar-none">
+      <table className="w-full min-w-[2800px] border-collapse text-left text-[12px]">
+        <thead>
+          <tr className="bg-canvas/50 border-b border-line">
+            {columns.map((column) => (
+              <th key={column.key} scope="col" className="p-3 font-bold text-muted border-r border-line last:border-r-0 whitespace-nowrap">
+                <button className="flex items-center gap-1.5 hover:text-ink transition-colors outline-none" type="button" onClick={() => onSort(column.key)}>
+                  {column.label}
+                  <ArrowUpDown size={11} className={`transition-colors ${filters.sort === column.key ? "text-[#741d35]" : "opacity-30"}`} />
+                </button>
+              </th>
+            ))}
+            <th scope="col" className="p-3 font-bold text-muted whitespace-nowrap">Action</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-line">
+          {registry.data.map((module) => (
+            <tr key={module.id} className="hover:bg-gray-50 transition-colors">
+              {columns.map((column) => (
+                <td key={column.key} className="p-3 border-r border-line last:border-r-0 whitespace-nowrap align-middle">
+                  {column.render(module)}
+                </td>
+              ))}
+              <td className="p-3 whitespace-nowrap align-middle">
+                <Link className="text-[11px] font-bold text-[#741d35] hover:underline" href={`${adminRoute.ecosystemModule(module.moduleKey)}?returnTo=${encodeURIComponent(returnTo)}`}>Open Module</Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="p-4 border-t border-line bg-[#f8fafc] flex items-center justify-between">
+      <span className="text-[11px] font-bold text-muted">Showing {resultStart}-{resultEnd} of {registry.total} modules</span>
+      <div className="flex items-center gap-4">
+        <button className="text-muted hover:text-ink hover:bg-white p-1 rounded border border-transparent hover:border-line transition-all disabled:opacity-30 disabled:cursor-not-allowed" type="button" aria-label="Previous module registry page" disabled={registry.page === 1} onClick={() => onPageChange(registry.page - 1)}><ChevronLeft size={16} /></button>
+        <strong className="text-[11px] font-bold text-ink">{registry.page} / {registry.totalPages}</strong>
+        <button className="text-muted hover:text-ink hover:bg-white p-1 rounded border border-transparent hover:border-line transition-all disabled:opacity-30 disabled:cursor-not-allowed" type="button" aria-label="Next module registry page" disabled={registry.page === registry.totalPages} onClick={() => onPageChange(registry.page + 1)}><ChevronRight size={16} /></button>
+      </div>
+    </div>
+  </section>;
 }
 
 function PortfolioPanels({ onAction }: { onAction: (title: string, body: ReactNode) => void }) {
@@ -427,7 +535,33 @@ function PortfolioPanels({ onAction }: { onAction: (title: string, body: ReactNo
     { title: "Country Availability", rows: [["Sri Lanka - LK", "11 enabled"], ["Canada - CA", "Planning"], ["United Kingdom - GB", "Not Configured"], ["Australia - AU", "Not Configured"], ["Maldives - MV", "Planning"]], action: "View country availability" },
     { title: "Security & Compliance", rows: [["Approved", "8"], ["Conditionally Approved", "2"], ["Reviews Pending", "3"], ["Not Assessed", "3"], ["High-Risk Findings", "2"]], action: "View compliance center" },
   ];
-  return <section className={styles.portfolioPanels}>{panels.map((panel) => <article className={styles.portfolioPanel} key={panel.title}><h2>{panel.title}</h2>{panel.rows.map(([label, value]) => <div className={styles.panelRow} key={label}><span>{label}</span>{panel.title.includes("Adoption") || panel.title.includes("Readiness") ? <span className={styles.panelProgress}><i style={{ width: value }} /><strong>{value}</strong></span> : <strong className={statusTone(value) === "danger" ? styles.dangerText : ""}>{value}</strong>}</div>)}<button type="button" onClick={() => onAction(panel.title, <p>{panel.action} is ready for a route-level integration. This frontend view preserves the current module workspace state.</p>)}>{panel.action} <ChevronRight size={13} /></button></article>)}</section>;
+  return (
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {panels.map((panel) => (
+        <article className="bg-white rounded-xl shadow-sm border border-line flex flex-col" key={panel.title}>
+          <h2 className="p-4 border-b border-line text-[13px] font-bold text-ink">{panel.title}</h2>
+          <div className="flex-1 p-4 flex flex-col gap-3">
+            {panel.rows.map(([label, value]) => (
+              <div className="flex items-center justify-between text-[12px]" key={label}>
+                <span className="text-muted line-clamp-1 mr-2">{label}</span>
+                {panel.title.includes("Adoption") || panel.title.includes("Readiness") ? (
+                  <span className="flex items-center gap-2 min-w-[100px]">
+                    <span className="flex-1 h-1.5 bg-canvas rounded-full overflow-hidden"><i className="block h-full bg-[#741d35] rounded-full" style={{ width: value }} /></span>
+                    <strong className="text-ink font-bold w-[32px] text-right">{value}</strong>
+                  </span>
+                ) : (
+                  <strong className={`font-bold whitespace-nowrap ${statusTone(value) === "danger" ? "text-danger" : statusTone(value) === "warning" ? "text-warning" : statusTone(value) === "success" ? "text-success" : "text-ink"}`}>{value}</strong>
+                )}
+              </div>
+            ))}
+          </div>
+          <button className="px-4 py-3 border-t border-line text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors mt-auto" type="button" onClick={() => onAction(panel.title, <p>{panel.action} is ready for a route-level integration. This frontend view preserves the current module workspace state.</p>)}>
+            {panel.action} <ChevronRight size={13} />
+          </button>
+        </article>
+      ))}
+    </section>
+  );
 }
 
 function OperationsPanel({
@@ -445,13 +579,88 @@ function OperationsPanel({
 }) {
   const healthRows = [["Operational Availability", "99.4%", 99.4], ["Configuration Completeness", "88%", 88], ["Integration Readiness", "84%", 84], ["Dependency Health", "89%", 89], ["Compliance Readiness", "92%", 92], ["Release Readiness", "86%", 86], ["Adoption Growth", "+12.0%", 82]];
   const alerts = ["AI Beauty Advisor security review pending", "B2B Wholesale integration readiness blocked", "Beauty Issue Analyzer validation not started", "Logistics provider health degraded", "Three modules have pending compliance reviews", "One release is currently blocked"];
-  return <aside className={styles.operationsPanel}>
-    <section className={styles.sideCard}><h2>Portfolio Health</h2>{healthRows.map(([label, value, progress]) => <div className={styles.sideHealthRow} key={String(label)}><span>{label}</span><MetricBar value={Number(progress)} /><strong>{value}</strong></div>)}</section>
-    <section className={styles.sideCard}><h2><TriangleAlert size={15} />Priority Alerts</h2>{alerts.map((alert, index) => <button type="button" className={styles.alertItem} key={alert} onClick={() => onFilter({ quick: index === 5 ? "blocked" : "requires-attention", metric: null })}><TriangleAlert size={12} /><span>{alert}</span></button>)}<button className={styles.sideLink} type="button" onClick={() => onFilter({ quick: "requires-attention", metric: null })}>View all alerts <ChevronRight size={13} /></button></section>
-    <section className={styles.sideCard}><h2><ListFilter size={15} />Quick Queue</h2>{[["Highest-Risk Module", "Beauty Issue Analyzer"], ["Next Scheduled Release", "B2C Marketplace (Jul 24)"], ["Oldest Pending Configuration", "B2B Wholesale (62%)"], ["Most-Adopted Module", "B2C Marketplace (92%)"], ["Lowest-Adoption Active Module", "AI Beauty Advisor (41%)"], ["Dependency Review Required", "AI Beauty Advisor"]].map(([label, value]) => <button className={styles.queueItem} type="button" key={label} onClick={() => onFilter({ search: value.split(" (")[0], page: null })}><span>{label}</span><strong>{value}</strong></button>)}<button className={styles.sideLink} type="button" onClick={() => onDialog("Priority queue", <p>Queue entries open their matching filtered registry views while preserving all current URL state.</p>)}>View full queue <ChevronRight size={13} /></button></section>
-    <section className={styles.sideCard}><h2><CloudCog size={15} />Environment Health</h2>{[["Production", "Operational"], ["Staging", "Operational"], ["Development", "Operational"], ["Failed Deployments", "1"], ["Configuration Drift", "2 modules"], ["Pending Migrations", "1"]].map(([label, value]) => <div className={styles.environmentRow} key={label}><span>{label}</span><strong className={value === "Operational" ? styles.successText : styles.dangerText}>{value}</strong></div>)}<button className={styles.sideLink} type="button" onClick={() => onDialog("Environment health", <p>Environment health is an aggregate read-only summary. No production controls are exposed here.</p>)}>View environment dashboard <ChevronRight size={13} /></button></section>
-    <section className={styles.sideCard}><h2><CalendarDays size={15} />Release Summary</h2>{[["Released This Month", "3"], ["Release Candidates", "3"], ["Scheduled Releases", "2"], ["Blocked Releases", "1"], ["Rollback Events", "0"], ["Modules Connected", "8"]].map(([label, value]) => <div className={styles.environmentRow} key={label}><span>{label}</span><strong>{value}</strong></div>)}<button className={styles.sideLink} type="button" onClick={onCalendar}>View release dashboard <ChevronRight size={13} /></button></section>
-    <section className={styles.sideCard}><h2><Network size={15} />Module Actions</h2><div className={styles.moduleActions}><button type="button" disabled={!canManageActions} onClick={onRegister}>Register Module</button><button type="button" disabled={!canManageActions} onClick={() => onDialog("Compare modules", <p>Select two registry records to compare their current health and release readiness.</p>)}>Compare Modules</button><button type="button" onClick={() => onDialog("Feature flags", <p>Feature flags are maintained in each module workspace and never reveal secret values.</p>)}>View Feature Flags</button><button type="button" onClick={() => onDialog("Dependency map", <p>Dependency map data will use the selected module registry filters when the backend integration is connected.</p>)}>View Dependency Map</button><button type="button" onClick={() => onDialog("Integration registry", <p>Integration registry supports operational review only; mutations require the detail workspace.</p>)}>View Integration Registry</button><button type="button" onClick={() => onDialog("Country availability", <p>Country availability status is available for planning and readiness review.</p>)}>View Country Availability</button><button type="button" disabled={!canManageActions} onClick={onCalendar}>View Release Calendar</button><button type="button" disabled={!canManageActions} onClick={() => onDialog("Export module report", <p>Use the export action in the page header to download the current registry view.</p>)}>Export Module Report</button></div></section>
-  </aside>;
+  
+  return (
+    <aside className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
+      <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+        <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink">Portfolio Health</h2>
+        <div className="p-5 flex flex-col gap-4">
+          {healthRows.map(([label, value, progress]) => (
+            <div className="flex items-center justify-between gap-3 text-[12px]" key={String(label)}>
+              <span className="text-muted w-[140px] truncate">{label}</span>
+              <MetricBar value={Number(progress)} />
+              <strong className="text-ink font-bold w-[45px] text-right">{value}</strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+        <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><TriangleAlert size={15} className="text-warning" />Priority Alerts</h2>
+        <div className="flex flex-col divide-y divide-line">
+          {alerts.map((alert, index) => (
+            <button type="button" className="p-4 flex items-start gap-3 text-left hover:bg-gray-50 transition-colors" key={alert} onClick={() => onFilter({ quick: index === 5 ? "blocked" : "requires-attention", metric: null })}>
+              <TriangleAlert size={14} className="text-warning shrink-0 mt-0.5" />
+              <span className="text-[12px] text-ink leading-snug font-medium">{alert}</span>
+            </button>
+          ))}
+          <button className="px-5 py-3 text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" type="button" onClick={() => onFilter({ quick: "requires-attention", metric: null })}>View all alerts <ChevronRight size={13} /></button>
+        </div>
+      </section>
+
+      <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+        <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><ListFilter size={15} className="text-info" />Quick Queue</h2>
+        <div className="flex flex-col divide-y divide-line">
+          {[["Highest-Risk Module", "Beauty Issue Analyzer"], ["Next Scheduled Release", "B2C Marketplace (Jul 24)"], ["Oldest Pending Configuration", "B2B Wholesale (62%)"], ["Most-Adopted Module", "B2C Marketplace (92%)"], ["Lowest-Adoption Active Module", "AI Beauty Advisor (41%)"], ["Dependency Review Required", "AI Beauty Advisor"]].map(([label, value]) => (
+            <button className="p-4 flex flex-col gap-1 text-left hover:bg-gray-50 transition-colors" type="button" key={label} onClick={() => onFilter({ search: value.split(" (")[0], page: null })}>
+              <span className="text-[11px] text-muted font-bold">{label}</span>
+              <strong className="text-[12px] text-ink">{value}</strong>
+            </button>
+          ))}
+          <button className="px-5 py-3 text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" type="button" onClick={() => onDialog("Priority queue", <p>Queue entries open their matching filtered registry views while preserving all current URL state.</p>)}>View full queue <ChevronRight size={13} /></button>
+        </div>
+      </section>
+
+      <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+        <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><CloudCog size={15} className="text-muted" />Environment Health</h2>
+        <div className="p-5 flex flex-col gap-3">
+          {[["Production", "Operational"], ["Staging", "Operational"], ["Development", "Operational"], ["Failed Deployments", "1"], ["Configuration Drift", "2 modules"], ["Pending Migrations", "1"]].map(([label, value]) => (
+            <div className="flex items-center justify-between text-[12px]" key={label}>
+              <span className="text-muted">{label}</span>
+              <strong className={`font-bold ${value === "Operational" ? "text-success" : value === "1" || value === "2 modules" ? "text-warning" : "text-ink"}`}>{value}</strong>
+            </div>
+          ))}
+        </div>
+        <button className="px-5 py-3 border-t border-line text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" type="button" onClick={() => onDialog("Environment health", <p>Environment health is an aggregate read-only summary. No production controls are exposed here.</p>)}>View environment dashboard <ChevronRight size={13} /></button>
+      </section>
+
+      <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+        <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><CalendarDays size={15} className="text-muted" />Release Summary</h2>
+        <div className="p-5 flex flex-col gap-3">
+          {[["Released This Month", "3"], ["Release Candidates", "3"], ["Scheduled Releases", "2"], ["Blocked Releases", "1"], ["Rollback Events", "0"], ["Modules Connected", "8"]].map(([label, value]) => (
+            <div className="flex items-center justify-between text-[12px]" key={label}>
+              <span className="text-muted">{label}</span>
+              <strong className="text-ink font-bold">{value}</strong>
+            </div>
+          ))}
+        </div>
+        <button className="px-5 py-3 border-t border-line text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" type="button" onClick={onCalendar}>View release dashboard <ChevronRight size={13} /></button>
+      </section>
+
+      <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
+        <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><Network size={15} className="text-muted" />Module Actions</h2>
+        <div className="flex flex-col">
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={onRegister}>Register Module</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={() => onDialog("Compare modules", <p>Select two registry records to compare their current health and release readiness.</p>)}>Compare Modules</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Feature flags", <p>Feature flags are maintained in each module workspace and never reveal secret values.</p>)}>View Feature Flags</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Dependency map", <p>Dependency map data will use the selected module registry filters when the backend integration is connected.</p>)}>View Dependency Map</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Integration registry", <p>Integration registry supports operational review only; mutations require the detail workspace.</p>)}>View Integration Registry</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Country availability", <p>Country availability status is available for planning and readiness review.</p>)}>View Country Availability</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={onCalendar}>View Release Calendar</button>
+          <button className="px-5 py-3 text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={() => onDialog("Export module report", <p>Use the export action in the page header to download the current registry view.</p>)}>Export Module Report</button>
+        </div>
+      </section>
+    </aside>
+  );
 }
 

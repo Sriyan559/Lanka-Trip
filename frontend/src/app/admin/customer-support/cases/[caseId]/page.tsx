@@ -46,7 +46,7 @@ import {
 } from '@/components/admin/customer-support/detail/CaseDetailModals';
 import { sanitizeInternalRedirect } from '@/lib/authRedirect';
 
-import styles from './page.module.css';
+import '../../support.css';
 
 function CustomerSupportCaseDetailContent() {
   const params = useParams();
@@ -200,8 +200,8 @@ function CustomerSupportCaseDetailContent() {
 
   if (isLoading) {
     return (
-      <div className={styles.screen17Page}>
-        <div className="p-12 text-center text-slate-500 font-semibold">
+      <div className="max-w-[1920px] mx-auto pb-10 support-dashboard">
+        <div className="p-12 text-center text-slate-500 font-semibold animate-pulse">
           Loading Customer Support Case details...
         </div>
       </div>
@@ -210,10 +210,10 @@ function CustomerSupportCaseDetailContent() {
 
   if (error || !caseDetail) {
     return (
-      <div className={styles.screen17Page}>
-        <div className="p-12 text-center font-semibold">
+      <div className="max-w-[1920px] mx-auto pb-10 support-dashboard">
+        <div className="p-12 text-center font-semibold bg-white rounded-xl border border-line mt-6 shadow-sm">
           <p className="text-red-600">{error || 'Support Case Not Found.'}</p>
-          <Link className="mt-4 inline-flex text-slate-700 underline" href={returnToUrl}>
+          <Link className="mt-4 inline-flex text-primary-900 hover:underline" href={returnToUrl}>
             Back to Customer Support Cases
           </Link>
         </div>
@@ -222,39 +222,41 @@ function CustomerSupportCaseDetailContent() {
   }
 
   return (
-    <div className={styles.screen17Page}>
-      {/* Header with Breadcrumbs & Actions */}
-      <CaseDetailHeader
-        caseReference={caseDetail.caseInfo.caseReference}
-        subject={caseDetail.caseInfo.subject}
-        returnToUrl={returnToUrl}
-        onOpenAddNote={() => setModalState((prev) => ({ ...prev, note: true }))}
-        onOpenSendUpdate={() => setModalState((prev) => ({ ...prev, update: true }))}
-        onOpenMoreActions={() => setModalState((prev) => ({ ...prev, assign: true }))}
-      />
+    <div className="max-w-[1920px] mx-auto pb-10 support-dashboard flex flex-col gap-6">
+      <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden flex flex-col">
+        {/* Header with Breadcrumbs & Actions */}
+        <CaseDetailHeader
+          caseReference={caseDetail.caseInfo.caseReference}
+          subject={caseDetail.caseInfo.subject}
+          returnToUrl={returnToUrl}
+          onOpenAddNote={() => setModalState((prev) => ({ ...prev, note: true }))}
+          onOpenSendUpdate={() => setModalState((prev) => ({ ...prev, update: true }))}
+          onOpenMoreActions={() => setModalState((prev) => ({ ...prev, assign: true }))}
+        />
 
-      {/* Case Identity Summary Card */}
-      <CaseIdentitySummary caseInfo={caseDetail.caseInfo} />
+        {/* Case Identity Summary Card */}
+        <CaseIdentitySummary caseInfo={caseDetail.caseInfo} />
 
-      {/* Case Status Strip */}
-      <CaseStatusStrip caseInfo={caseDetail.caseInfo} />
+        {/* Case Status Strip */}
+        <CaseStatusStrip caseInfo={caseDetail.caseInfo} />
 
-      {/* 12 Approved Tabs Navigation */}
-      <CaseTabsBar
-        activeTab={activeTab}
-        onSelectTab={handleSelectTab}
-        counts={{
-          messages: caseDetail.messages.length,
-          internalNotes: caseDetail.internalNotes.length,
-          attachments: caseDetail.attachments.length,
-          blockingIssues: caseDetail.blockingIssues.length,
-          auditEvents: caseDetail.auditEvents.length,
-        }}
-      />
+        {/* 12 Approved Tabs Navigation */}
+        <CaseTabsBar
+          activeTab={activeTab}
+          onSelectTab={handleSelectTab}
+          counts={{
+            messages: caseDetail.messages.length,
+            internalNotes: caseDetail.internalNotes.length,
+            attachments: caseDetail.attachments.length,
+            blockingIssues: caseDetail.blockingIssues.length,
+            auditEvents: caseDetail.auditEvents.length,
+          }}
+        />
+      </div>
 
       {/* Main Grid: Workspace & Right Rail */}
-      <div className={styles.caseWorkspace}>
-        <div className={styles.caseMain}>
+      <div className="flex flex-col xl:flex-row gap-6">
+        <div className="flex-1 min-w-0 bg-white rounded-xl border border-line shadow-sm p-6">
           {/* Active Tab Content Panel */}
           <div id={`panel-${activeTab}`} role="tabpanel">
             {activeTab === 'overview' && (
@@ -308,16 +310,18 @@ function CustomerSupportCaseDetailContent() {
           </div>
         </div>
 
-        {/* Right-Side Column Workspace Rail (300px) */}
-        <RightWorkspaceRail
-          data={caseDetail}
-          onOpenSendUpdate={() => setModalState((prev) => ({ ...prev, update: true }))}
-          onOpenAssign={() => setModalState((prev) => ({ ...prev, assign: true }))}
-          onOpenChangePriority={handleChangePriority}
-          onOpenEscalate={handleEscalate}
-          onOpenMarkResolved={() => setModalState((prev) => ({ ...prev, resolve: true }))}
-          onOpenCloseCase={() => setModalState((prev) => ({ ...prev, close: true }))}
-        />
+        {/* Right-Side Column Workspace Rail (320px) */}
+        <div className="w-full xl:w-[320px] flex-shrink-0 flex flex-col gap-6">
+          <RightWorkspaceRail
+            data={caseDetail}
+            onOpenSendUpdate={() => setModalState((prev) => ({ ...prev, update: true }))}
+            onOpenAssign={() => setModalState((prev) => ({ ...prev, assign: true }))}
+            onOpenChangePriority={handleChangePriority}
+            onOpenEscalate={handleEscalate}
+            onOpenMarkResolved={() => setModalState((prev) => ({ ...prev, resolve: true }))}
+            onOpenCloseCase={() => setModalState((prev) => ({ ...prev, close: true }))}
+          />
+        </div>
       </div>
 
       {/* Interactive Action Modals */}

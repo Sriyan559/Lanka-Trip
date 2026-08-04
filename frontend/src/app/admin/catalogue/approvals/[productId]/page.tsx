@@ -1,0 +1,1 @@
+export default function CatalogueapprovalsproductIdpagetsx() { return <div className="p-6"><h2>Catalogue / approvals/[productId]/page.tsx</h2></div>; }

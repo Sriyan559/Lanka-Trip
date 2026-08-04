@@ -2,7 +2,6 @@
 
 import React from 'react';
 import type { AgentWorkloadItem } from '@/types/customerSupport';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface AgentWorkloadProps {
   agents: AgentWorkloadItem[];
@@ -10,39 +9,38 @@ interface AgentWorkloadProps {
 
 export function AgentWorkload({ agents }: AgentWorkloadProps) {
   return (
-    <div className={styles.rightCard}>
-      <h3 className={styles.rightCardTitle}>Agent Workload</h3>
+    <div className="bg-white rounded-xl border border-line shadow-sm p-5">
+      <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">
+        Agent Workload
+      </h3>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className={styles.workloadTable}>
+      <div className="overflow-x-auto">
+        <table className="w-full text-[11px] text-left">
           <thead>
-            <tr>
-              <th>Agent</th>
-              <th style={{ textAlign: 'center' }}>Open Cases</th>
-              <th style={{ textAlign: 'center' }}>At Risk / Critical</th>
-              <th style={{ textAlign: 'right' }}>Resolved Today</th>
+            <tr className="border-b border-line text-slate-500">
+              <th className="font-semibold py-2">Agent</th>
+              <th className="font-semibold py-2 text-center">Open Cases</th>
+              <th className="font-semibold py-2 text-center">At Risk / Critical</th>
+              <th className="font-semibold py-2 text-right">Resolved Today</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100">
             {agents.map((agent) => (
               <tr key={agent.id}>
-                <td style={{ fontWeight: 600, color: '#0f172a' }}>{agent.agentName}</td>
-                <td style={{ textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{agent.openCases}</td>
-                <td style={{ textAlign: 'center' }}>
+                <td className="py-2.5 font-bold text-ink">{agent.agentName}</td>
+                <td className="py-2.5 text-center font-bold text-ink">{agent.openCases}</td>
+                <td className="py-2.5 text-center">
                   <span
-                    style={{
-                      padding: '2px 6px',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      borderRadius: '4px',
-                      background: agent.atRiskOrCritical > 3 ? '#fef2f2' : '#fffbe6',
-                      color: agent.atRiskOrCritical > 3 ? '#b91c1c' : '#b45309',
-                    }}
+                    className={`inline-block px-1.5 py-0.5 text-[10px] font-bold rounded ${
+                      agent.atRiskOrCritical > 3
+                        ? 'bg-red-50 text-red-700'
+                        : 'bg-amber-50 text-amber-700'
+                    }`}
                   >
                     {agent.atRiskOrCritical} {agent.atRiskOrCritical > 3 ? 'critical' : 'at risk'}
                   </span>
                 </td>
-                <td style={{ textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>
+                <td className="py-2.5 text-right font-bold text-green-600">
                   {agent.resolvedToday}
                 </td>
               </tr>
@@ -50,8 +48,7 @@ export function AgentWorkload({ agents }: AgentWorkloadProps) {
           </tbody>
         </table>
       </div>
-      <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '8px', fontStyle: 'italic' }}>* Calculated operational aggregates</p>
+      <p className="text-[10px] text-slate-400 mt-3 italic">* Calculated operational aggregates</p>
     </div>
   );
 }
-

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface QuickFilterChip {
   id: string;
@@ -44,27 +43,32 @@ export function SupportQuickFilters({
   onSelectQuickFilter,
 }: SupportQuickFiltersProps) {
   return (
-    <div className={styles.quickFilterSection}>
-      <div className={styles.quickFilterHeader}>
-        <span className={styles.quickFilterTitle}>QUICK FILTERS:</span>
+    <div className="flex flex-col gap-3 mb-6 pb-6 border-b border-line">
+      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+        QUICK FILTERS:
       </div>
-      <div className={styles.quickFilterRow}>
+      <div className="flex flex-wrap gap-2.5">
         {CHIPS.map((chip) => {
           const isActive = activeQuickFilter === chip.id;
-          let chipClass = styles.quickChip;
-
+          
+          let baseClass = "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors border cursor-pointer select-none ";
+          
           if (isActive) {
             if (chip.specialTone === 'danger') {
-              chipClass += ` ${styles.quickChipRedActive}`;
+              baseClass += "bg-red-50 border-red-300 text-red-800 shadow-sm";
             } else if (chip.specialTone === 'warning') {
-              chipClass += ` ${styles.quickChipAmberActive}`;
+              baseClass += "bg-amber-50 border-amber-300 text-amber-800 shadow-sm";
             } else {
-              chipClass += ` ${styles.quickChipActive}`;
+              baseClass += "bg-primary-900 border-primary-900 text-white shadow-sm";
             }
-          } else if (chip.specialTone === 'danger') {
-            chipClass += ` ${styles.quickChipRed}`;
-          } else if (chip.specialTone === 'warning') {
-            chipClass += ` ${styles.quickChipAmber}`;
+          } else {
+            if (chip.specialTone === 'danger') {
+              baseClass += "bg-white border-red-200 text-red-600 hover:bg-red-50";
+            } else if (chip.specialTone === 'warning') {
+              baseClass += "bg-white border-amber-200 text-amber-600 hover:bg-amber-50";
+            } else {
+              baseClass += "bg-white border-line text-slate-600 hover:bg-slate-50";
+            }
           }
 
           return (
@@ -72,10 +76,12 @@ export function SupportQuickFilters({
               key={chip.id}
               type="button"
               onClick={() => onSelectQuickFilter(isActive ? 'all' : chip.id)}
-              className={chipClass}
+              className={baseClass}
             >
               <span>{chip.label}</span>
-              <span className={styles.quickChipCount}>{chip.count}</span>
+              <span className={`font-bold ${isActive && !chip.specialTone ? 'text-white' : (chip.specialTone === 'danger' ? 'text-red-700' : (chip.specialTone === 'warning' ? 'text-amber-700' : 'text-slate-800'))}`}>
+                {chip.count}
+              </span>
             </button>
           );
         })}
@@ -83,4 +89,3 @@ export function SupportQuickFilters({
     </div>
   );
 }
-

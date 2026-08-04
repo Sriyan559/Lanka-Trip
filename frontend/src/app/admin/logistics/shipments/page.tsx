@@ -1,222 +1,139 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShipmentFilterParams, LogisticsShipment, ShipmentMetrics, PriorityAlertItem } from "@/types/admin";
-import { fetchShipmentOperations, fetchShipmentMetrics, fetchLogisticsPriorityAlerts } from "@/services/api/logisticsService";
-import { ShipmentKpiCards } from "@/components/admin/logistics/ShipmentKpiCards";
-import { ShipmentFilters } from "@/components/admin/logistics/ShipmentFilters";
-import { ShipmentTable } from "@/components/admin/logistics/ShipmentTable";
-import { ShipmentPagination } from "@/components/admin/logistics/ShipmentPagination";
-import { Upload, Download, PackageOpen, LayoutList, AlertTriangle } from "lucide-react";
-import toast from "react-hot-toast";
-import "../../logistics/logistics.css";
+import { PageHeader } from "@/components/admin/layout/PageHeader";
+import { LogisticsMetricsRow } from "@/features/admin/logistics/components/LogisticsMetricsRow";
+import { LogisticsFilterPanel } from "@/features/admin/logistics/components/LogisticsFilterPanel";
+import { ShipmentTable } from "@/features/admin/logistics/components/ShipmentTable";
+import { LogisticsSidebars } from "@/features/admin/logistics/components/LogisticsSidebars";
+import { 
+  LogisticsMetrics, Shipment, OperationsHealth, PriorityAlert, QuickQueueItem, CarrierPerformance, CODFinancials 
+} from "@/types/logistics";
+import { 
+  mockLogisticsMetrics, mockShipments, mockOperationsHealth, 
+  mockPriorityAlerts, mockQuickQueue, mockCarrierPerformance, mockCODFinancials 
+} from "@/mocks/admin/logistics.mock";
 
-function LogisticsShipmentsContent() {
+function LogisticsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [metrics] = useState<LogisticsMetrics>(mockLogisticsMetrics);
+  const [shipments] = useState<Shipment[]>(mockShipments);
+  const [operationsHealth] = useState<OperationsHealth>(mockOperationsHealth);
+  const [priorityAlerts] = useState<PriorityAlert[]>(mockPriorityAlerts);
+  const [quickQueue] = useState<QuickQueueItem[]>(mockQuickQueue);
+  const [carrierPerformance] = useState<CarrierPerformance[]>(mockCarrierPerformance);
+  const [codFinancials] = useState<CODFinancials>(mockCODFinancials);
+  
   const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState<ShipmentMetrics | null>(null);
-  const [alerts, setAlerts] = useState<PriorityAlertItem[]>([]);
-  const [shipments, setShipments] = useState<LogisticsShipment[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [activeKpiFilter, setActiveKpiFilter] = useState("all");
 
-  const buildFiltersFromUrl = (): ShipmentFilterParams => {
-    return {
-      page: Number(searchParams.get("page")) || 1,
-      pageSize: Number(searchParams.get("pageSize")) || 10,
-      search: searchParams.get("search") || "",
-      shipmentStatus: searchParams.get("shipmentStatus") || "all",
-      pickupStatus: searchParams.get("pickupStatus") || "all",
-      deliveryStatus: searchParams.get("deliveryStatus") || "all",
-      packageStatus: searchParams.get("packageStatus") || "all",
-      codStatus: searchParams.get("codStatus") || "all",
-      riskLevel: searchParams.get("riskLevel") || "all",
-      slaStatus: searchParams.get("slaStatus") || "all",
-      carrier: searchParams.get("carrier") || "all",
-      filterKey: searchParams.get("filterKey") || "all",
-    };
+  const currentFilters = {
+    search: searchParams.get("search") || "",
+    status: searchParams.get("status") || "all",
+    page: Number(searchParams.get("page")) || 1,
   };
 
-  const currentFilters = buildFiltersFromUrl();
+  const updateUrlFilters = useCallback(
+    (newFilters: any) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const merged = { ...currentFilters, ...newFilters };
+
+      Object.entries(merged).forEach(([key, value]) => {
+        if (value && value !== "all" && value !== "") {
+          params.set(key, String(value));
+        } else {
+          params.delete(key);
+        }
+      });
+
+      router.push(`/admin/logistics/shipments?${params.toString()}`);
+    },
+    [searchParams, router, currentFilters]
+  );
 
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [shipmentsData, metricsData, alertsData] = await Promise.all([
-          fetchShipmentOperations(currentFilters),
-          fetchShipmentMetrics(),
-          fetchLogisticsPriorityAlerts()
-        ]);
-        setShipments(shipmentsData.data);
-        setTotal(shipmentsData.total);
-        setTotalPages(shipmentsData.totalPages);
-        setMetrics(metricsData);
-        setAlerts(alertsData);
-      } catch (error) {
-        console.error("Failed to load logistics data", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
+    // Simulate loading data
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 600);
+    return () => clearTimeout(timer);
   }, [searchParams]);
 
-  useEffect(() => {
-    setActiveKpiFilter(currentFilters.filterKey || "all");
-  }, [currentFilters.filterKey]);
-
-  const updateUrl = (newFilters: ShipmentFilterParams) => {
-    const params = new URLSearchParams();
-    Object.entries(newFilters).forEach(([key, value]) => {
-      if (value && value !== "all" && value !== "") {
-        params.set(key, String(value));
-      }
-    });
-    router.push(`/admin/logistics/shipments?${params.toString()}`);
-  };
-
-  const handleFilterChange = (newFilters: ShipmentFilterParams) => {
-    updateUrl(newFilters);
-  };
-
-  const handleKpiFilterChange = (filter: string) => {
-    updateUrl({ ...currentFilters, filterKey: filter, page: 1 });
-  };
-
-  const handlePageChange = (page: number) => {
-    updateUrl({ ...currentFilters, page });
-  };
-
-  const handlePageSizeChange = (pageSize: number) => {
-    updateUrl({ ...currentFilters, pageSize, page: 1 });
-  };
-
-  const handleExportManifest = () => {
-    if (shipments.length === 0) {
-      toast.error("There are no shipments to export.");
-      return;
-    }
-
-    const escapeCsv = (value: string) => `"${value.replaceAll('"', '""')}"`;
-    const rows = shipments.map((shipment) => [
-      shipment.publicReference,
-      shipment.orderReference,
-      shipment.customerName,
-      shipment.carrier,
-      shipment.status,
-      shipment.deliveryStatus,
-      shipment.slaStatus,
-    ].map(escapeCsv).join(","));
-    const csv = [
-      "Shipment,Order,Customer,Carrier,Status,Delivery Status,SLA Status",
-      ...rows,
-    ].join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "shipment-manifest.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success("Shipment manifest exported.");
+  const handleClearAllFilters = () => {
+    router.push("/admin/logistics/shipments");
   };
 
   return (
-    <div className="logistics-operations-page">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">Logistics Operations</h1>
-          <p className="text-sm text-slate-500">Monitor end-to-end shipment lifecycles, operational aggregates, and delivery performance.</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="button small icon-only bg-white text-slate-700 hover:bg-slate-50"
-            onClick={() => handleKpiFilterChange("priority")}
-          >
-            <LayoutList size={16} /> Quick Queue
-          </button>
-          <button
-            type="button"
-            className="button small icon-only bg-white text-slate-700 hover:bg-slate-50"
-            onClick={() => toast("Carrier update import will be enabled with the logistics API.")}
-          >
-            <Upload size={16} /> Import Updates
-          </button>
-          <button type="button" className="button small primary" onClick={handleExportManifest}>
-            <Download size={16} className="mr-1" /> Export Manifest
-          </button>
-        </div>
-      </div>
-
-      <div className="metrics-row-rich">
-        <ShipmentKpiCards 
-          metrics={metrics} 
-          activeFilter={activeKpiFilter} 
-          onFilterChange={handleKpiFilterChange} 
-        />
-        
-        <div className="priority-alerts-panel">
-          <div className="panel-header">
-            <h3 className="panel-title">Priority Alerts</h3>
-            <span className="badge danger">{alerts.length}</span>
+    <div className="space-y-6 max-w-[1920px] mx-auto pb-10">
+      <PageHeader
+        crumbs={["Logistics", "Shipment Operations"]}
+        title="Logistics & Fulfilment Operations"
+        description="Monitor shipment status, supplier pickup readiness, package preparation, carrier assignment, dispatch, tracking, delivery exceptions, and reverse logistics."
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Create Shipment
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Bulk Assign Carrier
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Schedule Pickups
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm">
+              Export Shipment Report
+            </button>
+            <button type="button" className="px-4 py-2 bg-primary-900 text-white text-[13px] font-semibold rounded-lg hover:bg-primary-800 transition-colors shadow-sm">
+              Review Priority Shipments
+            </button>
+            <button type="button" className="px-4 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1">
+              More Actions
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
           </div>
-          <div className="alerts-list">
-            {alerts.length === 0 ? (
-              <p className="text-sm text-slate-500 p-2">No active alerts.</p>
-            ) : (
-              alerts.map(alert => (
-                <div key={alert.id} className={`alert-item ${alert.type === 'SLA Breach' || alert.type === 'Failed Delivery' ? 'danger' : 'warning'}`}>
-                  <AlertTriangle size={18} />
-                  <div className="alert-content">
-                    <span className="alert-type">{alert.type}</span>
-                    <span className="alert-ref">{alert.shipmentReference}</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <ShipmentFilters 
-          filters={currentFilters} 
-          onChange={handleFilterChange} 
-        />
-        
-        <div className="relative min-h-[300px]">
-          {loading && (
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
-            </div>
-          )}
-          <ShipmentTable shipments={shipments} />
-        </div>
-        
-        {shipments.length > 0 && (
-          <ShipmentPagination 
-            currentPage={currentFilters.page || 1}
-            totalPages={totalPages}
-            pageSize={currentFilters.pageSize || 10}
-            totalItems={total}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
+      <div className="flex flex-col xl:flex-row gap-6">
+        {/* MAIN CONTENT AREA */}
+        <div className="flex-1 min-w-0 space-y-6">
+          <LogisticsMetricsRow metrics={metrics} />
+          
+          <LogisticsFilterPanel
+            filters={currentFilters}
+            onFilterChange={updateUrlFilters}
+            onClearFilters={handleClearAllFilters}
           />
-        )}
+
+          {loading ? (
+            <div className="bg-white rounded-xl border border-line shadow-sm p-6 animate-pulse">
+              <div className="h-10 bg-canvas rounded mb-4 w-full" />
+              <div className="h-[400px] bg-canvas rounded w-full" />
+            </div>
+          ) : (
+            <ShipmentTable shipments={shipments} />
+          )}
+        </div>
+
+        {/* RIGHT SIDEBARS */}
+        <LogisticsSidebars 
+          operationsHealth={operationsHealth}
+          priorityAlerts={priorityAlerts}
+          quickQueue={quickQueue}
+          carrierPerformance={carrierPerformance}
+          codFinancials={codFinancials}
+        />
       </div>
     </div>
   );
 }
 
-export default function LogisticsShipmentsPage() {
+export default function LogisticsPage() {
   return (
-    <React.Suspense fallback={<div className="p-8 text-center text-slate-500">Loading workspace...</div>}>
-      <LogisticsShipmentsContent />
-    </React.Suspense>
+    <Suspense fallback={<div className="p-8">Loading Logistics Hub...</div>}>
+      <LogisticsContent />
+    </Suspense>
   );
 }

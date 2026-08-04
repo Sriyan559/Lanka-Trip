@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { AlertCircle } from 'lucide-react';
 import type { PriorityAlertData } from '@/types/customerSupport';
-import styles from '../../../app/admin/customer-support/cases/page.module.css';
 
 interface PriorityAlertsProps {
   alerts: PriorityAlertData[];
@@ -13,31 +12,42 @@ interface PriorityAlertsProps {
 
 export function PriorityAlerts({ alerts, onNavigateToCase }: PriorityAlertsProps) {
   return (
-    <div className={styles.rightCard}>
-      <div className={styles.rightCardTitle}>
-        <span>Priority Alerts</span>
-        <span style={{ fontSize: '11px', textTransform: 'none', color: '#64748b', cursor: 'pointer' }}>View All</span>
+    <div className="bg-white rounded-xl border border-line shadow-sm p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+          Priority Alerts
+        </h3>
+        <button type="button" className="text-[11px] font-semibold text-slate-400 hover:text-primary-900 transition-colors">
+          View All
+        </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="flex flex-col gap-2.5">
         {alerts.map((alert) => {
           const detailUrl = `/admin/customer-support/cases/${alert.caseId}`;
-          let borderColor = '#ef4444';
-          if (alert.tone === 'warning') borderColor = '#f59e0b';
-          if (alert.tone === 'info') borderColor = '#3b82f6';
+          let borderClass = 'border-l-red-500';
+          let iconColor = 'text-red-500';
+          
+          if (alert.tone === 'warning') {
+            borderClass = 'border-l-amber-500';
+            iconColor = 'text-amber-500';
+          }
+          if (alert.tone === 'info') {
+            borderClass = 'border-l-blue-500';
+            iconColor = 'text-blue-500';
+          }
 
           return (
             <div
               key={alert.id}
-              className={styles.priorityAlertRow}
-              style={{ borderLeftColor: borderColor }}
+              className={`flex items-center justify-between py-2 border-l-2 pl-3 ${borderClass}`}
             >
-              <div>
-                <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <AlertCircle size={13} style={{ color: borderColor }} />
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-ink mb-0.5">
+                  <AlertCircle size={12} strokeWidth={3} className={iconColor} />
                   <span>{alert.alertTitle}</span>
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontFamily: 'monospace', marginTop: '2px' }}>
+                <div className="text-[11px] font-mono text-slate-500">
                   {alert.caseReference}
                 </div>
               </div>
@@ -45,13 +55,7 @@ export function PriorityAlerts({ alerts, onNavigateToCase }: PriorityAlertsProps
               <Link
                 href={detailUrl}
                 onClick={() => onNavigateToCase?.(alert.caseId)}
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#722140',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                }}
+                className="text-[11px] font-bold text-ink hover:text-primary-900 transition-colors whitespace-nowrap"
               >
                 {alert.actionLabel || 'Open Case'}
               </Link>
@@ -62,4 +66,3 @@ export function PriorityAlerts({ alerts, onNavigateToCase }: PriorityAlertsProps
     </div>
   );
 }
-

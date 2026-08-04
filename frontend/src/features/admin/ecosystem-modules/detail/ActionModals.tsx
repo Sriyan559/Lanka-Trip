@@ -2,8 +2,6 @@
 
 import { type FormEvent, type ReactNode, useState } from "react";
 import { X } from "lucide-react";
-import shared from "../ecosystem-modules.module.css";
-import styles from "./moduleDetail.module.css";
 import {
   requestModuleReview,
   requestProductionEnablement,
@@ -39,24 +37,24 @@ function ModalFrame({
   children: ReactNode;
 }) {
   return (
-    <div className={shared.modalBackdrop} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <form className={shared.modal} onSubmit={onSubmit} aria-labelledby="action-modal-title">
-        <div className={shared.modalHeader}>
+    <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <form className="bg-white rounded-xl shadow-xl w-full max-w-[480px] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" onSubmit={onSubmit} aria-labelledby="action-modal-title">
+        <div className="px-5 py-4 border-b border-line flex items-start justify-between gap-4">
           <div>
-            <p className={shared.modalEyebrow}>{eyebrow}</p>
-            <h2 id="action-modal-title">{title}</h2>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">{eyebrow}</p>
+            <h2 id="action-modal-title" className="text-[16px] font-extrabold text-ink leading-tight">{title}</h2>
           </div>
-          <button className={shared.iconButton} type="button" onClick={onClose} aria-label="Close dialog">
+          <button className="text-muted hover:text-ink hover:bg-canvas p-1 rounded-md transition-colors" type="button" onClick={onClose} aria-label="Close dialog">
             <X size={18} />
           </button>
         </div>
-        <p className={shared.modalIntro}>{intro}</p>
+        <p className="px-5 py-4 text-[13px] text-ink leading-relaxed border-b border-line bg-[#f8fafc]">{intro}</p>
         {children}
-        {error && <p className={shared.formError} role="alert">{error}</p>}
-        <div className={shared.modalActions}>
-          <button className={shared.secondaryButton} type="button" onClick={onClose} disabled={busy}>Cancel</button>
+        {error && <p className="mx-5 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-danger text-[12px] font-bold" role="alert">{error}</p>}
+        <div className="px-5 py-4 border-t border-line bg-[#f8fafc] flex justify-end gap-3 mt-auto">
+          <button className="px-4 py-2 rounded-lg text-[12px] font-bold text-ink bg-white border border-line hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50" type="button" onClick={onClose} disabled={busy}>Cancel</button>
           <button
-            className={shared.primaryButton}
+            className="px-4 py-2 rounded-lg text-[12px] font-bold text-white bg-[#741d35] border border-[#741d35] hover:bg-[#5d172a] transition-colors shadow-sm disabled:opacity-50"
             type="submit"
             disabled={busy}
             style={destructive ? { background: "#b91c1c", borderColor: "#b91c1c" } : undefined}
@@ -105,25 +103,25 @@ export function ProductionEnablementModal({ moduleKey, onClose, onSuccess }: { m
       error={error}
       submitLabel="Submit request"
     >
-      <div className={styles.fieldGroup}>
-        <label className={styles.fieldLabel}>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Reason for this request
-          <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Explain why this module is ready for production enablement..." />
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Explain why this module is ready for production enablement..." />
         </label>
-        <label className={styles.fieldLabel}>
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Evidence link
-          <input value={evidenceLink} onChange={(event) => setEvidenceLink(event.target.value)} placeholder="Link to pilot report, dashboard, or review doc" />
+          <input className="w-full p-2.5 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow" value={evidenceLink} onChange={(event) => setEvidenceLink(event.target.value)} placeholder="Link to pilot report, dashboard, or review doc" />
         </label>
-        <label className={styles.formCheckRow}>
-          <input type="checkbox" checked={securityApproved} onChange={(event) => setSecurityApproved(event.target.checked)} />
+        <label className="flex items-center gap-2 text-[12px] text-ink cursor-pointer">
+          <input type="checkbox" className="rounded border-line text-[#741d35] focus:ring-[#741d35]" checked={securityApproved} onChange={(event) => setSecurityApproved(event.target.checked)} />
           Security review is approved for this release
         </label>
-        <label className={styles.formCheckRow}>
-          <input type="checkbox" checked={complianceApproved} onChange={(event) => setComplianceApproved(event.target.checked)} />
+        <label className="flex items-center gap-2 text-[12px] text-ink cursor-pointer">
+          <input type="checkbox" className="rounded border-line text-[#741d35] focus:ring-[#741d35]" checked={complianceApproved} onChange={(event) => setComplianceApproved(event.target.checked)} />
           Compliance review is approved for this release
         </label>
-        <label className={styles.formCheckRow}>
-          <input type="checkbox" checked={pilotMetricsReviewed} onChange={(event) => setPilotMetricsReviewed(event.target.checked)} />
+        <label className="flex items-center gap-2 text-[12px] text-ink cursor-pointer">
+          <input type="checkbox" className="rounded border-line text-[#741d35] focus:ring-[#741d35]" checked={pilotMetricsReviewed} onChange={(event) => setPilotMetricsReviewed(event.target.checked)} />
           Pilot metrics have been reviewed and meet the release bar
         </label>
       </div>
@@ -163,18 +161,18 @@ export function ScheduleReleaseModal({ moduleKey, targetVersion, onClose, onSucc
       error={error}
       submitLabel="Schedule release"
     >
-      <div className={styles.fieldGroup}>
-        <label className={styles.fieldLabel}>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Target version
-          <input value={version} onChange={(event) => setVersion(event.target.value)} placeholder="v1.0.0" />
+          <input className="w-full p-2.5 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow" value={version} onChange={(event) => setVersion(event.target.value)} placeholder="v1.0.0" />
         </label>
-        <label className={styles.fieldLabel}>
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Scheduled date
-          <input type="date" value={scheduledDate} onChange={(event) => setScheduledDate(event.target.value)} />
+          <input className="w-full p-2.5 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow" type="date" value={scheduledDate} onChange={(event) => setScheduledDate(event.target.value)} />
         </label>
-        <label className={styles.fieldLabel}>
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Reason
-          <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="What's included in this release?" />
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="What's included in this release?" />
         </label>
       </div>
     </ModalFrame>
@@ -212,10 +210,12 @@ export function SuspendModuleModal({ moduleKey, moduleName, onClose, onSuccess }
       submitLabel="Request suspension"
       destructive
     >
-      <label className={styles.fieldLabel}>
-        Reason (required for the audit record)
-        <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why does this module need to be suspended?" />
-      </label>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
+          Reason (required for the audit record)
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why does this module need to be suspended?" />
+        </label>
+      </div>
     </ModalFrame>
   );
 }
@@ -251,10 +251,12 @@ export function RetireModuleModal({ moduleKey, moduleName, onClose, onSuccess }:
       submitLabel="Request retirement"
       destructive
     >
-      <label className={styles.fieldLabel}>
-        Reason and sunset plan (required for the audit record)
-        <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is this module being retired, and what replaces it?" />
-      </label>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
+          Reason and sunset plan (required for the audit record)
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is this module being retired, and what replaces it?" />
+        </label>
+      </div>
     </ModalFrame>
   );
 }
@@ -300,10 +302,12 @@ export function ReviewRequestModal({
       error={error}
       submitLabel="Send request"
     >
-      <label className={styles.fieldLabel}>
-        Reason
-        <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder={`What should the ${label} team look at?`} />
-      </label>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
+          Reason
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder={`What should the ${label} team look at?`} />
+        </label>
+      </div>
     </ModalFrame>
   );
 }
@@ -338,10 +342,12 @@ export function RotateSecretModal({ moduleKey, parameter, onClose, onSuccess }: 
       error={error}
       submitLabel="Rotate secret"
     >
-      <label className={styles.fieldLabel}>
-        Reason
-        <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is this secret being rotated?" />
-      </label>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
+          Reason
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is this secret being rotated?" />
+        </label>
+      </div>
     </ModalFrame>
   );
 }
@@ -377,14 +383,14 @@ export function EditFeatureFlagModal({ moduleKey, flag, onClose, onSuccess }: { 
       error={error}
       submitLabel="Save changes"
     >
-      <div className={styles.fieldGroup}>
-        <label className={styles.fieldLabel}>
+      <div className="flex flex-col gap-4 p-5">
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Rollout percentage
-          <input type="number" min={0} max={100} value={rollout} onChange={(event) => setRollout(Number(event.target.value))} />
+          <input className="w-full p-2.5 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow" type="number" min={0} max={100} value={rollout} onChange={(event) => setRollout(Number(event.target.value))} />
         </label>
-        <label className={styles.fieldLabel}>
+        <label className="flex flex-col gap-1.5 text-[12px] font-bold text-ink">
           Reason
-          <textarea className={styles.formTextarea} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is the rollout changing?" />
+          <textarea className="w-full min-h-[100px] p-3 rounded-lg border border-line bg-white text-[13px] font-normal text-ink focus:outline-none focus:border-[#741d35] focus:ring-1 focus:ring-[#741d35] transition-shadow resize-y" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is the rollout changing?" />
         </label>
       </div>
     </ModalFrame>

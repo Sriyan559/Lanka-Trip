@@ -1,61 +1,43 @@
 import React from "react";
-import { Package, Truck, AlertCircle, Building2 } from "lucide-react";
 import { LogisticsMetrics } from "@/types/logistics";
+import { Truck, Clock, Calendar, Box, CheckCircle2, AlertTriangle, XCircle, RotateCcw, AlertCircle, HelpCircle, DollarSign } from "lucide-react";
 
 interface LogisticsMetricsRowProps {
   metrics: LogisticsMetrics;
 }
 
 export function LogisticsMetricsRow({ metrics }: LogisticsMetricsRowProps) {
+  
+  const metricItems = [
+    { label: "Total Active Shipments", value: metrics.totalActiveShipments.toLocaleString(), icon: <Truck size={18} className="text-ink" />, border: "border-line" },
+    { label: "Pending Carrier Assignment", value: metrics.pendingCarrierAssignment, icon: <Truck size={18} className="text-warning" />, border: "border-warning" },
+    { label: "Pickup Scheduled", value: metrics.pickupScheduled, icon: <Calendar size={18} className="text-primary-600" />, border: "border-primary-600" },
+    { label: "Awaiting Pickup", value: metrics.awaitingPickup, icon: <Truck size={18} className="text-purple-600" />, border: "border-purple-600" },
+    { label: "Picked Up Today", value: metrics.pickedUpToday, icon: <CheckCircle2 size={18} className="text-success" />, border: "border-success" },
+    { label: "In Transit", value: metrics.inTransit, icon: <Truck size={18} className="text-blue-600" />, border: "border-blue-600" },
+    { label: "Out for Delivery", value: metrics.outForDelivery, icon: <Truck size={18} className="text-blue-500" />, border: "border-blue-500" },
+    { label: "Delivered Today", value: metrics.deliveredToday, icon: <CheckCircle2 size={18} className="text-success" />, border: "border-success" },
+    { label: "Delivery Exceptions", value: metrics.deliveryExceptions, icon: <AlertTriangle size={18} className="text-danger" />, border: "border-danger", textClass: "text-danger" },
+    { label: "Failed Deliveries", value: metrics.failedDeliveries, icon: <XCircle size={18} className="text-danger" />, border: "border-danger", textClass: "text-danger" },
+    { label: "Return Shipments", value: metrics.returnShipments, icon: <RotateCcw size={18} className="text-purple-600" />, border: "border-purple-600" },
+    { label: "SLA Breaches", value: metrics.slaBreaches, icon: <Clock size={18} className="text-danger" />, border: "border-danger", textClass: "text-danger" },
+    { label: "COD Pending Remittance", value: `LKR ${(metrics.codPendingRemittance/1000000).toFixed(2)}M`, icon: <HelpCircle size={18} className="text-warning" />, border: "border-warning", textClass: "text-warning" },
+    { label: "Logistics Cost Today", value: `LKR ${(metrics.logisticsCostToday).toLocaleString()}`, icon: <DollarSign size={18} className="text-blue-600" />, border: "border-blue-600" },
+  ];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div className="bg-white p-6 rounded-xl border border-line shadow-sm hover-lift">
-        <div className="flex justify-between items-start mb-4">
-          <div className="bg-primary-100 text-primary-900 p-3 rounded-lg">
-            <Package size={20} />
+    <div className="flex flex-wrap gap-3">
+      {metricItems.map((item, index) => (
+        <div key={index} className={`flex-1 min-w-[180px] bg-white p-3 rounded-xl border border-line shadow-sm hover-lift flex flex-col justify-between`}>
+          <div className="flex items-start gap-2 mb-2">
+            {item.icon}
+            <span className="text-[11px] font-medium text-muted leading-tight">{item.label}</span>
+          </div>
+          <div className={`text-xl font-bold ${item.textClass || 'text-ink'}`}>
+            {item.value}
           </div>
         </div>
-        <div>
-          <span className="text-muted text-sm font-medium">Active Shipments</span>
-          <h3 className="text-3xl font-bold text-ink mt-1">{metrics.activeShipments}</h3>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl border border-line shadow-sm hover-lift">
-        <div className="flex justify-between items-start mb-4">
-          <div className="bg-green-100 text-success p-3 rounded-lg">
-            <Truck size={20} />
-          </div>
-        </div>
-        <div>
-          <span className="text-muted text-sm font-medium">Delivered Today</span>
-          <h3 className="text-3xl font-bold text-ink mt-1">{metrics.deliveredToday}</h3>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl border border-line shadow-sm hover-lift">
-        <div className="flex justify-between items-start mb-4">
-          <div className="bg-red-100 text-danger p-3 rounded-lg">
-            <AlertCircle size={20} />
-          </div>
-        </div>
-        <div>
-          <span className="text-muted text-sm font-medium">Exceptions / Delays</span>
-          <h3 className="text-3xl font-bold text-danger mt-1">{metrics.exceptions}</h3>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl border border-line shadow-sm hover-lift">
-        <div className="flex justify-between items-start mb-4">
-          <div className="bg-yellow-100 text-warning p-3 rounded-lg">
-            <Building2 size={20} />
-          </div>
-        </div>
-        <div>
-          <span className="text-muted text-sm font-medium">Active Partners</span>
-          <h3 className="text-3xl font-bold text-ink mt-1">{metrics.activePartners}</h3>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
