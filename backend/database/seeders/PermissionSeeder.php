@@ -34,6 +34,25 @@ class PermissionSeeder extends Seeder
             ['name' => 'reviews.manage', 'display_name' => 'Manage reviews', 'group' => 'moderation'],
             ['name' => 'uploads.manage', 'display_name' => 'Manage uploads', 'group' => 'media'],
             ['name' => 'reports.view', 'display_name' => 'View reports', 'group' => 'analytics'],
+            ['name' => 'admin.dashboard.view', 'display_name' => 'View admin dashboard', 'group' => 'admin'],
+            ['name' => 'payouts.view', 'display_name' => 'View payouts', 'group' => 'payouts'],
+            ['name' => 'payouts.approve', 'display_name' => 'Approve payouts', 'group' => 'payouts'],
+            ['name' => 'payouts.process', 'display_name' => 'Process payouts', 'group' => 'payouts'],
+            ['name' => 'support.cases.view', 'display_name' => 'View support cases', 'group' => 'support'],
+            ['name' => 'support.cases.assign', 'display_name' => 'Assign support cases', 'group' => 'support'],
+            ['name' => 'support.cases.reply', 'display_name' => 'Reply to support cases', 'group' => 'support'],
+            ['name' => 'support.cases.resolve', 'display_name' => 'Resolve support cases', 'group' => 'support'],
+            ['name' => 'returns.view', 'display_name' => 'View returns', 'group' => 'returns'],
+            ['name' => 'returns.review', 'display_name' => 'Review returns', 'group' => 'returns'],
+            ['name' => 'returns.approve', 'display_name' => 'Approve returns', 'group' => 'returns'],
+            ['name' => 'ecosystem.modules.view', 'display_name' => 'View ecosystem modules', 'group' => 'ecosystem'],
+            ['name' => 'ecosystem.modules.configure', 'display_name' => 'Configure ecosystem modules', 'group' => 'ecosystem'],
+            ['name' => 'brand.authorizations.view', 'display_name' => 'View brand authorizations', 'group' => 'brands'],
+            ['name' => 'brand.authorizations.decide', 'display_name' => 'Decide brand authorizations', 'group' => 'brands'],
+            ['name' => 'logistics.view', 'display_name' => 'View logistics', 'group' => 'logistics'],
+            ['name' => 'logistics.update', 'display_name' => 'Update logistics', 'group' => 'logistics'],
+            ['name' => 'analytics.view', 'display_name' => 'View analytics', 'group' => 'analytics'],
+            ['name' => 'analytics.export', 'display_name' => 'Export analytics', 'group' => 'analytics'],
         ];
 
         foreach ($permissions as $permission) {
@@ -68,6 +87,7 @@ class PermissionSeeder extends Seeder
 
         $rolePermissions = [
             'admin' => $permissions->keys()->all(),
+            'super_admin' => $permissions->keys()->all(),
             'staff' => [
                 'users.view',
                 'suppliers.view',

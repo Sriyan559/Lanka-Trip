@@ -31,9 +31,24 @@ export function ReturnCaseTabs({
   evidenceCount = 3,
   issuesCount = 2,
 }: ReturnCaseTabsProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex: number | null = null;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % RETURN_DETAIL_TABS.length;
+    if (event.key === "ArrowLeft") nextIndex = (index - 1 + RETURN_DETAIL_TABS.length) % RETURN_DETAIL_TABS.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = RETURN_DETAIL_TABS.length - 1;
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    const nextTab = RETURN_DETAIL_TABS[nextIndex];
+    onTabChange(nextTab.id);
+    const tabList = event.currentTarget.parentElement;
+    (tabList?.querySelector(`#tab-${nextTab.id}`) as HTMLButtonElement | null)?.focus();
+  };
+
   return (
     <div className={styles.tabsContainer} role="tablist" aria-label="Return Case Sections">
-      {RETURN_DETAIL_TABS.map((tab) => {
+      {RETURN_DETAIL_TABS.map((tab, index) => {
         const isActive = activeTab === tab.id;
         let badge: number | undefined = undefined;
         if (tab.id === "evidence") badge = evidenceCount;
@@ -44,11 +59,14 @@ export function ReturnCaseTabs({
             key={tab.id}
             role="tab"
             aria-selected={isActive}
+            aria-current={isActive ? "page" : undefined}
             aria-controls={`tabpanel-${tab.id}`}
             id={`tab-${tab.id}`}
             type="button"
             className={`${styles.tabButton} ${isActive ? styles.tabButtonActive : ""}`}
             onClick={() => onTabChange(tab.id)}
+            onKeyDown={(event) => handleKeyDown(event, index)}
+            tabIndex={isActive ? 0 : -1}
           >
             <span>{tab.label}</span>
             {badge !== undefined && (

@@ -114,10 +114,20 @@ class Order extends Model
         return $this->hasMany(OrderShipment::class);
     }
 
+    public function returnCases(): HasMany
+    {
+        return $this->hasMany(ReturnCase::class);
+    }
+
+    public function supportCases(): HasMany
+    {
+        return $this->hasMany(SupportCase::class, 'related_order_id');
+    }
+
     public function scopeAccessibleTo(Builder $query, User $user): Builder
     {
         return match ($user->role) {
-            'admin' => $query,
+            'admin', 'super_admin' => $query,
             'supplier' => $query->where('supplier_id', $user->supplier?->id ?? 0),
             default => $query->where('buyer_id', $user->id),
         };

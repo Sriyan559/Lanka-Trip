@@ -54,7 +54,7 @@ class SellerBrandAuthorizationPolicy
 
     public function review(User $user, SellerBrandAuthorization $authorization): bool
     {
-        return $user->role === 'admin'
+        return $user->hasPermission('brand.authorizations.decide')
             && $this->featureEnabled('sl_beauty.brand_seller_verification');
     }
 
