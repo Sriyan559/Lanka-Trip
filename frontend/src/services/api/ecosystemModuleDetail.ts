@@ -5,7 +5,7 @@ import type {
   ModuleDetailPermissions,
   ProductionEnablementDraft,
   ScheduleReleaseDraft,
-} from "@/features/admin/ecosystem-modules/types";
+} from "@/components/admin/ecosystem-modules/types";
 
 function nowStamp() {
   return new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }).replace(",", " \u2014");

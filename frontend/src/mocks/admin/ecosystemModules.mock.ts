@@ -3,7 +3,7 @@ import type {
   EcosystemModuleDashboard,
   ModuleKpi,
   PortfolioHealthMetric,
-} from "@/features/admin/ecosystem-modules/types";
+} from "@/components/admin/ecosystem-modules/types";
 
 const moduleDefaults: Omit<EcosystemModule, "id" | "publicReference" | "databaseModuleId" | "moduleName" | "moduleKey"> = {
   category: "Operations",

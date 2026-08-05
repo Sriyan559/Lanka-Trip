@@ -4,10 +4,10 @@ import React, { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Shipment } from "@/types/logistics";
 import { mockShipments } from "@/mocks/admin/logistics.mock";
-import { ShipmentDetailHeader } from "@/features/admin/logistics/components/ShipmentDetailHeader";
-import { ShipmentDetailSidebar } from "@/features/admin/logistics/components/ShipmentDetailSidebar";
-import { ShipmentStepper } from "@/features/admin/logistics/components/ShipmentStepper";
-import { ShipmentContextCards } from "@/features/admin/logistics/components/ShipmentContextCards";
+import { ShipmentDetailHeader } from "@/components/admin/logistics/ShipmentDetailHeader";
+import { ShipmentDetailSidebar } from "@/components/admin/logistics/ShipmentDetailSidebar";
+import { ShipmentStepper } from "@/components/admin/logistics/ShipmentStepper";
+import { ShipmentContextCards } from "@/components/admin/logistics/ShipmentContextCards";
 import { PageHeader } from "@/components/admin/layout/PageHeader";
 
 function ShipmentDetailContent() {

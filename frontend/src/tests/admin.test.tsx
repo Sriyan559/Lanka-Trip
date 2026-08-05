@@ -9,7 +9,7 @@ import {
 } from "@/lib/admin";
 import { StatusBadge } from "@/components/admin/common/StatusBadge";
 import { EnterpriseDataTable } from "@/components/admin/common/EnterpriseDataTable";
-import { canApproveFullRefund } from "@/features/admin/returns/permissions";
+import { canApproveFullRefund } from "@/components/admin/returns/permissions";
 import { returns, suppliers } from "@/mocks/admin/fixtures";
 import { VerificationStatsGrid } from "@/components/admin/verification/VerificationStatsGrid";
 

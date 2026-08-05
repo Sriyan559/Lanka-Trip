@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import ReturnsQueuePage from "@/app/admin/marketplace/returns/page";
-import { ReturnsPagination, getPaginationItems } from "@/features/admin/returns/components/ReturnsPagination";
+import { ReturnsPagination, getPaginationItems } from "@/components/admin/returns/ReturnsPagination";
 import { fetchReturnCases } from "@/services/api/returnsService";
 
 vi.mock("next/navigation", () => ({

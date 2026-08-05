@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Plus, Upload, Filter } from "lucide-react";
-import { ProductMasterManagementView } from "@/features/admin/catalogue/components/products/ProductMasterManagementView";
+import { ProductMasterManagementView } from "@/components/admin/catalogue/products/ProductMasterManagementView";
 
 export default function ProductMasters() {
   return (

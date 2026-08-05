@@ -1,5 +1,5 @@
 import React from "react";
-import { ReturnDetailView } from "@/features/admin/returns/components/ReturnDetailView";
+import { ReturnDetailView } from "@/components/admin/returns/ReturnDetailView";
 
 interface PageProps {
   params: Promise<{ returnId: string }>;

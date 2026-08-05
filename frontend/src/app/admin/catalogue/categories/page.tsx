@@ -3,6 +3,7 @@
 import React from "react";
 import { Download, Upload, Filter, Plus, ChevronRight, AlertCircle, FileX, CheckCircle2, Copy } from "lucide-react";
 import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CategoryManagementDashboard } from "@/components/admin/catalogue/categories/CategoryManagementDashboard";
 
 export default function CategoryManagement() {
   return (
@@ -38,27 +39,8 @@ export default function CategoryManagement() {
 
       <TopFilterBar />
 
-      <div className="p-6 flex flex-col gap-6">
-        <div className="bg-white rounded-lg border border-line p-5 shadow-sm">
-           <h2 className="text-[14px] font-bold text-ink mb-4">Category Overview Placeholder</h2>
-           <p className="text-[12px] text-muted">A detailed implementation of the Category Management UI will be placed here.</p>
-           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-4">
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink">148</div><div className="text-[11px] text-muted mt-1">Total Categories</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink">132</div><div className="text-[11px] text-muted mt-1">Active Categories</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink">8</div><div className="text-[11px] text-muted mt-1">Departments</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink">96</div><div className="text-[11px] text-muted mt-1">Subcategories</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink text-amber-600">8</div><div className="text-[11px] text-muted mt-1">Empty Categories</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink text-red-600">22</div><div className="text-[11px] text-muted mt-1">Uncategorized</div></div>
-           </div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-           <div className="bg-white rounded-lg border border-line p-5 shadow-sm min-h-[400px] flex items-center justify-center">
-              <span className="text-muted text-sm font-medium">Hierarchy Tree & Details Table Layout</span>
-           </div>
-           <div className="bg-white rounded-lg border border-line p-5 shadow-sm min-h-[400px] flex items-center justify-center">
-              <span className="text-muted text-sm font-medium">Taxonomy Health & Alerts Sidebar</span>
-           </div>
-        </div>
+      <div className="p-6">
+        <CategoryManagementDashboard />
       </div>
     </div>
   );

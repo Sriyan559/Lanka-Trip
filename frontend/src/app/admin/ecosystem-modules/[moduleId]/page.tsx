@@ -1,4 +1,4 @@
-import { ModuleDetailWorkspace } from "@/features/admin/ecosystem-modules/detail/ModuleDetailWorkspace";
+import { ModuleDetailWorkspace } from "@/components/admin/ecosystem-modules/detail/ModuleDetailWorkspace";
 
 export default async function EcosystemModuleRoute({
   params,

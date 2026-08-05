@@ -4,12 +4,12 @@ import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Download, UserCheck, ShieldAlert, AlertTriangle, RotateCcw, XCircle, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/admin/layout/PageHeader";
-import { OrderMetricsRow } from "@/features/admin/orders/components/OrderMetricsRow";
-import { OrderFilterPanel } from "@/features/admin/orders/components/OrderFilterPanel";
-import { OrderTable } from "@/features/admin/orders/components/OrderTable";
-import { OrderOperationsPanel } from "@/features/admin/orders/components/OrderOperationsPanel";
-import { OrderPagination } from "@/features/admin/orders/components/OrderPagination";
-import { AssignOrdersModal } from "@/features/admin/orders/components/AssignOrdersModal";
+import { OrderMetricsRow } from "@/components/admin/orders/OrderMetricsRow";
+import { OrderFilterPanel } from "@/components/admin/orders/OrderFilterPanel";
+import { OrderTable } from "@/components/admin/orders/OrderTable";
+import { OrderOperationsPanel } from "@/components/admin/orders/OrderOperationsPanel";
+import { OrderPagination } from "@/components/admin/orders/OrderPagination";
+import { AssignOrdersModal } from "@/components/admin/orders/AssignOrdersModal";
 import {
   assignOrders,
   exportOrdersCsv,

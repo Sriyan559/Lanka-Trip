@@ -7,7 +7,7 @@ import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
 
 vi.mock("next/navigation", () => ({
   usePathname: () =>
-    "/admin/catalogue/product-approvals/product-uuid-001",
+    "/admin/catalogue/approvals/product-uuid-001",
   useRouter: () => ({
     push: vi.fn(),
   }),
@@ -28,7 +28,7 @@ describe("shared admin layout", () => {
   it("renders the product detail content inside the rich admin shell", () => {
     const { container } = render(
       <AdminShell>
-        <Link href="/admin/catalogue/product-approvals">
+        <Link href="/admin/catalogue/approvals">
           Back to Product Approval Queue
         </Link>
       </AdminShell>,
@@ -81,7 +81,7 @@ describe("shared admin layout", () => {
     expect(screen.getByRole("link", { name: "Marketplace" }))
       .toHaveAttribute("href", "/admin/marketplace");
     expect(screen.getByRole("link", { name: "Catalogue" }))
-      .toHaveAttribute("href", "/admin/catalogue/product-approvals");
+      .toHaveAttribute("href", "/admin/catalogue");
     expect(screen.getByRole("link", { name: "Brands & Suppliers" }))
       .toHaveAttribute("href", "/admin/verification/brand-authorizations");
     expect(screen.getByRole("link", { name: "Verification & Compliance" }))

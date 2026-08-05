@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ProductMasterDetailView } from "@/features/admin/catalogue/components/products/detail/ProductMasterDetailView";
+import { ProductMasterDetailView } from "@/components/admin/catalogue/products/detail/ProductMasterDetailView";
 import { useParams } from "next/navigation";
 
 export default function ProductMasterDetail() {

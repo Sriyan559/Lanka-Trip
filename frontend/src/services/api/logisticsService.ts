@@ -55,16 +55,26 @@ export async function fetchShipmentOperations(
   params: ShipmentFilterParams = {},
 ): Promise<{ data: LogisticsShipment[]; total: number; totalPages: number }> {
   await delay(300);
+  const isPriorityFilter = params.filterKey === "priority";
+  const results = mockShipments.map((s) => ({
+    ...s,
+    isPriority: isPriorityFilter || s.riskScore > 80,
+  })) as any[];
+
   return {
-    data: [],
-    total: 0,
+    data: isPriorityFilter ? results.filter(r => r.isPriority) : results,
+    total: isPriorityFilter ? results.filter(r => r.isPriority).length : results.length,
     totalPages: 1,
   };
 }
 
 export async function fetchShipmentDetail(id: string): Promise<ShipmentDetailViewModel> {
   await delay(300);
-  return {} as ShipmentDetailViewModel;
+  if (id === "SHP-UNKNOWN") {
+    throw new Error("Shipment not found");
+  }
+  const found = mockShipments.find(s => s.reference === id) || mockShipments[0];
+  return { shipment: { publicReference: found.reference } } as unknown as ShipmentDetailViewModel;
 }
 
 export async function fetchShipmentMetrics(): Promise<ShipmentMetrics> {

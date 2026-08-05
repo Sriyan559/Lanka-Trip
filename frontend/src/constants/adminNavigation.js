@@ -12,8 +12,8 @@ export const ADMIN_NAVIGATION = [
   ]},
   {id:"catalogue",label:"Catalogue",href:"/admin/catalogue",icon:BookOpen,children:[
     {id:"command-center",label:"Command Center",href:"/admin/catalogue",exact:true},
-    {id:"product-approvals",label:"Product Approvals",href:"/admin/catalogue/approvals"},
     {id:"product-masters",label:"Product Masters",href:"/admin/catalogue/products"},
+    {id:"product-approvals",label:"Product Approvals",href:"/admin/catalogue/approvals"},
     {id:"inventory",label:"Inventory & Expiry",href:"/admin/catalogue/inventory"},
     {id:"categories",label:"Categories",href:"/admin/catalogue/categories"},
     {id:"brands",label:"Brands",href:"/admin/catalogue/brands"},
