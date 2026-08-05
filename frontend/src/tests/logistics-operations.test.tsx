@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import LogisticsShipmentsPage from "@/app/admin/logistics/shipments/page";
-import ShipmentDetailPage from "@/app/admin/logistics/shipments/[shipmentId]/page";
+import ShipmentDetailPage from "@/app/admin/logistics/shipments/[id]/page";
 import {
   fetchShipmentDetail,
   fetchShipmentOperations,
@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
     back: vi.fn(),
   }),
   useSearchParams: () => new URLSearchParams(),
-  useParams: () => ({ shipmentId: "SHP-90210" }),
+  useParams: () => ({ id: "SHP-90210" }),
 }));
 
 describe("Logistics shipment operations", () => {
