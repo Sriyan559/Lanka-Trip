@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { AlertCircle, FileX, ImageMinus, Copy, ShieldAlert, ListTree, CheckCircle2, ChevronRight } from "lucide-react";
+import { AlertCircle, ChevronRight, FileX, ImageMinus, Copy, ShieldAlert, ListTree, CheckCircle2 } from "lucide-react";
 
 export function QualityAndReadinessSection() {
   return (
     <div className="bg-white rounded-lg border border-line p-5 shadow-sm">
       <h3 className="text-[13px] font-bold text-ink mb-6">Catalogue Quality & Data Readiness</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Incomplete Product Records", value: 248, risk: "High", color: "text-red-500", bg: "bg-red-50", icon: FileX },

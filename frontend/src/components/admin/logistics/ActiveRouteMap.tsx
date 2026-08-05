@@ -41,13 +41,16 @@ const ActiveRouteMap = () => {
   // Coordinates for Colombo and Katunayake [lat, lng]
   const colombo: [number, number] = [6.9271, 79.8612];
   const katunayake: [number, number] = [7.1685, 79.8735];
-  
+
   // Extract positions from the static route data
   const routePositions: [number, number][] = React.useMemo(() => {
     try {
       if (routeData.routes && routeData.routes.length > 0) {
         const coordinates = routeData.routes[0].geometry.coordinates;
-        return coordinates.map((coord: any) => [coord[1], coord[0]] as [number, number]);
+        return coordinates.map((coord): [number, number] => [
+          coord[1] ?? 0,
+          coord[0] ?? 0,
+        ]);
       }
     } catch (e) {
       console.error("Error parsing route data", e);
@@ -57,9 +60,9 @@ const ActiveRouteMap = () => {
 
   return (
     <div style={{ height: '100%', width: '100%', position: 'absolute', inset: 0, zIndex: 0 }}>
-      <MapContainer 
-        center={[7.0478, 79.8673]} 
-        zoom={11} 
+      <MapContainer
+        center={[7.0478, 79.8673]}
+        zoom={11}
         style={{ height: '100%', width: '100%', zIndex: 1 }}
         zoomControl={false}
       >
@@ -69,10 +72,10 @@ const ActiveRouteMap = () => {
         />
         <Marker position={colombo} icon={createCustomIcon('Colombo Main Hub')} />
         <Marker position={katunayake} icon={createCustomIcon('Katunayake')} />
-        
-        <Polyline 
-          positions={routePositions} 
-          pathOptions={{ color: '#741d35', weight: 5, opacity: 0.8 }} 
+
+        <Polyline
+          positions={routePositions}
+          pathOptions={{ color: '#741d35', weight: 5, opacity: 0.8 }}
         />
       </MapContainer>
     </div>
