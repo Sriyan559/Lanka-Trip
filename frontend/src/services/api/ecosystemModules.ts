@@ -10,7 +10,7 @@ import type {
   EcosystemModulePage,
   ModulePermissions,
   ModuleRegistrationDraft,
-} from "@/features/admin/ecosystem-modules/types";
+} from "@/components/admin/ecosystem-modules/types";
 
 function includesValue(value: string | number | null, query: string) {
   return String(value ?? "").toLowerCase().includes(query.toLowerCase());

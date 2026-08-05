@@ -3,10 +3,10 @@
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/admin/layout/PageHeader";
-import { LogisticsMetricsRow } from "@/features/admin/logistics/components/LogisticsMetricsRow";
-import { LogisticsFilterPanel } from "@/features/admin/logistics/components/LogisticsFilterPanel";
-import { ShipmentTable } from "@/features/admin/logistics/components/ShipmentTable";
-import { LogisticsSidebars } from "@/features/admin/logistics/components/LogisticsSidebars";
+import { LogisticsMetricsRow } from "@/components/admin/logistics/LogisticsMetricsRow";
+import { LogisticsFilterPanel } from "@/components/admin/logistics/LogisticsFilterPanel";
+import { ShipmentTable } from "@/components/admin/logistics/ShipmentTable";
+import { LogisticsSidebars } from "@/components/admin/logistics/LogisticsSidebars";
 import { 
   LogisticsMetrics, Shipment, OperationsHealth, PriorityAlert, QuickQueueItem, CarrierPerformance, CODFinancials 
 } from "@/types/logistics";

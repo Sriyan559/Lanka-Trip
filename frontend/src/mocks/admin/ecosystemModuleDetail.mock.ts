@@ -14,7 +14,7 @@ import type {
   StatusDomainField,
   StatusTone,
   VersionReleaseRow,
-} from "@/features/admin/ecosystem-modules/types";
+} from "@/components/admin/ecosystem-modules/types";
 import { mockEcosystemModules } from "./ecosystemModules.mock";
 
 // Mocks stay framework-free (no React/UI imports) so this layer can be swapped

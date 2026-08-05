@@ -29,10 +29,10 @@ const icons = {
 };
 const chartColors = ['#741d35', '#c96686', '#c9a227', '#63748a', '#34765f', '#8b5ca8'];
 const operationalActions = [
-  { label: 'Review Supplier', href: '/admin/verification/suppliers' },
-  { label: 'Review Brand', href: '/admin/verification/brand-authorizations' },
-  { label: 'Review Product', href: '/admin/catalogue/product-approvals' },
-  { label: 'Inventory', href: '/admin/catalogue/inventory' },
+  { label: 'Catalogue Command Center', href: '/admin/catalogue' },
+  { label: 'Product Masters', href: '/admin/catalogue/products' },
+  { label: 'Brand Management', href: '/admin/catalogue/brands' },
+  { label: 'Catalogue Quality', href: '/admin/catalogue/quality' },
   { label: 'Orders', href: '/admin/marketplace/orders' },
   { label: 'Returns', href: '/admin/marketplace/returns' },
 ];

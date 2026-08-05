@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { EcosystemModulesDashboard } from "@/features/admin/ecosystem-modules/EcosystemModulesDashboard";
+import { EcosystemModulesDashboard } from "@/components/admin/ecosystem-modules/EcosystemModulesDashboard";
 import {
   fetchEcosystemModuleByKey,
   fetchEcosystemModules,

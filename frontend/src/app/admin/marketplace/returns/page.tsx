@@ -1,5 +1,5 @@
 import React from "react";
-import { ReturnsQueueView } from "@/features/admin/returns/components/ReturnsQueueView";
+import { ReturnsQueueView } from "@/components/admin/returns/ReturnsQueueView";
 
 export default function ReturnsQueuePage() {
   return <ReturnsQueueView />;

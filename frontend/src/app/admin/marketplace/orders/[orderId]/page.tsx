@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { OrderDetailView } from "@/features/admin/orders/components/OrderDetailView";
+import { OrderDetailView } from "@/components/admin/orders/OrderDetailView";
 import { fetchOrderDetail } from "@/services/api/orderService";
 
 export default async function OrderDetailPage({

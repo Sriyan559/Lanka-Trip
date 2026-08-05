@@ -3,7 +3,7 @@
 import React from "react";
 import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
 import { Search, Settings, Upload, Download, Plus } from "lucide-react";
-import { CatalogueCommandCenterDashboard } from "@/features/admin/catalogue/components/CatalogueCommandCenterDashboard";
+import { CatalogueCommandCenterDashboard } from "@/components/admin/catalogue/CatalogueCommandCenterDashboard";
 
 export default function CatalogueCommandCenter() {
   return (

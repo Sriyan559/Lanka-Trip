@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ChevronRight, Save, Play, CheckCircle } from "lucide-react";
-import { CreateProductMasterWizard } from "@/features/admin/catalogue/components/products/create/CreateProductMasterWizard";
+import { CreateProductMasterWizard } from "@/components/admin/catalogue/products/create/CreateProductMasterWizard";
 import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
 
 export default function CreateProductMaster() {

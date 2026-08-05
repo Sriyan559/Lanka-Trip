@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { ModuleDetailWorkspace } from "@/features/admin/ecosystem-modules/detail/ModuleDetailWorkspace";
+import { ModuleDetailWorkspace } from "@/components/admin/ecosystem-modules/detail/ModuleDetailWorkspace";
 import { requestProductionEnablement } from "@/services/api/ecosystemModuleDetail";
 
 const replace = vi.fn();
@@ -64,7 +64,7 @@ describe("Screen 21 - Ecosystem Module Detail & Configuration", () => {
     await screen.findByRole("heading", { name: "AI Beauty Advisor" });
 
     expect(screen.queryByText("sk-live")).not.toBeInTheDocument();
-    const secretLabels = screen.getAllByText("Secret Reference");
+    const secretLabels = screen.getAllByText("••••••••");
     expect(secretLabels.length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "Rotate Secret" }).length).toBeGreaterThan(0);
   });

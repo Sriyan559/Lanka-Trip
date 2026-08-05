@@ -3,6 +3,7 @@
 import React from "react";
 import { Download, Upload, Filter, ListTree } from "lucide-react";
 import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { ImportExportDashboard } from "@/components/admin/catalogue/import-export/ImportExportDashboard";
 
 export default function CatalogueImportExport() {
   return (
@@ -32,26 +33,8 @@ export default function CatalogueImportExport() {
 
       <TopFilterBar />
 
-      <div className="p-6 flex flex-col gap-6">
-        <div className="bg-white rounded-lg border border-line p-5 shadow-sm">
-           <h2 className="text-[14px] font-bold text-ink mb-4">Import & Export Management Placeholder</h2>
-           <p className="text-[12px] text-muted">A detailed implementation of the Catalogue Import/Export UI will be placed here.</p>
-           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-4">
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink">12</div><div className="text-[11px] text-muted mt-1">Active Jobs</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink">48</div><div className="text-[11px] text-muted mt-1">Completed Today</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink text-red-600">3</div><div className="text-[11px] text-muted mt-1">Failed Jobs</div></div>
-              <div className="border border-line rounded p-3 text-center"><div className="text-2xl font-bold text-ink text-amber-600">14</div><div className="text-[11px] text-muted mt-1">Validation Errors</div></div>
-           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-           <div className="bg-white rounded-lg border border-line p-5 shadow-sm min-h-[400px] flex items-center justify-center">
-              <span className="text-muted text-sm font-medium">Data Job Queue & Details Table</span>
-           </div>
-           <div className="bg-white rounded-lg border border-line p-5 shadow-sm min-h-[400px] flex items-center justify-center">
-              <span className="text-muted text-sm font-medium">Integration System Health Sidebar</span>
-           </div>
-        </div>
+      <div className="p-6">
+        <ImportExportDashboard />
       </div>
     </div>
   );
