@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
 use App\Http\Controllers\Api\Admin\EcosystemModuleController;
 use App\Http\Controllers\Api\Admin\LogisticsController;
+use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
 use App\Http\Controllers\Api\Admin\PayoutController;
 use App\Http\Controllers\Api\Admin\ReturnCaseController;
 use App\Http\Controllers\Api\Admin\SupportCaseController;
@@ -159,6 +160,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/admin/dashboard/overview', AdminDashboardController::class);
+        Route::get('/admin/marketplace/dashboard', [MarketplaceDashboardController::class, 'show']);
+        Route::get('/admin/marketplace/dashboard/export', [MarketplaceDashboardController::class, 'export']);
 
         Route::get('/admin/payouts/summary', [PayoutController::class, 'summary']);
         Route::get('/admin/payouts/settlements', [PayoutController::class, 'settlements']);

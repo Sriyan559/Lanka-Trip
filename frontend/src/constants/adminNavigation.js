@@ -8,7 +8,6 @@ export const ADMIN_NAVIGATION = [
     {id:"sellers",label:"Sellers",href:"/admin/marketplace/sellers"},
     {id:"promotions",label:"Promotions",href:"/admin/marketplace/promotions"},
     {id:"policy-violations",label:"Policy Violations",href:"/admin/marketplace/policy-violations"},
-    {id:"campaigns",label:"Campaigns",href:"/admin/marketplace/campaigns"},
     {id:"commissions",label:"Commissions",href:"/admin/marketplace/commissions"},
     {id:"orders",label:"Order Management",href:"/admin/marketplace/orders"},
     {id:"manual-order-creation",label:"Manual Order Creation",href:"/admin/marketplace/orders/create",exact:true},
