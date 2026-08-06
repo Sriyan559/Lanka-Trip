@@ -100,8 +100,8 @@ describe("Product Master Management (Screen C06)", () => {
 
   it("opens and closes Import Products modal", async () => {
     render(<ProductMastersPage />);
-    const importBtn = screen.getAllByRole("button", { name: /Import Products/i })[0];
-    fireEvent.click(importBtn);
+    const importBtns = screen.getAllByRole("button", { name: /Import Products/i });
+    fireEvent.click(importBtns[importBtns.length - 1]);
     expect(screen.getByRole("heading", { name: "Import Product Masters" })).toBeInTheDocument();
     const cancelBtn = screen.getByRole("button", { name: "Cancel" });
     fireEvent.click(cancelBtn);

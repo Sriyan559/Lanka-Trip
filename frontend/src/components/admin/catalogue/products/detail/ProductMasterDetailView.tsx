@@ -124,10 +124,6 @@ export function ProductMasterDetailView({ productId }: { productId: string }) {
             />
           </div>
         </div>
-        {/* Sidebar */}
-        <div>
-          <DetailSidebar productId={productId} />
-        </div>
       </div>
 
       {/* Modals & Drawers */}
