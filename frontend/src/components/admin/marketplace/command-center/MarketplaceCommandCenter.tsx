@@ -23,24 +23,60 @@ const number = (value: number, maximumFractionDigits = 0) => new Intl.NumberForm
 const metricValue = (metric: DashboardMetric) => metric.availability === "available" && metric.value !== null ? metric.currency ? `${metric.currency} ${number(metric.value, 2)}` : number(metric.value) : "Not available";
 const dateTime = (value: string) => new Intl.DateTimeFormat("en-LK", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 
+export const toChartNumber = (value: unknown): number => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "string") {
+    const parsed = Number(value.replace(/[^\d.-]/g, ""));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+};
+
+export const chartMaximum = (points: TrendPoint[]): number => {
+  const maximum = Math.max(0, ...points.flatMap(point => [toChartNumber(point.gmv), toChartNumber(point.revenue)]));
+  return maximum > 0 ? Math.ceil(maximum * 1.15) : 1;
+};
+
+const chartCurrency = (value: number, currency: string | null) => `${currency ? `${currency} ` : ""}${number(value, 2)}`;
+const compactCurrency = (value: number, currency: string | null) => `${currency ? `${currency} ` : ""}${new Intl.NumberFormat("en-LK", { notation: "compact", maximumFractionDigits: 1 }).format(value)}`;
+const periodLabel = (value: string, period: "daily" | "weekly" | "monthly") => /^\d{4}-\d{2}-\d{2}$/.test(value) ? (period === "monthly" ? value.slice(0, 7) : value.slice(5)) : value;
+
 function aggregateTrend(points: TrendPoint[], period: "daily" | "weekly" | "monthly"): TrendPoint[] {
-  if (period === "daily") return points;
+  const normalized = points.map((point, index) => ({
+    date: typeof point.date === "string" && point.date.trim() ? point.date : `Period ${index + 1}`,
+    gmv: toChartNumber(point.gmv),
+    revenue: toChartNumber(point.revenue),
+    orders: toChartNumber(point.orders),
+  }));
+  if (period === "daily") return normalized;
   const groups = new Map<string, TrendPoint>();
-  for (const point of points) {
+  for (const point of normalized) {
     const date = new Date(`${point.date}T00:00:00`);
-    if (period === "weekly") date.setDate(date.getDate() - date.getDay()); else date.setDate(1);
-    const key = date.toISOString().slice(0, 10);
+    const validDate = Number.isFinite(date.getTime());
+    if (validDate) {
+      if (period === "weekly") date.setDate(date.getDate() - date.getDay()); else date.setDate(1);
+    }
+    const key = validDate ? date.toISOString().slice(0, 10) : point.date;
     const current = groups.get(key) ?? { date: key, gmv: 0, revenue: 0, orders: 0 };
     current.gmv += point.gmv; current.revenue += point.revenue; current.orders += point.orders; groups.set(key, current);
   }
   return [...groups.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function TrendChart({ points, currency }: { points: TrendPoint[]; currency: string | null }) {
-  const max = Math.max(...points.map(point => Math.max(point.gmv, point.revenue)), 1);
-  if (!points.length || points.every(point => point.gmv === 0 && point.revenue === 0)) return <div className={styles.empty}>No sales or payment activity exists for this period.</div>;
-  return <div className={styles.chart} role="img" aria-label={`Marketplace order value and payment revenue in ${currency ?? "the selected currency"} across ${points.length} periods`}>
-    {points.map(point => <div className={styles.barColumn} key={point.date}><div className={styles.barStack} title={`${point.date}: order value ${currency ?? ""} ${point.gmv}; revenue ${currency ?? ""} ${point.revenue}`}><i className={styles.salesBar} style={{ height: `${Math.max(point.revenue ? 3 : 0, point.revenue / max * 100)}%` }} /><i className={styles.gmvBar} style={{ height: `${Math.max(point.gmv ? 3 : 0, point.gmv / max * 100)}%` }} /></div><span>{point.date.slice(5)}</span></div>)}
+function TrendChart({ points, currency, period }: { points: TrendPoint[]; currency: string | null; period: "daily" | "weekly" | "monthly" }) {
+  const yMaximum = chartMaximum(points);
+  if (!points.length || points.every(point => point.gmv === 0 && point.revenue === 0)) return <div className={styles.empty}>No marketplace sales or payment data is available for this period.</div>;
+  return <div className={styles.chart} role="img" aria-label={`Marketplace order value and net payment value in ${currency ?? "the selected currency"} across ${points.length} periods`}>
+    <div className={styles.yAxis} aria-hidden="true"><span>{compactCurrency(yMaximum, currency)}</span><span>{compactCurrency(yMaximum / 2, currency)}</span><span>{compactCurrency(0, currency)}</span></div>
+    <div className={styles.plot}>
+      <div className={styles.gridLines} aria-hidden="true"><i /><i /><i /></div>
+      <div className={styles.barColumns}>{points.map(point => {
+        const orderHeight = point.gmv > 0 ? Math.max(2, point.gmv / yMaximum * 100) : 0;
+        const paymentHeight = point.revenue > 0 ? Math.max(2, point.revenue / yMaximum * 100) : 0;
+        const description = `${point.date}: order value ${chartCurrency(point.gmv, currency)}; net payment value ${chartCurrency(point.revenue, currency)}`;
+        return <div className={styles.barColumn} key={point.date} aria-label={description} title={description}><div className={styles.barStack}><i className={styles.gmvBar} style={{ height: `${orderHeight}%` }} /><i className={styles.salesBar} style={{ height: `${paymentHeight}%` }} /></div><span>{periodLabel(point.date, period)}</span></div>;
+      })}</div>
+    </div>
   </div>;
 }
 
@@ -73,7 +109,7 @@ export function MarketplaceCommandCenter() {
       <section className={styles.commandCard}><div><p className={styles.eyebrow}>Marketplace <span>|</span> Command &amp; Control</p><h2>Marketplace Command Center</h2><p>Live marketplace orders, sellers, listings, settlements, operational queues and risks from the platform database.</p></div><div className={styles.commandActions}><button onClick={() => void exportReport()} disabled={!data.permissions.can_export || exporting}>{exporting ? "Exporting…" : "Export Report"}</button><Link href="/admin/marketplace/settings">Marketplace Settings</Link><Link className={styles.primaryButton} href="/admin/marketplace/channels">Manage Marketplace</Link></div></section>
       <section className={styles.contextBar}><dl><div><dt>Reporting range</dt><dd>{data.filters.date_from} – {data.filters.date_to}</dd></div><div><dt>Currency</dt><dd>{data.filters.currency ?? "Selection required"}</dd></div><div><dt>Time Zone</dt><dd>{data.filters.timezone}</dd></div></dl><div className={styles.live}><span>{stale ? "● Stale" : "● Live API"}</span><small>Updated {dateTime(data.meta.generated_at)}</small><button onClick={() => void refresh(true)} disabled={refreshing} aria-label="Refresh dashboard"><RefreshCw size={14} className={refreshing ? styles.spin : ""} /></button></div></section>
       <section className={styles.kpiGrid}>{Object.entries(data.summary).map(([id, metric]) => <article className={styles.kpi} key={id}><header><span>{KPI_LABELS[id]}</span><Info size={13} /></header><div><strong>{metricValue(metric)}</strong></div><small title={metric.definition ?? metric.reason}>{metric.availability === "available" ? (metric.definition ?? "Database-backed value") : (metric.reason ?? "Unavailable")}</small></article>)}</section>
-      <section className={styles.chartGrid}><article className={styles.card}><header className={styles.cardHeader}><div><h2>Marketplace Sales &amp; Revenue Trend</h2><p><strong>{metricValue(data.summary.gmv)}</strong> order value <span>|</span> <strong>{metricValue(data.summary.nmv)}</strong> net payment value</p></div><div className={styles.segmented}>{(["daily", "weekly", "monthly"] as const).map(item => <button aria-pressed={period === item} className={period === item ? styles.active : ""} onClick={() => setPeriod(item)} key={item}>{item}</button>)}</div></header>{data.trend.availability === "available" ? <TrendChart points={trend} currency={data.filters.currency} /> : <div className={styles.empty}>Trend unavailable: select a single currency.</div>}</article><article className={styles.card}><header className={styles.cardHeader}><h2>Marketplace Composition</h2></header><div className={styles.segmented}>{(["category", "seller", "channel"] as const).map(item => <button aria-pressed={composition === item} className={composition === item ? styles.active : ""} onClick={() => setComposition(item)} key={item}>{item}</button>)}</div><CompositionChart items={data.composition[composition]} /></article></section>
+      <section className={styles.chartGrid}><article className={`${styles.card} ${styles.trendCard}`}><header className={styles.cardHeader}><div><h2>Marketplace Sales &amp; Revenue Trend</h2><p><strong>{metricValue(data.summary.gmv)}</strong> order value <span>|</span> <strong>{metricValue(data.summary.nmv)}</strong> net payment value</p></div><div className={styles.segmented}>{(["daily", "weekly", "monthly"] as const).map(item => <button type="button" aria-pressed={period === item} className={period === item ? styles.active : ""} onClick={() => setPeriod(item)} key={item}>{item}</button>)}</div></header><div className={styles.trendChartWrapper} aria-busy={refreshing}>{refreshing && <span className={styles.chartRefreshing} role="status">Refreshing chartâ€¦</span>}{data.trend.availability === "available" ? <TrendChart points={trend} currency={data.filters.currency} period={period} /> : <div className={styles.empty}>Trend unavailable: select a single currency.</div>}</div></article><article className={styles.card}><header className={styles.cardHeader}><h2>Marketplace Composition</h2></header><div className={styles.segmented}>{(["category", "seller", "channel"] as const).map(item => <button aria-pressed={composition === item} className={composition === item ? styles.active : ""} onClick={() => setComposition(item)} key={item}>{item}</button>)}</div><CompositionChart items={data.composition[composition]} /></article></section>
       <section className={`${styles.card} ${styles.pipeline}`}><h2>Order Lifecycle Pipeline</h2><div>{LIFECYCLE.map(([status, label, tone]) => <Link className={styles[tone]} href={`/admin/marketplace/orders?orderStatus=${status}`} key={status}><span>{label}</span><strong>{data.order_lifecycle[status] ?? 0}</strong></Link>)}</div></section>
       <section className={styles.queueGrid}>{data.operational_queues.map(queue => <Link href={queue.href} className={styles.queue} key={queue.id}><strong>{queue.count}</strong><span>{queue.label}</span><small>View Queue <ArrowRight size={13} /></small></Link>)}</section>
       <section className={`${styles.card} ${styles.tableCard}`}><h2>Top Performing Sellers</h2><div className={styles.tableWrap}><table><thead><tr>{["Rank", "Seller", "Orders", "GMV", "Fulfilment", "Cancellation", "Rating", "Status", "Action"].map(label => <th key={label}>{label}</th>)}</tr></thead><tbody>{data.top_sellers.map((seller, index) => <tr key={seller.id}><td>{index + 1}</td><td>{seller.name}</td><td>{seller.orders}</td><td>{data.filters.currency} {number(seller.gmv, 2)}</td><td>{seller.fulfilment_rate}%</td><td>{seller.cancellation_rate}%</td><td>{seller.rating ?? "Not available"}</td><td><span className={seller.status === "active" ? styles.badgeSuccess : styles.badgeDanger}>{seller.status}</span></td><td><Link href={`/admin/marketplace/sellers/${seller.id}`}>Open seller</Link></td></tr>)}</tbody></table>{!data.top_sellers.length && <div className={styles.empty}>No seller order activity exists for this currency and period.</div>}</div><Link className={styles.centerLink} href="/admin/marketplace/sellers">View All Sellers <ArrowRight size={13} /></Link></section>

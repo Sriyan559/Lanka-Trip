@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import MarketplacePage from "@/app/admin/marketplace/page";
+import { chartMaximum, toChartNumber } from "@/components/admin/marketplace/command-center/MarketplaceCommandCenter";
 import { exportMarketplaceDashboard, fetchMarketplaceDashboard } from "@/services/api/marketplaceDashboardService";
-import type { DashboardMetric, MarketplaceDashboardData } from "@/types/marketplaceDashboard";
+import type { DashboardMetric, MarketplaceDashboardData, TrendPoint } from "@/types/marketplaceDashboard";
 import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
 
 vi.mock("@/services/api/marketplaceDashboardService", () => ({ fetchMarketplaceDashboard: vi.fn(), exportMarketplaceDashboard: vi.fn() }));
@@ -48,6 +49,36 @@ describe("Marketplace Command Center", () => {
     expect(screen.getByRole("button", { name: "weekly" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "seller" }));
     expect(screen.getAllByText("Serendib").length).toBeGreaterThan(0);
+  });
+
+  it("normalizes formatted backend values and calculates a zero-based chart scale", async () => {
+    expect(toChartNumber("USD 4,850.25")).toBe(4850.25);
+    expect(toChartNumber(Number.NaN)).toBe(0);
+    expect(chartMaximum([{ date: "2026-07-30", gmv: 4850, revenue: 1250, orders: 1 }])).toBe(5578);
+
+    vi.mocked(fetchMarketplaceDashboard).mockResolvedValueOnce({
+      ...fixture,
+      trend: {
+        availability: "available",
+        items: [{ date: "2026-07-30", gmv: "USD 4,850", revenue: "USD 1,250", orders: "1" } as unknown as TrendPoint],
+      },
+    });
+    render(<MarketplacePage />);
+
+    const point = await screen.findByLabelText("2026-07-30: order value USD 4,850; net payment value USD 1,250");
+    const bars = point.querySelectorAll("i");
+    expect(bars[0]).not.toHaveStyle({ height: "NaN%" });
+    expect(Number.parseFloat((bars[0] as HTMLElement).style.height)).toBeGreaterThan(80);
+    expect(bars[1]).not.toHaveStyle({ height: "NaN%" });
+  });
+
+  it("shows an honest empty state for an all-zero trend", async () => {
+    vi.mocked(fetchMarketplaceDashboard).mockResolvedValueOnce({
+      ...fixture,
+      trend: { availability: "available", items: [{ date: "2026-07-30", gmv: 0, revenue: 0, orders: 0 }] },
+    });
+    render(<MarketplacePage />);
+    expect(await screen.findByText("No marketplace sales or payment data is available for this period.")).toBeInTheDocument();
   });
 
   it("uses real navigation routes and invokes the export service", async () => {
