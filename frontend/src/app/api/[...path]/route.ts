@@ -17,7 +17,7 @@ const excludedResponseHeaders = new Set([
 ]);
 
 async function forward(request: NextRequest, context: { params: { path: string[] } }) {
-  const apiRoot = (process.env.BACKEND_API_URL || "http://localhost:8000/api").replace(/\/$/, "");
+  const apiRoot = (process.env.BACKEND_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
   const path = context.params.path.map(encodeURIComponent).join("/");
   const target = `${apiRoot}/${path}${request.nextUrl.search}`;
   const headers = new Headers();
