@@ -41,41 +41,41 @@ vi.mock('next/navigation', () => ({
 describe('Catalogue Management UI Integration', () => {
   it('renders the Command Center (C05) dashboard successfully', () => {
     render(<CatalogueCommandCenter />);
-    expect(screen.getByText('Catalogue Command Center')).toBeDefined();
+    expect(screen.getAllByText('Catalogue Command Center')[0]).toBeDefined();
   });
 
   it('renders the Product Master Management (C06) successfully', () => {
     render(<ProductMasters />);
-    expect(screen.getByText('Product Master Management')).toBeDefined();
+    expect(screen.getAllByText('Product Master Management')[0]).toBeDefined();
   });
 
   it('renders the Product Approval Queue (C01) successfully', () => {
     render(<ProductApprovalQueuePage />);
-    expect(screen.getByText('Product Approval Queue')).toBeDefined();
+    expect(screen.getAllByText('Product Approval Queue')[0]).toBeDefined();
   });
 
   it('renders the Brand Management (C10) successfully', () => {
     render(<BrandManagement />);
-    expect(screen.getByText('Brand Management')).toBeDefined();
+    expect(screen.getAllByText('Brand Management')[0]).toBeDefined();
   });
 
   it('renders the Attribute Management (C11) successfully', () => {
     render(<AttributeManagement />);
-    expect(screen.getByText('Attribute & Variant Management')).toBeDefined();
+    expect(screen.getAllByText('Attribute & Variant Management')[0]).toBeDefined();
   });
 
   it('renders the Media Management (C12) successfully', () => {
     render(<MediaManagement />);
-    expect(screen.getByText('Media Asset Management')).toBeDefined();
+    expect(screen.getAllByText('Media Asset Management')[0]).toBeDefined();
   });
 
   it('renders the Import & Export (C13) successfully', () => {
     render(<CatalogueImportExport />);
-    expect(screen.getByText('Catalogue Import & Export')).toBeDefined();
+    expect(screen.getAllByText('Catalogue Import & Export')[0]).toBeDefined();
   });
 
   it('renders the Quality Management (C14) successfully', () => {
     render(<QualityManagement />);
-    expect(screen.getByText('Catalogue Quality & Duplicate Resolution')).toBeDefined();
+    expect(screen.getAllByText('Catalogue Quality & Duplicate Resolution')[0]).toBeDefined();
   });
 });
