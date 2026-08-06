@@ -10,17 +10,17 @@ import { QualityBottomPanels } from "./QualityBottomPanels";
 
 export function QualityManagementDashboard() {
   return (
-    <div className="flex flex-col">
-      <QualityKPICards />
-      <QualityChartsSection />
-      <CatalogueQualityScorecard />
-      
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6 mb-6">
-         <QualityIssuesTableSection />
-         <QualityHealthSidebar />
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 w-full items-start">
+      <div className="flex flex-col gap-6 min-w-0">
+        <QualityKPICards />
+        <QualityChartsSection />
+        <CatalogueQualityScorecard />
+        <QualityIssuesTableSection />
+        <QualityBottomPanels />
       </div>
-
-      <QualityBottomPanels />
+      <div className="flex flex-col gap-6 shrink-0">
+        <QualityHealthSidebar />
+      </div>
     </div>
   );
 }

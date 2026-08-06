@@ -56,7 +56,7 @@ export function ProductMasterDetailView({ productId }: { productId: string }) {
 
         {/* Sidebar */}
         <div>
-          <DetailSidebar />
+          <DetailSidebar productId={productId} />
         </div>
       </div>
     </div>

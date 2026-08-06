@@ -3,6 +3,8 @@
 import React from "react";
 import { Download, Plus, Upload, Filter } from "lucide-react";
 import { ProductMasterManagementView } from "@/components/admin/catalogue/products/ProductMasterManagementView";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
+import Link from "next/link";
 
 export default function ProductMasters() {
   return (
@@ -12,7 +14,7 @@ export default function ProductMasters() {
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[11px] font-medium text-muted uppercase tracking-wider mb-1">
-              Catalogue / Product Masters
+              <Link href="/admin/catalogue" className="hover:text-ink">Catalogue</Link> / Product Masters
             </div>
             <h1 className="text-xl font-bold text-ink">Product Master Management</h1>
             <p className="text-[12px] text-muted mt-1">
@@ -30,12 +32,18 @@ export default function ProductMasters() {
             <button className="h-9 px-4 rounded bg-white border border-line text-[12px] font-semibold text-ink hover:bg-canvas flex items-center gap-2 transition-colors shadow-sm">
               Bulk Actions <Filter size={14} />
             </button>
-            <button className="h-9 px-4 rounded bg-[#741d35] text-white text-[12px] font-bold hover:bg-[#5a1629] flex items-center gap-2 transition-colors shadow-sm">
+            <Link 
+              href="/admin/catalogue/products/create" 
+              className="h-9 px-4 rounded bg-[#741d35] text-white text-[12px] font-bold hover:bg-[#5a1629] flex items-center gap-2 transition-colors shadow-sm justify-center items-center flex"
+            >
               <Plus size={14} /> Create Product Master
-            </button>
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* Top Filter Bar */}
+      <CatalogueTopFilterBar />
 
       {/* Main Content */}
       <div className="p-6">

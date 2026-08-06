@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Upload, Filter, Plus } from "lucide-react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { AttributeManagementDashboard } from "@/components/admin/catalogue/attributes/AttributeManagementDashboard";
 
 export default function AttributeManagement() {
@@ -34,9 +34,9 @@ export default function AttributeManagement() {
         </div>
       </div>
 
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
-      <div className="p-6">
+      <div className="px-8 flex flex-col gap-6 w-full mt-6">
         <AttributeManagementDashboard />
       </div>
     </div>

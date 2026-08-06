@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./returns-queue.module.css";
 import type {
@@ -38,26 +38,12 @@ import { ReturnsFilterPanel } from "./ReturnsFilterPanel";
 import { ReturnsTable } from "./ReturnsTable";
 import { ReturnsSidebar } from "./ReturnsSidebar";
 import { ReturnsModals, ReturnsModalType } from "./ReturnsModals";
-import { RETURNS_PAGE_SIZES } from "./ReturnsPagination";
-
-function parsePage(value: string | null): number {
-  if (!value || !/^\d+$/.test(value)) return 1;
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
-}
-
-function parsePageSize(value: string | null): number {
-  const parsed = Number(value);
-  return RETURNS_PAGE_SIZES.includes(parsed as (typeof RETURNS_PAGE_SIZES)[number]) ? parsed : 10;
-}
 
 export function ReturnsQueueView() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const requestSequence = useRef(0);
   const [cases, setCases] = useState<ReturnCaseItem[]>(mockReturnCases);
   const [total, setTotal] = useState(mockReturnCases.length);
   const [totalPages, setTotalPages] = useState(1);
@@ -92,21 +78,18 @@ export function ReturnsQueueView() {
     dueDate: searchParams.get("dueDate") || "",
     quickFilter: searchParams.get("quickFilter") || "",
     orderId: searchParams.get("orderId") || "",
-    page: parsePage(searchParams.get("page")),
-    pageSize: parsePageSize(searchParams.get("pageSize")),
-    sort: searchParams.get("sort") || "",
-    direction: searchParams.get("direction") === "desc" ? "desc" : "asc",
+    page: Number(searchParams.get("page")) || 1,
+    pageSize: Number(searchParams.get("pageSize")) || 10,
   };
 
   const updateUrlFilters = useCallback(
     (newFilters: Partial<ReturnFilterParams>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const merged = { ...currentFilters, ...newFilters };
+      const params = new URLSearchParams();
 
-      Object.entries(newFilters).forEach(([k, v]) => {
+      Object.entries(merged).forEach(([k, v]) => {
         if (v !== undefined && v !== null && String(v).trim() !== "") {
           params.set(k, String(v));
-        } else {
-          params.delete(k);
         }
       });
 
@@ -117,9 +100,6 @@ export function ReturnsQueueView() {
   );
 
   const loadData = useCallback(async () => {
-    const requestId = ++requestSequence.current;
-    setLoading(true);
-    setLoadError(null);
     try {
       const [
         resCases,
@@ -139,8 +119,6 @@ export function ReturnsQueueView() {
         fetchLiabilitySummary(),
       ]);
 
-      if (requestId !== requestSequence.current) return;
-
       setCases(resCases.data);
       setTotal(resCases.total);
       setTotalPages(resCases.totalPages);
@@ -150,25 +128,11 @@ export function ReturnsQueueView() {
       setRefundPerformance(resRefund);
       setQuickQueue(resQQ);
       setLiabilitySummary(resLiability);
-      setSelectedIds([]);
-
-      const rawPage = searchParams.get("page");
-      const rawPageSize = searchParams.get("pageSize");
-      if (resCases.page !== currentFilters.page || (rawPage !== null && rawPage !== String(resCases.page)) || (rawPageSize !== null && rawPageSize !== String(resCases.pageSize))) {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("page", String(resCases.page));
-        params.set("pageSize", String(resCases.pageSize));
-        router.replace(`/admin/marketplace/returns?${params.toString()}`);
-      }
     } catch (err) {
-      if (requestId === requestSequence.current) {
-        setLoadError(err instanceof Error ? err.message : "Unable to load return cases.");
-      }
-    } finally {
-      if (requestId === requestSequence.current) setLoading(false);
+      console.error("Failed to load returns data", err);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   useEffect(() => {
     loadData();
@@ -286,36 +250,27 @@ export function ReturnsQueueView() {
 
       {/* Main Two-Column Section */}
       <div className={styles.mainContentLayout}>
-        <div className={styles.workspaceColumn}>
-          {loadError && (
-            <div className={styles.loadError} role="alert">
-              <span>{loadError}</span>
-              <button type="button" onClick={loadData}>Retry</button>
-            </div>
-          )}
-          <ReturnsTable
-            cases={cases}
-            total={total}
-            page={currentFilters.page || 1}
-            pageSize={currentFilters.pageSize || 10}
-            totalPages={totalPages}
-            loading={loading}
-            selectedIds={selectedIds}
-            onSelectRow={handleSelectRow}
-            onSelectAll={handleSelectAll}
-            onPageChange={(newPage) => updateUrlFilters({ page: newPage })}
-            onPageSizeChange={(newPageSize) => updateUrlFilters({ pageSize: newPageSize, page: 1 })}
-            onOpenBulkAssign={() => setActiveModal("bulk_assign")}
-            onOpenOverrideModal={(id) => {
-              setActionReturnId(id);
-              setActiveModal("override_inspection");
-            }}
-            onOpenApproveRefundModal={(id) => {
-              setActionReturnId(id);
-              setActiveModal("approve_refund");
-            }}
-          />
-        </div>
+        <ReturnsTable
+          cases={cases}
+          total={total}
+          page={currentFilters.page || 1}
+          pageSize={currentFilters.pageSize || 10}
+          totalPages={totalPages}
+          selectedIds={selectedIds}
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+          onPageChange={(newPage) => updateUrlFilters({ page: newPage })}
+          onPageSizeChange={(newPageSize) => updateUrlFilters({ pageSize: newPageSize, page: 1 })}
+          onOpenBulkAssign={() => setActiveModal("bulk_assign")}
+          onOpenOverrideModal={(id) => {
+            setActionReturnId(id);
+            setActiveModal("override_inspection");
+          }}
+          onOpenApproveRefundModal={(id) => {
+            setActionReturnId(id);
+            setActiveModal("approve_refund");
+          }}
+        />
 
         {/* Right Sidebar Panels */}
         {operationsHealth && refundPerformance && liabilitySummary && (

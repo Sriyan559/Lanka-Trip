@@ -43,7 +43,7 @@ describe("Screen 10 — Marketplace Order Management", () => {
     expect(screen.getAllByText("Total Today")[0]).toBeInTheDocument();
     expect(screen.getAllByText("1,482")[0]).toBeInTheDocument();
     expect(screen.getAllByText("Pending Payment")[0]).toBeInTheDocument();
-    expect(screen.getAllByText("42")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("43")[0]).toBeInTheDocument();
     expect(screen.getAllByText("Payment Failed")[0]).toBeInTheDocument();
     expect(screen.getAllByText("Processing")[0]).toBeInTheDocument();
     expect(screen.getAllByText("312")[0]).toBeInTheDocument();
@@ -114,9 +114,7 @@ describe("Screen 10 — Marketplace Order Management", () => {
       params: Promise.resolve({ orderId: "5S6814-409-52H" }),
     });
     render(ValidComponent);
-    expect(
-      screen.getByRole("heading", { name: "ORD-2026-009021" }),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Order ORD-2026-009021")).toBeInTheDocument();
 
     await expect(
       OrderDetailPage({

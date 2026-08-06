@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { Search, Settings, Upload, Download, Plus } from "lucide-react";
 import { CatalogueCommandCenterDashboard } from "@/components/admin/catalogue/CatalogueCommandCenterDashboard";
 
@@ -39,7 +39,7 @@ export default function CatalogueCommandCenter() {
       </div>
 
       {/* Top Filter Bar */}
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
       {/* Dashboard Content */}
       <div className="p-6">

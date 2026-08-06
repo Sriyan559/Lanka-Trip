@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Upload, Filter, Plus, CloudUpload, HardDrive } from "lucide-react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { MediaManagementDashboard } from "@/components/admin/catalogue/media/MediaManagementDashboard";
 
 export default function MediaManagement() {
@@ -31,9 +31,9 @@ export default function MediaManagement() {
         </div>
       </div>
 
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
-      <div className="p-6">
+      <div className="px-8 flex flex-col gap-6 w-full mt-6">
         <MediaManagementDashboard />
       </div>
     </div>

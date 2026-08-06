@@ -15,7 +15,7 @@ export function CatalogueQualityScorecard() {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-line p-5 shadow-sm mb-6">
+    <div className="bg-white rounded-xl border border-line p-6 shadow-sm mb-6">
       <h3 className="text-[13px] font-bold text-ink mb-5">Catalogue Quality Scorecard</h3>
       
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-6">

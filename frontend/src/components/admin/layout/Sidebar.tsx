@@ -4,13 +4,12 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Settings, X, ChevronsUpDown, UserRound, LogOut, ExternalLink
+  Settings, X, ChevronsUpDown, UserRound, LogOut,
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { ADMIN_NAVIGATION } from '@/constants/adminNavigation';
-import { AdminBrandLogo } from './AdminBrandLogo';
 import { useAuth } from '@/contexts/AuthContext';
-import { initials } from '@/lib/utils';
+import { AdminBrandLogo } from './AdminBrandLogo';
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
@@ -19,6 +18,14 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   useClickOutside(menuRef, () => setMenuOpen(false));
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    onClose();
+    await logout();
+    router.replace('/');
+    router.refresh();
+  };
   const activeParentId =
     ADMIN_NAVIGATION.find((item) => {
       if (!item.href || item.disabled) return false;
@@ -31,11 +38,6 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           pathname === child.href || pathname.startsWith(`${child.href}/`),
       );
     })?.id ?? null;
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
 
   return (
     <>
@@ -61,13 +63,6 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           {ADMIN_NAVIGATION.map((item) => {
             const Icon = item.icon;
             const isActive = activeParentId === item.id;
-            const activeChildHref = item.children
-              ?.filter(
-                (child) =>
-                  pathname === child.href ||
-                  (!child.exact && pathname.startsWith(`${child.href}/`)),
-              )
-              .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
             if (item.disabled || !item.href) {
               return (
@@ -101,7 +96,9 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                 {item.children && isActive && (
                   <div className="sidebar-subnav">
                     {item.children.map((child) => {
-                      const childActive = activeChildHref === child.href;
+                      const childActive =
+                        pathname === child.href ||
+                        pathname.startsWith(`${child.href}/`);
                       return (
                         <Link
                           key={child.href}
@@ -127,17 +124,17 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
         <div className="sidebar-user-footer" ref={menuRef}>
           {menuOpen && (
             <div className="sidebar-user-menu">
-              <Link href="/" className="sidebar-user-menu-item">
-                <ExternalLink size={15} /> View Storefront
-              </Link>
-              <Link href="/profile" className="sidebar-user-menu-item" onClick={onClose}>
+              <button className="sidebar-user-menu-item">
                 <UserRound size={15} /> My Profile
-              </Link>
-              <Link href="/settings" className="sidebar-user-menu-item" onClick={onClose}>
+              </button>
+              <button className="sidebar-user-menu-item">
                 <Settings size={15} /> Account Settings
-              </Link>
+              </button>
               <div className="sidebar-user-menu-divider" />
-              <button onClick={handleLogout} className="sidebar-user-menu-item danger">
+              <button
+                className="sidebar-user-menu-item danger"
+                onClick={handleLogout}
+              >
                 <LogOut size={15} /> Sign Out
               </button>
               <p className="sidebar-user-menu-version">SL Beauty Admin v4.2.0-stable</p>
@@ -147,12 +144,23 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             onClick={() => setMenuOpen((p) => !p)}
             className="sidebar-user-trigger"
           >
-            <div className="sidebar-avatar flex items-center justify-center bg-black text-white text-xs font-bold">
-              {initials(user?.name || user?.email || 'Admin')}
-            </div>
+            <img
+              src={
+                user?.avatar ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  user?.name || user?.username || 'Admin User'
+                )}&background=722140&color=ffffff&bold=true`
+              }
+              alt={`${user?.name || 'Admin'} avatar`}
+              className="sidebar-avatar"
+            />
             <span className="sidebar-user-info">
-              <span className="sidebar-user-name">{user?.name || 'Administrator'}</span>
-              <span className="sidebar-user-role">{user?.role || 'System Admin'}</span>
+              <span className="sidebar-user-name">
+                {user?.name || user?.username || 'Super Admin'}
+              </span>
+              <span className="sidebar-user-role">
+                {user?.role ? user.role.replace('_', ' ').toUpperCase() : 'Administrator'}
+              </span>
             </span>
             <ChevronsUpDown size={15} className="sidebar-chevron" />
           </button>

@@ -9,16 +9,16 @@ import { ImportExportBottomPanels } from "./ImportExportBottomPanels";
 
 export function ImportExportDashboard() {
   return (
-    <div className="flex flex-col">
-      <ImportExportKPICards />
-      <ImportExportChartsSection />
-      
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6 mb-6">
-         <ImportExportTableSection />
-         <ImportExportHealthSidebar />
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 w-full items-start">
+      <div className="flex flex-col gap-6 min-w-0">
+        <ImportExportKPICards />
+        <ImportExportChartsSection />
+        <ImportExportTableSection />
+        <ImportExportBottomPanels />
       </div>
-      
-      <ImportExportBottomPanels />
+      <div className="flex flex-col gap-6 shrink-0">
+        <ImportExportHealthSidebar />
+      </div>
     </div>
   );
 }

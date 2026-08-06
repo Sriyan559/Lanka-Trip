@@ -1,1 +1,0 @@
-export {authorizations} from "./fixtures";

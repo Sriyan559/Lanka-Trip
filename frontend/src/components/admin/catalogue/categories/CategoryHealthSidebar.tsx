@@ -42,6 +42,15 @@ export function CategoryHealthSidebar() {
            <div className="flex justify-between text-[11px]"><span className="text-muted">Review Required</span><span className="font-bold text-ink">14</span></div>
         </div>
       </div>
+      <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
+        <h3 className="text-[13px] font-bold text-ink mb-4">Governance Summary</h3>
+        <div className="flex flex-col gap-2">
+           <div className="flex justify-between text-[11px]"><span className="text-muted">Approved Editors</span><span className="font-bold text-ink">4</span></div>
+           <div className="flex justify-between text-[11px]"><span className="text-muted">Pending Approvals</span><span className="font-bold text-ink">12</span></div>
+           <div className="flex justify-between text-[11px]"><span className="text-muted">Last Audit</span><span className="font-bold text-ink">2 Days Ago</span></div>
+           <div className="flex justify-between text-[11px]"><span className="text-muted">Taxonomy Sync</span><span className="font-bold text-[#059669]">Success</span></div>
+        </div>
+      </div>
       <SharedQuickQueues 
         title="Quick Queues"
         queues={QUEUES}

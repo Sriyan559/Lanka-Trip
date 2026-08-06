@@ -23,7 +23,7 @@ export function BatchIdentityCard({ batchData }: BatchIdentityCardProps) {
           <span className={styles.dataLabel}>Public Product Ref</span>
           <span className={styles.dataVal}>
             <Link
-              href={`/admin/catalogue/product-approvals/${batchData.productId}`}
+              href={`/admin/catalogue/approvals/${batchData.productId}`}
               className={styles.linkText}
             >
               {batchData.productRef}

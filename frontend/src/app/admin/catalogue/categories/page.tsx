@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Upload, Filter, Plus, ChevronRight, AlertCircle, FileX, CheckCircle2, Copy } from "lucide-react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { CategoryManagementDashboard } from "@/components/admin/catalogue/categories/CategoryManagementDashboard";
 
 export default function CategoryManagement() {
@@ -37,7 +37,7 @@ export default function CategoryManagement() {
         </div>
       </div>
 
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
       <div className="p-6">
         <CategoryManagementDashboard />

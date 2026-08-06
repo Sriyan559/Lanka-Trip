@@ -1,1 +1,0 @@
-export function DetailTabs({tabs}:{tabs:string[]}){return <div className="tabs" role="tablist">{tabs.map((tab,i)=><button key={tab} role="tab" aria-selected={i===0} className={`tab ${i===0?"active":""}`}>{tab}</button>)}</div>}

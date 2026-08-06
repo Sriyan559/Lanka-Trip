@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Upload, Filter, ListTree } from "lucide-react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { ImportExportDashboard } from "@/components/admin/catalogue/import-export/ImportExportDashboard";
 
 export default function CatalogueImportExport() {
@@ -31,9 +31,9 @@ export default function CatalogueImportExport() {
         </div>
       </div>
 
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
-      <div className="p-6">
+      <div className="px-8 flex flex-col gap-6 w-full mt-6">
         <ImportExportDashboard />
       </div>
     </div>

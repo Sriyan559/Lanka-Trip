@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ChevronRight, Save, Play, CheckCircle } from "lucide-react";
 import { CreateProductMasterWizard } from "@/components/admin/catalogue/products/create/CreateProductMasterWizard";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 
 export default function CreateProductMaster() {
   return (
@@ -45,7 +45,7 @@ export default function CreateProductMaster() {
       </div>
       
       {/* Top Filter Bar */}
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
       <div className="px-6 py-6">
          <CreateProductMasterWizard />

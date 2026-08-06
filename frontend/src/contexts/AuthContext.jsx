@@ -113,6 +113,9 @@ export function AuthProvider({ children }) {
       clearClientAuthStorage();
       dispatch({ type: 'LOGOUT' });
       toast.success('Logged out successfully.');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     }
   }, []);
 

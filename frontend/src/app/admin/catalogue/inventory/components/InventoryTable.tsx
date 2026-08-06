@@ -398,7 +398,7 @@ function InventoryTableRow({
               <div className={styles.menuDivider} />
 
               <Link
-                href={`/admin/catalogue/product-approvals/${row.productId}`}
+                href={`/admin/catalogue/approvals/${row.productId}`}
                 className={styles.menuItem}
                 onClick={onCloseMenu}
               >

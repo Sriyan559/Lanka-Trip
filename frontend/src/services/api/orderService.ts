@@ -17,8 +17,6 @@ import type {
   QuickQueueItem,
   OrderDetail,
 } from "@/types/admin";
-import { api, withQuery } from "@/lib/api";
-import { useAdminMocks } from "./adminDataSource";
 
 export async function fetchMarketplaceOrders(
   filters: MarketplaceOrderFilterParams = {}
@@ -29,50 +27,6 @@ export async function fetchMarketplaceOrders(
   pageSize: number;
   totalPages: number;
 }> {
-  if (!useAdminMocks) {
-    try {
-      const response = await api.get(withQuery('/admin/orders', {
-        page: filters.page || 1,
-        q: filters.search || undefined,
-      }));
-      
-      const mappedData: MarketplaceOrder[] = (response.data || []).map((order: any) => ({
-        id: String(order.id),
-        orderReference: order.order_number,
-        dbOrderId: String(order.id),
-        customerName: order.buyer?.name || "Unknown Customer",
-        customerEmail: order.buyer?.email || "",
-        customerPhone: order.buyer?.phone || "",
-        orderDateTime: order.created_at || new Date().toISOString(),
-        orderTotal: Number(order.total_amount) || 0,
-        currency: order.currency || "LKR",
-        itemsCount: order.items ? order.items.length : 1,
-        orderStatus: order.status || "Pending",
-        paymentStatus: "Paid", // Backend doesn't provide this yet
-        paymentMethod: order.payment_terms || "Card",
-        fulfilmentStatus: "Processing",
-        deliveryStatus: "Pending",
-        riskLevel: "Low",
-        assignedOfficer: null,
-        supplierIds: [String(order.supplier_id)],
-        supplierNames: [order.supplier?.company_name || "Unknown Supplier"],
-        logistics: { provider: "Default", trackingId: "", estimatedDelivery: "", cost: 0 },
-        paymentSummary: { subtotal: Number(order.total_amount) || 0, platformFee: 0, supplierPayouts: 0 }
-      }));
-
-      return {
-        data: mappedData,
-        total: response.total || mappedData.length,
-        page: response.current_page || 1,
-        pageSize: response.per_page || 10,
-        totalPages: response.last_page || 1,
-      };
-    } catch (err) {
-      console.error("Failed to fetch live orders", err);
-      // fallback to mocks if live fails for some reason
-    }
-  }
-
   let filtered = [...mockMarketplaceOrders];
 
   if (filters.search && filters.search.trim() !== "") {
@@ -102,30 +56,6 @@ export async function fetchMarketplaceOrders(
 }
 
 export async function fetchOrderMetrics(): Promise<OrderMetricSummary> {
-  if (!useAdminMocks) {
-    try {
-      const response = await api.get('/admin/dashboard');
-      const data = response.data || response;
-      
-      return {
-        totalToday: data.orders_count || 0,
-        pendingPayment: data.pending_orders_count || 0,
-        paymentFailed: 0,
-        processing: 0,
-        awaitingSupplier: 0,
-        readyForDispatch: 0,
-        inTransit: 0,
-        deliveredToday: 0,
-        cancelled: 0,
-        returnsInProgress: 0,
-        slaBreaches: 0,
-        highRiskOrders: 0,
-      };
-    } catch (err) {
-      console.error("Failed to fetch live order metrics", err);
-    }
-  }
-
   return mockOrderMetrics;
 }
 

@@ -29,6 +29,7 @@ interface CaseDecisionPanelProps {
   onRejectReturn: () => void;
   onEscalateCase: () => void;
   onSuspendDecision: () => void;
+  onOverrideInspection: () => void;
 }
 
 export function CaseDecisionPanel({
@@ -42,6 +43,7 @@ export function CaseDecisionPanel({
   onRejectReturn,
   onEscalateCase,
   onSuspendDecision,
+  onOverrideInspection,
 }: CaseDecisionPanelProps) {
   const { health, blockingIssues, recommendation, canApproveFullRefund, approveFullRefundDisabledMessage } = data;
 
@@ -146,17 +148,15 @@ export function CaseDecisionPanel({
               className={`${styles.btnDecisionAction} ${
                 canApproveFullRefund ? styles.btnApproveReplacement : styles.btnDisabled
               }`}
-              onClick={onApproveFullRefund}
-              disabled={!canApproveFullRefund}
-              aria-describedby={!canApproveFullRefund ? "full-refund-disabled-reason" : undefined}
-              title={canApproveFullRefund ? "Approve full refund" : "Physical inspection pending."}
+              onClick={canApproveFullRefund ? onApproveFullRefund : onOverrideInspection}
+              title={canApproveFullRefund ? "Approve full refund" : "Physical inspection pending. Click to request inspection override."}
             >
               {!canApproveFullRefund && <Lock size={14} />}
               <CheckCircle size={16} />
               <span>Approve Full Refund</span>
             </button>
             {!canApproveFullRefund && (
-              <span className={styles.disabledHelpText} id="full-refund-disabled-reason">
+              <span className={styles.disabledHelpText}>
                 {approveFullRefundDisabledMessage || "Available after inspection completion or through an authorized override."}
               </span>
             )}

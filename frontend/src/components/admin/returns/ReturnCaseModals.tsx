@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { AlertTriangle, ShieldAlert, X } from "lucide-react";
 import styles from "./returns-queue.module.css";
 import {
@@ -61,36 +61,6 @@ export function ReturnCaseModals({
   const [confirmCheckbox, setConfirmCheckbox] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!activeModal) return;
-    const previousFocus = document.activeElement as HTMLElement | null;
-    const dialog = dialogRef.current;
-    dialog?.querySelector<HTMLElement>("textarea, input, select, button")?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !submitting) onClose();
-      if (event.key !== "Tab" || !dialog) return;
-      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled)"));
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      previousFocus?.focus();
-    };
-  }, [activeModal, onClose, submitting]);
 
   if (!activeModal) return null;
 
@@ -151,10 +121,10 @@ export function ReturnCaseModals({
   };
 
   return (
-    <div className={styles.modalOverlay} onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
-      <div ref={dialogRef} className={styles.modalContent} style={{ maxWidth: 540 }} role="dialog" aria-modal="true" aria-labelledby="return-action-modal-title">
+    <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+      <div className={styles.modalContent} style={{ maxWidth: 540 }}>
         <div className={styles.modalHeader}>
-          <h3 id="return-action-modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
+          <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
             {activeModal === "override_inspection" && <ShieldAlert size={18} style={{ color: "#dc2626" }} />}
             {activeModal === "override_inspection" && "Inspection Requirement Override"}
             {activeModal === "approve_refund" && "Approve Full Refund"}
@@ -168,7 +138,7 @@ export function ReturnCaseModals({
             {activeModal === "edit_note" && "Edit Internal Case Note"}
             {activeModal === "contact_customer" && "Contact Customer"}
           </h3>
-          <button type="button" aria-label="Close dialog" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={onClose} disabled={submitting}>
+          <button type="button" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={onClose}>
             <X size={18} />
           </button>
         </div>

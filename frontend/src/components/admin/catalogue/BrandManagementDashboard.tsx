@@ -8,15 +8,15 @@ import { BrandBottomPanels } from "./brands/BrandBottomPanels";
 
 export function BrandManagementDashboard() {
   return (
-    <div className="flex flex-col">
-      <BrandKPICards />
-      
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6 mb-6">
-         <BrandsTableSection />
-         <BrandHealthSidebar />
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 w-full items-start">
+      <div className="flex flex-col gap-6 min-w-0">
+        <BrandKPICards />
+        <BrandsTableSection />
+        <BrandBottomPanels />
       </div>
-
-      <BrandBottomPanels />
+      <div className="flex flex-col gap-6 shrink-0 w-full lg:w-[320px]">
+        <BrandHealthSidebar />
+      </div>
     </div>
   );
 }

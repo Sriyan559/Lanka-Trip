@@ -1,1 +1,0 @@
-"use client";import {ErrorState} from "@/components/admin/common/States";export default function Error({error, reset}:{error:Error;reset:()=>void}){return <><ErrorState/><div style={{padding: '20px', color: 'red', wordBreak: 'break-all'}}>{error?.message || "Unknown error"}</div><button className="button primary" onClick={reset}>Try again</button></>}

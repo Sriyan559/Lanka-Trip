@@ -1,12 +1,12 @@
-import Header             from '@/components/layout/Header';
-import Footer             from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import HomeCategoryCarousel from '@/components/home/HomeCategoryCarousel';
-import HeroSlider         from '@/components/home/HeroSlider';
-import FeaturedCards      from '@/components/home/FeaturedCards';
+import HeroSlider from '@/components/home/HeroSlider';
+import FeaturedCards from '@/components/home/FeaturedCards';
 import BeautyFeatureSections from '@/components/home/BeautyFeatureSections';
-import TrendingProducts   from '@/components/home/TrendingProducts';
+import TrendingProducts from '@/components/home/TrendingProducts';
 import CategoryGridSection from '@/components/home/CategoryGridSection';
-import HomePromoVideo     from '@/components/home/HomePromoVideo';
+import HomePromoVideo from '@/components/home/HomePromoVideo';
 import HomePromotionalCarousels from '@/components/home/HomePromotionalCarousels';
 import BeautyProductShowcases from '@/components/home/BeautyProductShowcases';
 import HomeDiscoverySections from '@/components/home/HomeDiscoverySections';
@@ -19,7 +19,6 @@ export const metadata = {
   description: SL_BEAUTY_DISPLAY_CONFIG.description,
 };
 
-// Edit every label, image, and destination for the category showcase in this one object.
 const BEAUTY_CATEGORY_SECTION = {
   id: 'beauty-categories',
   title: 'Shop Beauty Categories',
@@ -48,33 +47,31 @@ export default function HomePage() {
     <>
       <Header />
       <main className="max-w-screen-xl mx-auto px-3 py-3 sm:px-4 sm:py-4">
-
-        {/* ── Full-width beauty hero slider ─────────────────── */}
+        {/* Full-width beauty hero slider */}
         <div className="w-full">
           <HeroSlider />
         </div>
 
         <HomeCategoryCarousel />
 
-        {/* ── Featured service cards ─────────────────────────── */}
+        {/* Featured service cards */}
         <FeaturedCards />
 
-        {/* ── Custom detailed section targets ─────────────────── */}
+        {/* Custom detailed section targets */}
         <BeautyFeatureSections />
 
-        {/* ── Trending products grid ─────────────────────────── */}
+        {/* Trending products grid */}
         <TrendingProducts />
 
         <BeautyProductShowcases />
 
         <HomeDiscoverySections afterStories={<AIBeautyDiagnosticsSection />} />
 
-        {/* ── Beauty product category sections, using public SL Beauty display data ── */}
+        {/* Beauty product category sections */}
         <CategoryGridSection section={BEAUTY_CATEGORY_SECTION} />
         <HomePromoVideo />
         <HomePromotionalCarousels />
         <AfterMonsoonSections />
-
       </main>
       <Footer />
     </>

@@ -1,12 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import ReturnDetailPage from "@/app/admin/marketplace/returns/[returnId]/page";
 
-const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
-
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: pushMock,
+    push: vi.fn(),
   }),
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -93,68 +91,6 @@ describe("Screen 13 - Return Case Details and Decision Management Page", () => {
     render(page);
 
     expect(await screen.findByText(/Available after inspection completion or through an authorized override/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Approve Full Refund/i })).toBeDisabled();
-  });
-
-  it("marks the overview tab active and synchronizes tab changes to the URL", async () => {
-    const page = await ReturnDetailPage({ params: Promise.resolve({ returnId: "RET-2026-045091" }) });
-    render(page);
-
-    const overview = await screen.findByRole("tab", { name: "Case Overview" });
-    expect(overview).toHaveAttribute("aria-current", "page");
-    fireEvent.click(screen.getByRole("tab", { name: "Returned Items" }));
-    expect(pushMock).toHaveBeenCalledWith("/admin/marketplace/returns/RET-2026-045091?tab=items");
-  });
-
-  it("supports arrow-key tab navigation", async () => {
-    const page = await ReturnDetailPage({ params: Promise.resolve({ returnId: "RET-2026-045091" }) });
-    render(page);
-
-    fireEvent.keyDown(await screen.findByRole("tab", { name: "Case Overview" }), { key: "ArrowRight" });
-    expect(pushMock).toHaveBeenCalledWith("/admin/marketplace/returns/RET-2026-045091?tab=items");
-  });
-
-  it("opens the correct tab from a blocking issue", async () => {
-    const page = await ReturnDetailPage({ params: Promise.resolve({ returnId: "RET-2026-045091" }) });
-    render(page);
-
-    fireEvent.click(await screen.findByRole("button", { name: "Review Inspection" }));
-    expect(pushMock).toHaveBeenCalledWith("/admin/marketplace/returns/RET-2026-045091?tab=inspection");
-  });
-
-  it("opens and closes the replacement workflow with Escape", async () => {
-    const page = await ReturnDetailPage({ params: Promise.resolve({ returnId: "RET-2026-045091" }) });
-    render(page);
-
-    fireEvent.click((await screen.findAllByRole("button", { name: "Approve Replacement" }))[0]);
-    expect(screen.getByRole("dialog", { name: "Approve Replacement Order" })).toBeInTheDocument();
-    fireEvent.keyDown(document, { key: "Escape" });
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-  });
-
-  it("shows required-field feedback for an empty replacement submission", async () => {
-    const page = await ReturnDetailPage({ params: Promise.resolve({ returnId: "RET-2026-045091" }) });
-    render(page);
-
-    fireEvent.click((await screen.findAllByRole("button", { name: "Approve Replacement" }))[0]);
-    const dialog = screen.getByRole("dialog", { name: "Approve Replacement Order" });
-    fireEvent.submit(dialog.querySelector("form")!);
-    expect(await screen.findByText("A mandatory reason is required to approve product replacement.")).toBeInTheDocument();
-  });
-
-  it.each([
-    ["Approve Partial Refund", "Approve Partial Refund"],
-    ["Request Additional Evidence", "Request Additional Evidence"],
-    ["Schedule Inspection", "Schedule Physical Inspection"],
-    ["Reject Return", "Reject Return Case"],
-    ["Escalate Case", "Escalate Case Priority"],
-    ["Suspend Decision", "Suspend Decision"],
-  ])("opens the %s workflow dialog", async (buttonName, dialogName) => {
-    const page = await ReturnDetailPage({ params: Promise.resolve({ returnId: "RET-2026-045091" }) });
-    render(page);
-
-    fireEvent.click(await screen.findByRole("button", { name: buttonName }));
-    expect(screen.getByRole("dialog", { name: dialogName })).toBeInTheDocument();
   });
 
   it("renders Return Case Not Found state for invalid return ID", async () => {

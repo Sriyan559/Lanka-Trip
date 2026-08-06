@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Upload, Filter, Plus } from "lucide-react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { BrandManagementDashboard } from "@/components/admin/catalogue/BrandManagementDashboard";
 
 export default function BrandManagement() {
@@ -37,9 +37,9 @@ export default function BrandManagement() {
         </div>
       </div>
 
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
-      <div className="p-6">
+      <div className="px-8 flex flex-col gap-6 w-full mt-6">
         <BrandManagementDashboard />
       </div>
     </div>

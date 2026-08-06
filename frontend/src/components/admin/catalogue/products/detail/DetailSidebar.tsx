@@ -4,8 +4,9 @@ import React from "react";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { AlertCircle, Clock, Info, User, CheckCircle2, FileEdit, Send, MessageSquare, ExternalLink, PauseCircle, Archive, AlertTriangle, Download } from "lucide-react";
+import Link from "next/link";
 
-export function DetailSidebar() {
+export function DetailSidebar({ productId }: { productId?: string }) {
   return (
     <div className="flex flex-col gap-6">
       {/* Product Health */}
@@ -104,9 +105,12 @@ export function DetailSidebar() {
       {/* Final Product Actions */}
       <div className="bg-white rounded-lg border border-line shadow-sm overflow-hidden flex flex-col">
         <h3 className="text-[13px] font-bold text-ink p-5 pb-3">Final Product Actions</h3>
-        <button className="w-full text-left px-5 py-3 text-[12px] font-bold text-white bg-[#741d35] hover:bg-[#5a1629] flex items-center gap-2 border-b border-[#5a1629]">
+        <Link 
+          href={`/admin/catalogue/products/${productId || 'product-uuid-001'}/edit`}
+          className="w-full text-left px-5 py-3 text-[12px] font-bold text-white bg-[#741d35] hover:bg-[#5a1629] flex items-center gap-2 border-b border-[#5a1629]"
+        >
           <FileEdit size={14} /> Edit Product
-        </button>
+        </Link>
         <button className="w-full text-left px-5 py-3 text-[12px] font-bold text-[#741d35] bg-white hover:bg-red-50 flex items-center gap-2 border-b border-line">
           <Send size={14} /> Submit for Approval
         </button>

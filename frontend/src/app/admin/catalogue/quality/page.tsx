@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Download, Copy } from "lucide-react";
-import { TopFilterBar } from "@/components/admin/layout/TopFilterBar";
+import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { QualityManagementDashboard } from "@/components/admin/catalogue/quality/QualityManagementDashboard";
 
 export default function QualityManagement() {
@@ -31,9 +31,9 @@ export default function QualityManagement() {
         </div>
       </div>
 
-      <TopFilterBar />
+      <CatalogueTopFilterBar />
 
-      <div className="p-6">
+      <div className="px-8 flex flex-col gap-6 w-full mt-6">
         <QualityManagementDashboard />
       </div>
     </div>
