@@ -1,21 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    const backendApiUrl = (process.env.BACKEND_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
-
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${backendApiUrl}/:path*`,
-      },
-    ];
-  },
   images: {
     unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
         hostname: 'localhost',
+        port: '8000',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
         port: '8000',
         pathname: '/storage/**',
       },

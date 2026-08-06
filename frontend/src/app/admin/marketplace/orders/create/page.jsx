@@ -1,3 +1,1 @@
-import ManualOrderCreationView from "@/components/admin/marketplace/orders/create/ManualOrderCreationView";
-
-export default function ManualOrderCreationPage(){return <ManualOrderCreationView/>}
+import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="manual-orders"/></Suspense>}

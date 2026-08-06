@@ -1,21 +1,6 @@
-export type ListingTone = "success" | "warning" | "danger" | "info" | "neutral" | "purple";
-
-export type ListingRow = {
-  id: string; name: string; descriptor: string; seller: string; product: string; brand: string;
-  businessUnit: string; channel: string; price: string; stock: number; sales: string; conversion: string;
-  verification: string; policy: string; risk: string; status: string; updated: string; reviewer: string;
-};
-
-export type ListingMetric = { id: string; label: string; value: number; tone: ListingTone };
-export type ListingAlert = { title: string; detail: string; action: string; tone: ListingTone; filter: string };
-export type ListingQueue = { label: string; count: number; filter: string; tone: ListingTone };
-
-export interface MarketplaceListingsData {
-  source: "frontend-fixture" | "api";
-  lastUpdated: string;
-  total: number;
-  metrics: ListingMetric[];
-  listings: ListingRow[];
-  alerts: ListingAlert[];
-  queues: ListingQueue[];
-}
+export type Availability = "available" | "unavailable";
+export type ListingMetric = { id: string; label: string; availability: Availability; value: number | null; reason?: string };
+export type ListingRow = { id: string; listingCode: string; name: string; descriptor: string | null; thumbnailUrl: string | null; seller: { id: string; name: string } | null; product: { id: string; name: string }; brand: { id: string; name: string } | null; category: { id: string; name: string } | null; businessUnit: null; channel: null; sellingPrice: { amount: number; currency: string | null }; stock: number; sales30Days: number; conversionRate30Days: number | null; verificationStatus: string | null; policyStatus: string | null; riskLevel: string | null; listingStatus: string; updatedAt: string; permissions: { view: boolean; edit: boolean; suspend: boolean } };
+export type ListingAlert = { id: string; title: string; detail: string; severity: "danger" | "warning"; href: string };
+export type MarketplaceListingsFilters = { search?: string; status?: string; sellerId?: string; categoryId?: string; currency?: string; sortBy?: string; sortDirection?: "asc" | "desc"; page?: number; perPage?: number };
+export interface MarketplaceListingsData { items: ListingRow[]; metrics: ListingMetric[]; health: { availability: Availability; reason: string; score: number | null; components: unknown[] }; alerts: ListingAlert[]; sla: { availability: Availability; reason: string; items: unknown[] }; filters: { currency: string | null }; permissions: { can_create: boolean; can_update: boolean; can_export: boolean; can_bulk_action: boolean }; meta: { page: number; perPage: number; total: number; totalPages: number; from: number | null; to: number | null; generatedAt: string; dataAsOf: string; refreshIntervalSeconds: number } }

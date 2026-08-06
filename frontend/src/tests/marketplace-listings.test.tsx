@@ -1,59 +1,17 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import MarketplaceListingsPage from "@/app/admin/marketplace/listings/page";
-import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
-import { fetchMarketplaceListings } from "@/services/api/marketplaceListingsService";
+import { fetchMarketplaceListings, exportMarketplaceListings } from "@/services/api/marketplaceListingsService";
+import type { MarketplaceListingsData } from "@/types/marketplaceListings";
 
-const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+const replace = vi.fn(); let search = new URLSearchParams();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }), usePathname: () => "/admin/marketplace/listings", useSearchParams: () => search }));
+vi.mock("@/services/api/marketplaceListingsService", () => ({ fetchMarketplaceListings: vi.fn(), exportMarketplaceListings: vi.fn() }));
+const fixture: MarketplaceListingsData = { items: [{ id:"12",listingCode:"LST-0000012",name:"Database Serum",descriptor:"Real product",thumbnailUrl:null,seller:{id:"3",name:"Database Seller"},product:{id:"12",name:"Database Serum"},brand:null,category:{id:"2",name:"Skin Care"},businessUnit:null,channel:null,sellingPrice:{amount:4900,currency:"LKR"},stock:8,sales30Days:4,conversionRate30Days:null,verificationStatus:null,policyStatus:"approved",riskLevel:"low",listingStatus:"live",updatedAt:"2026-08-06T10:00:00+05:30",permissions:{view:true,edit:true,suspend:true} }], metrics:[{id:"all",label:"Total Listings",availability:"available",value:1},{id:"live",label:"Live Listings",availability:"available",value:1},{id:"price-exceptions",label:"Price Exceptions",availability:"unavailable",value:null,reason:"listing_price_policy_not_defined"}],health:{availability:"unavailable",reason:"approved_listing_health_formula_not_defined",score:null,components:[]},alerts:[],sla:{availability:"unavailable",reason:"listing_sla_policy_not_defined",items:[]},filters:{currency:"LKR"},permissions:{can_create:false,can_update:true,can_export:true,can_bulk_action:false},meta:{page:1,perPage:25,total:1,totalPages:1,from:1,to:1,generatedAt:"2026-08-06T10:00:00+05:30",dataAsOf:"2026-08-06T10:00:00+05:30",refreshIntervalSeconds:30} };
 
 describe("Marketplace Listings Management", () => {
-  it("loads the explicit typed fixture through its service", async () => {
-    const result = await fetchMarketplaceListings();
-    expect(result.source).toBe("frontend-fixture");
-    expect(result.metrics).toHaveLength(12);
-    expect(result.listings).toHaveLength(4);
-  });
-
-  it("renders the workspace and operational rail", async () => {
-    render(<MarketplaceListingsPage />);
-    await screen.findByText("Radiance Vitamin C Serum");
-    expect(screen.getByRole("heading", { name: "Marketplace Listings Management" })).toBeInTheDocument();
-    expect(screen.getAllByText("12,450").length).toBeGreaterThan(0);
-    expect(screen.getByRole("heading", { name: /Listing Health/ })).toBeInTheDocument();
-    expect(screen.getByText("Radiance Vitamin C Serum")).toBeInTheDocument();
-    expect(screen.getByText("Priority Alerts")).toBeInTheDocument();
-  });
-
-  it("filters rows from KPI/status controls", async () => {
-    render(<MarketplaceListingsPage />);
-    await screen.findByText("Radiance Vitamin C Serum");
-    fireEvent.click(screen.getAllByRole("button", { name: /Rejected/ })[0]);
-    expect(screen.getByText("Tokyo Essence Lip Tint")).toBeInTheDocument();
-    expect(screen.queryByText("Radiance Vitamin C Serum")).not.toBeInTheDocument();
-  });
-
-  it("enables bulk actions only after selection and opens the workflow", async () => {
-    render(<MarketplaceListingsPage />);
-    await screen.findByText("Radiance Vitamin C Serum");
-    const bulk = screen.getByRole("button", { name: /Bulk Actions/ });
-    expect(bulk).toBeDisabled();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Select Radiance Vitamin C Serum" }));
-    expect(bulk).toBeEnabled();
-    fireEvent.click(bulk);
-    expect(screen.getByRole("dialog", { name: "Bulk Actions" })).toBeInTheDocument();
-  });
-
-  it("routes listing moderation actions with the selected row ID", async () => {
-    render(<MarketplaceListingsPage />);
-    fireEvent.click(await screen.findByRole("button", { name: "Actions for Radiance Vitamin C Serum" }));
-    fireEvent.click(screen.getByRole("button", { name: "View Listing" }));
-    expect(push).toHaveBeenCalledWith("/admin/marketplace/listings/LST-0012456");
-    expect(screen.getByRole("link", { name: "LST-0012456" })).toHaveAttribute("href", "/admin/marketplace/listings/LST-0012456");
-  });
-
-  it("registers an active Listings child route", () => {
-    const marketplace = ADMIN_NAVIGATION.find(item => item.id === "marketplace");
-    expect(marketplace?.children?.find(item => item.id === "listings")?.href).toBe("/admin/marketplace/listings");
-  });
+  beforeEach(() => { search = new URLSearchParams(); vi.mocked(fetchMarketplaceListings).mockResolvedValue(fixture); vi.mocked(exportMarketplaceListings).mockResolvedValue(); });
+  it("renders database API rows and honest unavailable capabilities", async () => { render(<MarketplaceListingsPage/>); expect((await screen.findAllByText("Database Serum")).length).toBeGreaterThan(0); expect(screen.getByText("Database Seller")).toBeInTheDocument(); expect(screen.getAllByText("Not available").length).toBeGreaterThan(0); expect(screen.getByText(/no approved listing-health formula/i)).toBeInTheDocument(); });
+  it("persists status filters in the URL", async () => { render(<MarketplaceListingsPage/>); fireEvent.click(await screen.findByRole("tab", { name:/Live/ })); expect(replace).toHaveBeenCalledWith("/admin/marketplace/listings?status=live", { scroll:false }); });
+  it("exports with active server filters", async () => { search = new URLSearchParams("status=live"); render(<MarketplaceListingsPage/>); fireEvent.click(await screen.findByRole("button", { name:/Export Listings/ })); await waitFor(() => expect(exportMarketplaceListings).toHaveBeenCalledWith(expect.objectContaining({ status:"live" }))); });
 });

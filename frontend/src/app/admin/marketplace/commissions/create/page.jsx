@@ -1,3 +1,1 @@
-import CommissionRuleEditorView from "@/components/admin/marketplace/commissions/rule-editor/CommissionRuleEditorView";
-export default function CreateCommissionRulePage(){return <CommissionRuleEditorView mode="create"/>}
-
+import{Suspense}from"react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="commissions"/></Suspense>}

@@ -5,6 +5,10 @@ use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
 use App\Http\Controllers\Api\Admin\EcosystemModuleController;
 use App\Http\Controllers\Api\Admin\LogisticsController;
+use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
+use App\Http\Controllers\Api\Admin\MarketplaceListingsController;
+use App\Http\Controllers\Api\Admin\MarketplaceSellersController;
+use App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController;
 use App\Http\Controllers\Api\Admin\PayoutController;
 use App\Http\Controllers\Api\Admin\ReturnCaseController;
 use App\Http\Controllers\Api\Admin\SupportCaseController;
@@ -159,6 +163,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/admin/dashboard/overview', AdminDashboardController::class);
+        Route::get('/admin/marketplace/dashboard', [MarketplaceDashboardController::class, 'show']);
+        Route::get('/admin/marketplace/dashboard/export', [MarketplaceDashboardController::class, 'export']);
+        Route::get('/admin/marketplace/listings', [MarketplaceListingsController::class, 'index']);
+        Route::get('/admin/marketplace/listings/export', [MarketplaceListingsController::class, 'export']);
+        Route::get('/admin/marketplace/listings/{listing}', [MarketplaceListingsController::class, 'show'])->whereNumber('listing');
+        Route::get('/admin/marketplace/sellers', [MarketplaceSellersController::class, 'index']);
+        Route::get('/admin/marketplace/sellers/export', [MarketplaceSellersController::class, 'export']);
+        Route::get('/admin/marketplace/sellers/{seller}', [MarketplaceSellersController::class, 'show'])->whereNumber('seller');
+        Route::get('/admin/marketplace/workspaces/{workspace}', [MarketplaceWorkspaceController::class, 'index']);
+        Route::get('/admin/marketplace/workspaces/{workspace}/export', [MarketplaceWorkspaceController::class, 'export']);
+        Route::get('/admin/marketplace/orders/{order}', [MarketplaceWorkspaceController::class, 'order'])->whereNumber('order');
+        Route::post('/admin/marketplace/orders/{order}/notes', [MarketplaceWorkspaceController::class, 'note'])->whereNumber('order');
+        Route::patch('/admin/marketplace/orders/{order}/status', [MarketplaceWorkspaceController::class, 'transition'])->whereNumber('order');
 
         Route::get('/admin/payouts/summary', [PayoutController::class, 'summary']);
         Route::get('/admin/payouts/settlements', [PayoutController::class, 'settlements']);

@@ -1,6 +1,3 @@
-import React from "react";
-import { ReturnsQueueView } from "@/components/admin/returns/ReturnsQueueView";
-
-export default function ReturnsQueuePage() {
-  return <ReturnsQueueView />;
-}
+import {Suspense} from "react";
+import {MarketplaceWorkspaceView} from "@/components/admin/marketplace/shared/MarketplaceWorkspaceView";
+export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="returns"/></Suspense>}
