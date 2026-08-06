@@ -1,3 +1,1 @@
-import SalesChannelManagementView from "@/components/admin/marketplace/channels/SalesChannelManagementView";
-
-export default function SalesChannelManagementPage(){return <SalesChannelManagementView/>}
+import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="channels"/></Suspense>}

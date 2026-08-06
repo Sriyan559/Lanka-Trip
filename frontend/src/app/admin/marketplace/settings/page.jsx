@@ -1,3 +1,1 @@
-import MarketplaceConfigurationView from "@/components/admin/marketplace/settings/MarketplaceConfigurationView";
-
-export default function MarketplaceConfigurationPage(){return <MarketplaceConfigurationView/>}
+import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="settings"/></Suspense>}

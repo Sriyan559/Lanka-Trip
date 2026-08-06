@@ -1,3 +1,1 @@
-import {MarketplaceCommissionManagementView} from "@/components/admin/marketplace/commissions/MarketplaceCommissionManagementView";
-export default function MarketplaceCommissionsPage(){return <MarketplaceCommissionManagementView/>}
-
+import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="commissions"/></Suspense>}

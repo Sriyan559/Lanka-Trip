@@ -1,3 +1,1 @@
-import MarketplacePromotionsView from "@/components/admin/marketplace/promotions/MarketplacePromotionsView";
-
-export default function MarketplacePromotionsPage(){return <MarketplacePromotionsView/>}
+import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="promotions"/></Suspense>}

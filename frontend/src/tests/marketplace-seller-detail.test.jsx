@@ -1,44 +1,11 @@
-import {fireEvent,render,screen,waitFor} from "@testing-library/react";
-import {describe,expect,it,vi} from "vitest";
-import {SellerPerformanceDetailView} from "@/components/admin/marketplace/sellers/detail/SellerPerformanceDetailView";
-import {fetchMarketplaceSellerDetail} from "@/services/api/marketplaceSellerDetailService";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SellerPerformanceDetailView } from "@/components/admin/marketplace/sellers/detail/SellerPerformanceDetailView";
+import { fetchMarketplaceSellerDetail } from "@/services/api/marketplaceSellerDetailService";
 
-const replace=vi.fn();
-vi.mock("next/navigation",()=>({useRouter:()=>({replace}),useSearchParams:()=>new URLSearchParams()}));
-
+vi.mock("@/services/api/marketplaceSellerDetailService",()=>({fetchMarketplaceSellerDetail:vi.fn()}));
+const fixture={source:"database",generatedAt:"2026-08-06T10:00:00Z",context:{currency:"LKR",currencies:["LKR"]},permissions:{canView:true,canExport:true,canManage:true},seller:{id:"7",sellerCode:"SELL-00000007",name:"Database Seller",businessType:"Manufacturer",activeListings:3,orders:1,gmv:{amount:1000,currency:"LKR"},averageOrderValue:{amount:1000,currency:"LKR"},fulfilmentRate:100,cancellationRate:0,returnRate:0,rating:4.5,riskLevel:"low",verificationStatus:"verified",status:"active",lastActivityAt:"2026-08-06T10:00:00Z"},profile:{description:"Real supplier",country:"Sri Lanka",city:"Colombo",email:"seller@example.com",phone:null,website:null,complianceStatus:"approved"},unavailable:{performanceScore:"No approved composite performance formula exists.",sla:"No approved seller SLA source exists.",assignedManager:"No supplier-manager assignment exists."}};
 describe("Seller Performance Detail",()=>{
-  it("loads seller-specific detail data",async()=>{
-    const data=await fetchMarketplaceSellerDetail("SELL-2026-000142");
-    expect(data.name).toBe("Ceylon Beauty Distributors");
-    expect(data.source).toBe("frontend-fixture");
-    expect(data.dimensions).toHaveLength(8);
-  });
-
-  it("renders the score, summary panels and intervention rail",async()=>{
-    render(<SellerPerformanceDetailView sellerId="SELL-2026-000142"/>);
-    expect(await screen.findByRole("heading",{name:"Ceylon Beauty Distributors"})).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:"Seller Performance Score"})).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:"Marketplace Summary"})).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:"Intervention Panel"})).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:"Financial Reliability"})).toBeInTheDocument();
-  });
-
-  it("requires an audit note for interventions",async()=>{
-    render(<SellerPerformanceDetailView sellerId="SELL-2026-000142"/>);
-    fireEvent.click((await screen.findAllByRole("button",{name:"Place Under Review"}))[0]);
-    fireEvent.click(screen.getByRole("button",{name:"Confirm"}));
-    expect(screen.getByRole("alert")).toHaveTextContent("audit note is required");
-  });
-
-  it("records local intervention state without claiming persistence",async()=>{
-    render(<SellerPerformanceDetailView sellerId="SELL-2026-000142"/>);
-    fireEvent.click(await screen.findByRole("button",{name:"Maintain Active Status"}));
-    fireEvent.change(screen.getByPlaceholderText("Enter decision context"),{target:{value:"Reviewed performance and risk."}});
-    fireEvent.click(screen.getByRole("button",{name:"Confirm"}));
-    await waitFor(()=>expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-  });
-
-  it("returns a not-found service error for an unknown seller",async()=>{
-    await expect(fetchMarketplaceSellerDetail("SELL-UNKNOWN")).rejects.toThrow("SELLER_NOT_FOUND");
-  });
+  beforeEach(()=>vi.mocked(fetchMarketplaceSellerDetail).mockResolvedValue(fixture));
+  it("renders database seller details and metric definitions",async()=>{render(<SellerPerformanceDetailView sellerId="7"/>);expect(await screen.findByRole("heading",{name:"Database Seller"})).toBeInTheDocument();expect(screen.getAllByText("SELL-00000007")).toHaveLength(2);expect(screen.getByRole("heading",{name:"Seller profile"})).toBeInTheDocument();expect(screen.getByText(/No approved composite performance formula/)).toBeInTheDocument();expect(fetchMarketplaceSellerDetail).toHaveBeenCalledWith("7",{},expect.any(AbortSignal));});
 });

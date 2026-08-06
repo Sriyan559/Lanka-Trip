@@ -1,65 +1,18 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import MarketplaceSellersPage from "@/app/admin/marketplace/sellers/page";
-import { fetchMarketplaceSellers } from "@/services/api/marketplaceSellersService";
-import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
+import { fetchMarketplaceSellers, exportMarketplaceSellers } from "@/services/api/marketplaceSellersService";
 
-const push=vi.fn();
-vi.mock("next/navigation",()=>({useRouter:()=>({push})}));
+const replace=vi.fn(); let search=new URLSearchParams();
+vi.mock("next/navigation",()=>({useRouter:()=>({replace}),useSearchParams:()=>search}));
+vi.mock("@/services/api/marketplaceSellersService",()=>({fetchMarketplaceSellers:vi.fn(),exportMarketplaceSellers:vi.fn()}));
+vi.mock("recharts",()=>({ResponsiveContainer:({children})=><div>{children}</div>,LineChart:({children})=><div>{children}</div>,Line:()=>null,CartesianGrid:()=>null,XAxis:()=>null,YAxis:()=>null,Tooltip:()=>null,Legend:()=>null,PieChart:({children})=><div>{children}</div>,Pie:({children})=><div>{children}</div>,Cell:()=>null}));
 
-vi.mock("recharts",()=>({
-  ResponsiveContainer:({children})=><div data-testid="responsive-chart">{children}</div>,
-  LineChart:({children})=><div>{children}</div>,Line:()=>null,CartesianGrid:()=>null,XAxis:()=>null,YAxis:()=>null,Tooltip:()=>null,Legend:()=>null,
-  PieChart:({children})=><div>{children}</div>,Pie:({children})=><div>{children}</div>,Cell:()=>null,
-}));
+const fixture={source:"database",generatedAt:"2026-08-06T10:00:00Z",context:{currency:"LKR",currencies:["LKR"],dateFrom:"2026-07-08",dateTo:"2026-08-06"},permissions:{canView:true,canExport:true,canManage:true},metrics:[{id:"active",label:"Active Marketplace Sellers",availability:"available",value:1,definition:"real"},{id:"gmv",label:"Total Seller GMV",availability:"available",value:1000,unit:"LKR",definition:"real"},{id:"sla",label:"Seller SLA Breaches",availability:"unavailable",reason:"No approved seller SLA policy or breach source exists."}],trend:[{date:"2026-08-06",gmv:1000,orders:1,fulfilmentRate:100,cancellationRate:0,returnRate:0}],riskDistribution:[{level:"low",value:1,percentage:100},{level:"medium",value:0,percentage:0},{level:"high",value:0,percentage:0},{level:"critical",value:0,percentage:0}],items:[{id:"7",sellerCode:"SELL-00000007",name:"Database Seller",businessType:"Manufacturer",activeListings:3,orders:1,gmv:{amount:1000,currency:"LKR"},averageOrderValue:{amount:1000,currency:"LKR"},fulfilmentRate:100,cancellationRate:0,returnRate:0,rating:4.5,verificationStatus:"verified",riskLevel:"low",status:"active",lastActivityAt:"2026-08-06T10:00:00Z"}],alerts:[],unavailable:[{id:"health-score",label:"Marketplace Seller Health",reason:"No approved composite health formula exists."}],meta:{page:1,perPage:25,total:1,lastPage:1,refreshIntervalSeconds:30}};
 
 describe("Seller Marketplace Performance",()=>{
-  it("loads the explicit frontend fixture through its service",async()=>{
-    const data=await fetchMarketplaceSellers();
-    expect(data.source).toBe("frontend-fixture");
-    expect(data.kpis).toHaveLength(12);
-    expect(data.sellers).toHaveLength(4);
-  });
-
-  it("renders KPIs, charts, seller table and operational rail",async()=>{
-    render(<MarketplaceSellersPage/>);
-    expect(await screen.findByRole("heading",{name:"Seller Marketplace Performance",level:1})).toBeInTheDocument();
-    expect(screen.getByText("Active Marketplace Sellers")).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:"Seller Performance Trend"})).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:/Marketplace Seller Health/})).toBeInTheDocument();
-    expect(screen.getByText("Ceylon Beauty Distributors")).toBeInTheDocument();
-  });
-
-  it("filters seller rows by tab and search",async()=>{
-    render(<MarketplaceSellersPage/>);
-    await screen.findByText("Ceylon Beauty Distributors");
-    fireEvent.click(screen.getByRole("tab",{name:"Under Review"}));
-    expect(screen.getByText("Tokyo Beauty Ceylon")).toBeInTheDocument();
-    expect(screen.queryByText("Ceylon Beauty Distributors")).not.toBeInTheDocument();
-  });
-
-  it("supports row selection and seller comparison",async()=>{
-    render(<MarketplaceSellersPage/>);
-    fireEvent.click(await screen.findByRole("checkbox",{name:"Select Ceylon Beauty Distributors"}));
-    fireEvent.click(screen.getByRole("checkbox",{name:"Select LankaSkin Wholesale"}));
-    const compare=screen.getAllByRole("button",{name:/Compare/}).find(button=>!button.textContent.includes("Sellers"));
-    expect(compare).toBeEnabled();
-    fireEvent.click(compare);
-    expect(screen.getByRole("dialog",{name:"Compare Sellers"})).toBeInTheDocument();
-  });
-
-  it("registers Sellers beneath the existing Marketplace navigation",()=>{
-    const marketplace=ADMIN_NAVIGATION.find(item=>item.id==="marketplace");
-    expect(marketplace.children.find(item=>item.id==="sellers").href).toBe("/admin/marketplace/sellers");
-    expect(marketplace.children.find(item=>item.id==="commissions")).toBeTruthy();
-  });
-
-  it("routes seller links and review actions with the selected seller ID",async()=>{
-    render(<MarketplaceSellersPage/>);
-    const id=await screen.findByRole("link",{name:"SELL-2026-000142"});
-    expect(id).toHaveAttribute("href","/admin/marketplace/sellers/SELL-2026-000142");
-    fireEvent.click(screen.getByRole("button",{name:"Actions for Ceylon Beauty Distributors"}));
-    fireEvent.click(screen.getByRole("button",{name:"View Performance"}));
-    expect(push).toHaveBeenCalledWith("/admin/marketplace/sellers/SELL-2026-000142");
-  });
+  beforeEach(()=>{search=new URLSearchParams();replace.mockClear();vi.mocked(fetchMarketplaceSellers).mockResolvedValue(fixture);vi.mocked(exportMarketplaceSellers).mockResolvedValue();});
+  it("renders database API metrics, sellers, and honest unavailable states",async()=>{render(<MarketplaceSellersPage/>);expect(await screen.findByText("Database Seller")).toBeInTheDocument();expect(screen.getByText("SELL-00000007")).toBeInTheDocument();expect(screen.getByText("Seller SLA Breaches")).toBeInTheDocument();expect(screen.getByText(/No approved composite health formula/)).toBeInTheDocument();});
+  it("persists status filters in the URL",async()=>{render(<MarketplaceSellersPage/>);fireEvent.click(await screen.findByRole("tab",{name:"Active"}));expect(replace).toHaveBeenCalledWith("/admin/marketplace/sellers?status=active&page=1",{scroll:false});});
+  it("exports with active server filters",async()=>{search=new URLSearchParams("status=active&currency=LKR");render(<MarketplaceSellersPage/>);fireEvent.click(await screen.findByRole("button",{name:/Export Performance Report/}));await waitFor(()=>expect(exportMarketplaceSellers).toHaveBeenCalledWith(expect.objectContaining({status:"active",currency:"LKR"})));});
 });

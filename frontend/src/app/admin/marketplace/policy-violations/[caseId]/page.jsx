@@ -1,5 +1,1 @@
-import PolicyViolationCaseDetailView from "@/components/admin/marketplace/policy-violations/detail/PolicyViolationCaseDetailView";
-
-export default function PolicyViolationCaseDetailPage({params}){
-  return <PolicyViolationCaseDetailView caseId={params.caseId}/>;
-}
+import{Suspense}from"react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="policy-violations"/></Suspense>}
