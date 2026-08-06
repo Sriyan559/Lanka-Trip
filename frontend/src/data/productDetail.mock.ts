@@ -1,0 +1,138 @@
+import {
+  ProductDetailRecord,
+  ReadinessCardItem,
+  VariantDetailRow,
+  ActiveBatchRow,
+  ChannelReadinessDetailRow,
+  LinkedRecordItem,
+  BlockingIssueItem,
+  RecentAuditActivityItem,
+} from '../types/productDetail';
+
+export const MOCK_PRODUCT_DETAIL_RECORD: ProductDetailRecord = {
+  id: 'PROD-2024-00421',
+  publicId: 'PROD-2024-00421',
+  dbProductId: '421',
+  productName: 'Radiance Vitamin C Serum',
+  variantInfo: '30 ml',
+  sku: 'RAD-VITC-30ML',
+  barcode: '8901234567895',
+  brand: 'Estée Lauder',
+  brandAuthId: 'AUTH-2023-0892',
+  brandAuthStatus: 'Valid',
+  brandAuthExpiry: 'Dec 31, 2026',
+  supplier: 'Luxe Distribution Pvt Ltd',
+  supplierRisk: 'Low',
+  supplierSince: 'Jan 15, 2023',
+  category: 'Face Serum',
+  subcategory: 'Vitamin C Serum',
+  department: 'Skincare',
+  productFamily: 'Serum',
+  beautyConcern: 'Dullness, Uneven Tone',
+  skinType: 'All Skin Types',
+  regulatoryClass: 'Cosmetic',
+  productType: 'Finished Cosmetic Product',
+  primaryVariant: '30 ml',
+  countryOfOrigin: 'USA',
+  manufacturer: 'Estée Lauder Companies Inc.',
+  productStatus: 'Active',
+  approvalStatus: 'Compliance Review',
+  publicationStatus: 'Not Ready',
+  riskLevel: 'Medium',
+  completenessPercent: 85,
+  ownerName: 'Elena Vance',
+  ownerRole: 'Compliance Lead',
+  createdDate: 'Oct 24, 2024 10:25 AM',
+  updatedDate: 'May 04, 2026 11:27 AM',
+  recordVersion: 'v2',
+  thumbnail: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=200&auto=format&fit=crop&q=80',
+  shortDescription: 'Advanced Vitamin C serum that brightens dull skin and reduces dark spots.',
+  keyBenefits: 'Brightening, Anti-oxidant, Evens tone',
+  warnings: 'For external use only. Avoid eye contact.',
+  languages: ['EN', 'SI', 'TA'],
+  contentCompleteness: 85,
+  totalIngredients: 36,
+  activeIngredientsCount: 3,
+  allergens: ['Fragrance', 'Limonene'],
+  safetyEvidenceStatus: '2 pending',
+  prohibitedIngredientsStatus: 'Clear',
+  activeRecallStatus: 'None',
+  mrp: 12450.0,
+  costPrice: 8250.0,
+  grossMarginPercent: 33.7,
+  taxClass: 'Standard VAT (15%)',
+  promotionalEligibility: 'Eligible',
+  priceLastUpdated: 'Apr 28, 2026',
+  totalAvailableUnits: 2450,
+  reservedUnits: 200,
+  quarantinedUnits: 450,
+  totalStockUnits: 3100,
+  openIssuesCount: 3,
+  activeBatchesCount: 4,
+  channelCoverageText: '2 of 6',
+  riskScore: 38,
+};
+
+export const DETAIL_READINESS_CARDS: ReadinessCardItem[] = [
+  { id: 'rc-1', label: 'Data Completeness', value: '85%', status: 'good', targetTab: 'overview' },
+  { id: 'rc-2', label: 'Compliance Readiness', value: '72%', status: 'warning', targetTab: 'compliance' },
+  { id: 'rc-3', label: 'Brand Authorization', value: 'Valid', status: 'good', targetTab: 'brand' },
+  { id: 'rc-4', label: 'Variant Readiness', value: '100%', status: 'good', targetTab: 'variants' },
+  { id: 'rc-5', label: 'Media Readiness', value: '80%', status: 'warning', targetTab: 'media' },
+  { id: 'rc-6', label: 'Inventory Linkage', value: 'Linked', status: 'good', targetTab: 'inventory' },
+  { id: 'rc-7', label: 'Publication Readiness', value: 'Not Ready', status: 'alert', targetTab: 'publication' },
+  { id: 'rc-8', label: 'Duplicate Risk', value: 'Low', status: 'good', targetTab: 'overview' },
+  { id: 'rc-9', label: 'Product Risk Score', value: '38/100, Medium', status: 'warning', targetTab: 'overview' },
+  { id: 'rc-10', label: 'Open Issues', value: '3', status: 'alert', actionText: 'View', targetTab: 'compliance' },
+  { id: 'rc-11', label: 'Active Batches', value: '4', status: 'good', actionText: 'View', targetTab: 'inventory' },
+  { id: 'rc-12', label: 'Channel Coverage', value: '2 of 6', status: 'warning', actionText: 'View', targetTab: 'publication' },
+];
+
+export const MOCK_VARIANTS: VariantDetailRow[] = [
+  { variant: 'Standard', size: '30 ml', sku: 'RAD-VITC-30ML', status: 'Active', readinessPercent: 100, inventory: 2450 },
+  { variant: 'Large', size: '50 ml', sku: 'RAD-VITC-50ML', status: 'Active', readinessPercent: 95, inventory: 1200 },
+  { variant: 'Travel Size', size: '15 ml', sku: 'RAD-VITC-15ML', status: 'Active', readinessPercent: 70, inventory: 800 },
+];
+
+export const MOCK_ACTIVE_BATCHES: ActiveBatchRow[] = [
+  { batchNumber: 'BT-2024-0098', mfgDate: 'Jan 15, 2024', expiryDate: 'Jan 15, 2027', availableQty: 1200, status: 'Active' },
+  { batchNumber: 'BT-2024-0112', mfgDate: 'Mar 10, 2024', expiryDate: 'Mar 10, 2027', availableQty: 800, status: 'Active' },
+  { batchNumber: 'BT-2024-0134', mfgDate: 'Apr 20, 2024', expiryDate: 'Apr 20, 2027', availableQty: 300, status: 'Active' },
+  { batchNumber: 'BT-2024-0145', mfgDate: 'May 02, 2024', expiryDate: 'May 02, 2027', availableQty: 150, status: 'Active' },
+];
+
+export const MOCK_CHANNEL_READINESS: ChannelReadinessDetailRow[] = [
+  { channel: 'Online Marketplace', eligible: true, published: false, content: 'Ready', media: 'Ready', pricing: 'Ready', inventory: 'Ready', policy: 'Not Ready', blockersCount: 2, lastPublished: '-' },
+  { channel: 'Mobile App', eligible: true, published: false, content: 'Ready', media: 'Partial', pricing: 'Ready', inventory: 'Ready', policy: 'Not Ready', blockersCount: 2, lastPublished: '-' },
+  { channel: 'B2B Wholesale Portal', eligible: true, published: false, content: 'Ready', media: 'Ready', pricing: 'Ready', inventory: 'Ready', policy: 'Not Ready', blockersCount: 1, lastPublished: '-' },
+  { channel: 'Partner Storefront', eligible: true, published: false, content: 'Partial', media: 'Not Ready', pricing: 'Ready', inventory: 'Ready', policy: 'Not Ready', blockersCount: 2, lastPublished: '-' },
+  { channel: 'Social Commerce', eligible: true, published: false, content: 'Ready', media: 'Not Ready', pricing: 'Ready', inventory: 'Ready', policy: 'Not Ready', blockersCount: 2, lastPublished: '-' },
+  { channel: 'Corporate Sales', eligible: true, published: true, content: 'Ready', media: 'Ready', pricing: 'Ready', inventory: 'Ready', policy: 'Ready', blockersCount: 0, lastPublished: 'Apr 15, 2026' },
+];
+
+export const MOCK_LINKED_RECORDS: LinkedRecordItem[] = [
+  { id: 'lr-1', type: 'Approval Submission', reference: 'SUB-2024-0512' },
+  { id: 'lr-2', type: 'Inventory Records', reference: '3 records' },
+  { id: 'lr-3', type: 'Marketplace Listings', reference: '2 listings' },
+  { id: 'lr-4', type: 'Batches', reference: '4 active' },
+  { id: 'lr-5', type: 'Supplier Catalogue Record', reference: 'REC-3836-0411' },
+  { id: 'lr-[#', type: 'Media Assets', reference: '12 assets' },
+  { id: 'lr-7', type: 'Brand Authorization', reference: 'AUTH-2023-0892' },
+  { id: 'lr-8', type: 'Compliance Documents', reference: '8 documents' },
+];
+
+export const MOCK_BLOCKING_ISSUES: BlockingIssueItem[] = [
+  { id: 'bi-1', issue: 'Missing safety evidence for 15% Vitamin C', area: 'Ingredients & Safety', severity: 'High', impact: 'Blocks Approval', owner: 'Elena Vance', openedDate: 'Apr 30, 2026', sla: '18h', recommendedAction: 'Upload safety assessment report', actionLabel: 'Upload' },
+  { id: 'bi-2', issue: 'Unsupported anti-ageing claim on packaging', area: 'Product Content', severity: 'High', impact: 'Blocks Approval', owner: 'Marcus Lee', openedDate: 'May 01, 2026', sla: '12h', recommendedAction: 'Provide clinical study or remove claim', actionLabel: 'Review' },
+  { id: 'bi-3', issue: 'Back packaging image missing', area: 'Images & Media', severity: 'Medium', impact: 'Blocks Approval', owner: 'Priya Kapoor', openedDate: 'May 02, 2026', sla: '1d 4h', recommendedAction: 'Upload new label image', actionLabel: 'Upload' },
+];
+
+export const MOCK_RECENT_AUDIT_ACTIVITIES: RecentAuditActivityItem[] = [
+  { id: 'audit-1', event: 'Product content updated', changedArea: 'Product Content', previousValue: 'v1', newValue: 'v2', performedBy: 'Elena Vance', role: 'Compliance Lead', dateTime: 'May 04, 2026 11:15 AM', reason: 'Content refinement', result: 'Success', auditRecord: 'AUD-2026-5582' },
+  { id: 'audit-2', event: 'Brand authorization validated', changedArea: 'Brand & Supplier', previousValue: 'v1', newValue: 'Valid', performedBy: 'Marcus Lee', role: 'Brand Manager', dateTime: 'May 04, 2026 10:45 AM', reason: 'Annual renewal validation', result: 'Success', auditRecord: 'AUD-2026-5581' },
+  { id: 'audit-3', event: 'Variant added', changedArea: 'Variants & Attributes', previousValue: '2 variants', newValue: '3 variants', performedBy: 'Priya Kapoor', role: 'Catalogue Specialist', dateTime: 'May 04, 2026 09:58 AM', reason: 'Added travel size variant', result: 'Success', auditRecord: 'AUD-2026-5579' },
+  { id: 'audit-4', event: 'Primary image replaced', changedArea: 'Images & Media', previousValue: 'img_old.jpg', newValue: 'img_v2.jpg', performedBy: 'Elena Vance', role: 'Compliance Lead', dateTime: 'May 03, 2026 04:30 PM', reason: 'Update to new brand specs', result: 'Success', auditRecord: 'AUD-2026-5568' },
+  { id: 'audit-5', event: 'Safety status changed', changedArea: 'Ingredients & Safety', previousValue: 'Pending', newValue: 'In Review', performedBy: 'Elena Vance', role: 'Compliance Lead', dateTime: 'May 03, 2026 02:15 PM', reason: 'Safety evidence submitted', result: 'Success', auditRecord: 'AUD-2026-5560' },
+  { id: 'audit-6', event: 'Inventory linked', changedArea: 'Inventory & Batches', previousValue: 'Unlinked', newValue: 'Linked', performedBy: 'Marcus Lee', role: 'Catalogue Specialist', dateTime: 'May 02, 2026 11:05 AM', reason: 'Linked to 4 active batches', result: 'Success', auditRecord: 'AUD-2026-5549' },
+  { id: 'audit-7', event: 'Publication eligibility updated', changedArea: 'Publication & Channels', previousValue: '0 of 6', newValue: '2 of 6', performedBy: 'Priya Kapoor', role: 'Compliance Lead', dateTime: 'May 01, 2026 04:20 PM', reason: 'Policy requirements met', result: 'Success', auditRecord: 'AUD-2026-5540' },
+];
