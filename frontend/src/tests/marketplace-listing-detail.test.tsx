@@ -1,41 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ListingDetailView } from "@/components/admin/marketplace/listings/detail/ListingDetailView";
 import { fetchMarketplaceListingDetail } from "@/services/api/marketplaceListingDetailService";
-
-const replace=vi.fn();
-vi.mock("next/navigation",()=>({useRouter:()=>({replace}),useSearchParams:()=>new URLSearchParams()}));
-
-describe("Listing Detail & Moderation",()=>{
-  it("loads listing-specific fixture data",async()=>{
-    const detail=await fetchMarketplaceListingDetail("LST-0012456");
-    expect(detail.id).toBe("LST-0012456");
-    expect(detail.source).toBe("frontend-fixture");
-    expect(detail.stages).toHaveLength(9);
-  });
-
-  it("renders the moderation overview and review rail",async()=>{
-    render(<ListingDetailView listingId="LST-0012456"/>);
-    expect(await screen.findByRole("heading",{name:"Radiance Vitamin C Serum — 30 ml"})).toBeInTheDocument();
-    expect(screen.getByText("Catalogue Alignment Comparison")).toBeInTheDocument();
-    expect(screen.getByText("Policy & Risk Findings")).toBeInTheDocument();
-    expect(screen.getByRole("heading",{name:"Review Status"})).toBeInTheDocument();
-  });
-
-  it("validates the seller update workflow",async()=>{
-    render(<ListingDetailView listingId="LST-0012456"/>);
-    fireEvent.click(await screen.findByRole("button",{name:"Request Seller Update"}));
-    fireEvent.click(screen.getByRole("button",{name:"Send Request"}));
-    expect(screen.getByRole("alert")).toHaveTextContent("Complete all required seller update fields");
-  });
-
-  it("requires policy review confirmation before keeping live",async()=>{
-    render(<ListingDetailView listingId="LST-0012456"/>);
-    fireEvent.click(await screen.findByRole("button",{name:/Keep Live/}));
-    fireEvent.click(screen.getByRole("button",{name:"Confirm"}));
-    expect(screen.getByRole("alert")).toHaveTextContent("policy and risk findings");
-    fireEvent.click(screen.getByRole("checkbox",{name:/confirm policy and risk/i}));
-    fireEvent.click(screen.getByRole("button",{name:"Confirm"}));
-    await waitFor(()=>expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-  });
-});
+vi.mock("@/services/api/marketplaceListingDetailService", () => ({ fetchMarketplaceListingDetail: vi.fn() }));
+describe("Marketplace listing detail", () => { it("renders the database API contract without fabricated moderation data", async () => { vi.mocked(fetchMarketplaceListingDetail).mockResolvedValue({ listing:{id:"12",listingCode:"LST-0000012",name:"Database Serum",descriptor:"Real product",thumbnailUrl:null,seller:{id:"3",name:"Database Seller"},product:{id:"12",name:"Database Serum"},brand:null,category:null,businessUnit:null,channel:null,sellingPrice:{amount:10,currency:"LKR"},stock:8,sales30Days:4,conversionRate30Days:null,verificationStatus:null,policyStatus:null,riskLevel:null,listingStatus:"live",updatedAt:"2026-08-06T10:00:00+05:30",permissions:{view:true,edit:true,suspend:true}}, health:{availability:"unavailable",reason:"approved_listing_health_formula_not_defined"},sla:{availability:"unavailable",reason:"listing_sla_policy_not_defined"} }); render(<ListingDetailView listingId="12"/>); expect(await screen.findByRole("heading", {name:"Database Serum"})).toBeInTheDocument(); expect(screen.getAllByText(/Not available/).length).toBeGreaterThan(0); }); });
