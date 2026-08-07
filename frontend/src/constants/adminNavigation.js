@@ -71,7 +71,6 @@ export const ADMIN_NAVIGATION = [
   {id:"marketing",label:"Marketing",icon:Megaphone,disabled:true,badge:"Coming Soon"},
   {id:"finance",label:"Finance",icon:Wallet,href:"/admin/finance",children:[
     {id:"command-center",label:"Command Center",href:"/admin/finance",exact:true},
-    {id:"sales",label:"Sales",href:"/admin/finance/sales"},
     {id:"revenue-receivables",label:"Revenue & Receivables",href:"/admin/finance/revenue-receivables"},
     {id:"payments-transactions",label:"Payments & Transactions",href:"/admin/finance/payments"},
     {id:"refunds-compensation",label:"Refunds & Compensation",href:"/admin/finance/refunds-compensation"},
@@ -80,8 +79,8 @@ export const ADMIN_NAVIGATION = [
     {id:"settlements-payouts",label:"Settlements & Payouts",href:"/admin/finance/settlements-payouts"},
     {id:"invoices-notes",label:"Invoices & Notes",href:"/admin/finance/invoices-notes"},
     {id:"tax-currency",label:"Tax & Currency",href:"/admin/finance/tax-currency-configuration"},
-    {id:"reconciliation-controls",label:"Reconciliation & Controls",href:"/admin/finance/reconciliation"},
-    {id:"reports-audit",label:"Reports / Import / Export / Audit",href:"/admin/finance/reports"},
+    {id:"reconciliation-controls",label:"Reconciliation & Controls",href:"/admin/finance/reconciliation-controls"},
+    {id:"reports-audit",label:"Reports / Import / Export / Audit",href:"/admin/finance/reports-import-export-audit"},
   ]},
   {id:"logistics",label:"Logistics",icon:Truck,href:"/admin/logistics",children:[
     {id:"logistics-overview",label:"Overview",href:"/admin/logistics",exact:true},

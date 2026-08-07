@@ -571,4 +571,108 @@ export interface ConfigurationRecordDetail extends ConfigurationPortfolioRow {
   taxImpact: string;
 }
 
+/* ── FN13 Reconciliation, Exceptions & Financial Controls Interfaces ── */
+
+export interface ReconciliationRecordRow {
+  id: string;
+  domain: 'Payments' | 'Bank' | 'Invoices' | 'Supplier Payables' | 'Commissions' | 'Settlements' | 'Refunds' | 'Tax' | 'Credit & Debit Notes' | 'Cash Report';
+  type: string;
+  internalRecord: string;
+  externalRecord: string;
+  sourceSystem: string;
+  targetSystem: string;
+  businessUnit: string;
+  channel: string;
+  region?: string;
+  currency: string;
+  expectedAmount: number;
+  actualAmount: number;
+  varianceAmount: number;
+  variancePct: number;
+  varianceType: 'None' | 'Amount' | 'Timing' | 'Missing' | 'Duplicate';
+  matchStatus: 'Matched' | 'Partially Matched' | 'Unmatched' | 'Missing Record' | 'Duplicate Record';
+  reconciliationStatus: 'Reconciled' | 'Pending Review' | 'Pending Approval' | 'Exception' | 'Closed';
+  exceptionStatus: '—' | 'Open' | 'Critical' | 'In Review' | 'Resolved';
+  controlStatus: 'Passed' | 'Failed' | 'Warning' | 'Override';
+  holdStatus: 'None' | 'On Hold' | 'Pending Release' | 'Released';
+  certificationStatus: 'Certified' | 'Pending' | 'Not Certified' | 'Exempt';
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  financialExposure: number;
+  owner: string;
+  reviewer: string;
+  approver: string;
+  txnDate: string;
+  updatedAt: string;
+}
+
+export interface ReconciliationRecordDetail extends ReconciliationRecordRow {
+  accountingPeriod: string;
+  manualInvestigationRequired: boolean;
+  manualAdjustment: boolean;
+  rootCause: string;
+  notes: string;
+  manualMatched: boolean;
+  matchReviewedBy: string;
+  matchReviewedAt: string;
+  approvalRequired: boolean;
+  linkedBankStatementRef: string;
+  linkedSettlementRef: string;
+  reconciliationRunRef: string;
+  evidenceCount: number;
+  certificationDate: string;
+}
+
+/* ── FN14 Finance Reports, Import, Export & Audit Interfaces ── */
+
+export interface FinanceDataOperationRow {
+  id: string;
+  operationType: 'Executive Report' | 'Revenue Report' | 'Payment Report' | 'Refund Report' | 'Payables Report' | 'Commission Report' | 'Settlement Report' | 'Invoice Report' | 'Tax Report' | 'Reconciliation Report' | 'Financial Import' | 'Secure Export' | 'Audit Evidence Package';
+  financeDomain: 'Payables' | 'Revenue' | 'Payments' | 'Refunds' | 'Commissions' | 'Settlements' | 'Invoices' | 'Tax' | 'Reconciliation' | 'Audit';
+  reportOrTemplateName: string;
+  sourceSystem: string;
+  destination: string;
+  businessUnit: string;
+  channel: string;
+  region: string;
+  currency: string;
+  accountingPeriod: string;
+  fileType: 'CSV' | 'XLSX' | 'PDF' | 'JSON' | 'ZIP';
+  fileSize: string;
+  totalRecords: number;
+  processedRecords: number;
+  successfulRecords: number;
+  rejectedRecords: number;
+  duplicateRecords: number;
+  quarantinedRecords: number;
+  validationStatus: 'Passed' | 'Failed' | 'Warning' | 'Pending';
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Draft' | 'Rejected';
+  processingStatus: 'Completed' | 'Running' | 'Queued' | 'Partial' | 'Failed' | 'Quarantined';
+  deliveryStatus: 'Delivered' | 'Pending' | 'Failed' | 'N/A';
+  reconciliationStatus: 'Aligned' | 'Exceptions' | 'Pending';
+  exportQueryOrPurpose: string;
+  dataClassification: 'Confidential' | 'Internal' | 'Restricted' | 'Public';
+  encryption: 'AES-256' | 'TLS 1.3' | 'None';
+  retention: '7 Years' | '10 Years' | 'Permanent' | 'Standard';
+  legalHold: 'Yes' | 'No';
+  owner: string;
+  reviewer: string;
+  approver: string;
+  createdAt: string;
+  completedAt: string;
+  updatedAt: string;
+  sla: string;
+}
+
+export interface FinanceDataOperationDetail extends FinanceDataOperationRow {
+  passedVersion: string;
+  schemaVersion: string;
+  failureReason?: string;
+  quarantineReason?: string;
+  rejectedRowsBreakdown: { reason: string; count: number }[];
+  maskedFieldsCount: number;
+  encryptedFieldsCount: number;
+  auditTrail: { event: string; user: string; timestamp: string }[];
+}
+
+
 
