@@ -3,20 +3,24 @@
 import React from 'react';
 import { MOCK_HEALTH_SCORECARD } from '@/data/mockFinanceData';
 
-export function FinanceHealthScorecard() {
+interface Props {
+  metrics?: { label: string; score: number }[];
+}
+
+export function FinanceHealthScorecard({ metrics = MOCK_HEALTH_SCORECARD }: Props) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-2.5 shadow-sm">
       {/* Top Title Bar */}
       <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-gray-100 text-xs">
         <div className="flex items-center gap-2">
-          <h3 className="font-bold text-gray-900">Finance Operation Health Scorecard</h3>
+          <h3 className="font-bold text-gray-900">Payment Operations Health Scorecard</h3>
           <span className="text-[10px] text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded">Last 30 Days</span>
         </div>
       </div>
 
       {/* 10 Score Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-2">
-        {MOCK_HEALTH_SCORECARD.map((item) => (
+        {metrics.map((item) => (
           <div key={item.label} className="bg-gray-50/70 border border-gray-100 rounded p-1.5 flex flex-col justify-between">
             <span className="text-[10px] font-medium text-gray-500 truncate leading-tight">{item.label}</span>
             <div className="flex items-baseline justify-between mt-1">

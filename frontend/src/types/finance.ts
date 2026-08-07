@@ -185,3 +185,46 @@ export interface RevenueActivityItem {
   user?: string;
   type: 'payment' | 'invoice' | 'plan' | 'adjustment';
 }
+
+/* ── FN03 Specific Interfaces ── */
+
+export interface PaymentPortfolioRow {
+  id: string;
+  ref: string;
+  relatedOrder: string;
+  invoiceRef: string;
+  customer: string;
+  customerId: string;
+  currency: string;
+  grossAmount: number;
+  capturedAmount: number;
+  paymentMethod: string;
+  gateway: string;
+  authStatus: 'Authorized' | 'Pending' | 'Failed' | 'N/A';
+  captureStatus: 'Captured' | 'Pending' | 'Partially Captured' | 'Failed' | 'N/A';
+  paymentResponse: 'Success' | 'Approved (100)' | 'Pending' | 'Declined' | 'Failed' | 'Pending / Capture' | 'Partially Captured';
+  riskLevel: 'Low' | 'Medium' | 'High';
+  duplicateStatus: 'No' | 'Yes' | 'Candidate';
+  hold: 'No' | 'Active' | 'Released';
+  settlementStatus: 'Settled' | 'Pending' | 'Unsettled';
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Mismatched' | 'Unreconciled';
+  sla: 'On Track' | 'At Risk' | 'Breached';
+  txnDate: string;
+  settlementDate: string;
+  owner: string;
+  reviewer: string;
+}
+
+export interface PaymentRecordDetail extends PaymentPortfolioRow {
+  providerRef: string;
+  authCode: string;
+  threeDS: '3DS Authenticated' | 'Not Required' | 'Failed';
+  billingMatch: 'Match' | 'Mismatch' | 'Unverified';
+  fraudReason?: string;
+  failureReason?: string;
+  refundLinkage: string;
+  disputeLinkage: string;
+  approvalStatus: string;
+  recordVersion: string;
+  updatedAt: string;
+}

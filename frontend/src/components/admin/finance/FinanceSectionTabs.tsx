@@ -21,12 +21,13 @@ const TABS = [
 ];
 
 interface Props {
+  tabs?: string[];
   activeTab?: string;
   onTabChange?: (tab: string) => void;
 }
 
-export function FinanceSectionTabs({ activeTab: externalActive, onTabChange }: Props) {
-  const [internalActive, setInternalActive] = useState('Executive Overview');
+export function FinanceSectionTabs({ tabs = TABS, activeTab: externalActive, onTabChange }: Props) {
+  const [internalActive, setInternalActive] = useState(tabs[0] || 'Executive Overview');
   const activeTab = externalActive || internalActive;
 
   const handleSelect = (tab: string) => {
@@ -37,7 +38,7 @@ export function FinanceSectionTabs({ activeTab: externalActive, onTabChange }: P
   return (
     <div className="border-b border-gray-200 bg-white rounded-t-lg px-2 shadow-sm overflow-x-auto scrollbar-none">
       <nav className="flex items-center gap-1 min-w-max" aria-label="Finance Navigation Tabs">
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const isActive = activeTab === tab;
           return (
             <button
