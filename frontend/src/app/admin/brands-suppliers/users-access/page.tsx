@@ -1,195 +1,254 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
-import { BrandsSuppliersPageHeader } from '@/components/admin/brands-suppliers/BrandsSuppliersPageHeader';
-import { RightInsightRail, RailHealthScore, RailAlertList, RailSection } from '@/components/admin/brands-suppliers/RightInsightRail';
-import { TrendChartCard } from '@/components/admin/brands-suppliers/charts/TrendChartCard';
-import { DonutChartCard } from '@/components/admin/brands-suppliers/charts/DonutChartCard';
-import { Download, SlidersHorizontal, Search, UserPlus, Key, Eye, HelpCircle, Lock, ShieldAlert } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { 
+  Users, UserCheck, ShieldCheck, Hourglass, UserPlus, AlertTriangle, 
+  PauseCircle, Award, Key, AlertCircle, ShieldAlert, ChevronDown, CheckCircle2
+} from 'lucide-react';
+import { DashboardGrid, KpiCard } from '@/components/admin/shared/KpiCard';
+import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
+import { FilterToolbar } from '@/components/admin/shared/FilterToolbar';
+import { Tabs } from '@/components/admin/shared/Tabs';
+import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+import { HorizontalStatusChart } from '@/components/admin/shared/HorizontalStatusChart';
 
-export default function UsersAccessPage() {
-  const [activeTab, setActiveTab] = useState('All Users');
+const KPI_DATA = [
+  { index: 1, title: 'Total Supplier Users', value: '1,842', delta: { value: '2.1%', trend: 'up' as const }, icon: Users, iconBgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
+  { index: 2, title: 'Active Users', value: '1,526', delta: { value: '1.6%', trend: 'up' as const }, icon: UserCheck, iconBgColor: 'bg-green-50', iconColor: 'text-green-600' },
+  { index: 3, title: 'Pending Invitations', value: '64', delta: { value: '12.5%', trend: 'up' as const }, icon: UserPlus, iconBgColor: 'bg-amber-50', iconColor: 'text-amber-600' },
+  { index: 4, title: 'Suspended Users', value: '18', delta: { value: '10.0%', trend: 'down' as const }, icon: PauseCircle, iconBgColor: 'bg-rose-50', iconColor: 'text-rose-600' },
+  { index: 5, title: 'Privileged Users', value: '126', delta: { value: '3.2%', trend: 'up' as const }, icon: Key, iconBgColor: 'bg-purple-50', iconColor: 'text-purple-600' },
+  { index: 6, title: 'MFA Enforced', value: '1,438', delta: { value: '2.4%', trend: 'up' as const }, icon: ShieldCheck, iconBgColor: 'bg-emerald-50', iconColor: 'text-emerald-600' },
+  { index: 7, title: 'MFA Missing', value: '88', delta: { value: '4.3%', trend: 'down' as const }, icon: AlertTriangle, iconBgColor: 'bg-red-50', iconColor: 'text-red-600', alert: true },
+  { index: 8, title: 'Dormant Accounts', value: '42', delta: { value: '5.0%', trend: 'up' as const }, icon: Hourglass, iconBgColor: 'bg-orange-50', iconColor: 'text-orange-600' },
+  { index: 9, title: 'Access Reviews Due', value: '36', delta: { value: '20.0%', trend: 'up' as const }, icon: Award, iconBgColor: 'bg-sky-50', iconColor: 'text-sky-600' },
+  { index: 10, title: 'Excessive Access Risks', value: '18', delta: { value: '5.3%', trend: 'down' as const }, icon: AlertCircle, iconBgColor: 'bg-amber-50', iconColor: 'text-amber-600' },
+  { index: 11, title: 'Service Principals', value: '24', delta: { value: '9.1%', trend: 'up' as const }, icon: ShieldAlert, iconBgColor: 'bg-indigo-50', iconColor: 'text-indigo-600' },
+  { index: 12, title: 'Expired Access Assignments', value: '31', delta: { value: '6.1%', trend: 'down' as const }, icon: AlertCircle, iconBgColor: 'bg-[#7a0023]/10', iconColor: 'text-[#7a0023]' },
+];
 
-  const trendData = [
-    { name: 'Jul 6', active: 2100, lockouts: 2 },
-    { name: 'Jul 13', active: 2240, lockouts: 5 },
-    { name: 'Jul 20', active: 2310, lockouts: 4 },
-    { name: 'Jul 27', active: 2380, lockouts: 8 },
-    { name: 'Aug 3', active: 2412, lockouts: 3 },
-  ];
+const CONTEXT_ITEMS = [
+  { label: 'Tenant', value: 'SL Beauty' },
+  { label: 'Ecosystem', value: 'Beauty Marketplace' },
+  { label: 'Business Unit', value: 'All Business Units' },
+  { label: 'Sales Channels', value: 'All Channels' },
+  { label: 'Region', value: 'Sri Lanka' },
+  { label: 'Access Scope', value: 'Active Supplier Identity Network' },
+  { label: 'Identity Provider', value: 'Enterprise Auth' },
+  { label: 'Review Period', value: 'Current Quarter' },
+];
 
-  const trendSeries = [
-    { key: 'active', name: 'Active Login Sessions', color: '#3b82f6', type: 'line' as const },
-    { key: 'lockouts', name: 'Security Lockouts', color: '#ef4444', type: 'bar' as const },
-  ];
+const TABS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'all', label: 'All Users' },
+  { id: 'active', label: 'Active' },
+  { id: 'pending', label: 'Pending Invitations' },
+  { id: 'privileged', label: 'Privileged' },
+  { id: 'mfa', label: 'MFA Issues' },
+  { id: 'dormant', label: 'Dormant Accounts' },
+  { id: 'reviews', label: 'Access Reviews' },
+  { id: 'conflicts', label: 'Role Conflicts' },
+  { id: 'principals', label: 'Service Principals' },
+  { id: 'suspended', label: 'Suspended' },
+  { id: 'revoked', label: 'Revoked' },
+  { id: 'audit', label: 'Audit History' },
+];
 
-  const composition = [
-    { name: 'Store Staff', value: 1612, percentage: '66.8%', color: '#2563eb' },
-    { name: 'Supplier Manager', value: 412, percentage: '17.1%', color: '#f59e0b' },
-    { name: 'Catalogue Lead', value: 246, percentage: '10.2%', color: '#10b981' },
-    { name: 'Admin Manager', value: 142, percentage: '5.9%', color: '#8b5cf6' },
-  ];
+const TREND_DATA = Array.from({ length: 30 }).map((_, i) => ({
+  date: `Jul ${i + 6}`,
+  'Invited Users': Math.floor(Math.random() * 50) + 200,
+  'Active Users': Math.floor(Math.random() * 100) + 1200,
+  'Access Reviews Completed': Math.floor(Math.random() * 80) + 400,
+  'Flagged Risks': Math.floor(Math.random() * 10) + 5,
+}));
 
-  const kpis = [
-    { label: 'Active Users', value: '2,412', trend: '+54', color: 'text-gray-900' },
-    { label: 'MFA Enrollment', value: '98.5%', trend: '+1.2%', color: 'text-green-600' },
-    { label: 'Pending Invitations', value: '28', trend: '-5', color: 'text-orange-600' },
-    { label: 'Security Lockouts', value: '3', trend: '-2', color: 'text-green-600' },
-    { label: 'Active API Keys', value: '86', trend: '+2', color: 'text-blue-600' },
-    { label: 'Revoked Access Keys', value: '12', trend: '+1', color: 'text-red-600' }
-  ];
+const DONUT_DATA = [
+  { name: 'Brand Owners', value: 542, color: '#0284c7' },
+  { name: 'Distributors', value: 462, color: '#16a34a' },
+  { name: 'Importers', value: 318, color: '#d97706' },
+  { name: 'Wholesalers', value: 246, color: '#9333ea' },
+  { name: 'Labs', value: 154, color: '#0d9488' },
+  { name: 'Service Partners', value: 120, color: '#475569' },
+];
 
-  const handleMfaReset = (email: string) => {
-    toast.success(`MFA reset link successfully sent to ${email}!`);
-  };
+const ACCESS_SUMMARY_DATA = [
+  { label: 'On Track', count: 1102, percentage: 59.8, color: '#16a34a' },
+  { label: 'At Risk', count: 362, percentage: 19.6, color: '#eab308' },
+  { label: 'Under Review', count: 196, percentage: 10.6, color: '#0284c7' },
+  { label: 'Breached', count: 82, percentage: 4.5, color: '#dc2626' },
+  { label: 'Escalated', count: 48, percentage: 2.6, color: '#9333ea' },
+  { label: 'Revoked', count: 52, percentage: 2.8, color: '#475569' },
+];
+
+const USERS_TABLE = [
+  { name: 'Sarah Fernando', email: 's.fernando@loreal.lk', id: 'USR-1001', supplier: 'LVMH Beauty Mfg.', role: 'Catalogue Manager', bu: 2, channels: 3, regions: 'Sri Lanka', profile: 'Catalogue Manager', privilege: 'Standard', mfa: 'Verified', identity: 'Active', invite: 'Accepted', lastLogin: '04 Aug 2026 09:10 AM', review: '04 Aug 2027', risk: 'Low', owner: 'Elena Vance', updated: '04 Aug 2026', sla: '98%' },
+  { name: 'Rajiv Perera', email: 'r.perera@luxe.lk', id: 'USR-1002', supplier: 'Luxe Distribution', role: 'Distributor Admin', bu: 4, channels: 4, regions: 'Sri Lanka', profile: 'Distributor Admin', privilege: 'Privileged', mfa: 'Verified', identity: 'Active', invite: 'Accepted', lastLogin: '04 Aug 2026 08:22 AM', review: '04 Feb 2027', risk: 'Overdue', owner: 'Marco Lee', updated: '04 Aug 2026', sla: '84%' },
+  { name: 'Nadeesha Silva', email: 'n.silva@tokyo.lk', id: 'USR-1003', supplier: 'Tokyo Beauty Dist.', role: 'Procurement Lead', bu: 3, channels: 2, regions: 'Sri Lanka, India', profile: 'Procurement Lead', privilege: 'Standard', mfa: 'MFA Missing', identity: 'Active', invite: 'Accepted', lastLogin: '31 Jul 2026 05:40 PM', review: '31 Jan 2027', risk: 'Medium', owner: 'Priya Nair', updated: '03 Aug 2026', sla: '91%' },
+  { name: 'Priya Kapoor', email: 'p.kapoor@puroglow.ae', id: 'USR-1004', supplier: 'Glow Global Exports', role: 'Quality Manager', bu: 1, channels: 2, regions: 'Sri Lanka, UAE', profile: 'Quality Manager', privilege: 'Standard', mfa: 'Verified', identity: 'Active', invite: 'Accepted', lastLogin: '02 Aug 2026 10:05 AM', review: '02 Nov 2026', risk: 'Overdue', owner: 'Marco Lee', updated: '02 Aug 2026', sla: '96%' },
+];
+
+export default function SupplierUsersAccessPage() {
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="flex h-full w-full bg-[#f8fafc]">
-      <div className="flex-1 overflow-auto p-6 flex flex-col">
-        <BrandsSuppliersPageHeader
-          title="Supplier Users, Roles & Access"
-          description="Manage supplier corporate user accounts, configure hierarchical security roles, audit MFA statuses and monitor active developer API keys."
-          breadcrumbs={[
-            { label: 'Brands & Suppliers', href: '/admin/brands-suppliers' },
-            { label: 'Users & Access' }
-          ]}
-          primaryAction={{ label: 'Invite Corporate User', onClick: () => {}, icon: UserPlus }}
-        />
-
-        {/* KPI Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-          {kpis.map((kpi, idx) => (
-            <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col justify-between">
-              <span className="text-[10px] text-gray-400 font-semibold uppercase truncate">{kpi.label}</span>
-              <div className="flex items-end gap-2 mt-3">
-                <span className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</span>
-                <span className="text-[10px] text-green-500 font-medium">{kpi.trend}</span>
-              </div>
-            </div>
-          ))}
+    <div className="flex w-full h-full min-h-screen bg-[#faf8f8] text-gray-900 pb-12">
+      
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-grow flex flex-col min-w-0 px-6 py-4">
+        
+        {/* Header */}
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <div className="text-[11px] text-gray-500 font-medium mb-1">Brands &amp; Suppliers / Supplier Users, Roles &amp; Access</div>
+            <h1 className="text-2xl font-bold text-gray-900 leading-tight">Supplier Users, Roles &amp; Access</h1>
+            <p className="text-xs text-gray-500 mt-1">Manage supplier identities, roles, permissions, access scope, MFA, service principals, and periodic access reviews across the beauty marketplace.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Export Access Report</button>
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Start Access Review</button>
+            <button className="bg-[#7a0023] text-white px-4 py-1.5 rounded-md text-[13px] font-semibold hover:bg-[#a0002b]">+ Invite Supplier User</button>
+            <button className="bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-[13px] font-semibold flex items-center gap-1 hover:bg-gray-50">More Actions <ChevronDown size={14} /></button>
+          </div>
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-          <div className="xl:col-span-2">
-            <TrendChartCard
-              title="User Login Activity Trend"
-              data={trendData}
-              series={trendSeries}
-              timeRange="Last 30 Days"
-            />
+        {/* Context Scope Bar */}
+        <ContextScopeBar 
+          items={CONTEXT_ITEMS} 
+          lastSynced="04 Aug 2026, 12:57 AM" 
+          accessNote="Access limited to assigned business context"
+        />
+
+        {/* 12 KPI Grid */}
+        <DashboardGrid>
+          {KPI_DATA.map((kpi) => (
+            <KpiCard key={kpi.index} {...kpi} />
+          ))}
+        </DashboardGrid>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <div className="col-span-5 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Supplier Access Trend <span className="text-gray-400 font-normal">(Last 30 Days)</span></h3>
+            <div className="flex-grow">
+              <TrendChart data={TREND_DATA} colors={['#0284c7', '#16a34a', '#9333ea', '#dc2626']} />
+            </div>
           </div>
-          <div className="xl:col-span-1">
-            <DonutChartCard
-              title="Role Distribution"
-              data={composition}
-              totalLabel="Total Users"
-              totalValue={2412}
-            />
+
+          <div className="col-span-3 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Access Distribution</h3>
+            <div className="flex-grow">
+              <DonutDistributionChart data={DONUT_DATA} totalLabel="Total Users" totalValue="1,842" />
+            </div>
           </div>
+
+          <div className="col-span-4 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Issue Status / Access Summary</h3>
+            <div className="flex-grow overflow-y-auto no-scrollbar">
+              <HorizontalStatusChart data={ACCESS_SUMMARY_DATA} total={1842} />
+            </div>
+          </div>
+        </div>
+
+        {/* Scorecard Strip */}
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm p-3 mb-4 flex justify-between text-[11px]">
+          <div><span className="text-gray-500">Identity Verification</span> <span className="font-bold text-gray-900 ml-1">94%</span></div>
+          <div><span className="text-gray-500">MFA Coverage</span> <span className="font-bold text-gray-900 ml-1">93%</span></div>
+          <div><span className="text-gray-500">Permission Accuracy</span> <span className="font-bold text-gray-900 ml-1">88%</span></div>
+          <div><span className="text-gray-500">Role Hygiene</span> <span className="font-bold text-gray-900 ml-1">85%</span></div>
+          <div><span className="text-gray-500">Review Readiness</span> <span className="font-bold text-gray-900 ml-1">86%</span></div>
+          <div><span className="text-gray-500">Privileged Access Control</span> <span className="font-bold text-gray-900 ml-1">82%</span></div>
+          <div><span className="text-gray-500">Service Principal Security</span> <span className="font-bold text-gray-900 ml-1">90%</span></div>
+          <div><span className="text-gray-500">Regional Scope Control</span> <span className="font-bold text-gray-900 ml-1">91%</span></div>
         </div>
 
         {/* Tabs & Filters */}
-        <div className="flex items-center gap-6 border-b border-gray-200 mb-4 px-2 overflow-x-auto">
-          {['All Users', 'Supplier Manager', 'Catalogue Lead', 'Admin Manager', 'Pending Invitations'].map(tab => (
-            <button 
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab ? 'border-[#7a122e] text-[#7a122e]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+        
+        <FilterToolbar 
+          searchPlaceholder="Search users, roles, suppliers or ID..."
+          filters={[
+            { id: 'type', label: 'Supplier Type', options: [] },
+            { id: 'status', label: 'User Status', options: [] },
+            { id: 'role', label: 'Role Type', options: [] },
+            { id: 'bu', label: 'Business Unit', options: [] },
+            { id: 'mfa', label: 'MFA Status', options: [] },
+          ]}
+          onClearAll={() => {}}
+        />
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-6 flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input type="text" placeholder="Search supplier users..." className="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none" />
-            </div>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>MFA Enrollment</option>
-            </select>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>User Status</option>
-            </select>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-              <SlidersHorizontal size={14} /> More Filters
-            </button>
-          </div>
-        </div>
-
-        {/* Content Table */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6">
-          <div className="px-5 py-4 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900 text-sm">Supplier User Management</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-medium">
+        {/* Main Table */}
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm flex flex-col mt-2">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-[11px] whitespace-nowrap min-w-[1600px]">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider">
                 <tr>
-                  <th className="px-5 py-3">User Name / Email</th>
-                  <th className="px-5 py-3 text-center">Assigned Supplier</th>
-                  <th className="px-5 py-3 text-center">System Role</th>
-                  <th className="px-5 py-3 text-center">MFA Status</th>
-                  <th className="px-5 py-3 text-center">Last Active Login</th>
-                  <th className="px-5 py-3 text-center">Action</th>
+                  <th className="px-3 py-2 text-center w-8"><input type="checkbox" className="rounded" /></th>
+                  <th className="px-3 py-2">User Name / Legal Entity</th>
+                  <th className="px-3 py-2">User ID</th>
+                  <th className="px-3 py-2">Supplier</th>
+                  <th className="px-3 py-2">Role</th>
+                  <th className="px-3 py-2 text-center">Business Units</th>
+                  <th className="px-3 py-2 text-center">Sales Channels</th>
+                  <th className="px-3 py-2">Regions</th>
+                  <th className="px-3 py-2">Permission Profile</th>
+                  <th className="px-3 py-2">Privilege Level</th>
+                  <th className="px-3 py-2">MFA</th>
+                  <th className="px-3 py-2">Identity Status</th>
+                  <th className="px-3 py-2">Invitation Status</th>
+                  <th className="px-3 py-2">Last Login</th>
+                  <th className="px-3 py-2">Access Review</th>
+                  <th className="px-3 py-2">Risk</th>
+                  <th className="px-3 py-2">Owner / Reviewer</th>
+                  <th className="px-3 py-2">Updated At</th>
+                  <th className="px-3 py-2">SLA</th>
+                  <th className="px-3 py-2 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                <tr className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-semibold text-gray-900">
-                    <div className="flex flex-col">
-                      <span>Priya Nair</span>
-                      <span className="text-[10px] text-gray-400 font-medium">priya.nair@luxedistribution.lk</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center">Luxe Distribution Pvt Ltd</td>
-                  <td className="px-5 py-3 text-center">Supplier Manager</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="px-2 py-0.5 bg-green-50 text-green-700 border border-green-100 rounded text-[10px] font-semibold">Enabled</span>
-                  </td>
-                  <td className="px-5 py-3 text-center text-gray-500">04 Aug, 09:30 AM</td>
-                  <td className="px-5 py-3 text-center">
-                    <button onClick={() => handleMfaReset('priya.nair@luxedistribution.lk')} className="text-[#7a122e] hover:underline font-semibold">Reset MFA</button>
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-semibold text-gray-900">
-                    <div className="flex flex-col">
-                      <span>Elena Vance</span>
-                      <span className="text-[10px] text-gray-400 font-medium">elena.vance@serenebotanics.lk</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center">Serene Botanics Lanka</td>
-                  <td className="px-5 py-3 text-center">Admin Manager</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="px-2 py-0.5 bg-green-50 text-green-700 border border-green-100 rounded text-[10px] font-semibold">Enabled</span>
-                  </td>
-                  <td className="px-5 py-3 text-center text-gray-500">04 Aug, 11:35 AM</td>
-                  <td className="px-5 py-3 text-center">
-                    <button onClick={() => handleMfaReset('elena.vance@serenebotanics.lk')} className="text-[#7a122e] hover:underline font-semibold">Reset MFA</button>
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-semibold text-gray-900">
-                    <div className="flex flex-col">
-                      <span>Marco Lee</span>
-                      <span className="text-[10px] text-gray-400 font-medium">marco.lee@ceylonglow.com</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center">Ceylon Glow Exports</td>
-                  <td className="px-5 py-3 text-center">Catalogue Lead</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="px-2 py-0.5 bg-orange-50 text-orange-700 border border-orange-100 rounded text-[10px] font-semibold">Not Configured</span>
-                  </td>
-                  <td className="px-5 py-3 text-center text-gray-500">04 Aug, 10:30 AM</td>
-                  <td className="px-5 py-3 text-center">
-                    <button onClick={() => handleMfaReset('marco.lee@ceylonglow.com')} className="text-[#7a122e] hover:underline font-semibold">Enforce MFA</button>
-                  </td>
-                </tr>
+              <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                {USERS_TABLE.map((row, i) => (
+                  <tr key={i} className="hover:bg-gray-50 cursor-pointer">
+                    <td className="px-3 py-2 text-center"><input type="checkbox" className="rounded" /></td>
+                    <td className="px-3 py-2 flex items-center gap-2">
+                      <div className="w-7 h-7 bg-[#7a0023] text-white rounded-full flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                        {row.name.substring(0, 2)}
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900">{row.name}</div>
+                        <div className="text-[10px] text-gray-400">{row.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-gray-500">{row.id}</td>
+                    <td className="px-3 py-2 font-semibold text-gray-900">{row.supplier}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.role}</td>
+                    <td className="px-3 py-2 text-center font-bold">{row.bu}</td>
+                    <td className="px-3 py-2 text-center font-bold">{row.channels}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.regions}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.profile}</td>
+                    <td className="px-3 py-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${row.privilege === 'Privileged' ? 'bg-purple-50 text-purple-700' : 'bg-gray-50 text-gray-700'}`}>
+                        {row.privilege}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={`font-semibold ${row.mfa === 'Verified' ? 'text-green-600' : 'text-red-600'}`}>
+                        {row.mfa}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 font-bold text-green-600">{row.identity}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.invite}</td>
+                    <td className="px-3 py-2 text-gray-400">{row.lastLogin}</td>
+                    <td className="px-3 py-2 text-gray-600 font-semibold">{row.review}</td>
+                    <td className="px-3 py-2">
+                      <span className={`font-bold ${row.risk === 'Low' ? 'text-green-600' : 'text-amber-600'}`}>{row.risk}</span>
+                    </td>
+                    <td className="px-3 py-2 text-gray-500">{row.owner}</td>
+                    <td className="px-3 py-2 text-gray-400">{row.updated}</td>
+                    <td className="px-3 py-2 font-bold text-green-600">{row.sla}</td>
+                    <td className="px-3 py-2 text-center"><button className="text-gray-400 hover:text-gray-900">⋮</button></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -197,40 +256,52 @@ export default function UsersAccessPage() {
 
       </div>
 
-      <RightInsightRail>
-        <RailSection title="Security Health">
-          <RailHealthScore 
-            score={94} 
-            label="Secure" 
-            status="Stable" 
+      {/* RIGHT INTELLIGENCE RAIL */}
+      <RightIntelligenceRail>
+        <RailSection title="Supplier Access Health">
+          <HealthScoreGauge 
+            score={89} 
+            label="Stable" 
+            statusText="Stable"
+            statusColor="#16a34a"
             metrics={[
-              { label: 'MFA Coverage', value: '98.5%' },
-              { label: 'Access Keys Audited', value: '100%' },
-              { label: 'Roles Synced', value: '99.4%' },
-              { label: 'Idle Account Policy', value: '96.2%' },
-            ]} 
+              { label: 'Identity', value: '94%', progress: 94 },
+              { label: 'MFA', value: '93%', progress: 93 },
+              { label: 'Permission Accuracy', value: '88%', progress: 88 },
+              { label: 'Role Hygiene', value: '85%', progress: 85 },
+              { label: 'Access Review', value: '86%', progress: 86 },
+            ]}
           />
         </RailSection>
 
-        <RailSection title="Security Risks" action={{ label: 'View all' }}>
-          <RailAlertList items={[
-            { label: 'Suspicious API activity (CON)', count: 2, critical: true },
-            { label: 'Non-MFA user login attempt', count: 5, critical: true },
-            { label: 'Pending account invites expired', count: 14, critical: false },
-          ]} />
-        </RailSection>
-
-        <RailSection title="Developer Access Keys">
-          <div className="flex flex-col gap-2">
-            <button onClick={() => toast.success('New API Key successfully provisioned.')} className="w-full py-2 bg-[#7a122e] text-white rounded text-sm font-medium hover:bg-[#5a0d22] transition-colors flex items-center justify-center gap-1.5">
-              <Key size={14} /> Provision Developer Access Key
-            </button>
-            <button onClick={() => toast.error('Key revocation requires super-admin password check.')} className="w-full py-2 bg-white border border-red-300 text-red-600 rounded text-sm font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-1.5">
-              <ShieldAlert size={14} /> Revoke Developer Credentials
-            </button>
+        <RailSection title="Priority Alerts">
+          <div className="flex flex-col gap-1 text-[11px]">
+            <div className="flex justify-between items-center"><span className="text-gray-700">Excessive-access conflict</span><span className="font-bold text-red-500">18</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-700">MFA missing for privileged users</span><span className="font-bold text-red-500">12</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-700">Dormant admin account (90 days)</span><span className="font-bold text-amber-500">7</span></div>
           </div>
         </RailSection>
-      </RightInsightRail>
+
+        <RailSection title="Quick Queues">
+          <div className="flex flex-col gap-1 text-[11px]">
+            <div className="flex justify-between items-center"><span className="text-gray-600">Access Reviews Due</span><span className="font-bold text-gray-900">36</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-600">MFA Missing Users</span><span className="font-bold text-red-500">88</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-600">Excessive Access Risks</span><span className="font-bold text-amber-500">18</span></div>
+          </div>
+        </RailSection>
+
+        <RailSection title="Final Access Actions">
+          <div className="flex flex-col gap-2 mt-2">
+            <button className="bg-[#7a0023] text-white py-1.5 rounded text-[11px] font-semibold hover:bg-[#a0002b]">Edit User Access</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Start Access Review</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Invite Supplier User</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Reset MFA</button>
+            <button className="border border-amber-300 text-amber-900 bg-amber-50 py-1.5 rounded text-[11px] font-semibold hover:bg-amber-100">Restrict Access</button>
+            <button className="border border-red-300 text-red-900 bg-red-50 py-1.5 rounded text-[11px] font-semibold hover:bg-red-100">Suspend User</button>
+          </div>
+        </RailSection>
+      </RightIntelligenceRail>
+
     </div>
   );
 }

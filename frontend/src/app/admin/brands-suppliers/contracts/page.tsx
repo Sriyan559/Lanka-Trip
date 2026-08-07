@@ -1,562 +1,300 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { BrandsSuppliersPageHeader } from '@/components/admin/brands-suppliers/BrandsSuppliersPageHeader';
-import { RightInsightRail, RailHealthScore, RailAlertList, RailQueueList, RailSection } from '@/components/admin/brands-suppliers/RightInsightRail';
-import { supplierContractsApi } from '@/services/api/supplierContracts';
-import { Download, FileText, UserPlus, CheckCircle, Clock, AlertTriangle, AlertCircle, Pause, FileWarning, Search, Filter, SlidersHorizontal, Calendar, Plus, Edit2, ShieldAlert } from 'lucide-react';
-import { DonutChartCard } from '@/components/admin/brands-suppliers/charts/DonutChartCard';
-import { TrendChartCard } from '@/components/admin/brands-suppliers/charts/TrendChartCard';
+import React, { useState } from 'react';
+import { 
+  FileText, CheckCircle2, Clock, AlertTriangle, ChevronDown, 
+  FilePlus, ShieldAlert, AlertCircle, RefreshCw, Layers
+} from 'lucide-react';
+import { DashboardGrid, KpiCard } from '@/components/admin/shared/KpiCard';
+import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
+import { FilterToolbar } from '@/components/admin/shared/FilterToolbar';
+import { Tabs } from '@/components/admin/shared/Tabs';
+import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+import { HorizontalStatusChart } from '@/components/admin/shared/HorizontalStatusChart';
 
-export default function ContractsAgreementsPage() {
-  const [kpis, setKpis] = useState<any[]>([]);
-  const [contracts, setContracts] = useState<any[]>([]);
+const KPI_DATA = [
+  { index: 1, title: 'Total Contracts', value: '842', delta: { value: '2.1%', trend: 'down' as const }, icon: FileText, iconBgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
+  { index: 2, title: 'Active Contracts', value: '612', delta: { value: '4.4%', trend: 'up' as const }, icon: CheckCircle2, iconBgColor: 'bg-green-50', iconColor: 'text-green-600' },
+  { index: 3, title: 'Draft Contracts', value: '54', delta: { value: '3.2%', trend: 'up' as const }, icon: FilePlus, iconBgColor: 'bg-gray-100', iconColor: 'text-gray-600' },
+  { index: 4, title: 'Pending Approval', value: '28', delta: { value: '5.7%', trend: 'up' as const }, icon: Clock, iconBgColor: 'bg-amber-50', iconColor: 'text-amber-600' },
+  { index: 5, title: 'Awaiting Signature', value: '22', delta: { value: '7.7%', trend: 'up' as const }, icon: Clock, iconBgColor: 'bg-indigo-50', iconColor: 'text-indigo-600' },
+  { index: 6, title: 'Renewals Due (30 Days)', value: '26', delta: { value: '4.0%', trend: 'up' as const }, icon: AlertCircle, iconBgColor: 'bg-orange-50', iconColor: 'text-orange-600' },
+  { index: 7, title: 'Renewals Overdue', value: '9', delta: { value: '1.8%', trend: 'up' as const }, icon: AlertTriangle, iconBgColor: 'bg-red-50', iconColor: 'text-red-600', alert: true },
+  { index: 8, title: 'Expired Contracts', value: '31', delta: { value: '6.6%', trend: 'up' as const }, icon: FileText, iconBgColor: 'bg-rose-50', iconColor: 'text-rose-600' },
+  { index: 9, title: 'Missing Primary Contracts', value: '24', delta: { value: '2.7%', trend: 'up' as const }, icon: AlertCircle, iconBgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
+  { index: 10, title: 'Contract Compliance Issues', value: '18', delta: { value: '3.1%', trend: 'up' as const }, icon: ShieldAlert, iconBgColor: 'bg-amber-50', iconColor: 'text-amber-600' },
+  { index: 11, title: 'SLA Breaches', value: '12', delta: { value: '9.1%', trend: 'up' as const }, icon: AlertTriangle, iconBgColor: 'bg-red-50', iconColor: 'text-red-600', alert: true },
+  { index: 12, title: 'Terminated / Suspended', value: '14', delta: { value: '0.7%', trend: 'down' as const }, icon: FileText, iconBgColor: 'bg-purple-50', iconColor: 'text-purple-600' },
+];
 
-  useEffect(() => {
-    supplierContractsApi.getContractsKPIs().then(setKpis);
-    supplierContractsApi.getContracts().then(setContracts);
-  }, []);
+const CONTEXT_ITEMS = [
+  { label: 'Tenant', value: 'SL Beauty' },
+  { label: 'Ecosystem', value: 'Beauty Marketplace' },
+  { label: 'Business Unit', value: 'All Business Units' },
+  { label: 'Sales Channels', value: 'All Channels' },
+  { label: 'Region', value: 'Sri Lanka' },
+  { label: 'Currency', value: 'LKR' },
+  { label: 'Contract Scope', value: 'Active Contract Portfolio' },
+  { label: 'Date Range', value: 'Last 30 Days' },
+];
 
-  const getStatusIcon = (status?: string, id?: string) => {
-    if (id === '1') return <FileText size={18} className="text-gray-500" />;
-    if (status === 'success') return <CheckCircle size={18} className="text-green-600" />;
-    if (status === 'warning') return <Clock size={18} className="text-orange-500" />;
-    if (status === 'danger') return <AlertTriangle size={18} className="text-red-500" />;
-    if (status === 'info') return <AlertCircle size={18} className="text-blue-500" />;
-    if (id === '9') return <FileWarning size={18} className="text-orange-500" />;
-    if (id === '12') return <Pause size={18} className="text-gray-500" />;
-    return <AlertCircle size={18} className="text-gray-500" />;
-  };
+const TABS = [
+  { id: 'all', label: 'All Contracts' },
+  { id: 'active', label: 'Active' },
+  { id: 'draft', label: 'Draft' },
+  { id: 'pending', label: 'Pending Approval' },
+  { id: 'awaiting', label: 'Awaiting Signature' },
+  { id: 'renewal', label: 'Renewal Due' },
+  { id: 'overdue', label: 'Overdue' },
+  { id: 'expired', label: 'Expired' },
+  { id: 'suspended', label: 'Suspended' },
+];
 
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'success': return 'text-green-600';
-      case 'warning': return 'text-orange-600';
-      case 'danger': return 'text-red-600';
-      case 'info': return 'text-blue-600';
-      default: return 'text-gray-900';
-    }
-  };
+const TREND_DATA = Array.from({ length: 30 }).map((_, i) => ({
+  date: `Jul ${i + 6}`,
+  Draft: Math.floor(Math.random() * 20) + 30,
+  Approved: Math.floor(Math.random() * 25) + 40,
+  Active: Math.floor(Math.random() * 30) + 60,
+  Overdue: Math.floor(Math.random() * 5) + 2,
+  Renewed: Math.floor(Math.random() * 15) + 10,
+}));
 
-  const trendData = [
-    { name: 'Jul 6', draft: 10, approved: 8, active: 100, overdue: 2, renewed: 5 },
-    { name: 'Jul 13', draft: 15, approved: 12, active: 120, overdue: 3, renewed: 8 },
-    { name: 'Jul 20', draft: 25, approved: 20, active: 150, overdue: 5, renewed: 12 },
-    { name: 'Jul 27', draft: 30, approved: 28, active: 160, overdue: 4, renewed: 15 },
-    { name: 'Aug 3', draft: 42, approved: 35, active: 180, overdue: 6, renewed: 20 },
-  ];
+const DONUT_DATA = [
+  { name: 'Active', value: 612, color: '#16a34a' },
+  { name: 'Draft', value: 54, color: '#6b7280' },
+  { name: 'Pending Approval', value: 28, color: '#d97706' },
+  { name: 'Awaiting Signature', value: 22, color: '#2563eb' },
+  { name: 'Renewal Due', value: 26, color: '#eab308' },
+  { name: 'Overdue', value: 9, color: '#dc2626' },
+  { name: 'Expired', value: 31, color: '#9333ea' },
+  { name: 'Suspended', value: 60, color: '#475569' },
+];
 
-  const trendSeries = [
-    { key: 'draft', name: 'Draft', color: '#6b7280', type: 'line' as const },
-    { key: 'approved', name: 'Approved', color: '#3b82f6', type: 'line' as const },
-    { key: 'active', name: 'Active', color: '#10b981', type: 'line' as const },
-    { key: 'overdue', name: 'Overdue', color: '#ef4444', type: 'line' as const },
-    { key: 'renewed', name: 'Renewed', color: '#8b5cf6', type: 'line' as const },
-  ];
+const SIGNATURE_STATUS_DATA = [
+  { label: 'Active', count: 612, percentage: 72.7, color: '#16a34a' },
+  { label: 'Pending Signature', count: 22, percentage: 2.6, color: '#2563eb' },
+  { label: 'Renewal Review', count: 48, percentage: 5.7, color: '#d97706' },
+  { label: 'Expiring Soon (30 Days)', count: 26, percentage: 3.1, color: '#eab308' },
+  { label: 'Expired', count: 31, percentage: 3.7, color: '#dc2626' },
+  { label: 'Suspended', count: 60, percentage: 7.1, color: '#6b7280' },
+];
 
-  const composition = [
-    { name: 'Active', value: 612, percentage: '72.7%', color: '#10b981' },
-    { name: 'Pending Approval', value: 28, percentage: '3.3%', color: '#3b82f6' },
-    { name: 'Awaiting Signature', value: 22, percentage: '2.6%', color: '#f59e0b' },
-    { name: 'Renewal Due', value: 26, percentage: '3.1%', color: '#f97316' },
-    { name: 'Overdue', value: 9, percentage: '1.1%', color: '#ef4444' },
-    { name: 'Expired', value: 31, percentage: '3.7%', color: '#dc2626' },
-    { name: 'Suspended', value: 60, percentage: '7.1%', color: '#8b5cf6' },
-  ];
+const CONTRACTS_TABLE = [
+  { title: 'Luxe Distribution Master Supply Agreement', id: 'CON-2026-0042', supplier: 'Luxe Distribution', type: 'Master Supply', bu: 'Consumer Beauty', brands: 6, territory: 'Sri Lanka', start: '01 Jan 2026', expiry: '31 Dec 2026', renewal: 'Due in 45 Days', signature: 'Signed', approval: 'Approved', terms: 'Net 30', commission: '15.5%', sla: 'Premium', compliance: 'Compliant', risk: 'Low', owner: 'Priya Nair', updated: '04 Aug 2026' },
+  { title: 'Tokyo Beauty Distribution Agreement', id: 'CON-2026-0031', supplier: 'Tokyo Beauty', type: 'Distribution', bu: 'All Business Units', brands: 2, territory: 'Sri Lanka', start: '15 Oct 2025', expiry: '14 Oct 2026', renewal: 'Due in 112 Days', signature: 'Awaiting Signature', approval: 'Legal Review', terms: 'Net 45', commission: '12%', sla: 'Standard', compliance: 'Compliant', risk: 'Low', owner: 'Marco Lee', updated: '03 Aug 2026' },
+  { title: 'PuroGlow Import Contract', id: 'CON-2026-0028', supplier: 'PuroGlow Imports', type: 'Importer', bu: 'Consumer Beauty', brands: 8, territory: 'Sri Lanka', start: '01 Nov 2025', expiry: '01 Aug 2026', renewal: 'Overdue (3 Days)', signature: 'Signed', approval: 'Approved', terms: 'Net 60', commission: '10%', sla: 'Standard', compliance: 'Compliant', risk: 'Medium', owner: 'Elena Vance', updated: '03 Aug 2026' },
+  { title: 'Velvet Botanics Channel Supply MSA', id: 'CON-2026-0019', supplier: 'Velvet Botanics', type: 'Master Supply', bu: 'Consumer Beauty', brands: 3, territory: 'Sri Lanka', start: '05 Jan 2026', expiry: '05 Jan 2027', renewal: 'Due in 60 Days', signature: 'Signed', approval: 'Approved', terms: 'Net 30', commission: '18%', sla: 'Premium', compliance: 'Compliant', risk: 'Low', owner: 'Priya Nair', updated: '02 Aug 2026' },
+  { title: 'SilkRoad Regional Supplier Contract', id: 'CON-2026-0012', supplier: 'SilkRoad Supplies', type: 'Re-seller', bu: 'Consumer Beauty', brands: 5, territory: 'Sri Lanka', start: '01 Aug 2025', expiry: '31 Aug 2026', renewal: 'Due in 27 Days', signature: 'Signed', approval: 'Approved', terms: 'Net 30', commission: '14%', sla: 'Standard', compliance: 'Compliant', risk: 'Low', owner: 'Priya Nair', updated: '01 Aug 2026' },
+];
 
-  const tabs = ['All Contracts', 'Active', 'Draft', 'Pending Approval', 'Awaiting Signature', 'Renewal Due', 'Overdue', 'Expired', 'Suspended'];
+export default function SupplierContractsPage() {
+  const [activeTab, setActiveTab] = useState('all');
 
   return (
-    <div className="flex h-full w-full bg-[#f8fafc]">
-      <div className="flex-1 overflow-auto p-6 flex flex-col">
-        <BrandsSuppliersPageHeader
-          title="Supplier Contracts & Agreements"
-          description="Manage supplier contracts, commercial terms, approvals, signatures, renewals and compliance across the beauty marketplace."
-          breadcrumbs={[
-            { label: 'Brands & Suppliers', href: '/admin/brands-suppliers' },
-            { label: 'Contracts & Agreements' }
-          ]}
-          primaryAction={{ label: 'Create Contract', onClick: () => {}, icon: Plus }}
-          secondaryActions={[
-            { label: 'Export Contract Report', onClick: () => {}, icon: Download },
-            { label: 'Renewal Calendar', onClick: () => {}, icon: Calendar },
-            { label: 'Bulk Actions', onClick: () => {} }
-          ]}
+    <div className="flex w-full h-full min-h-screen bg-[#faf8f8] text-gray-900">
+      
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-grow flex flex-col min-w-0 px-6 py-4">
+        
+        {/* Header */}
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <div className="text-[11px] text-gray-500 font-medium mb-1">Brands &amp; Suppliers / Contracts &amp; Agreements</div>
+            <h1 className="text-2xl font-bold text-gray-900 leading-tight">Supplier Contracts &amp; Agreements</h1>
+            <p className="text-xs text-gray-500 mt-1">Manage supplier contracts, commercial terms, approvals, signatures, renewals and compliance across the beauty marketplace.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Export Contract Report</button>
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Renewal Calendar</button>
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Bulk Actions v</button>
+            <button className="bg-[#7a0023] text-white px-4 py-1.5 rounded-md text-[13px] font-semibold hover:bg-[#a0002b]">+ Create Contract</button>
+          </div>
+        </div>
+
+        {/* Context Scope Bar */}
+        <ContextScopeBar 
+          items={CONTEXT_ITEMS} 
+          lastSynced="04 Aug 2026, 12:57 AM" 
+          accessNote="Access limited to assigned business context"
         />
 
-        {/* KPI Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-6">
-          {kpis.map((kpi) => (
-            <div key={kpi.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col">
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-xs text-gray-500 font-medium">{kpi.id} {kpi.label}</span>
-                <div className="p-1.5 rounded-full bg-gray-50 border border-gray-100">
-                  {getStatusIcon(kpi.status, kpi.id)}
-                </div>
-              </div>
-              <div className="flex items-end gap-2 mt-auto">
-                <span className={`text-2xl font-bold ${getStatusColor(kpi.status)}`}>{kpi.value}</span>
-                {kpi.trend && (
-                  <span className={`text-xs font-medium mb-1 ${kpi.trendDirection === 'down' ? 'text-red-500' : 'text-green-500'}`}>
-                    {kpi.trendDirection === 'down' ? '↓' : '↑'} {kpi.trend}
-                  </span>
-                )}
-              </div>
-            </div>
+        {/* 12 KPI Grid */}
+        <DashboardGrid>
+          {KPI_DATA.map((kpi) => (
+            <KpiCard key={kpi.index} {...kpi} />
           ))}
-        </div>
+        </DashboardGrid>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-6 border-b border-gray-200 mb-4 px-2 overflow-x-auto">
-          {tabs.map(tab => (
-            <button 
-              key={tab}
-              className={`whitespace-nowrap pb-3 text-sm font-medium border-b-2 transition-colors ${tab === 'All Contracts' ? 'border-[#7a122e] text-[#7a122e]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-          <div className="xl:col-span-2">
-            <TrendChartCard
-              title="Contract Operations Trend"
-              data={trendData}
-              series={trendSeries}
-              timeRange="Last 30 Days"
-            />
-          </div>
-          <div className="xl:col-span-1">
-            <DonutChartCard
-              title="Contract Status Distribution"
-              data={composition}
-              totalLabel="Total"
-              totalValue={842}
-            />
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-6 flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input type="text" placeholder="Search contracts..." className="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none focus:border-[#7a122e] focus:ring-1 focus:ring-[#7a122e]" />
+        {/* Charts Section */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <div className="col-span-5 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Contract Operations Trend <span className="text-gray-400 font-normal">(Last 30 Days)</span></h3>
+            <div className="flex-grow">
+              <TrendChart data={TREND_DATA} colors={['#6b7280', '#16a34a', '#0284c7', '#dc2626', '#9333ea']} />
             </div>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>Contract Type</option>
-            </select>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>Supplier</option>
-            </select>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>Brand</option>
-            </select>
-            
-            <div className="flex items-center gap-2 ml-auto">
-              <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                <SlidersHorizontal size={14} /> More Filters
-              </button>
-              <button className="text-sm font-medium text-gray-500 hover:text-gray-700">Clear All</button>
+          </div>
+
+          <div className="col-span-3 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Contract Status Distribution</h3>
+            <div className="flex-grow">
+              <DonutDistributionChart data={DONUT_DATA} totalLabel="Total" totalValue="842" />
+            </div>
+          </div>
+
+          <div className="col-span-4 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Signature &amp; Renewal Status Summary</h3>
+            <div className="flex-grow overflow-y-auto no-scrollbar">
+              <HorizontalStatusChart data={SIGNATURE_STATUS_DATA} total={842} />
             </div>
           </div>
         </div>
 
-        {/* Table Mockup */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto mb-6">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 text-xs text-gray-500 border-b border-gray-200 whitespace-nowrap font-medium">
-              <tr>
-                <th className="px-4 py-3">Supplier Contract Portfolio</th>
-                <th className="px-4 py-3">Contract Type</th>
-                <th className="px-4 py-3 text-center">Status</th>
-                <th className="px-4 py-3 text-center">Renewal Status</th>
-                <th className="px-4 py-3 text-center">Signature Status</th>
-                <th className="px-4 py-3 text-center">Compliance</th>
-                <th className="px-4 py-3 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {contracts.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-gray-900">{c.supplier}</span>
-                      <span className="text-xs text-gray-500">{c.id}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{c.type}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${c.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-xs">
-                     <span className={`${c.renewalStatus.includes('Due in') ? 'text-orange-600' : 'text-red-600'}`}>{c.renewalStatus}</span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-xs text-gray-700">{c.signatureStatus}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`text-xs font-medium ${c.compliance === 'Compliant' ? 'text-green-600' : c.compliance.includes('Risk') ? 'text-orange-600' : 'text-red-600'}`}>
-                      {c.compliance}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button className="text-[#7a122e] font-medium text-xs hover:underline">View</button>
-                  </td>
+        {/* Health Scorecard Strip */}
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm p-3 mb-4 flex justify-between text-[11px]">
+          <div><span className="text-gray-500">Contract Completion</span> <span className="font-bold text-gray-900 ml-1">86%</span></div>
+          <div><span className="text-gray-500">Signature Readiness</span> <span className="font-bold text-gray-900 ml-1">87%</span></div>
+          <div><span className="text-gray-500">Renewal Readiness</span> <span className="font-bold text-gray-900 ml-1">81%</span></div>
+          <div><span className="text-gray-500">Commercial Accuracy</span> <span className="font-bold text-gray-900 ml-1">89%</span></div>
+          <div><span className="text-gray-500">Compliance Coverage</span> <span className="font-bold text-gray-900 ml-1">91%</span></div>
+          <div><span className="text-gray-500">Authorization Linkage</span> <span className="font-bold text-gray-900 ml-1">85%</span></div>
+          <div><span className="text-gray-500">SLA Readiness</span> <span className="font-bold text-gray-900 ml-1">84%</span></div>
+        </div>
+
+        {/* Tabs & Filters */}
+        <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+        
+        <FilterToolbar 
+          searchPlaceholder="Search contracts / suppliers / brands / ID..."
+          filters={[
+            { id: 'approval', label: 'Approval Status', options: [] },
+            { id: 'signature', label: 'Signature Status', options: [] },
+            { id: 'renewal', label: 'Renewal Status', options: [] },
+            { id: 'compliance', label: 'Compliance Status', options: [] },
+            { id: 'risk', label: 'Risk Level', options: [] },
+            { id: 'updated', label: 'Updated Date', options: [] },
+            { id: 'expiry', label: 'Expiry Date', options: [] },
+          ]}
+          onClearAll={() => {}}
+          onSaveView={() => {}}
+        />
+
+        {/* Dense Contract Portfolio Table */}
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm flex flex-col mt-2">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-[11px] whitespace-nowrap min-w-[1600px]">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider">
+                <tr>
+                  <th className="px-3 py-2 pl-4">Contract Title</th>
+                  <th className="px-3 py-2">Contract ID</th>
+                  <th className="px-3 py-2">Supplier</th>
+                  <th className="px-3 py-2">Contract Type</th>
+                  <th className="px-3 py-2">Business Unit</th>
+                  <th className="px-3 py-2 text-center">Linked Brands</th>
+                  <th className="px-3 py-2">Territory</th>
+                  <th className="px-3 py-2">Start Date</th>
+                  <th className="px-3 py-2">Expiry Date</th>
+                  <th className="px-3 py-2">Renewal Status</th>
+                  <th className="px-3 py-2">Signature Status</th>
+                  <th className="px-3 py-2">Approval Status</th>
+                  <th className="px-3 py-2">Payment Terms</th>
+                  <th className="px-3 py-2">Commission Rate</th>
+                  <th className="px-3 py-2">SLA Tier</th>
+                  <th className="px-3 py-2">Compliance Status</th>
+                  <th className="px-3 py-2">Risk Level</th>
+                  <th className="px-3 py-2">Contract Owner</th>
+                  <th className="px-3 py-2">Updated At</th>
+                  <th className="px-3 py-2 text-center">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Bottom panels for Contracts (BS09) */}
-        <div className="flex flex-col gap-6 mt-6">
-          
-          {/* Row 1: Contract Approval Queue & SLA Obligations */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-              <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                  <ShieldAlert size={16} className="text-[#7a122e]" />
-                  Contract Approval Queue
-                </h3>
-                <span className="text-[10px] bg-red-50 text-red-700 px-2 py-0.5 rounded font-medium border border-red-100">3 Cases Pending</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-medium">
-                    <tr>
-                      <th className="px-5 py-3">Case ID</th>
-                      <th className="px-5 py-3">Supplier</th>
-                      <th className="px-5 py-3">Type</th>
-                      <th className="px-5 py-3">SLA Status</th>
-                      <th className="px-5 py-3 text-center">Status</th>
-                      <th className="px-5 py-3 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">CON-REQ-091</td>
-                      <td className="px-5 py-3 font-medium text-gray-800">Serene Botanics Lanka</td>
-                      <td className="px-5 py-3 text-gray-500">Distribution Agreement</td>
-                      <td className="px-5 py-3 text-orange-600 font-semibold">Warning (4h left)</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className="px-2 py-0.5 bg-orange-50 text-orange-700 border border-orange-100 rounded text-[10px]">Pending Approval</span>
-                      </td>
-                      <td className="px-5 py-3 text-center">
-                        <button className="text-[#7a122e] font-semibold hover:underline">Review</button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">CON-REQ-092</td>
-                      <td className="px-5 py-3 font-medium text-gray-800">Ceylon Glow Exports</td>
-                      <td className="px-5 py-3 text-gray-500">SLA Addendum v2</td>
-                      <td className="px-5 py-3 text-green-600 font-medium">On Track</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px]">Under Review</span>
-                      </td>
-                      <td className="px-5 py-3 text-center">
-                        <button className="text-[#7a122e] font-semibold hover:underline">Review</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-              <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                  <FileText size={16} className="text-[#7a122e]" />
-                  SLA & Performance Obligations
-                </h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-medium">
-                    <tr>
-                      <th className="px-5 py-3">Supplier</th>
-                      <th className="px-5 py-3">Obligation</th>
-                      <th className="px-5 py-3 text-center">Target SLA</th>
-                      <th className="px-5 py-3 text-center">Penalty Clause</th>
-                      <th className="px-5 py-3 text-center">Compliance</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">Velvet Botanics</td>
-                      <td className="px-5 py-3 text-gray-600">Dispatch within 24 hours</td>
-                      <td className="px-5 py-3 text-center text-gray-800">&gt; 98.5%</td>
-                      <td className="px-5 py-3 text-center text-gray-500">2.5% invoice fee</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className="text-green-600 font-semibold">Compliant (99.4%)</span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">LuxeSkin Wholesale</td>
-                      <td className="px-5 py-3 text-gray-600">Order acceptance time</td>
-                      <td className="px-5 py-3 text-center text-gray-800">&lt; 2 hours</td>
-                      <td className="px-5 py-3 text-center text-gray-500">Warning letter</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className="text-orange-600 font-semibold">At Risk (91.8%)</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                {CONTRACTS_TABLE.map((row) => (
+                  <tr key={row.id} className="hover:bg-gray-50 cursor-pointer">
+                    <td className="px-3 py-2 pl-4 font-bold text-rose-800">{row.title}</td>
+                    <td className="px-3 py-2 text-gray-500">{row.id}</td>
+                    <td className="px-3 py-2 font-semibold text-gray-900">{row.supplier}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.type}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.bu}</td>
+                    <td className="px-3 py-2 text-center font-bold text-gray-900">{row.brands}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.territory}</td>
+                    <td className="px-3 py-2 text-gray-500">{row.start}</td>
+                    <td className="px-3 py-2 text-gray-500">{row.expiry}</td>
+                    <td className="px-3 py-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                        row.renewal.includes('Overdue') ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {row.renewal}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                        row.signature === 'Signed' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'
+                      }`}>
+                        {row.signature}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                        row.approval === 'Approved' ? 'bg-green-50 text-green-700' : 'bg-purple-50 text-purple-700'
+                      }`}>
+                        {row.approval}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-gray-600">{row.terms}</td>
+                    <td className="px-3 py-2 text-gray-600 font-bold">{row.commission}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.sla}</td>
+                    <td className="px-3 py-2 text-green-600 font-bold">{row.compliance}</td>
+                    <td className="px-3 py-2 font-bold text-green-600">{row.risk}</td>
+                    <td className="px-3 py-2 text-gray-500">{row.owner}</td>
+                    <td className="px-3 py-2 text-gray-400">{row.updated}</td>
+                    <td className="px-3 py-2 text-center"><button className="text-gray-400 hover:text-gray-900">⋮</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-
-          {/* Row 2: Signature Operations, Renewal Operations, Contract Documents progress rails */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-              <h3 className="font-semibold text-gray-900 text-xs mb-3">Signature Operations</h3>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-gray-500">Awaiting Signature:</span>
-                  <span className="font-bold text-gray-900">22</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-gray-500">Partially Signed:</span>
-                  <span className="font-bold text-gray-900">14</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-gray-500">Fully Executed:</span>
-                  <span className="font-bold text-green-600">612</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-500 text-red-600 font-medium">Overdue Signature:</span>
-                  <span className="font-bold text-red-600">8</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-              <h3 className="font-semibold text-gray-900 text-xs mb-3">Renewal Operations</h3>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-gray-500">Overdue Renewals:</span>
-                  <span className="font-bold text-red-600">9</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-gray-500">Due in 30 Days:</span>
-                  <span className="font-bold text-orange-600">26</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-gray-500">Due in 90 Days:</span>
-                  <span className="font-bold text-gray-800">42</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-500 text-green-600 font-medium">Auto-Renewed this Month:</span>
-                  <span className="font-bold text-green-600">20</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex flex-col justify-between">
-              <h3 className="font-semibold text-gray-900 text-xs mb-3">Documents & Evidence Coverage</h3>
-              <div className="space-y-2.5 text-xs">
-                <div>
-                  <div className="flex justify-between text-[10px] text-gray-400 font-semibold mb-0.5 uppercase">
-                    <span>KYC & Incorporation Certs</span>
-                    <span>96%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500" style={{ width: '96%' }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-[10px] text-gray-400 font-semibold mb-0.5 uppercase">
-                    <span>Brand Authorization Letters</span>
-                    <span>92%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500" style={{ width: '92%' }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-[10px] text-gray-400 font-semibold mb-0.5 uppercase">
-                    <span>Financial Performance Bond</span>
-                    <span>85%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-orange-400" style={{ width: '85%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Row 3: Commercial Terms & Brand Exclusivity */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-              <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 text-sm">Commercial Terms & Obligations</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-medium">
-                    <tr>
-                      <th className="px-5 py-3">Supplier Name</th>
-                      <th className="px-5 py-3 text-center">Settlement Days</th>
-                      <th className="px-5 py-3 text-center">Commission Rate</th>
-                      <th className="px-5 py-3 text-center">Return Handling</th>
-                      <th className="px-5 py-3 text-center">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">Serene Botanics Lanka</td>
-                      <td className="px-5 py-3 text-center">Net 15</td>
-                      <td className="px-5 py-3 text-center">15.0%</td>
-                      <td className="px-5 py-3 text-center">Supplier returns pool</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className="px-2 py-0.5 bg-green-50 text-green-700 border border-green-100 rounded text-[10px]">Active</span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">Ceylon Glow Exports</td>
-                      <td className="px-5 py-3 text-center">Net 30</td>
-                      <td className="px-5 py-3 text-center">12.5%</td>
-                      <td className="px-5 py-3 text-center">Refund only</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className="px-2 py-0.5 bg-green-50 text-green-700 border border-green-100 rounded text-[10px]">Active</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-              <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 text-sm">Brand Authorization Exclusivity & Linkage</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-medium">
-                    <tr>
-                      <th className="px-5 py-3">Exclusive Brand</th>
-                      <th className="px-5 py-3">Supplier Name</th>
-                      <th className="px-5 py-3">Target Territory</th>
-                      <th className="px-5 py-3 text-center">Active Products</th>
-                      <th className="px-5 py-3 text-center">Linkage</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">Aurora Skin</td>
-                      <td className="px-5 py-3 font-medium text-gray-800">Serene Botanics Lanka</td>
-                      <td className="px-5 py-3 text-gray-500">Sri Lanka</td>
-                      <td className="px-5 py-3 text-center text-gray-900 font-semibold">24</td>
-                      <td className="px-5 py-3 text-center text-green-600 font-medium">✓ Correctly Linked</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-5 py-3 font-semibold text-gray-900">Innisfree</td>
-                      <td className="px-5 py-3 font-medium text-gray-800">Tokyo Beauty Co.</td>
-                      <td className="px-5 py-3 text-gray-500">Sri Lanka, Maldives</td>
-                      <td className="px-5 py-3 text-center text-gray-900 font-semibold">12</td>
-                      <td className="px-5 py-3 text-center text-green-600 font-medium">✓ Correctly Linked</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* Row 4: Amendment Timeline & Recent Contract Activity */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 xl:col-span-1">
-              <h3 className="font-semibold text-gray-900 text-xs mb-3">Amendment & Version History</h3>
-              <div className="relative border-l border-gray-200 ml-3 pl-4 space-y-4 text-[11px] text-gray-500">
-                <div className="relative">
-                  <div className="absolute -left-[21px] top-0.5 w-2 h-2 rounded-full bg-green-500" />
-                  <span className="font-bold text-gray-800">v2.1 SLA Addendum signed</span>
-                  <p className="mt-0.5">04 Aug 2026 • Serene Botanics</p>
-                </div>
-                <div className="relative">
-                  <div className="absolute -left-[21px] top-0.5 w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="font-bold text-gray-800">v2.0 Term Extension created</span>
-                  <p className="mt-0.5">25 Jul 2026 • System Agent</p>
-                </div>
-                <div className="relative">
-                  <div className="absolute -left-[21px] top-0.5 w-2 h-2 rounded-full bg-gray-300" />
-                  <span className="font-bold text-gray-800">v1.0 Original Contract executed</span>
-                  <p className="mt-0.5">12 Jul 2025 • Elena Vance</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden xl:col-span-2 flex flex-col">
-              <div className="px-5 py-3.5 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 text-xs">Recent Contract Activity Log</h3>
-              </div>
-              <div className="overflow-y-auto max-h-48 text-[11px] text-gray-600 divide-y divide-gray-100">
-                <div className="p-3 flex items-center justify-between hover:bg-gray-50">
-                  <span>Contract CON-2025-00654 renewed by System Auto-Renew</span>
-                  <span className="text-gray-400">04 Aug, 09:15 AM</span>
-                </div>
-                <div className="p-3 flex items-center justify-between hover:bg-gray-50">
-                  <span>SLA Addendum uploaded for LuxeSkin Wholesale</span>
-                  <span className="text-gray-400">03 Aug, 02:40 PM</span>
-                </div>
-                <div className="p-3 flex items-center justify-between hover:bg-gray-50">
-                  <span>Agreement template updated (v3.2)</span>
-                  <span className="text-gray-400">01 Aug, 10:00 AM</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
 
       </div>
 
-      <RightInsightRail>
+      {/* RIGHT INTELLIGENCE RAIL */}
+      <RightIntelligenceRail>
         <RailSection title="Contract Portfolio Health">
-          <RailHealthScore 
+          <HealthScoreGauge 
             score={90} 
-            label=""
-            status="Stable" 
+            label="Stable" 
+            statusText="Stable"
+            statusColor="#16a34a"
             metrics={[
-              { label: 'Verification Coverage', value: '92%' },
-              { label: 'Signature Readiness', value: '88%' },
-              { label: 'Commercial Completeness', value: '95%' },
-              { label: 'Renewal Readiness', value: '82%' },
-            ]} 
+              { label: 'Verification Coverage', value: '92%', progress: 92 },
+              { label: 'Signature Readiness', value: '87%', progress: 87 },
+              { label: 'Commercial Completeness', value: '89%', progress: 89 },
+              { label: 'Renewal Readiness', value: '81%', progress: 81 },
+              { label: 'Compliance Coverage', value: '91%', progress: 91 },
+            ]}
           />
         </RailSection>
 
-        <RailSection title="Priority Alerts" action={{ label: 'View all' }}>
-          <RailAlertList items={[
-            { label: 'Contract renewal overdue', count: 9, critical: true },
-            { label: 'Missing primary contract', count: 24, critical: true },
-            { label: 'SLA breach (dates list)', count: 12, critical: true },
-            { label: 'Signature pending over 7 days', count: 8, critical: false },
-          ]} />
+        <RailSection title="Priority Alerts">
+          <div className="flex flex-col gap-1 text-[11px]">
+            <div className="flex justify-between items-center"><span className="text-gray-700 flex items-center gap-1"><AlertTriangle size={12} className="text-red-500" /> Contract renewal overdue</span><span className="font-bold text-red-500">9</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-700 flex items-center gap-1"><AlertTriangle size={12} className="text-amber-500" /> Missing primary contract</span><span className="font-bold text-amber-500">24</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-700 flex items-center gap-1"><AlertTriangle size={12} className="text-red-500" /> SLA breach - contract terms</span><span className="font-bold text-red-500">12</span></div>
+          </div>
         </RailSection>
 
         <RailSection title="Final Contract Actions">
-           <div className="flex flex-col gap-2">
-             <div className="grid grid-cols-2 gap-2">
-               <button className="flex items-center justify-center gap-1.5 py-2 bg-white border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">
-                 <Edit2 size={14}/> Edit Contract
-               </button>
-               <button className="flex items-center justify-center gap-1.5 py-2 bg-white border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">
-                 <ShieldAlert size={14}/> Start Approval
-               </button>
-             </div>
-             <button className="w-full py-2 bg-[#7a122e] text-white rounded text-sm font-medium hover:bg-[#5a0d22]">
-               Send for Signature
-             </button>
-             <button className="w-full py-2 bg-white border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">
-               Renew Contract
-             </button>
-           </div>
+          <div className="flex flex-col gap-2 mt-2">
+            <button className="bg-[#7a0023] text-white py-1.5 rounded text-[11px] font-semibold hover:bg-[#a0002b]">+ Create Contract</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Start Approval Review</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Send for Signature</button>
+            <button className="border border-amber-300 text-amber-900 bg-amber-50 py-1.5 rounded text-[11px] font-semibold hover:bg-amber-100">Renew Contract</button>
+            <button className="border border-red-300 text-red-900 bg-red-50 py-1.5 rounded text-[11px] font-semibold hover:bg-red-100">Suspend Contract</button>
+          </div>
         </RailSection>
-      </RightInsightRail>
+      </RightIntelligenceRail>
+
     </div>
   );
 }
