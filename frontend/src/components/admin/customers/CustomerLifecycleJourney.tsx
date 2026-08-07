@@ -3,16 +3,27 @@
 import React from "react";
 import { Check, AlertTriangle, ShieldAlert } from "lucide-react";
 import { MOCK_LIFECYCLE_NODES } from "@/data/customer.mock";
+import { LifecycleNode } from "@/types/customer";
 
-export function CustomerLifecycleJourney() {
+interface CustomerLifecycleJourneyProps {
+  nodes?: LifecycleNode[];
+  title?: string;
+  subtitle?: string;
+}
+
+export function CustomerLifecycleJourney({
+  nodes = MOCK_LIFECYCLE_NODES,
+  title = "Customer Lifecycle Journey",
+  subtitle = "End-to-end lifecycle progression nodes from onboarding to retention",
+}: CustomerLifecycleJourneyProps) {
   return (
-    <div className="bg-white border border-line rounded-lg p-4 shadow-2xs w-full overflow-hidden">
+    <div className="bg-white border border-line rounded-lg p-3.5 sm:p-4 shadow-2xs w-full overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[11px] font-bold text-ink uppercase tracking-wider font-mono">
-          Customer Lifecycle Journey
+          {title}
         </h3>
-        <span className="text-[11px] text-slate-400 font-mono">
-          End-to-end lifecycle progression nodes from onboarding to retention
+        <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono hidden sm:inline">
+          {subtitle}
         </span>
       </div>
 
@@ -21,7 +32,7 @@ export function CustomerLifecycleJourney() {
           {/* Centered Horizontal Connector Line */}
           <div className="absolute top-[22px] left-10 right-10 h-0.5 bg-slate-200 z-0" />
 
-          {MOCK_LIFECYCLE_NODES.map((node) => {
+          {nodes.map((node) => {
             const isCompleted = node.status === "Completed";
             const isCurrent = node.status === "Current";
             const isWarning = node.status === "Warning";

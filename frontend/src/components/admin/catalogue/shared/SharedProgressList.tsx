@@ -11,14 +11,15 @@ export interface ProgressItem {
 }
 
 export interface SharedProgressListProps {
-  title: string;
+  title?: string;
   items: ProgressItem[];
   layout?: "horizontal" | "vertical"; // horizontal = Label on left, vertical = Label above
   footerText?: string;
   onFooterClick?: () => void;
+  hasCardWrapper?: boolean;
 }
 
-export function SharedProgressList({ title, items, layout = "horizontal", footerText, onFooterClick }: SharedProgressListProps) {
+export function SharedProgressList({ title, items, layout = "horizontal", footerText, onFooterClick, hasCardWrapper = true }: SharedProgressListProps) {
   return (
     <div className="bg-white rounded-xl border border-line p-5 shadow-sm flex flex-col">
       <h3 className="text-[13px] font-bold text-ink mb-4">{title}</h3>

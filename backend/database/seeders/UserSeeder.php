@@ -11,6 +11,16 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
+                'name' => 'Techromz Admin',
+                'email' => 'admin@techromz.lk',
+                'password' => 'Techromz@2026',
+                'role' => 'admin',
+                'phone' => '+94 11 200 0000',
+                'company_name' => 'Techromz',
+                'country' => 'Sri Lanka',
+                'status' => 'active',
+            ],
+            [
                 'name' => 'EcomLanka Admin',
                 'email' => 'admin@ecomlanka.lk',
                 'password' => 'Password123!',
