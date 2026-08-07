@@ -1,257 +1,264 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
-import { BrandsSuppliersPageHeader } from '@/components/admin/brands-suppliers/BrandsSuppliersPageHeader';
-import { RightInsightRail, RailHealthScore, RailAlertList, RailSection, RailQueueList } from '@/components/admin/brands-suppliers/RightInsightRail';
-import { TrendChartCard } from '@/components/admin/brands-suppliers/charts/TrendChartCard';
-import { DonutChartCard } from '@/components/admin/brands-suppliers/charts/DonutChartCard';
-import { Download, Upload, SlidersHorizontal, Search, Settings, FileSpreadsheet, AlertTriangle, AlertCircle, Play, Check } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { 
+  Download, Upload, CheckCircle2, Clock, AlertTriangle, ChevronDown, 
+  FileText, Layers, AlertCircle, RefreshCw, Eye
+} from 'lucide-react';
+import { DashboardGrid, KpiCard } from '@/components/admin/shared/KpiCard';
+import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
+import { FilterToolbar } from '@/components/admin/shared/FilterToolbar';
+import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
 
-export default function ImportExportAuditPage() {
-  const [activeTab, setActiveTab] = useState('All Jobs');
-  const [executingJobId, setExecutingJobId] = useState<string | null>(null);
+const KPI_DATA = [
+  { index: 1, title: 'Imports This Month', value: '1,248', delta: { value: '4.2%', trend: 'up' as const }, icon: Upload, iconBgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
+  { index: 2, title: 'Successful Imports', value: '1,102', delta: { value: '3.4%', trend: 'up' as const }, icon: CheckCircle2, iconBgColor: 'bg-green-50', iconColor: 'text-green-600' },
+  { index: 3, title: 'Partial Imports', value: '96', delta: { value: '1.1%', trend: 'up' as const }, icon: Clock, iconBgColor: 'bg-amber-50', iconColor: 'text-amber-600' },
+  { index: 4, title: 'Failed Imports', value: '50', delta: { value: '2.8%', trend: 'down' as const }, icon: AlertTriangle, iconBgColor: 'bg-rose-50', iconColor: 'text-rose-600', alert: true },
+  { index: 5, title: 'Records Processed', value: '4.2M', delta: { value: '6.6%', trend: 'up' as const }, icon: FileText, iconBgColor: 'bg-indigo-50', iconColor: 'text-indigo-600' },
+  { index: 6, title: 'Records Rejected', value: '31,240', delta: { value: '3.1%', trend: 'down' as const }, icon: AlertCircle, iconBgColor: 'bg-red-50', iconColor: 'text-red-600' },
+  { index: 7, title: 'Mapping Issues', value: '128', delta: { value: '5.5%', trend: 'up' as const }, icon: Layers, iconBgColor: 'bg-orange-50', iconColor: 'text-orange-600' },
+  { index: 8, title: 'Duplicate Conflicts', value: '76', delta: { value: '1.9%', trend: 'down' as const }, icon: RefreshCw, iconBgColor: 'bg-purple-50', iconColor: 'text-purple-600' },
+  { index: 9, title: 'Exports Generated', value: '842', delta: { value: '2.4%', trend: 'up' as const }, icon: Download, iconBgColor: 'bg-emerald-50', iconColor: 'text-emerald-600' },
+  { index: 10, title: 'Scheduled Exports', value: '34', delta: { value: '6.0%', trend: 'up' as const }, icon: Clock, iconBgColor: 'bg-sky-50', iconColor: 'text-sky-600' },
+  { index: 11, title: 'Export Failures', value: '9', delta: { value: '18.0%', trend: 'down' as const }, icon: AlertTriangle, iconBgColor: 'bg-red-50', iconColor: 'text-red-600', alert: true },
+  { index: 12, title: 'Pending Review Jobs', value: '18', delta: { value: '2.0%', trend: 'up' as const }, icon: Eye, iconBgColor: 'bg-teal-50', iconColor: 'text-teal-600' },
+];
 
-  const trendData = [
-    { name: 'Jul 6', imports: 42, exports: 30, failures: 1 },
-    { name: 'Jul 13', imports: 48, exports: 35, failures: 2 },
-    { name: 'Jul 20', imports: 55, exports: 40, failures: 0 },
-    { name: 'Jul 27', imports: 60, exports: 48, failures: 3 },
-    { name: 'Aug 3', imports: 68, exports: 51, failures: 1 },
-  ];
+const CONTEXT_ITEMS = [
+  { label: 'Tenant', value: 'SL Beauty' },
+  { label: 'Ecosystem', value: 'Beauty Marketplace' },
+  { label: 'Business Unit', value: 'All Business Units' },
+  { label: 'Sales Channels', value: 'All Channels' },
+  { label: 'Region', value: 'Sri Lanka' },
+  { label: 'Currency', value: 'LKR' },
+  { label: 'Data Scope', value: 'Supplier Data Operations' },
+  { label: 'Date Range', value: 'Last 30 Days' },
+];
 
-  const trendSeries = [
-    { key: 'imports', name: 'Imports Run', color: '#3b82f6', type: 'line' as const },
-    { key: 'exports', name: 'Exports Run', color: '#10b981', type: 'line' as const },
-    { key: 'failures', name: 'Failed Jobs', color: '#ef4444', type: 'bar' as const },
-  ];
+const TREND_DATA = Array.from({ length: 30 }).map((_, i) => ({
+  date: `Jul ${i + 6}`,
+  Imports: Math.floor(Math.random() * 50) + 100,
+  Exports: Math.floor(Math.random() * 40) + 80,
+  'Processed Records': Math.floor(Math.random() * 200) + 500,
+  'Failed Records': Math.floor(Math.random() * 10) + 2,
+}));
 
-  const composition = [
-    { name: 'Product Catalog', value: 142, percentage: '58.7%', color: '#2563eb' },
-    { name: 'Brand Authorizations', value: 54, percentage: '22.3%', color: '#f59e0b' },
-    { name: 'Verification KYC', value: 28, percentage: '11.6%', color: '#10b981' },
-    { name: 'Commercial Contracts', value: 18, percentage: '7.4%', color: '#8b5cf6' },
-  ];
+const DONUT_DATA = [
+  { name: 'Completed', value: 1248, color: '#16a34a' },
+  { name: 'Pending Review', value: 312, color: '#0284c7' },
+  { name: 'Failed', value: 156, color: '#dc2626' },
+  { name: 'Scheduled', value: 284, color: '#9333ea' },
+  { name: 'Running', value: 168, color: '#d97706' },
+  { name: 'Draft', value: 188, color: '#6b7280' },
+];
 
-  const kpis = [
-    { label: 'Imports Run', value: '242', trend: '+12', color: 'text-gray-900' },
-    { label: 'Exports Run', value: '184', trend: '+8', color: 'text-gray-900' },
-    { label: 'Average Mapping Accuracy', value: '99.4%', trend: '+0.2%', color: 'text-green-600' },
-    { label: 'Active Templates', value: '12', trend: 'Stable', color: 'text-blue-600' },
-    { label: 'Queue Length', value: '3', trend: '-1', color: 'text-green-600' },
-    { label: 'Audit Trail Records', value: '1,424', trend: '+114', color: 'text-gray-900' }
-  ];
+const JOBS_TABLE = [
+  { id: 'IMP-8902', type: 'Import', domain: 'Product Master', file: 'Product Master CSV', source: 'Supplier Portal', scope: 'All Suppliers', user: 'Anika Perera', records: '152,400', mapping: '91%', validation: 'In Progress', duplicates: 56, approval: 'Pending', exec: 'Queued', recon: '—', outcome: 'In Progress', updated: '04 Aug 2026' },
+  { id: 'IMP-8898', type: 'Import', domain: 'Supplier Master', file: 'Supplier Master XLSX', source: 'Manual Upload', scope: 'Active Suppliers', user: 'Ruwan Silva', records: '48,210', mapping: '95%', validation: 'Success', duplicates: 12, approval: 'Approved', exec: 'Running', recon: '—', outcome: 'Running', updated: '04 Aug 2026' },
+  { id: 'IMP-8891', type: 'Import', domain: 'Catalogue Data', file: 'Catalogue Bulk CSV', source: 'API Integration', scope: 'All Suppliers', user: 'Dilini Fernando', records: '210,330', mapping: '88%', validation: 'Failed', duplicates: 98, approval: 'Rejected', exec: 'Failed', recon: '—', outcome: 'Failed', updated: '04 Aug 2026' },
+  { id: 'EXP-2216', type: 'Export', domain: 'Product Feed', file: 'Product Feed Template', source: 'System Export', scope: 'Active Suppliers', user: 'Kasun De Silva', records: '320,000', mapping: '100%', validation: 'Success', duplicates: 0, approval: 'Approved', exec: 'Success', recon: 'Reconciled', outcome: 'Success', updated: '04 Aug 2026' },
+];
 
-  const handleExecuteImport = (jobId: string) => {
-    // Sensitive Action Confirmation check
-    if (!confirm(`Are you sure you want to execute import job ${jobId}? This will update live database records.`)) {
-      return;
-    }
-    
-    setExecutingJobId(jobId);
-    toast.loading(`Processing mapping and duplicate checks for ${jobId}...`, { id: 'import-job' });
+const WORKFLOW_STEPS = [
+  { step: 1, label: 'Select Import Type' },
+  { step: 2, label: 'Upload File' },
+  { step: 3, label: 'File Inspection' },
+  { step: 4, label: 'Field Mapping' },
+  { step: 5, label: 'Validation', active: true },
+  { step: 6, label: 'Duplicate Review' },
+  { step: 7, label: 'Change Preview' },
+  { step: 8, label: 'Approval' },
+  { step: 9, label: 'Execute' },
+  { step: 10, label: 'Reconcile' },
+  { step: 11, label: 'Complete' },
+];
 
-    setTimeout(() => {
-      setExecutingJobId(null);
-      toast.success(`Import Job ${jobId} successfully executed! 142 records updated, 0 duplicates.`, { id: 'import-job' });
-    }, 2000);
-  };
-
+export default function SupplierImportExportAuditPage() {
   return (
-    <div className="flex h-full w-full bg-[#f8fafc]">
-      <div className="flex-1 overflow-auto p-6 flex flex-col">
-        <BrandsSuppliersPageHeader
-          title="Supplier Import, Export & Audit"
-          description="Schedule automated data migrations, configure CSV mapping templates, resolve duplicate entity matches and review system operations logs."
-          breadcrumbs={[
-            { label: 'Brands & Suppliers', href: '/admin/brands-suppliers' },
-            { label: 'Import, Export & Audit' }
-          ]}
-          primaryAction={{ label: 'Upload Data File', onClick: () => {}, icon: Upload }}
+    <div className="flex w-full h-full min-h-screen bg-[#faf8f8] text-gray-900 pb-12">
+      
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-grow flex flex-col min-w-0 px-6 py-4">
+        
+        {/* Header */}
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <div className="text-[11px] text-gray-500 font-medium mb-1">Brands &amp; Suppliers / Supplier Import, Export &amp; Audit</div>
+            <h1 className="text-2xl font-bold text-gray-900 leading-tight">Supplier Import, Export &amp; Audit</h1>
+            <p className="text-xs text-gray-500 mt-1">Manage supplier data imports, exports, validation workflows, reconciliation and audit-ready exchange across the beauty marketplace.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Export Ops Report</button>
+            <button className="bg-white border border-gray-300 text-gray-700 px-3.5 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Schedule Export</button>
+            <button className="bg-[#7a0023] text-white px-4 py-1.5 rounded-md text-[13px] font-semibold hover:bg-[#a0002b]">+ New Import</button>
+          </div>
+        </div>
+
+        {/* Context Scope Bar */}
+        <ContextScopeBar 
+          items={CONTEXT_ITEMS} 
+          lastSynced="04 Aug 2026, 12:57 AM" 
+          accessNote="Access limited to assigned business context"
         />
 
-        {/* KPI Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-          {kpis.map((kpi, idx) => (
-            <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col justify-between">
-              <span className="text-[10px] text-gray-400 font-semibold uppercase truncate">{kpi.label}</span>
-              <div className="flex items-end gap-2 mt-3">
-                <span className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</span>
-                <span className="text-[10px] text-green-500 font-medium">{kpi.trend}</span>
-              </div>
-            </div>
+        {/* 12 KPI Grid */}
+        <DashboardGrid>
+          {KPI_DATA.map((kpi) => (
+            <KpiCard key={kpi.index} {...kpi} />
           ))}
-        </div>
+        </DashboardGrid>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-          <div className="xl:col-span-2">
-            <TrendChartCard
-              title="Import / Export Activity Trend"
-              data={trendData}
-              series={trendSeries}
-              timeRange="Last 30 Days"
-            />
-          </div>
-          <div className="xl:col-span-1">
-            <DonutChartCard
-              title="Job Type Distribution"
-              data={composition}
-              totalLabel="Total Jobs"
-              totalValue={242}
-            />
-          </div>
-        </div>
-
-        {/* Tabs & Filters */}
-        <div className="flex items-center gap-6 border-b border-gray-200 mb-4 px-2 overflow-x-auto">
-          {['All Jobs', 'Imports', 'Exports', 'Failed Jobs', 'Mapping Templates'].map(tab => (
-            <button 
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab ? 'border-[#7a122e] text-[#7a122e]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-6 flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input type="text" placeholder="Search data jobs..." className="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none" />
+        {/* Charts Section */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <div className="col-span-8 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Supplier Data Operations Trend <span className="text-gray-400 font-normal">(Last 30 Days)</span></h3>
+            <div className="flex-grow">
+              <TrendChart data={TREND_DATA} colors={['#0284c7', '#16a34a', '#9333ea', '#dc2626']} />
             </div>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>Format</option>
-            </select>
-            <select className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white outline-none min-w-[140px]">
-              <option>Job Status</option>
-            </select>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-              <SlidersHorizontal size={14} /> More Filters
-            </button>
+          </div>
+
+          <div className="col-span-4 bg-white border border-gray-200 rounded-md shadow-sm p-4 h-[280px] flex flex-col">
+            <h3 className="text-[13px] font-bold mb-3">Job Status Distribution</h3>
+            <div className="flex-grow">
+              <DonutDistributionChart data={DONUT_DATA} totalLabel="Total Jobs" totalValue="2,356" />
+            </div>
           </div>
         </div>
 
-        {/* Content Table */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6">
-          <div className="px-5 py-4 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900 text-sm">Import / Export Operations Queue</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-medium">
+        {/* Scorecard Strip */}
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm p-3 mb-4 flex justify-between text-[11px]">
+          <div><span className="text-gray-500">File Validation</span> <span className="font-bold text-gray-900 ml-1">96%</span></div>
+          <div><span className="text-gray-500">Mapping Accuracy</span> <span className="font-bold text-gray-900 ml-1">91%</span></div>
+          <div><span className="text-gray-500">Approval Readiness</span> <span className="font-bold text-gray-900 ml-1">88%</span></div>
+          <div><span className="text-gray-500">Execution Control</span> <span className="font-bold text-gray-900 ml-1">93%</span></div>
+          <div><span className="text-gray-500">Reconciliation</span> <span className="font-bold text-gray-900 ml-1">95%</span></div>
+          <div><span className="text-gray-500">Audit Completeness</span> <span className="font-bold text-gray-900 ml-1">98%</span></div>
+        </div>
+
+        {/* Filters */}
+        <FilterToolbar 
+          searchPlaceholder="Search by Job ID / file / source..."
+          filters={[
+            { id: 'type', label: 'Job Type', options: [] },
+            { id: 'source', label: 'Source', options: [] },
+            { id: 'bu', label: 'Business Unit', options: [] },
+            { id: 'template', label: 'Template', options: [] },
+            { id: 'status', label: 'Approval Status', options: [] },
+          ]}
+          onClearAll={() => {}}
+        />
+
+        {/* Main Table */}
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm flex flex-col mt-2 mb-6">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-[11px] whitespace-nowrap min-w-[1600px]">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider">
                 <tr>
-                  <th className="px-5 py-3">Job ID</th>
-                  <th className="px-5 py-3 text-center">Type</th>
-                  <th className="px-5 py-3">Entity Type</th>
-                  <th className="px-5 py-3">File Name</th>
-                  <th className="px-5 py-3 text-center">Success Rate</th>
-                  <th className="px-5 py-3 text-center">Status</th>
-                  <th className="px-5 py-3 text-center">Action</th>
+                  <th className="px-3 py-2 text-center w-8"><input type="checkbox" className="rounded" /></th>
+                  <th className="px-3 py-2">Job ID</th>
+                  <th className="px-3 py-2">Operation Type</th>
+                  <th className="px-3 py-2">Data Domain</th>
+                  <th className="px-3 py-2">File / Template</th>
+                  <th className="px-3 py-2">Source</th>
+                  <th className="px-3 py-2">Scope</th>
+                  <th className="px-3 py-2">Submitted By</th>
+                  <th className="px-3 py-2 font-bold">Records</th>
+                  <th className="px-3 py-2">Mapping</th>
+                  <th className="px-3 py-2">Validation</th>
+                  <th className="px-3 py-2 text-center">Duplicates</th>
+                  <th className="px-3 py-2">Approval</th>
+                  <th className="px-3 py-2">Execution</th>
+                  <th className="px-3 py-2">Reconciliation</th>
+                  <th className="px-3 py-2">Outcome</th>
+                  <th className="px-3 py-2">Updated At</th>
+                  <th className="px-3 py-2 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                <tr className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-semibold text-gray-900">JOB-2026-901</td>
-                  <td className="px-5 py-3 text-center font-bold text-blue-700">IMPORT</td>
-                  <td className="px-5 py-3 text-gray-600">Product Catalogue</td>
-                  <td className="px-5 py-3 text-gray-500 font-medium">luxe_skincare_v2_import.csv</td>
-                  <td className="px-5 py-3 text-center font-bold text-green-700">99.8%</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="px-2 py-0.5 bg-green-50 text-green-700 border border-green-100 rounded text-[10px] font-semibold">Ready</span>
-                  </td>
-                  <td className="px-5 py-3 text-center">
-                    <button 
-                      onClick={() => handleExecuteImport('JOB-2026-901')}
-                      disabled={executingJobId === 'JOB-2026-901'}
-                      className="text-[#7a122e] hover:underline font-semibold disabled:opacity-50"
-                    >
-                      Execute Import
-                    </button>
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-semibold text-gray-900">JOB-2026-902</td>
-                  <td className="px-5 py-3 text-center font-bold text-green-700">EXPORT</td>
-                  <td className="px-5 py-3 text-gray-600">Corporate Directory</td>
-                  <td className="px-5 py-3 text-gray-500 font-medium">brand_suppliers_directory_export.csv</td>
-                  <td className="px-5 py-3 text-center font-bold text-green-700">100%</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px] font-semibold">Completed</span>
-                  </td>
-                  <td className="px-5 py-3 text-center">
-                    <a href="#" className="text-[#7a122e] hover:underline font-semibold flex items-center justify-center gap-1">
-                      <Download size={13} /> Download File
-                    </a>
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-semibold text-gray-900">JOB-2026-903</td>
-                  <td className="px-5 py-3 text-center font-bold text-blue-700">IMPORT</td>
-                  <td className="px-5 py-3 text-gray-600">Brand Authorizations</td>
-                  <td className="px-5 py-3 text-gray-500 font-medium">innisfree_maldives_auth.csv</td>
-                  <td className="px-5 py-3 text-center font-bold text-red-600">64.5%</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-100 rounded text-[10px] font-semibold">Failed</span>
-                  </td>
-                  <td className="px-5 py-3 text-center">
-                    <button onClick={() => alert('Opening error matching logs...')} className="text-[#7a122e] hover:underline font-semibold">Review Conflicts</button>
-                  </td>
-                </tr>
+              <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                {JOBS_TABLE.map((row, i) => (
+                  <tr key={i} className="hover:bg-gray-50 cursor-pointer">
+                    <td className="px-3 py-2 text-center"><input type="checkbox" className="rounded" /></td>
+                    <td className="px-3 py-2 font-bold text-gray-900">{row.id}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.type}</td>
+                    <td className="px-3 py-2 font-semibold text-gray-900">{row.domain}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.file}</td>
+                    <td className="px-3 py-2 text-gray-500">{row.source}</td>
+                    <td className="px-3 py-2 text-gray-500">{row.scope}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.user}</td>
+                    <td className="px-3 py-2 font-bold text-gray-900">{row.records}</td>
+                    <td className="px-3 py-2 text-green-600 font-bold">{row.mapping}</td>
+                    <td className="px-3 py-2 font-semibold">{row.validation}</td>
+                    <td className="px-3 py-2 text-center font-bold text-amber-600">{row.duplicates}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.approval}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.exec}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.recon}</td>
+                    <td className="px-3 py-2"><span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-semibold">{row.outcome}</span></td>
+                    <td className="px-3 py-2 text-gray-400">{row.updated}</td>
+                    <td className="px-3 py-2 text-center"><button className="text-gray-400 hover:text-gray-900">⋮</button></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
 
+        {/* Workflow Component: Active Import Workflow - IMP-8902 */}
+        <div className="bg-white border border-gray-200 rounded-md p-4 mb-4">
+          <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wider">1. Active Import Workflow — IMP-8902</h3>
+          <div className="flex items-center justify-between overflow-x-auto text-center text-[10px]">
+            {WORKFLOW_STEPS.map((ws) => (
+              <div key={ws.step} className="flex items-center">
+                <div className={`flex items-center gap-1 px-3 py-1.5 rounded border ${ws.active ? 'bg-[#7a0023] text-white border-[#7a0023] font-bold' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                  <span>{ws.step}.</span>
+                  <span>{ws.label}</span>
+                </div>
+                {ws.step < 11 && <span className="text-gray-300 mx-1">→</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
-      <RightInsightRail>
-        <RailSection title="Operations Health">
-          <RailHealthScore 
+      {/* RIGHT INTELLIGENCE RAIL */}
+      <RightIntelligenceRail>
+        <RailSection title="Data Operations Health">
+          <HealthScoreGauge 
             score={94} 
-            label="Optimal" 
-            status="Stable" 
+            label="Excellent" 
+            statusText="Excellent"
+            statusColor="#16a34a"
             metrics={[
-              { label: 'Import Success Rate', value: '99.2%' },
-              { label: 'Mapping Quality', value: '99.4%' },
-              { label: 'Duplicate Resolves', value: '100%' },
-              { label: 'Daily Data Volume', value: '12.4 MB' },
-            ]} 
+              { label: 'File Validation', value: '96%', progress: 96 },
+              { label: 'Mapping Accuracy', value: '91%', progress: 91 },
+              { label: 'Approval Readiness', value: '88%', progress: 88 },
+              { label: 'Execution Control', value: '93%', progress: 93 },
+              { label: 'Reconciliation', value: '95%', progress: 95 },
+            ]}
           />
         </RailSection>
 
-        <RailSection title="Mapping Templates" action={{ label: 'Manage' }}>
-          <div className="bg-white border border-gray-200 rounded p-3 flex flex-col gap-2.5 text-xs">
-            <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-              <span className="font-semibold text-gray-800">LVMH Standard CSV v2</span>
-              <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded border border-green-100 font-medium">Active</span>
-            </div>
-            <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-              <span className="font-semibold text-gray-800">Cosmax Catalog JSON</span>
-              <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded border border-green-100 font-medium">Active</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-800">Boutique XML Template</span>
-              <span className="text-[10px] bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded border border-orange-100 font-medium">Awaiting Update</span>
-            </div>
+        <RailSection title="Processing Queue">
+          <div className="grid grid-cols-3 gap-1 text-center text-[10px] my-1">
+            <div className="bg-gray-50 p-2 rounded border border-gray-100"><div className="text-gray-400">Running</div><div className="font-bold text-gray-900 text-xs">32</div></div>
+            <div className="bg-gray-50 p-2 rounded border border-gray-100"><div className="text-gray-400">Waiting</div><div className="font-bold text-gray-900 text-xs">18</div></div>
+            <div className="bg-gray-50 p-2 rounded border border-gray-100"><div className="text-gray-400">Avg Runtime</div><div className="font-bold text-gray-900 text-[10px]">00:18:24</div></div>
           </div>
         </RailSection>
 
-        <RailSection title="Recent Audit Logs">
-          <div className="flex flex-col gap-2 text-[11px] text-gray-500">
-            <div className="p-2 bg-gray-50 border border-gray-100 rounded flex flex-col">
-              <span className="font-semibold text-gray-800">Import Job JOB-901 Executed</span>
-              <span>04 Aug, 12:57 AM • System Admin</span>
-            </div>
-            <div className="p-2 bg-gray-50 border border-gray-100 rounded flex flex-col">
-              <span className="font-semibold text-gray-800">Duplicate Check: Luxe Distributors</span>
-              <span>03 Aug, 04:30 PM • Compliance Eng</span>
-            </div>
+        <RailSection title="Final Data Actions">
+          <div className="flex flex-col gap-2 mt-2">
+            <button className="bg-[#7a0023] text-white py-1.5 rounded text-[11px] font-semibold hover:bg-[#a0002b]">+ New Import</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Schedule Export</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Open Review Queue</button>
+            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">View Audit Trail</button>
           </div>
         </RailSection>
-      </RightInsightRail>
+      </RightIntelligenceRail>
+
     </div>
   );
 }
