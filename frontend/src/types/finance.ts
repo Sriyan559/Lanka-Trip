@@ -228,3 +228,46 @@ export interface PaymentRecordDetail extends PaymentPortfolioRow {
   recordVersion: string;
   updatedAt: string;
 }
+
+/* ── FN05 Refunds & Compensation Interfaces ── */
+
+export interface RefundPortfolioRow {
+  id: string;
+  orderId: string;
+  customerName: string;
+  customerId: string;
+  reasonCode: string;
+  paymentMethod: string;
+  productSeller: string;
+  refundType: 'Full Refund' | 'Partial Refund' | 'Store Credit' | 'Compensation Payment' | 'Shipping Compensation';
+  refundAmount: number;
+  compensationAmount: number;
+  eligibility: 'Eligible' | 'Under Review' | 'Not Eligible';
+  approval: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Rejected';
+  processing: 'Completed' | 'Processing' | 'Failed';
+  settlementMethod: string;
+  gateway: string;
+  locationRegion: string;
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Exception';
+  dateRequested: string;
+  sla: string;
+  csat?: number;
+}
+
+export interface RefundRecordDetail extends RefundPortfolioRow {
+  contactEmail: string;
+  contactPhone: string;
+  transactionId: string;
+  authCode: string;
+  capturedOn: string;
+  refundReason: string;
+  processedBy: string;
+  processedOn: string;
+  settlementBatch: string;
+  reconciledOn: string;
+  customerNotified: string;
+  notificationChannel: string;
+  slaStatus: string;
+  resolutionTime: string;
+}
+
