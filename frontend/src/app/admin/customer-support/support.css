@@ -5,6 +5,7 @@
      but keeping a specific scope class for future-proofing */
 }
 
+/* Custom scrollbar styles */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
