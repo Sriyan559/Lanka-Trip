@@ -271,3 +271,160 @@ export interface RefundRecordDetail extends RefundPortfolioRow {
   resolutionTime: string;
 }
 
+/* ── FN06 Supplier Payables Interfaces ── */
+
+export interface SupplierPayableRow {
+  id: string;
+  payableType: string;
+  supplierName: string;
+  supplierId: string;
+  supplierTier: 'Gold' | 'Platinum' | 'Silver' | 'Bronze';
+  invoiceRef: string;
+  poRef: string;
+  grRef: string;
+  businessUnit: string;
+  channel: string;
+  currency: string;
+  grossAmount: number;
+  discounts: number;
+  credits: number;
+  returnsDeduction: number;
+  commissionOffset: number;
+  marketplaceFees: number;
+  taxAmount: number;
+  withholdingTax: number;
+  netPayable: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  matchStatus: 'Fully Matched' | 'Partial Match' | 'Unmatched';
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Rejected';
+  dueStatus: 'Due Soon' | 'Past Due' | 'Overdue' | 'Current';
+  dueDate: string;
+  paymentSchedule: 'Scheduled' | 'Pending' | 'Unscheduled';
+  payoutStatus: 'Scheduled' | 'Paid' | 'Processing' | 'On Hold';
+  hold: 'No' | 'Active' | 'Released';
+  dispute: 'No' | 'Active' | 'Resolved';
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Exception';
+  exceptionReason?: string;
+  owner: string;
+}
+
+export interface SupplierPayableDetail extends SupplierPayableRow {
+  riskLevel: string;
+  paymentTerms: string;
+  preferredCurrency: string;
+  invoiceDate: string;
+  poDate: string;
+  grDate: string;
+  receiptStatus: string;
+  approvedBy: string;
+  approvedOn: string;
+  paymentBatch: string;
+  scheduledDate: string;
+  lastReconciled: string;
+  reconciledBy: string;
+}
+
+/* ── FN08 Marketplace Commissions & Fees Interfaces ── */
+
+export interface CommissionPortfolioRow {
+  id: string;
+  recordType: string;
+  orderId: string;
+  partyName: string;
+  partyId: string;
+  category: string;
+  brand: string;
+  businessUnit: string;
+  channel: string;
+  currency: string;
+  grossSale: number;
+  commissionBase: number;
+  commissionRule: string;
+  rulePct: number;
+  ratePct: number;
+  commissionAmount: number;
+  platformFee: number;
+  processingFee: number;
+  fulfilmentFee: number;
+  logisticsFee: number;
+  promoContribution: number;
+  penalty: number;
+  waiverExemption: number;
+  approvedAmount: number;
+  tax: number;
+  reversal: number;
+  compensation: number;
+  calculationStatus: 'Calculated' | 'Pending Review' | 'Adjusted' | 'Reversed';
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Rejected';
+  settlementStatus: 'Settlement Pending' | 'Allocated' | 'Pending' | 'On Hold';
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Exception';
+  disputeStatus: 'No' | 'Active' | 'Resolved';
+  sla: string;
+  owner: string;
+  calculatedDate: string;
+  updatedAt: string;
+}
+
+export interface CommissionRecordDetail extends CommissionPortfolioRow {
+  productName: string;
+  ruleVersion: string;
+  effectiveDate: string;
+  netCommissionValue: number;
+  settlementPendingAmount: number;
+  reviewer: string;
+  approver: string;
+}
+
+/* ── FN09 Settlements & Payouts Interfaces ── */
+
+export interface SettlementPortfolioRow {
+  id: string;
+  settlementType: string;
+  settlementBatch: string;
+  beneficiaryName: string;
+  beneficiaryType: 'Supplier' | 'Seller' | 'Logistics Partner' | 'Service Provider' | 'Affiliate' | 'Marketplace Partner' | 'Other';
+  grossEarnings: number;
+  netSettlement: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  currency: string;
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Rejected';
+  payoutStatus: 'Completed' | 'Scheduled' | 'Processing' | 'Failed' | 'On Hold';
+  holdStatus: 'Clear' | 'On Hold' | 'Released';
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Exception';
+  sla: 'On Track' | 'At Risk' | 'Breached';
+  scheduledDate: string;
+  completionDate: string;
+  owner: string;
+}
+
+export interface SettlementRecordDetail extends SettlementPortfolioRow {
+  settlementPeriod: string;
+  supplierId?: string;
+  businessUnit: string;
+  region: string;
+  paymentMethod: string;
+  paymentProvider: string;
+  beneficiaryEmail: string;
+  bankName: string;
+  accountName: string;
+  maskedAccount: string;
+  branch: string;
+  destinationValidation: string;
+  validationDate: string;
+  supplierPayablesDeduction: number;
+  sellerEarnings: number;
+  commissionDeduction: number;
+  platformFeeDeduction: number;
+  refundDeduction: number;
+  returnDeduction: number;
+  logisticsCharge: number;
+  taxAmount: number;
+  withholdingTax: number;
+  reserveAmount: number;
+  manualAdjustments: number;
+  approvalTrail: { step: string; user: string; date: string; status: string }[];
+}
+
+

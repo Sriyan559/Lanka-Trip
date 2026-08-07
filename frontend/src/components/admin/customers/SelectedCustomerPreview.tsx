@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { CustomerRecord } from "@/types/customer";
 import { ShieldCheck, Mail, Phone, MapPin, Smartphone, User, CheckCircle2, AlertTriangle } from "lucide-react";
 
@@ -132,17 +133,25 @@ export function SelectedCustomerPreview({
           </div>
           <div className="flex justify-between text-[9.5px]">
             <span className="text-slate-400">Updated At</span>
-            <span className="font-mono text-slate-600">{customer.updatedAt}</span>
           </div>
         </div>
       </div>
 
-      <button
-        onClick={() => showToast(`Opening audit history for customer ${customer.id}`)}
-        className="mt-3 pt-2 border-t border-line text-[10px] font-bold text-[#671021] hover:underline text-left block w-full"
-      >
-        Audit History &rarr;
-      </button>
+      <div className="mt-3 pt-2 border-t border-line flex flex-col gap-1.5">
+        <Link
+          href={`/admin/customers/${customer.id}`}
+          className="w-full py-1.5 bg-[#671021] text-white rounded text-[10.5px] font-bold hover:bg-[#520d1a] transition-colors text-center block"
+        >
+          View Full Customer Profile
+        </Link>
+
+        <button
+          onClick={() => showToast(`Opening audit history for customer ${customer.id}`)}
+          className="text-[10px] font-bold text-[#671021] hover:underline text-left block w-full"
+        >
+          Audit History &rarr;
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Download, Layers, Plus, ChevronDown, CopyCheck } from "lucide-react";
 
 interface CustomerDirectoryHeaderProps {
@@ -116,13 +117,13 @@ export function CustomerDirectoryHeader({
           </div>
 
           {/* 4. Add Customer */}
-          <button
-            onClick={onOpenAddCustomer}
+          <Link
+            href="/admin/customers/create"
             className="h-8.5 px-3.5 rounded-md bg-[#671021] hover:bg-[#520d1a] text-white text-[11.5px] font-bold flex items-center gap-1.5 transition-colors shadow-xs whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Customer</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

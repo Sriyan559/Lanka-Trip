@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { CustomerRecord } from "@/types/customer";
 import { ArrowUpDown, MoreVertical, ShieldAlert, CheckCircle2, Clock } from "lucide-react";
 
@@ -116,14 +117,27 @@ export function CustomerDirectoryTable({
                       <div className="w-6 h-6 rounded-full bg-[#671021] text-white flex items-center justify-center font-bold text-[9.5px] flex-shrink-0">
                         {c.avatarInitials}
                       </div>
-                      <span className="font-bold text-[#671021] truncate max-w-[125px]" title={c.name}>
+                      <Link
+                        href={`/admin/customers/${c.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-bold text-[#671021] hover:underline truncate max-w-[125px]"
+                        title={c.name}
+                      >
                         {c.name}
-                      </span>
+                      </Link>
                     </div>
                   </td>
 
                   {/* Customer ID */}
-                  <td className="px-2.5 py-2 min-w-[110px] font-mono text-slate-500 font-semibold">{c.id}</td>
+                  <td className="px-2.5 py-2 min-w-[110px] font-mono text-slate-500 font-semibold">
+                    <Link
+                      href={`/admin/customers/${c.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="hover:text-[#671021] hover:underline"
+                    >
+                      {c.id}
+                    </Link>
+                  </td>
 
                   {/* Type */}
                   <td className="px-2.5 py-2 min-w-[90px]">
@@ -331,15 +345,12 @@ export function CustomerDirectoryTable({
                           >
                             View Preview
                           </button>
-                          <button
-                            onClick={() => {
-                              showToast(`Navigating to profile for ${c.name}...`);
-                              setActiveMenuId(null);
-                            }}
-                            className="w-full text-left px-3 py-1.5 hover:bg-slate-50 text-slate-700"
+                          <Link
+                            href={`/admin/customers/${c.id}`}
+                            className="w-full text-left px-3 py-1.5 hover:bg-slate-50 text-slate-700 block"
                           >
                             Full Profile Details
-                          </button>
+                          </Link>
                           <button
                             onClick={() => {
                               showToast(`Sending email to ${c.email}...`);

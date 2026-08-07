@@ -17,9 +17,13 @@ const excludedResponseHeaders = new Set([
   "transfer-encoding",
 ]);
 
-async function forward(request: NextRequest, context: { params: { path: string[] } }) {
+async function forward(
+  request: NextRequest,
+  context: { params: { path: string[] } } | { params: Promise<{ path: string[] }> },
+) {
+  const rawParams = await (context.params instanceof Promise ? context.params : Promise.resolve(context.params));
   const apiRoot = (process.env.BACKEND_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
-  const path = context.params.path.map(encodeURIComponent).join("/");
+  const path = (rawParams?.path || []).map(encodeURIComponent).join("/");
   const target = `${apiRoot}/${path}${request.nextUrl.search}`;
   const headers = new Headers();
 
@@ -41,7 +45,9 @@ async function forward(request: NextRequest, context: { params: { path: string[]
       if (!excludedResponseHeaders.has(key.toLowerCase())) responseHeaders.set(key, value);
     });
 
-    return new NextResponse(upstream.body, {
+    const bodyBuffer = await upstream.arrayBuffer();
+
+    return new NextResponse(bodyBuffer, {
       status: upstream.status,
       statusText: upstream.statusText,
       headers: responseHeaders,
