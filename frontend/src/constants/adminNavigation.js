@@ -54,7 +54,7 @@ export const ADMIN_NAVIGATION = [
     {id:"revenue-receivables",label:"Revenue & Receivables",href:"/admin/finance/revenue-receivables"},
     {id:"payments-transactions",label:"Payments & Transactions",href:"/admin/finance/payments"},
     {id:"refunds-compensation",label:"Refunds & Compensation",href:"/admin/finance/refunds-compensation"},
-    {id:"supplier-payables",label:"Supplier Payables",href:"/admin/finance/payables"},
+    {id:"supplier-payables",label:"Supplier Payables",href:"/admin/finance/supplier-payables"},
     {id:"commissions-fees",label:"Commissions & Fees",href:"/admin/finance/commissions"},
     {id:"settlements-payouts",label:"Settlements & Payouts",href:"/admin/finance/settlements"},
     {id:"invoices-notes",label:"Invoices & Notes",href:"/admin/finance/invoices"},

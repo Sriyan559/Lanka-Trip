@@ -271,3 +271,58 @@ export interface RefundRecordDetail extends RefundPortfolioRow {
   resolutionTime: string;
 }
 
+/* ── FN06 Supplier Payables Interfaces ── */
+
+export interface SupplierPayableRow {
+  id: string;
+  payableType: string;
+  supplierName: string;
+  supplierId: string;
+  supplierTier: 'Gold' | 'Platinum' | 'Silver' | 'Bronze';
+  invoiceRef: string;
+  poRef: string;
+  grRef: string;
+  businessUnit: string;
+  channel: string;
+  currency: string;
+  grossAmount: number;
+  discounts: number;
+  credits: number;
+  returnsDeduction: number;
+  commissionOffset: number;
+  marketplaceFees: number;
+  taxAmount: number;
+  withholdingTax: number;
+  netPayable: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  matchStatus: 'Fully Matched' | 'Partial Match' | 'Unmatched';
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Rejected';
+  dueStatus: 'Due Soon' | 'Past Due' | 'Overdue' | 'Current';
+  dueDate: string;
+  paymentSchedule: 'Scheduled' | 'Pending' | 'Unscheduled';
+  payoutStatus: 'Scheduled' | 'Paid' | 'Processing' | 'On Hold';
+  hold: 'No' | 'Active' | 'Released';
+  dispute: 'No' | 'Active' | 'Resolved';
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Exception';
+  exceptionReason?: string;
+  owner: string;
+}
+
+export interface SupplierPayableDetail extends SupplierPayableRow {
+  riskLevel: string;
+  paymentTerms: string;
+  preferredCurrency: string;
+  invoiceDate: string;
+  poDate: string;
+  grDate: string;
+  receiptStatus: string;
+  approvedBy: string;
+  approvedOn: string;
+  paymentBatch: string;
+  scheduledDate: string;
+  lastReconciled: string;
+  reconciledBy: string;
+}
+
+
