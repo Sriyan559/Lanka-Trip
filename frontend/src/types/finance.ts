@@ -427,4 +427,148 @@ export interface SettlementRecordDetail extends SettlementPortfolioRow {
   approvalTrail: { step: string; user: string; date: string; status: string }[];
 }
 
+/* ── FN10 Settlement / Payout Detail Extra Interfaces ── */
+
+export interface FN10SettlementCalculationLine {
+  lineNo: number;
+  description: string;
+  treatment: 'Additive' | 'Deductive' | 'Informational' | 'Reserve' | 'Credit';
+  sourceRecord: string;
+  expectedAmount: number;
+  actualAmount: number;
+  approvedAmount: number;
+  variance: number;
+  includedInDeductions: boolean;
+  status: 'Validated' | 'Pending' | 'Flagged';
+}
+
+export interface FN10SettlementReconRow {
+  type: string;
+  status: 'Completed' | 'Not Started' | 'In Progress' | 'Exception';
+  matchRate: string;
+  variance: number;
+  notes: string;
+}
+
+export interface FN10ProviderEvent {
+  event: string;
+  time: string;
+  status: string;
+}
+
+/* ── FN11 Invoices, Credit Notes & Debit Notes Interfaces ── */
+
+export interface FinancialDocumentRow {
+  id: string;
+  documentType: 'Customer Invoice' | 'B2B Invoice' | 'Supplier Invoice' | 'Marketplace Fee Invoice' | 'Credit Note' | 'Debit Note' | 'Proforma Invoice' | 'Consolidated Invoice';
+  externalDocNum: string;
+  partyName: string;
+  partyId: string;
+  partyType: 'Customer' | 'Business' | 'Supplier' | 'Seller';
+  relatedOrder: string;
+  purchaseOrder: string;
+  goodsReceipt: string;
+  businessUnit: string;
+  channel: string;
+  currency: string;
+  grossAmount: number;
+  discount: number;
+  tax: number;
+  withholding: number;
+  credits: number;
+  adjustments: number;
+  netAmount: number;
+  paidAmount: number;
+  discountSettlement: number;
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Draft';
+  invoiceStatus: 'Draft' | 'Issued' | 'Sent' | 'Viewed' | 'Due Soon' | 'Overdue' | 'Paid' | 'Partially Paid' | 'Cancelled';
+  deliveryStatus: 'Sent' | 'Delivered' | 'Failed' | 'Pending';
+  paymentStatus: 'Paid' | 'Partially Paid' | 'Unpaid' | 'Overdue';
+  paymentMatch: 'Matched' | 'Partial Match' | 'Unmatched';
+  taxStatus: 'Valid' | 'Exempt' | 'Review Required';
+  duplicateStatus: 'No Risk' | 'Low Risk' | 'High Risk';
+  matchStatus: 'Matched' | 'Pending' | 'Exception';
+  holdStatus: 'No' | 'Active' | 'Released';
+  disputeStatus: 'No' | 'Active' | 'Resolved';
+  reconciliationStatus: 'Reconciled' | 'Pending' | 'Exception';
+  exceptionStatus: 'None' | 'SLA Breach' | 'Tax Exception' | 'Variance';
+  owner: string;
+  docDate: string;
+  dueDate: string;
+  sla: string;
+}
+
+export interface FinancialDocumentDetail extends FinancialDocumentRow {
+  lineItems: { description: string; qty: number; unitPrice: number; total: number }[];
+  deliverySentDate: string;
+  deliveryViewedDate: string;
+  lastPaymentDate: string;
+  duplicateConfidencePct: number;
+  approvalChain: { step: string; user: string; date: string }[];
+}
+
+/* ── FN12 Tax, Currency & Financial Configuration Interfaces ── */
+
+export interface ConfigurationPortfolioRow {
+  id: string;
+  domain: 'Tax' | 'Currency' | 'FX' | 'Rounding' | 'Accounting Period' | 'Financial Calendar' | 'Exemption' | 'Withholding';
+  type: string;
+  name: string;
+  jurisdictionOrCurrency: string;
+  scope: 'Nationwide' | 'Global' | 'Regional';
+  businessUnit: string;
+  channel: string;
+  region: string;
+  country: string;
+  partyType: string;
+  productScope: string;
+  rateOrPct: string;
+  calculationMethod: string;
+  priority: 'High' | 'Medium' | 'Low';
+  effectiveFrom: string;
+  effectiveTo: string;
+  version: string;
+  source: 'System' | 'Manual' | 'Reuters API' | 'Central Bank';
+  approvalStatus: 'Approved' | 'Pending Approval' | 'Pending Review' | 'Draft';
+  activationStatus: 'Active' | 'Current' | 'Open' | 'Scheduled' | 'Expiring';
+  conflictStatus: 'None' | 'Conflicting' | 'Potential';
+  dependencyHealth: 'Healthy' | 'Warning' | 'Broken';
+  exceptionStatus: 'None' | 'Exception' | 'Pending';
+  owner: string;
+  reviewer: string;
+  approver: string;
+  updatedAt: string;
+  sla: string;
+}
+
+export interface ConfigurationRecordDetail extends ConfigurationPortfolioRow {
+  provider: string;
+  rateType: string;
+  freshness: string;
+  overrideStatus: string;
+  nextReview: string;
+  sourceCurrency: string;
+  targetCurrency: string;
+  numericRate: number;
+  precision: number;
+  roundingMode: string;
+  fallbackSource: string;
+  spread: string;
+  conversionFee: string;
+  expiryPolicy: string;
+  linkedInvoicesCount: number;
+  linkedPayablesCount: number;
+  linkedSettlementsCount: number;
+  commissionRunsCount: number;
+  taxProfilesCount: number;
+  affectedOrdersCount: number;
+  affectedInvoicesCount: number;
+  affectedPayablesCount: number;
+  affectedSettlementsCount: number;
+  customerPriceImpact: string;
+  revenueImpact: string;
+  payoutImpact: string;
+  taxImpact: string;
+}
+
 

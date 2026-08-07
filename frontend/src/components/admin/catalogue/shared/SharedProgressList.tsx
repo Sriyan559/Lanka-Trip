@@ -20,15 +20,9 @@ export interface SharedProgressListProps {
 }
 
 export function SharedProgressList({ title, items, layout = "horizontal", footerText, onFooterClick, hasCardWrapper = true }: SharedProgressListProps) {
-<<<<<<< HEAD
-  return (
-    <div className="bg-white rounded-xl border border-line p-5 shadow-sm flex flex-col">
-      <h3 className="text-[13px] font-bold text-ink mb-4">{title}</h3>
-=======
   const content = (
     <>
       {title && <h3 className="text-[13px] font-bold text-ink mb-4">{title}</h3>}
->>>>>>> 3b7e7aa73f65d16e89964df937b34fb1566e72b6
       <div className="flex flex-col gap-3 flex-1">
          {items.map((item, i) => (
            layout === "horizontal" ? (
@@ -75,4 +69,3 @@ export function SharedProgressList({ title, items, layout = "horizontal", footer
     </div>
   );
 }
-
