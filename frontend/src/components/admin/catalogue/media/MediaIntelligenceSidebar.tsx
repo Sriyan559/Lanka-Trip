@@ -4,7 +4,7 @@ import React from "react";
 import { MediaAsset } from "@/types/mediaManagement";
 import { SelectedMediaPreviewCard } from "./SelectedMediaPreviewCard";
 import { MOCK_CATALOGUE_HEALTH, MOCK_PRIORITY_ALERTS } from "@/data/mediaAssets.mock";
-import { AlertCircle, Image, Video, FileText, View, HardDrive } from "lucide-react";
+import { AlertCircle, Image as ImageIcon, Video, FileText, View, HardDrive } from "lucide-react";
 
 interface SidebarProps {
   selectedAsset: MediaAsset | null;
@@ -142,7 +142,7 @@ export function MediaIntelligenceSidebar({
         <div className="bg-white border border-line rounded-lg p-3 shadow-sm text-[11px]">
           <h4 className="text-[10px] font-extrabold text-ink uppercase tracking-wider mb-2">Type Summary</h4>
           <div className="flex flex-col gap-1 text-[10px]">
-            <div className="flex justify-between items-center"><span className="flex items-center gap-1 text-slate-600"><Image size={11} /> Images</span><span className="font-bold">40,126</span></div>
+            <div className="flex justify-between items-center"><span className="flex items-center gap-1 text-slate-600"><ImageIcon size={11} /> Images</span><span className="font-bold">40,126</span></div>
             <div className="flex justify-between items-center"><span className="flex items-center gap-1 text-slate-600"><Video size={11} /> Videos</span><span className="font-bold">4,832</span></div>
             <div className="flex justify-between items-center"><span className="flex items-center gap-1 text-slate-600"><FileText size={11} /> Docs</span><span className="font-bold">2,974</span></div>
             <div className="flex justify-between items-center"><span className="flex items-center gap-1 text-slate-600"><View size={11} /> 360°</span><span className="font-bold">688</span></div>

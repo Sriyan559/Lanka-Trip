@@ -12,7 +12,7 @@ export function QualityBottomPanels() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Duplicate Product Candidates */}
-        <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[13px] font-bold text-ink">Duplicate Product Candidates</h3>
             <button className="text-[10px] font-bold text-muted hover:text-ink">View all</button>
@@ -57,7 +57,7 @@ export function QualityBottomPanels() {
         />
 
         {/* Validation Failure Summary */}
-        <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[13px] font-bold text-ink">Validation Failure Summary</h3>
             <button className="text-[10px] font-bold text-muted hover:text-ink">View all</button>
@@ -92,7 +92,7 @@ export function QualityBottomPanels() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Publication Readiness Impact */}
-        <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[13px] font-bold text-ink">Publication Readiness Impact</h3>
             <button className="text-[10px] font-bold text-muted hover:text-ink">View report</button>
@@ -127,7 +127,7 @@ export function QualityBottomPanels() {
         </div>
 
         {/* Merge & Resolution Performance */}
-        <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[13px] font-bold text-ink">Merge & Resolution Performance</h3>
             <button className="text-[10px] font-bold text-muted hover:text-ink">Dashboard</button>
@@ -153,7 +153,7 @@ export function QualityBottomPanels() {
         </div>
 
         {/* Quality Governance Summary */}
-        <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[13px] font-bold text-ink">Quality Governance Summary</h3>
             <button className="text-[10px] font-bold text-muted hover:text-ink">Dashboard</button>

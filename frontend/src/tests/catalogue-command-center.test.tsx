@@ -75,7 +75,7 @@ describe("Catalogue Command Center", () => {
 
   it("opens and closes Import Catalogue Modal", async () => {
     render(<CatalogueCommandCenterPage />);
-    const importBtn = screen.getByRole("button", { name: /Import Catalogue/i });
+    const importBtn = screen.getAllByRole("button", { name: /Import Catalogue/i })[0];
     fireEvent.click(importBtn);
     expect(screen.getByText("Import Catalogue Data")).toBeInTheDocument();
     const cancelBtn = screen.getByRole("button", { name: "Cancel" });

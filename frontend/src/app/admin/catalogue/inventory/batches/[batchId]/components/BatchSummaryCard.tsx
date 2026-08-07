@@ -188,7 +188,7 @@ export function BatchSummaryCard({
           {menuOpen && (
             <div className={styles.dropdownMenu}>
               <Link
-                href={`/admin/catalogue/product-approvals/${batchData.productId}`}
+                href={`/admin/catalogue/approvals/${batchData.productId}`}
                 className={styles.menuItem}
                 onClick={() => setMenuOpen(false)}
               >

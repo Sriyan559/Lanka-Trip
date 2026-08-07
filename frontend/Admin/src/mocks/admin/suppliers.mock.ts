@@ -1,1 +1,0 @@
-export {suppliers} from "./fixtures";

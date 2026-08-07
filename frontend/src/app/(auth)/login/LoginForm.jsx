@@ -1,32 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { authenticatedDestination, sanitizeInternalRedirect } from '@/lib/authRedirect';
+import { sanitizeInternalRedirect } from '@/lib/authRedirect';
 import { firstFieldError, withoutFieldError } from '@/lib/formErrors';
 import toast from 'react-hot-toast';
 
 export default function LoginForm() {
-  const router       = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = sanitizeInternalRedirect(
-    searchParams.get('redirect'),
-    '/dashboard',
-  );
+  const rawRedirect = searchParams.get('redirect');
 
-  const { login, user, loading: authLoading, isAuthenticated } = useAuth();
+  const { login } = useAuth();
 
-  useEffect(() => {
-    if (authLoading || !isAuthenticated) return;
-
-    router.replace(authenticatedDestination(user, redirectTo));
-  }, [authLoading, isAuthenticated, redirectTo, router, user]);
-
-  const [form, setForm]       = useState({ _el_id: '', _el_pw: '' });
-  const [showPw, setShowPw]   = useState(false);
+  const [form, setForm] = useState({ _el_id: '', _el_pw: '' });
+  const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(
     searchParams.get('reason') === 'session_expired'
@@ -46,8 +37,11 @@ export default function LoginForm() {
     e.preventDefault();
     setError('');
 
-    if (!form._el_id.trim() || !form._el_pw) {
-      setError('Please enter your email and password.');
+    const loginInput = form._el_id.trim();
+    const passwordInput = form._el_pw;
+
+    if (!loginInput || !passwordInput) {
+      setError('Please enter your email/username and password.');
       return;
     }
 
@@ -55,58 +49,72 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const data = await login({
-        login:    form._el_id.trim(),
-        password: form._el_pw,
+        email: loginInput,
+        password: passwordInput,
       });
-      toast.success('Welcome back!');
 
-      router.replace(authenticatedDestination(data?.user, redirectTo, data?.redirect_to));
+      toast.success('Signed in successfully');
+
+      const authenticatedUser = data?.user;
+      const isUserAdmin =
+        authenticatedUser?.role === 'admin' ||
+        authenticatedUser?.role === 'super_admin' ||
+        authenticatedUser?.is_admin === true;
+
+      const fallbackRoute = isUserAdmin ? '/admin/catalogue' : '/';
+      const targetDestination = sanitizeInternalRedirect(rawRedirect, fallbackRoute);
+
+      router.replace(targetDestination);
+      router.refresh();
     } catch (err) {
-      setFieldErrors(err.errors || {});
-      setError(
-        err.status === 401 || err.status === 403
-          ? 'Invalid credentials. Please try again.'
-          : (err.message || 'Unable to sign in. Please try again.'),
-      );
+      setFieldErrors(err?.errors || {});
+      setError(err?.message || 'Unable to sign in with the provided credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4 selection:bg-slate-200">
       <div className="w-full max-w-md">
-        {/* Logo */}
+
+        {/* Logo Header */}
         <div className="text-center mb-8">
-          <Link href="/">
-            <div className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary-800 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">SL</span>
-              </div>
-              <span className="text-xl font-bold text-primary-800">SL Beauty</span>
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-md transition-transform group-hover:scale-105">
+              <span className="text-white font-serif font-bold text-lg">SL</span>
             </div>
+            <span className="text-2xl font-bold text-slate-900 font-serif tracking-tight">
+              SL Beauty
+            </span>
           </Link>
-          <p className="text-gray-400 text-sm mt-1">Premium Beauty Ecommerce Marketplace</p>
+          <p className="text-slate-500 text-xs mt-1.5 font-medium tracking-wide">
+            Premium Beauty Ecommerce Marketplace
+          </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-8">
-          <h1 className="text-xl font-bold text-gray-800 mb-6">Sign In to Your Account</h1>
+        {/* Card Container */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/60 p-8 sm:p-10 border border-slate-100">
+          <h1 className="text-xl font-bold text-slate-900 mb-6 tracking-tight">
+            Sign In to Your Account
+          </h1>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-              <AlertCircle size={16} className="text-red-500 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5" role="alert">
+              <AlertCircle size={16} className="text-rose-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs font-medium text-rose-700 leading-relaxed">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
-            {/* Email */}
+
+            {/* Email or Username */}
             <div>
-              <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="login-email" className="block text-xs font-semibold text-slate-800 uppercase tracking-wider mb-1.5">
                 Email or Username
               </label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   id="login-email"
                   type="text"
@@ -116,28 +124,28 @@ export default function LoginForm() {
                   onChange={handleChange}
                   placeholder="Email address or username"
                   required
-                  className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 outline-none transition-all"
                 />
               </div>
-              {firstFieldError(fieldErrors, 'login') && (
-                <p className="mt-1 text-xs text-red-600">
-                  {firstFieldError(fieldErrors, 'login')}
+              {firstFieldError(fieldErrors, 'email') && (
+                <p className="mt-1 text-xs text-rose-600">
+                  {firstFieldError(fieldErrors, 'email')}
                 </p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label htmlFor="login-pw" className="block text-sm font-medium text-gray-700">
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="login-pw" className="block text-xs font-semibold text-slate-800 uppercase tracking-wider">
                   Password
                 </label>
-                <Link href="/forgot-password" className="text-xs text-primary-700 hover:underline">
+                <Link href="/forgot-password" className="text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors">
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   id="login-pw"
                   type={showPw ? 'text' : 'password'}
@@ -147,56 +155,62 @@ export default function LoginForm() {
                   onChange={handleChange}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-9 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-300 focus:border-primary-400 outline-none"
+                  className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 outline-none transition-all"
                 />
                 <button
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowPw((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                  aria-label={showPw ? 'Hide password' : 'Show password'}
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {firstFieldError(fieldErrors, 'password') && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-rose-600">
                   {firstFieldError(fieldErrors, 'password')}
                 </p>
               )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-primary-800 hover:bg-primary-700 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+              className="w-full py-3 bg-black hover:bg-slate-900 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2 active:scale-[0.99]"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Signing In…
                 </span>
-              ) : 'Sign In'}
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
+          {/* Registration Links */}
+          <div className="mt-6 text-center text-xs text-slate-500">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary-700 font-medium hover:underline">
+            <Link href="/register" className="font-bold text-slate-900 hover:underline">
               Register Free
             </Link>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-            <Link href="/register?role=supplier" className="text-sm text-accent-600 hover:underline font-medium">
-              Become a Brand Partner →
+          <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+            <Link href="/register?role=supplier" className="text-xs font-bold text-slate-900 hover:text-burgundy transition-colors inline-flex items-center gap-1">
+              Become a Brand Partner &rarr;
             </Link>
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        {/* Footer Policy Text */}
+        <p className="text-center text-[11px] text-slate-400 mt-6">
           By signing in you agree to our{' '}
-          <Link href="/terms" className="underline">Terms</Link> &amp;{' '}
-          <Link href="/privacy" className="underline">Privacy Policy</Link>
+          <Link href="/terms" className="underline hover:text-slate-600 transition-colors">Terms</Link> &amp;{' '}
+          <Link href="/privacy" className="underline hover:text-slate-600 transition-colors">Privacy Policy</Link>
         </p>
       </div>
     </div>

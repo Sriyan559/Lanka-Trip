@@ -26,7 +26,7 @@ export function SharedPieChart({
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <div className="p-5 border-r border-line flex flex-col relative h-full">
+    <div className="p-6 border-r border-line flex flex-col relative h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[13px] font-bold text-ink">{title}</h3>
         <button className="text-muted hover:text-ink"><MoreVertical size={14} /></button>

@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/admin/common/StatusBadge";
 import { EnterpriseDataTable } from "@/components/admin/common/EnterpriseDataTable";
 import { canApproveFullRefund } from "@/components/admin/returns/permissions";
 import { returns, suppliers } from "@/mocks/admin/fixtures";
+import { dashboardActions } from "@/mocks/admin/dashboard.mock";
 import { VerificationStatsGrid } from "@/components/admin/verification/VerificationStatsGrid";
 
 describe("admin foundations", () => {
@@ -75,6 +76,11 @@ describe("admin foundations", () => {
     expect(suppliers[0].id).not.toBe(suppliers[0].publicReference);
     expect(adminRoute.supplier(suppliers[0].id))
       .not.toContain(suppliers[0].publicReference);
+  });
+
+  it("gives every migrated dashboard action a target route", () => {
+    expect(dashboardActions.every((action) => action.href.startsWith("/admin/")))
+      .toBe(true);
   });
 
   it("renders the integrated verification summary cards", async () => {

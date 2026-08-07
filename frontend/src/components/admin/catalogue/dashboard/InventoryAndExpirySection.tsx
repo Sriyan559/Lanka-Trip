@@ -58,7 +58,7 @@ export function InventoryAndExpirySection() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse whitespace-nowrap">
+        <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-line bg-white">
                 <th className="py-2.5 px-3 text-[10px] font-bold text-muted uppercase">Batch ID</th>

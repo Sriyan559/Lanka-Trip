@@ -40,7 +40,7 @@ export function CarrierPanel({ related, metrics }: CarrierPanelProps) {
       <div className="entity-row">
         <span className="entity-label">Supplier</span>
         <Link 
-          href="/admin/verification/suppliers"
+          href="/admin/brands-suppliers/verification"
           className="entity-link"
         >
           {related.supplierName}

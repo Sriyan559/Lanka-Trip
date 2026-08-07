@@ -30,7 +30,7 @@ export function MediaLibrarySection() {
         filters={["Asset Type", "Resolution", "Brand", "Sync Status"]}
         itemCountLabel="284,912 assets"
       >
-        <table className="w-full text-left border-collapse whitespace-nowrap">
+        <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-line bg-slate-50/50">
               <th className="py-2.5 px-3 text-[10px] font-bold text-muted w-8"><input type="checkbox" className="rounded border-line" /></th>

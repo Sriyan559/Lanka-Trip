@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/authorization-detail.css";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -89,14 +90,14 @@ export function AuthorizationDetailView({ initialCase }: { initialCase: BrandAut
   return (
     <div className="authorization-detail">
       <div className="authorization-crumbs" aria-label="Breadcrumb">
-        <Link href="/admin/verification/suppliers">Verification &amp; Compliance</Link>
+        <Link href="/admin/brands-suppliers/verification">Verification &amp; Compliance</Link>
         <ChevronRight size={14} />
-        <Link href="/admin/verification/brand-authorizations">Brand Authorization Review</Link>
+        <Link href="/admin/brands-suppliers/brand-authorizations">Brand Authorization Review</Link>
         <ChevronRight size={14} />
         <strong>{initialCase.reference}</strong>
       </div>
 
-      <Link href="/admin/verification/brand-authorizations" className="authorization-back-link">
+      <Link href="/admin/brands-suppliers/brand-authorizations" className="authorization-back-link">
         <ArrowLeft size={16} /> Back to Brand Authorization Review Queue
       </Link>
 

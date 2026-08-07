@@ -33,7 +33,7 @@ export function BrandsTableSection() {
         filters={["Verification Status", "Authorization Status", "Brand Owner", "Supplier", "Country", "Channel Eligibility", "Risk Level", "Updated Date"]}
         itemCountLabel="486 brands"
       >
-        <table className="w-full text-left border-collapse whitespace-nowrap">
+        <table className="w-full min-w-[1400px] text-left border-collapse">
           <thead>
             <tr className="border-b border-line bg-slate-50/50">
               <th className="py-2.5 px-3 text-[10px] font-bold text-muted w-8"><input type="checkbox" className="rounded border-line" /></th>
@@ -76,7 +76,7 @@ export function BrandsTableSection() {
                 <td className="py-3 px-3 text-[11px] font-bold text-ink text-center">{row.activeProducts}</td>
                 <td className="py-3 px-3 text-[11px] font-bold text-ink text-center">{row.categories}</td>
                 <td className="py-3 px-3">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${row.vColor ? row.vColor + ' border-transparent' : 'text-[#059669] border-[#059669] bg-green-50'}`}>{row.verification}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${row.verification === 'Verified' ? 'text-[#059669] border-[#059669] bg-green-50' : 'text-[#ea580c] border-[#ea580c] bg-orange-50'}`}>{row.verification}</span>
                 </td>
                 <td className="py-3 px-3">
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${row.authColor || 'text-[#059669] border-[#059669] bg-green-50'}`}>{row.auth}</span>

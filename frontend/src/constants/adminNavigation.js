@@ -28,10 +28,18 @@ export const ADMIN_NAVIGATION = [
     {id:"import-export",label:"Import & Export",href:"/admin/catalogue/import-export"},
     {id:"quality",label:"Catalogue Quality",href:"/admin/catalogue/quality"},
   ]},
-  {id:"brands-suppliers",label:"Brands & Suppliers",href:"/admin/verification/brand-authorizations",icon:Tags},
-  {id:"verification",label:"Verification & Compliance",href:"/admin/verification/suppliers",icon:ShieldCheck,children:[
-    {id:"supplier-verification",label:"Supplier Verification",href:"/admin/verification/suppliers"},
-    {id:"brand-authorizations",label:"Brand Authorizations",href:"/admin/verification/brand-authorizations"},
+  {id:"brands-suppliers",label:"Brands & Suppliers",href:"/admin/brands-suppliers",icon:Tags,children:[
+    {id:"bs-command-center",label:"Command Center",href:"/admin/brands-suppliers",exact:true},
+    {id:"bs-suppliers",label:"Suppliers",href:"/admin/brands-suppliers/suppliers"},
+    {id:"bs-supplier-onboarding",label:"Supplier Onboarding",href:"/admin/brands-suppliers/suppliers/create",exact:true},
+    {id:"bs-supplier-verification",label:"Supplier Verification",href:"/admin/brands-suppliers/verification"},
+    {id:"bs-brand-authorizations",label:"Brand Authorizations",href:"/admin/brands-suppliers/brand-authorizations"},
+    {id:"bs-contracts",label:"Contracts & Agreements",href:"/admin/brands-suppliers/contracts"},
+    {id:"bs-catalogue",label:"Product & Catalogue Coverage",href:"/admin/brands-suppliers/catalogue-coverage"},
+    {id:"bs-performance",label:"Performance & SLA",href:"/admin/brands-suppliers/performance"},
+    {id:"bs-risk",label:"Risk & Compliance",href:"/admin/brands-suppliers/risk-compliance"},
+    {id:"bs-users",label:"Supplier Users & Access",href:"/admin/brands-suppliers/users-access"},
+    {id:"bs-import-export",label:"Import, Export & Audit",href:"/admin/brands-suppliers/import-export-audit"},
   ]},
   {id:"customers",label:"Customers",href:"/admin/customers",icon:Users,children:[
     {id:"command-center",label:"Command Center",href:"/admin/customers",exact:true},

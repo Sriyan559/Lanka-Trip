@@ -38,7 +38,7 @@ export function SharedDataTable({
     <div className="bg-white rounded-xl border border-line shadow-sm flex flex-col">
       {/* Tabs */}
       {tabs.length > 0 && (
-        <div className="flex items-center gap-6 px-4 border-b border-line overflow-x-auto scrollbar-none">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-6 border-b border-line">
           {tabs.map((tab, i) => (
             <button key={i} className={`flex items-center gap-1.5 py-3 text-[12px] font-bold border-b-2 whitespace-nowrap transition-colors ${tab.active ? 'border-[#741d35] text-[#741d35]' : 'border-transparent text-muted hover:text-ink'}`}>
               {tab.label}
@@ -51,7 +51,7 @@ export function SharedDataTable({
       )}
 
       {/* Filter Bar */}
-      <div className="p-4 border-b border-line">
+      <div className="p-6 border-b border-line">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={14} />
@@ -95,13 +95,12 @@ export function SharedDataTable({
         </div>
       </div>
 
-      {/* Table Content */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto w-full">
         {children}
       </div>
       
       {/* Pagination Footer */}
-      <div className="p-4 border-t border-line flex items-center justify-between">
+      <div className="p-6 border-t border-line flex items-center justify-between">
         <span className="text-[11px] font-semibold text-muted">Showing 1 to 6 of {itemCountLabel}</span>
         <div className="flex items-center gap-1">
           <button className="w-6 h-6 flex items-center justify-center rounded border border-line text-muted hover:bg-slate-50">&lt;</button>
