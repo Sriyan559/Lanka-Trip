@@ -39,7 +39,7 @@ export function InventoryPageHeader({
       <div className={styles.headerTopNav}>
         {productId ? (
           <Link
-            href={`/admin/catalogue/approvals/${productId}`}
+            href={`/admin/catalogue/product-approvals/${productId}`}
             className={styles.backLink}
           >
             <ArrowLeft size={16} />
@@ -56,7 +56,7 @@ export function InventoryPageHeader({
           <span>Catalogue</span> &gt;{" "}
           {productId ? (
             <>
-              <Link href="/admin/catalogue/approvals" className={styles.breadcrumbLink}>
+              <Link href="/admin/catalogue/product-approvals" className={styles.breadcrumbLink}>
                 Product Approval Queue
               </Link>{" "}
               &gt; <span className={styles.breadcrumbText}>{productRef}</span> &gt;{" "}

@@ -58,8 +58,8 @@ export function ReturnsQueueView() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const requestSequence = useRef(0);
-  const [cases, setCases] = useState<ReturnCaseItem[]>(mockReturnCases);
-  const [total, setTotal] = useState(mockReturnCases.length);
+  const [cases, setCases] = useState<ReturnCaseItem[]>(mockReturnCases ?? []);
+  const [total, setTotal] = useState((mockReturnCases ?? []).length);
   const [totalPages, setTotalPages] = useState(1);
   const [metrics, setMetrics] = useState<ReturnsMetricSummary | null>(mockReturnsMetrics);
   const [operationsHealth, setOperationsHealth] = useState<ReturnsOperationsHealth | null>(mockOperationsHealth);
@@ -121,35 +121,19 @@ export function ReturnsQueueView() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [
-        resCases,
-        resMetrics,
-        resHealth,
-        resAlerts,
-        resRefund,
-        resQQ,
-        resLiability,
-      ] = await Promise.all([
-        fetchReturnCases(currentFilters),
-        fetchReturnsMetrics(),
-        fetchReturnsOperationsHealth(),
-        fetchPriorityAlerts(),
-        fetchRefundPerformance(),
-        fetchQuickQueue(),
-        fetchLiabilitySummary(),
-      ]);
+      const resCases = await fetchReturnCases(currentFilters);
 
       if (requestId !== requestSequence.current) return;
 
       setCases(resCases.data);
       setTotal(resCases.total);
       setTotalPages(resCases.totalPages);
-      setMetrics(resMetrics);
-      setOperationsHealth(resHealth);
-      setPriorityAlerts(resAlerts);
-      setRefundPerformance(resRefund);
-      setQuickQueue(resQQ);
-      setLiabilitySummary(resLiability);
+      if (resCases.metrics) setMetrics(resCases.metrics);
+      if (resCases.operationsHealth) setOperationsHealth(resCases.operationsHealth);
+      if (resCases.priorityAlerts) setPriorityAlerts(resCases.priorityAlerts);
+      if (resCases.refundPerformance) setRefundPerformance(resCases.refundPerformance);
+      if (resCases.quickQueue) setQuickQueue(resCases.quickQueue);
+      if (resCases.liabilitySummary) setLiabilitySummary(resCases.liabilitySummary);
       setSelectedIds([]);
 
       const rawPage = searchParams.get("page");

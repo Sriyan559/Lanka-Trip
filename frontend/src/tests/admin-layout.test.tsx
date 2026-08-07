@@ -8,6 +8,20 @@ import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
 vi.mock("next/navigation", () => ({
   usePathname: () =>
     "/admin/catalogue/approvals/product-uuid-001",
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
+
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: {
+      name: "Administrator",
+      email: "admin@example.test",
+      role: "super_admin",
+    },
+    logout: vi.fn(),
+  }),
 }));
 
 describe("shared admin layout", () => {
@@ -65,13 +79,21 @@ describe("shared admin layout", () => {
     expect(screen.getByRole("link", { name: "Dashboard" }))
       .toHaveAttribute("href", "/admin/dashboard");
     expect(screen.getByRole("link", { name: "Marketplace" }))
-      .toHaveAttribute("href", "/admin/marketplace/orders");
+      .toHaveAttribute("href", "/admin/marketplace");
     expect(screen.getByRole("link", { name: "Catalogue" }))
-      .toHaveAttribute("href", "/admin/catalogue/approvals");
+      .toHaveAttribute("href", "/admin/catalogue");
     expect(screen.getByRole("link", { name: "Brands & Suppliers" }))
       .toHaveAttribute("href", "/admin/verification/brand-authorizations");
     expect(screen.getByRole("link", { name: "Verification & Compliance" }))
       .toHaveAttribute("href", "/admin/verification/suppliers");
+    expect(screen.getByRole("link", { name: "Logistics" }))
+      .toHaveAttribute("href", "/admin/logistics");
+    expect(screen.getByRole("link", { name: "Customer Support" }))
+      .toHaveAttribute("href", "/admin/customer-support/cases");
+    expect(screen.getByRole("link", { name: "Analytics" }))
+      .toHaveAttribute("href", "/admin/analytics");
+    expect(screen.getByRole("link", { name: "Ecosystem Modules" }))
+      .toHaveAttribute("href", "/admin/ecosystem-modules");
   });
 
   it("renders unimplemented modules as disabled non-links", () => {
@@ -80,10 +102,10 @@ describe("shared admin layout", () => {
       '.nav-link-rich[aria-disabled="true"]',
     );
 
-    expect(disabledItems).toHaveLength(8);
+    expect(disabledItems).toHaveLength(4);
     expect(screen.queryByRole("link", { name: /Customers/ }))
       .not.toBeInTheDocument();
-    expect(screen.getAllByText("Coming Soon")).toHaveLength(8);
+    expect(screen.getAllByText("Coming Soon")).toHaveLength(4);
   });
 
   it("keeps all enabled routes centralized and absolute", () => {

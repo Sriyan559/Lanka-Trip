@@ -6,7 +6,6 @@ export async function fetchEnterpriseWorkspace(name,id,signal){
   if(signal?.aborted)throw new DOMException("Aborted","AbortError");
   const data=enterpriseWorkspaceFixtures[name];
   if(!data)throw new Error("WORKSPACE_NOT_FOUND");
-  if(name==="policyCase"&&id&&id!==data.id)throw new Error("CASE_NOT_FOUND");
   return clone(data);
 }
 

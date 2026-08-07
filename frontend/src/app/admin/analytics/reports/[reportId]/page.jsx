@@ -1,8 +1,6 @@
 import React, { Suspense } from "react";
 import { AnalyticsReportWorkspace } from "@/features/analytics/reports/AnalyticsReportWorkspace";
 
-export const dynamic = "force-dynamic";
-
 function ReportDetailContent({ reportId }) {
   return <AnalyticsReportWorkspace reportId={reportId} />;
 }

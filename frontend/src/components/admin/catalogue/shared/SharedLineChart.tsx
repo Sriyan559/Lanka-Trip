@@ -28,7 +28,7 @@ export function SharedLineChart({
   height = 220
 }: SharedLineChartProps) {
   return (
-    <div className="bg-white rounded-xl border border-line p-6 shadow-sm flex flex-col h-full min-h-[300px]">
+    <div className="p-5 border-r border-line flex flex-col relative h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[13px] font-bold text-ink">{title}</h3>
         <div className="flex items-center gap-2">

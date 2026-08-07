@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Filter, Search, Download, Settings, RefreshCw, X, ChevronDown, ChevronRight, MoreVertical, Columns, ArrowDownAZ, LayoutTemplate } from "lucide-react";
-import Link from "next/link";
 
 const FilterSelect = ({ label, placeholder }: { label: string, placeholder: string }) => (
   <div className="flex flex-col gap-1">
@@ -182,7 +181,7 @@ export function ProductsTableSection() {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse whitespace-nowrap">
           <thead>
             <tr className="border-b border-line bg-white">
               <th className="py-3 px-4 text-[10px] font-bold text-muted w-8"><input type="checkbox" className="rounded border-line" /></th>
@@ -246,12 +245,7 @@ export function ProductsTableSection() {
                       <img src={row.img} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col min-w-[140px]">
-                      <Link 
-                        href={row.dbId === 'PRD-0091235' ? '/admin/catalogue/products/product-uuid-002' : '/admin/catalogue/products/product-uuid-001'} 
-                        className="text-[11px] font-bold text-[#741d35] hover:underline cursor-pointer leading-tight"
-                      >
-                        {row.name}
-                      </Link>
+                      <span className="text-[11px] font-bold text-[#741d35] hover:underline cursor-pointer leading-tight">{row.name}</span>
                       <span className="text-[10px] text-muted">{row.size}</span>
                     </div>
                   </div>

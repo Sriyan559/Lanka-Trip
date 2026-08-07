@@ -333,14 +333,6 @@ export default function Header() {
               )}
             </div>
           )}
-          {!isAuthenticated && (
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-bold text-gray-900 hover:bg-gray-100 transition-colors"
-            >
-              <User size={15} /> Sign In
-            </Link>
-          )}
         </div>
 
         <div className="ml-auto flex items-center gap-1 md:hidden">

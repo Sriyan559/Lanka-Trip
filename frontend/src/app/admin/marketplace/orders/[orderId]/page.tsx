@@ -1,2 +1,6 @@
-import {MarketplaceRecordDetailView} from "@/components/admin/marketplace/shared/MarketplaceRecordDetailView";
-export default async function Page({params}:{params:Promise<{orderId:string}>}){const{orderId}=await params;return <MarketplaceRecordDetailView kind="order" id={decodeURIComponent(orderId)}/>}
+import { MarketplaceOrderDetailLiveView } from "@/components/admin/orders/MarketplaceOrderDetailLiveView";
+
+export default async function OrderDetailPage({params}:{params:Promise<{orderId:string}>}) {
+  const {orderId}=await params;
+  return <MarketplaceOrderDetailLiveView orderId={decodeURIComponent(orderId)}/>;
+}

@@ -1,11 +1,11 @@
 import { apiClient, downloadApiFile } from "@/services/api/apiClient";
 
-const queryString = filters => {
+const queryString = (filters = {}) => {
   const params = new URLSearchParams();
-  Object.entries(filters || {}).forEach(([key, value]) => {
+  Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "" && value !== "all") params.set(key, String(value));
   });
-  return params.size ? `?${params}` : "";
+  return params.size ? `?${params.toString()}` : "";
 };
 
 export async function fetchMarketplaceSellers(filters = {}, signal) {

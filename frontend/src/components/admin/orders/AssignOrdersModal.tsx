@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { X, UserCheck, AlertTriangle } from "lucide-react";
-import { mockOfficers } from "@/mocks/admin/orders.mock";
+
+interface AssignableOfficer { id: string; name: string; role: string }
 
 interface AssignOrdersModalProps {
   isOpen: boolean;
   orderIds: string[];
   onClose: () => void;
   onConfirm: (officerId: string, officerName: string, note?: string) => Promise<void>;
+  officers?: AssignableOfficer[];
 }
 
 export function AssignOrdersModal({
@@ -16,6 +18,7 @@ export function AssignOrdersModal({
   orderIds,
   onClose,
   onConfirm,
+  officers = [],
 }: AssignOrdersModalProps) {
   const [selectedOfficerId, setSelectedOfficerId] = useState("");
   const [officerSearch, setOfficerSearch] = useState("");
@@ -45,7 +48,7 @@ export function AssignOrdersModal({
 
   if (!isOpen) return null;
 
-  const filteredOfficers = mockOfficers.filter(
+  const filteredOfficers = officers.filter(
     (off) =>
       off.name.toLowerCase().includes(officerSearch.toLowerCase()) ||
       off.role.toLowerCase().includes(officerSearch.toLowerCase())
@@ -60,7 +63,7 @@ export function AssignOrdersModal({
       return;
     }
 
-    const selectedOfficer = mockOfficers.find((o) => o.id === selectedOfficerId);
+    const selectedOfficer = officers.find((o) => o.id === selectedOfficerId);
     if (!selectedOfficer) {
       setErrorMsg("Selected officer is invalid");
       return;
@@ -113,6 +116,7 @@ export function AssignOrdersModal({
           )}
 
           <form onSubmit={handleSubmit} className="assign-form">
+            {officers.length === 0 && <div className="field-error-banner"><AlertTriangle size={16}/><span>Assignment is unavailable because no order-assignment source is configured.</span></div>}
             <div className="form-group">
               <label className="form-label" htmlFor="officer-search-input">
                 Search Officer
@@ -136,7 +140,7 @@ export function AssignOrdersModal({
                 className="modal-select"
                 value={selectedOfficerId}
                 onChange={(e) => setSelectedOfficerId(e.target.value)}
-                required
+                required disabled={officers.length === 0}
               >
                 <option value="">-- Choose an assigned officer --</option>
                 {filteredOfficers.map((officer) => (
@@ -170,7 +174,7 @@ export function AssignOrdersModal({
               >
                 Cancel
               </button>
-              <button type="submit" className="button primary" disabled={submitting}>
+              <button type="submit" className="button primary" disabled={submitting || officers.length === 0}>
                 {submitting ? "Assigning..." : "Confirm Assignment"}
               </button>
             </div>

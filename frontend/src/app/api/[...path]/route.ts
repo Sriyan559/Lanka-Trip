@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 const excludedRequestHeaders = new Set([
   "connection",
   "content-length",
+  "expect",
   "host",
   "transfer-encoding",
 ]);
@@ -46,9 +47,17 @@ async function forward(request: NextRequest, context: { params: { path: string[]
       headers: responseHeaders,
     });
   } catch (error) {
+    const cause = error instanceof Error && error.cause instanceof Error
+      ? {
+          message: error.cause.message,
+          code: "code" in error.cause ? String(error.cause.code) : undefined,
+        }
+      : undefined;
+
     console.error("API gateway request failed", {
       target,
       message: error instanceof Error ? error.message : "Unknown gateway error",
+      cause,
     });
     return NextResponse.json(
       { message: "The backend API is currently unavailable." },

@@ -4,12 +4,9 @@ export type DashboardMetric = {
   availability: Availability;
   value: number | null;
   currency?: string | null;
-  unit?: string | null;
   definition?: string;
   reason?: string;
 };
-
-export type MarketplaceMetricValue = DashboardMetric;
 
 export type TrendPoint = { date: string; gmv: number; revenue: number; orders: number };
 export type CompositionItem = { id: string; label: string; value: number; percentage: number };

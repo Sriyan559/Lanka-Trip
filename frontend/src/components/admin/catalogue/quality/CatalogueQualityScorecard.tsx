@@ -5,8 +5,8 @@ import { MOCK_SCORECARD_METRICS } from "@/data/catalogueQuality.mock";
 
 export function CatalogueQualityScorecard() {
   return (
-    <div className="bg-white border border-line rounded-lg p-4 shadow-sm mb-4">
-      <h3 className="text-[11px] font-bold text-ink uppercase tracking-wider font-mono mb-3">
+    <div className="bg-white border border-line rounded-lg p-3.5 shadow-sm mb-4">
+      <h3 className="text-[11px] font-bold text-ink uppercase tracking-wider font-mono mb-2.5">
         Catalogue Quality Scorecard
       </h3>
 

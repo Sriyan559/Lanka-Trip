@@ -1,1 +1,3 @@
-import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="commissions"/></Suspense>}
+import {Suspense} from "react";
+import {MarketplaceCommissionManagementView} from "@/components/admin/marketplace/commissions/MarketplaceCommissionManagementView";
+export default function MarketplaceCommissionsPage(){return <Suspense fallback={<div aria-busy="true">Loading commissions...</div>}><MarketplaceCommissionManagementView/></Suspense>}

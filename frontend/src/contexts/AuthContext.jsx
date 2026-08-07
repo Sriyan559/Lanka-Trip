@@ -113,9 +113,6 @@ export function AuthProvider({ children }) {
       clearClientAuthStorage();
       dispatch({ type: 'LOGOUT' });
       toast.success('Logged out successfully.');
-      if (typeof window !== 'undefined') {
-        window.location.href = '/';
-      }
     }
   }, []);
 
@@ -141,21 +138,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    return {
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      loading: false,
-      login: async () => ({ success: false }),
-      register: async () => ({ success: false }),
-      logout: async () => {},
-      updateUser: () => {},
-      isAdmin: false,
-      isSuperAdmin: false,
-      isSupplier: false,
-      isBuyer: false,
-    };
-  }
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
   return ctx;
 }

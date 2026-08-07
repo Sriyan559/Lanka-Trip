@@ -1,1 +1,3 @@
-import{Suspense}from"react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="promotions"/></Suspense>}
+import PromotionDetailApprovalView from "@/components/admin/marketplace/promotions/detail/PromotionDetailApprovalView";
+
+export default function PromotionDetailPage({params}){return <PromotionDetailApprovalView promotionId={params.promotionId}/>}

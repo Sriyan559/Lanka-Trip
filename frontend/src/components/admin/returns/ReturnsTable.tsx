@@ -26,13 +26,13 @@ interface ReturnsTableProps {
 }
 
 export function ReturnsTable({
-  cases,
+  cases = [],
   total,
   page,
   pageSize,
   totalPages,
   loading = false,
-  selectedIds,
+  selectedIds = [],
   onSelectRow,
   onSelectAll,
   onPageChange,

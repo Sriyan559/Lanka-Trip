@@ -1,6 +1,17 @@
-import {marketplaceCommissionsFixture} from "@/mocks/marketplaceCommissions.mock";
+import {apiClient, downloadApiFile} from "@/services/api/apiClient";
 
-/** No commissions API exists in this repository; the source remains explicit. */
-export async function fetchMarketplaceCommissions(signal){if(signal?.aborted)throw new DOMException("Request aborted","AbortError");return structuredClone(marketplaceCommissionsFixture)}
-export async function recordCommissionPreviewAction(action,ruleIds=[]){await Promise.resolve();return{id:`local-${Date.now()}`,action,ruleIds,source:"local-preview",at:new Date().toISOString()}}
+const queryString = filters => {
+  const params = new URLSearchParams();
+  Object.entries(filters || {}).forEach(([key, value]) => {if (value !== undefined && value !== null && value !== "") params.set(key, String(value));});
+  return params.size ? `?${params}` : "";
+};
 
+export async function fetchMarketplaceCommissions(filters = {}, signal) {
+  const response = await apiClient(`/admin/marketplace/commissions${queryString(filters)}`, {signal});
+  if (!response?.data) throw new Error("The marketplace commissions response is missing data.");
+  return response.data;
+}
+
+export async function exportMarketplaceCommissions(filters = {}, signal) {
+  await downloadApiFile(`/admin/marketplace/commissions/export${queryString(filters)}`, "marketplace-commissions.csv", signal);
+}

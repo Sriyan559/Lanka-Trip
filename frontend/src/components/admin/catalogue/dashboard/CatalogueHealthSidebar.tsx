@@ -16,21 +16,21 @@ export function CatalogueHealthSidebar() {
   ];
 
   const ALERTS: PriorityAlert[] = [
-    { id: 1, text: "High-risk authenticity review required", level: "High", icon: ShieldAlert, href: "/admin/catalogue/approvals" },
-    { id: 2, text: "Approval SLA breached", level: "High", icon: Clock, href: "/admin/catalogue/approvals?priority=sla" },
-    { id: 3, text: "Near-expiry inventory exposure", level: "Medium", icon: AlertCircle, href: "/admin/catalogue/inventory?status=near-expiry" },
-    { id: 4, text: "Duplicate product candidates detected", level: "Medium", icon: Copy, href: "/admin/catalogue/quality?type=duplicate" },
-    { id: 5, text: "Missing mandatory product media", level: "Medium", icon: AlertCircle, href: "/admin/catalogue/media?status=missing" },
-    { id: 6, text: "Recalled stock linked to active listings", level: "High", icon: PackageX, href: "/admin/catalogue/inventory?status=recalled" },
+    { id: 1, text: "High-risk authenticity review required", level: "High", icon: ShieldAlert },
+    { id: 2, text: "Approval SLA breached", level: "High", icon: Clock },
+    { id: 3, text: "Near-expiry inventory exposure", level: "Medium", icon: AlertCircle },
+    { id: 4, text: "Duplicate product candidates detected", level: "Medium", icon: Copy },
+    { id: 5, text: "Missing mandatory product media", level: "Medium", icon: AlertCircle },
+    { id: 6, text: "Recalled stock linked to active listings", level: "High", icon: PackageX },
   ];
 
   const QUEUES: QuickQueue[] = [
-    { label: "Pending Product Approvals", count: 312, icon: Clock, href: "/admin/catalogue/approvals" },
-    { label: "High-Risk Products", count: 46, icon: ShieldAlert, href: "/admin/catalogue/products?risk=high" },
-    { label: "Missing Information", count: 124, icon: AlertCircle, href: "/admin/catalogue/quality?type=missing-info" },
-    { label: "Duplicate Risks", count: 36, icon: Copy, href: "/admin/catalogue/quality?type=duplicate" },
-    { label: "Near-Expiry Batches", count: 42, icon: Clock, href: "/admin/catalogue/inventory?status=near-expiry" },
-    { label: "Publication Blockers", count: 22, icon: PackageX, href: "/admin/catalogue/quality?type=blocker" },
+    { label: "Pending Product Approvals", count: 312, icon: Clock },
+    { label: "High-Risk Products", count: 46, icon: ShieldAlert },
+    { label: "Missing Information", count: 124, icon: AlertCircle },
+    { label: "Duplicate Risks", count: 36, icon: Copy },
+    { label: "Near-Expiry Batches", count: 42, icon: Clock },
+    { label: "Publication Blockers", count: 22, icon: PackageX },
   ];
 
   return (
@@ -40,7 +40,6 @@ export function CatalogueHealthSidebar() {
         score={89}
         statusText="Stable"
         linkText="View full health dashboard"
-        href="/admin/catalogue/quality"
         layout="horizontal"
         metrics={HEALTH_METRICS}
       />
@@ -49,13 +48,11 @@ export function CatalogueHealthSidebar() {
         title="Priority Catalogue Alerts"
         alerts={ALERTS}
         layout="list"
-        viewAllHref="/admin/catalogue/quality"
       />
 
       <SharedQuickQueues 
         title="Quick Queues"
         queues={QUEUES}
-        viewAllHref="/admin/catalogue/quality"
       />
     </div>
   );

@@ -2,152 +2,157 @@
 
 namespace App\Repositories\Admin;
 
-use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class MarketplaceSellerRepository
 {
-    private const SUPPLIER_TYPES = ['App\\Models\\Supplier', 'Supplier'];
+    private const SUPPLIER_SUBJECTS = ['App\\Models\\Supplier', 'Supplier', 'supplier'];
 
-    public function currencies(CarbonImmutable $from, CarbonImmutable $to): Collection
+    public function paginate(array $filters): LengthAwarePaginator
     {
-        return DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$from, $to])
-            ->where('status', '!=', 'cancelled')->pluck('currency')->filter()->unique()->sort()->values();
+        $query = $this->baseQuery($filters);
+        $this->applyFilters($query, $filters);
+        $sorts = ['sellerId' => 'suppliers.id', 'name' => 'suppliers.company_name', 'status' => 'suppliers.status',
+            'orders' => 'order_count', 'gmv' => 'gmv', 'rating' => 'suppliers.rating', 'updatedAt' => 'suppliers.updated_at'];
+        $column = ($filters['sortBy'] ?? 'updatedAt') === 'risk' ? 'suppliers.risk_score' : ($sorts[$filters['sortBy'] ?? 'updatedAt'] ?? 'suppliers.updated_at');
+
+        return $query->orderBy($column, $filters['sortDirection'])->orderBy('suppliers.id')->paginate($filters['perPage'], ['*'], 'page', $filters['page']);
     }
 
-    public function counts(CarbonImmutable $from, CarbonImmutable $to): array
+    public function allForExport(array $filters): Collection
     {
-        $base = DB::table('suppliers');
-        $highRisk = 0;
-        if (Schema::hasTable('risk_profiles')) {
-            $latest = DB::table('risk_profiles')->whereNull('deleted_at')->where('status', 'active')->whereIn('subject_type', self::SUPPLIER_TYPES)
-                ->groupBy('subject_id')->selectRaw('subject_id, MAX(id) AS id');
-            $highRisk = DB::table('risk_profiles')->joinSub($latest, 'latest_risk', 'latest_risk.id', '=', 'risk_profiles.id')
-                ->whereIn('risk_profiles.risk_level', ['high', 'critical'])->count();
+        $query = $this->baseQuery($filters);
+        $this->applyFilters($query, $filters);
+
+        return $query->orderBy('suppliers.id')->limit(100000)->get();
+    }
+
+    public function find(int $id, array $filters): ?object
+    {
+        return $this->baseQuery($filters)->where('suppliers.id', $id)->first();
+    }
+
+    public function risks(Collection $ids): Collection
+    {
+        return DB::table('risk_profiles')->whereNull('deleted_at')->where('status', 'active')
+            ->whereIn('subject_type', self::SUPPLIER_SUBJECTS)->whereIn('subject_id', $ids)
+            ->orderByDesc('assessed_at')->orderByDesc('id')->get()->unique('subject_id')->keyBy('subject_id');
+    }
+
+    public function summary(array $filters): array
+    {
+        $supplier = DB::table('suppliers');
+        $this->applyContext($supplier, $filters);
+        $currencies = DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$filters['from'], $filters['to']])
+            ->where('status', '!=', 'cancelled')->distinct()->pluck('currency')->filter()->values();
+        $currency = $filters['currency'] ?? ($currencies->count() === 1 ? $currencies->first() : null);
+        $orders = DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$filters['from'], $filters['to']]);
+        if ($currency) {
+            $orders->where('currency', $currency);
         }
+        $totalOrders = (clone $orders)->count();
+        $qualifyingOrders = (clone $orders)->where('status', '!=', 'cancelled');
+        $qualifyingCount = $qualifyingOrders->count();
+        $gmv = $currency ? (float) $qualifyingOrders->sum('total_amount') : null;
+        $latestRisks = DB::table('risk_profiles')->whereNull('deleted_at')->where('status', 'active')->whereIn('subject_type', self::SUPPLIER_SUBJECTS)
+            ->groupBy('subject_id')->selectRaw('subject_id, MAX(id) as risk_profile_id');
+        $riskQuery = DB::table('risk_profiles')->joinSub($latestRisks, 'latest_risks', 'latest_risks.risk_profile_id', '=', 'risk_profiles.id')
+            ->join('suppliers', 'suppliers.id', '=', 'risk_profiles.subject_id');
+        $this->applyContext($riskQuery, $filters);
+        $riskCounts = $riskQuery->select('risk_profiles.risk_level', DB::raw('COUNT(DISTINCT suppliers.id) as aggregate'))
+            ->groupBy('risk_profiles.risk_level')->pluck('aggregate', 'risk_profiles.risk_level');
+        $activeCount = (clone $supplier)->where('suppliers.status', 'active')->count();
 
         return [
-            'total' => (clone $base)->count(),
-            'active' => (clone $base)->where('status', 'active')->where('verification_status', 'verified')->whereNull('suspended_at')->count(),
-            'new' => (clone $base)->whereBetween('created_at', [$from, $to])->count(),
-            'under_review' => (clone $base)->where('verification_status', 'pending')->count(),
-            'suspended' => (clone $base)->whereNotNull('suspended_at')->count(),
-            'high_risk' => $highRisk,
+            'seller_count' => (clone $supplier)->count(), 'active' => $activeCount,
+            'new' => (clone $supplier)->whereBetween('suppliers.created_at', [now()->startOfMonth(), now()->endOfMonth()])->count(),
+            'under_review' => (clone $supplier)->where('suppliers.verification_status', 'pending')->count(),
+            'suspended' => (clone $supplier)->where('suppliers.status', 'inactive')->count(),
+            'gmv' => $gmv, 'average_gmv' => $currency && $activeCount > 0 ? round($gmv / $activeCount, 2) : null,
+            'currency' => $currency, 'currencies' => $currencies->all(), 'orders' => $totalOrders,
+            'cancellation_rate' => $totalOrders > 0 ? round(((int) ((clone $orders)->where('status', 'cancelled')->count()) / $totalOrders) * 100, 2) : null,
+            'average_rating' => ($value = (clone $supplier)->where('suppliers.reviews_count', '>', 0)->avg('suppliers.rating')) !== null ? round((float) $value, 2) : null,
+            'risk_counts' => $riskCounts->map(fn ($v) => (int) $v)->all(),
+            'high_risk' => (int) ($riskCounts['high'] ?? 0) + (int) ($riskCounts['critical'] ?? 0),
+            'qualifying_orders' => $qualifyingCount,
         ];
     }
 
-    public function aggregate(CarbonImmutable $from, CarbonImmutable $to, ?string $currency): array
+    public function trend(array $filters, ?string $currency): array
     {
-        $orders = DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$from, $to]);
-        if ($currency) $orders->where('currency', $currency);
-        $total = (clone $orders)->count();
-        $qualifying = (clone $orders)->where('status', '!=', 'cancelled');
-        $gmv = $currency ? round((float) $qualifying->sum('total_amount'), 2) : null;
-        $returnQuery = Schema::hasTable('return_cases') ? DB::table('return_cases')->join('orders', 'orders.id', '=', 'return_cases.order_id')->whereNull('return_cases.deleted_at')->whereBetween('return_cases.created_at', [$from, $to]) : null;
-        if ($returnQuery && $currency) $returnQuery->where('orders.currency', $currency);
-        $returns = $returnQuery?->count() ?? 0;
-        $sellerCount = DB::table('suppliers')->count();
-
-        return [
-            'gmv' => $gmv,
-            'average_seller_gmv' => $currency && $sellerCount ? round($gmv / $sellerCount, 2) : ($currency ? 0.0 : null),
-            'fulfilment_rate' => $total ? round(((clone $orders)->where('status', 'completed')->count() / $total) * 100, 2) : 0.0,
-            'cancellation_rate' => $total ? round(((clone $orders)->where('status', 'cancelled')->count() / $total) * 100, 2) : 0.0,
-            'return_rate' => $total ? round(($returns / $total) * 100, 2) : 0.0,
-            'average_rating' => round((float) DB::table('suppliers')->avg('rating'), 2),
-        ];
-    }
-
-    public function riskDistribution(): array
-    {
-        if (! Schema::hasTable('risk_profiles')) return [];
-        $latest = DB::table('risk_profiles')->whereNull('deleted_at')->where('status', 'active')->whereIn('subject_type', self::SUPPLIER_TYPES)
-            ->groupBy('subject_id')->selectRaw('subject_id, MAX(id) AS id');
-        return DB::table('risk_profiles')->joinSub($latest, 'latest_risk', 'latest_risk.id', '=', 'risk_profiles.id')
-            ->selectRaw('risk_level, COUNT(*) AS total')->groupBy('risk_level')->pluck('total', 'risk_level')->map(fn ($v) => (int) $v)->all();
-    }
-
-    public function trend(CarbonImmutable $from, CarbonImmutable $to, ?string $currency): array
-    {
-        $orders = DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$from, $to]);
-        if ($currency) $orders->where('currency', $currency);
-        $rows = $orders->selectRaw("DATE(created_at) AS day, COUNT(*) AS orders, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN status != 'cancelled' THEN total_amount ELSE 0 END) AS gmv")
-            ->groupByRaw('DATE(created_at)')->get()->keyBy(fn ($row) => (string) $row->day);
-        $returns = Schema::hasTable('return_cases') ? DB::table('return_cases')->whereNull('deleted_at')->whereBetween('created_at', [$from, $to])
-            ->selectRaw('DATE(created_at) AS day, COUNT(*) AS total')->groupByRaw('DATE(created_at)')->pluck('total', 'day') : collect();
-        $result = [];
-        for ($day = $from->startOfDay(); $day->lte($to); $day = $day->addDay()) {
-            $key = $day->toDateString(); $row = $rows->get($key); $count = (int) ($row->orders ?? 0);
-            $result[] = ['date' => $key, 'gmv' => $currency ? round((float) ($row->gmv ?? 0), 2) : null, 'orders' => $count,
-                'fulfilmentRate' => $count ? round(((int) $row->completed / $count) * 100, 2) : 0,
-                'cancellationRate' => $count ? round(((int) $row->cancelled / $count) * 100, 2) : 0,
-                'returnRate' => $count ? round(((int) ($returns[$key] ?? 0) / $count) * 100, 2) : 0];
+        if (! $currency) {
+            return [];
         }
-        return $result;
+        $date = DB::connection()->getDriverName() === 'sqlite' ? 'date(orders.created_at)' : 'CAST(orders.created_at AS DATE)';
+
+        return DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$filters['from'], $filters['to']])->where('currency', $currency)
+            ->groupBy(DB::raw($date))->orderBy(DB::raw($date))
+            ->selectRaw("{$date} as period, SUM(CASE WHEN status != 'cancelled' THEN total_amount ELSE 0 END) as gmv, COUNT(*) as total_orders, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_orders")
+            ->get()->map(fn ($r) => ['period' => $r->period, 'gmv' => (float) $r->gmv,
+                'cancellationRate' => (int) $r->total_orders > 0 ? round(((int) $r->cancelled_orders / (int) $r->total_orders) * 100, 2) : null,
+                'fulfilmentRate' => null, 'returnRate' => null])->all();
     }
 
-    public function paginate(array $filters, CarbonImmutable $from, CarbonImmutable $to, ?string $currency): LengthAwarePaginator
+    public function financial(array $filters, ?string $currency): array
     {
-        $orders = DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$from, $to]);
-        if ($currency) $orders->where('currency', $currency);
-        $orderStats = $orders->groupBy('supplier_id')->selectRaw("supplier_id, COUNT(*) AS orders, SUM(CASE WHEN status != 'cancelled' THEN total_amount ELSE 0 END) AS gmv, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled, MAX(created_at) AS last_order_at");
-        $products = DB::table('products')->whereNull('deleted_at')->where('status', 'active')->where('approval_status', 'approved')->groupBy('supplier_id')->selectRaw('supplier_id, COUNT(*) AS listings');
-        $returns = Schema::hasTable('return_cases') ? DB::table('return_cases')->join('orders as return_orders', 'return_orders.id', '=', 'return_cases.order_id')->whereNull('return_cases.deleted_at')->whereBetween('return_cases.created_at', [$from, $to]) : null;
-        if ($returns && $currency) $returns->where('return_orders.currency', $currency);
-        if ($returns) $returns->groupBy('return_cases.supplier_id')->selectRaw('return_cases.supplier_id, COUNT(*) AS returns');
-        $risk = Schema::hasTable('risk_profiles') ? DB::table('risk_profiles as profiles')->joinSub(
-            DB::table('risk_profiles')->whereNull('deleted_at')->where('status', 'active')->whereIn('subject_type', self::SUPPLIER_TYPES)->groupBy('subject_id')->selectRaw('subject_id, MAX(id) AS id'),
-            'latest_risk', 'latest_risk.id', '=', 'profiles.id'
-        )->select(['profiles.subject_id', 'profiles.risk_level', 'profiles.risk_score']) : null;
-
-        $query = DB::table('suppliers')->leftJoinSub($orderStats, 'order_stats', 'order_stats.supplier_id', '=', 'suppliers.id')->leftJoinSub($products, 'product_stats', 'product_stats.supplier_id', '=', 'suppliers.id');
-        if ($returns) $query->leftJoinSub($returns, 'return_stats', 'return_stats.supplier_id', '=', 'suppliers.id');
-        if ($risk) $query->leftJoinSub($risk, 'risk_stats', 'risk_stats.subject_id', '=', 'suppliers.id');
-        $query->select(['suppliers.*', DB::raw('COALESCE(order_stats.orders, 0) AS order_count'), DB::raw('COALESCE(order_stats.gmv, 0) AS gmv'), DB::raw('COALESCE(order_stats.completed, 0) AS completed_count'), DB::raw('COALESCE(order_stats.cancelled, 0) AS cancelled_count'), 'order_stats.last_order_at', DB::raw('COALESCE(product_stats.listings, 0) AS listing_count'), DB::raw($returns ? 'COALESCE(return_stats.returns, 0) AS return_count' : '0 AS return_count'), DB::raw($risk ? 'risk_stats.risk_level AS risk_level' : 'NULL AS risk_level'), DB::raw($risk ? 'risk_stats.risk_score AS profile_risk_score' : 'NULL AS profile_risk_score')]);
-        $this->applyFilters($query, $filters, $from, $to);
-        $sorts = ['name' => 'suppliers.company_name', 'orders' => 'order_count', 'gmv' => 'gmv', 'rating' => 'suppliers.rating', 'risk' => 'profile_risk_score', 'updatedAt' => 'suppliers.updated_at'];
-        return $query->orderBy($sorts[$filters['sortBy']], $filters['sortDirection'])->orderBy('suppliers.id')->paginate($filters['perPage'], ['*'], 'page', $filters['page']);
-    }
-
-    public function find(int $id, CarbonImmutable $from, CarbonImmutable $to, ?string $currency): ?object
-    {
-        $page = $this->paginate(['status' => 'all', 'sortBy' => 'updatedAt', 'sortDirection' => 'desc', 'perPage' => 100, 'page' => 1, 'sellerId' => $id], $from, $to, $currency);
-        return collect($page->items())->first(fn ($row) => (int) $row->id === $id);
-    }
-
-    public function alerts(): array
-    {
-        if (! Schema::hasTable('risk_events')) return [];
-        return DB::table('risk_events')->leftJoin('risk_profiles', 'risk_profiles.id', '=', 'risk_events.risk_profile_id')
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'risk_events.subject_id')->whereIn('risk_events.subject_type', self::SUPPLIER_TYPES)->where('risk_events.status', 'open')
-            ->latest('risk_events.created_at')->limit(8)->get(['risk_events.id', 'risk_events.event_type', 'risk_events.subject_id', 'risk_events.created_at', 'risk_profiles.risk_level', 'risk_profiles.risk_score', 'suppliers.company_name'])
-            ->map(fn ($row) => ['id' => (string) $row->id, 'title' => str($row->event_type)->headline()->toString(), 'sellerId' => (string) $row->subject_id, 'sellerName' => $row->company_name, 'riskLevel' => $row->risk_level, 'riskScore' => $row->risk_score === null ? null : (float) $row->risk_score, 'createdAt' => (string) $row->created_at])->all();
-    }
-
-    private function applyFilters(Builder $query, array $filters, CarbonImmutable $from, CarbonImmutable $to): void
-    {
-        if (! empty($filters['sellerId'])) $query->where('suppliers.id', $filters['sellerId']);
-        if (! empty($filters['search'])) {
-            $term = '%'.strtolower($filters['search']).'%';
-            $query->where(function ($q) use ($filters, $term): void {
-                $q->whereRaw('LOWER(suppliers.company_name) LIKE ?', [$term])->orWhereRaw('LOWER(suppliers.email) LIKE ?', [$term]);
-                if (ctype_digit((string) $filters['search'])) $q->orWhere('suppliers.id', (int) $filters['search']);
-            });
+        if (! $currency) {
+            return ['available' => false, 'reason' => 'currency_selection_required'];
         }
-        if (! empty($filters['verificationStatus'])) $query->where('suppliers.verification_status', $filters['verificationStatus']);
-        if (! empty($filters['riskLevel'])) $query->where('risk_stats.risk_level', $filters['riskLevel']);
+        $base = DB::table('supplier_settlements')->whereNull('deleted_at')->where('currency', $currency)
+            ->whereDate('period_end', '>=', $filters['from']->toDateString())->whereDate('period_end', '<=', $filters['to']->toDateString());
+
+        return ['available' => true, 'currency' => $currency, 'total' => (float) (clone $base)->sum('net_amount'),
+            'pending' => (float) (clone $base)->whereIn('status', ['draft', 'pending', 'approved'])->sum('net_amount'),
+            'exceptions' => (float) (clone $base)->whereIn('status', ['failed', 'exception'])->sum('net_amount'),
+            'refundLiability' => (float) (clone $base)->sum('refund_adjustment')];
+    }
+
+    private function baseQuery(array $filters): Builder
+    {
+        $orders = DB::table('orders')->whereNull('deleted_at')->whereBetween('created_at', [$filters['from'], $filters['to']]);
+        if ($filters['currency'] ?? null) {
+            $orders->where('currency', $filters['currency']);
+        }
+        $orders->groupBy('supplier_id')->selectRaw("supplier_id, COUNT(*) as order_count, SUM(CASE WHEN status != 'cancelled' THEN 1 ELSE 0 END) as qualifying_order_count, SUM(CASE WHEN status != 'cancelled' THEN total_amount ELSE 0 END) as gmv, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_orders, MAX(updated_at) as last_order_at");
+        $listings = DB::table('products')->whereNull('deleted_at')->where('status', 'active')->where('approval_status', 'approved')->groupBy('supplier_id')->selectRaw('supplier_id, COUNT(*) as active_listings');
+
+        return DB::table('suppliers')->leftJoinSub($orders, 'seller_orders', 'seller_orders.supplier_id', '=', 'suppliers.id')
+            ->leftJoinSub($listings, 'seller_listings', 'seller_listings.supplier_id', '=', 'suppliers.id')
+            ->select(['suppliers.id', 'suppliers.company_name', 'suppliers.business_type', 'suppliers.country', 'suppliers.verification_status', 'suppliers.compliance_status', 'suppliers.status', 'suppliers.rating', 'suppliers.reviews_count', 'suppliers.risk_score', 'suppliers.updated_at',
+                DB::raw('COALESCE(seller_listings.active_listings, 0) as active_listings'), DB::raw('COALESCE(seller_orders.order_count, 0) as order_count'), DB::raw('COALESCE(seller_orders.qualifying_order_count, 0) as qualifying_order_count'), DB::raw('COALESCE(seller_orders.gmv, 0) as gmv'), DB::raw('COALESCE(seller_orders.cancelled_orders, 0) as cancelled_orders'), 'seller_orders.last_order_at']);
+    }
+
+    private function applyFilters(Builder $query, array $filters): void
+    {
+        $this->applyContext($query, $filters);
         match ($filters['status'] ?? 'all') {
-            'active' => $query->where('suppliers.status', 'active')->where('suppliers.verification_status', 'verified')->whereNull('suppliers.suspended_at'),
-            'under-review' => $query->where('suppliers.verification_status', 'pending'),
-            'inactive' => $query->where('suppliers.status', 'inactive'),
-            'suspended' => $query->whereNotNull('suppliers.suspended_at'),
-            'high-risk' => $query->whereIn('risk_stats.risk_level', ['high', 'critical']),
-            'new' => $query->whereBetween('suppliers.created_at', [$from, $to]),
-            default => null,
+            'active' => $query->where('suppliers.status', 'active'), 'under-review' => $query->where('suppliers.verification_status', 'pending'),
+            'suspended' => $query->where('suppliers.status', 'inactive'),
+            'high-risk' => $query->whereExists(fn ($r) => $r->from('risk_profiles')->whereColumn('risk_profiles.subject_id', 'suppliers.id')->whereIn('risk_profiles.subject_type', self::SUPPLIER_SUBJECTS)->whereIn('risk_profiles.risk_level', ['high', 'critical'])->where('risk_profiles.status', 'active')->whereNull('risk_profiles.deleted_at')),
+            'new' => $query->whereBetween('suppliers.created_at', [now()->startOfMonth(), now()->endOfMonth()]), default => null,
         };
+        if ($risk = $filters['riskLevel'] ?? null) {
+            $query->whereExists(fn ($r) => $r->from('risk_profiles')->whereColumn('risk_profiles.subject_id', 'suppliers.id')->whereIn('risk_profiles.subject_type', self::SUPPLIER_SUBJECTS)->where('risk_profiles.risk_level', $risk)->where('risk_profiles.status', 'active')->whereNull('risk_profiles.deleted_at'));
+        }
+    }
+
+    private function applyContext(Builder $query, array $filters): void
+    {
+        if ($search = $filters['search'] ?? null) {
+            $term = '%'.mb_strtolower($search).'%';
+            $query->where(fn ($q) => $q->whereRaw('LOWER(suppliers.company_name) LIKE ?', [$term])->orWhereRaw('CAST(suppliers.id AS TEXT) LIKE ?', [$term]));
+        }
+        if ($value = $filters['verificationStatus'] ?? null) {
+            $query->where('suppliers.verification_status', $value);
+        }
+        if ($value = $filters['businessType'] ?? null) {
+            $query->where('suppliers.business_type', $value);
+        }
+        if ($value = $filters['country'] ?? null) {
+            $query->where('suppliers.country', $value);
+        }
     }
 }

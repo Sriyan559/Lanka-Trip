@@ -60,7 +60,7 @@ export function ProductInventoryContextCard({
       <div className={styles.contextPanelRight}>
         {productId && (
           <Link
-            href={`/admin/catalogue/approvals/${productId}`}
+            href={`/admin/catalogue/product-approvals/${productId}`}
             className={styles.contextRedLink}
           >
             <ExternalLink size={14} /> View Product Approval Detail

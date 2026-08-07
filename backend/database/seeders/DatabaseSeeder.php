@@ -66,6 +66,7 @@ class DatabaseSeeder extends Seeder
             ProductImageSeeder::class,
             BannerSeeder::class,
             TrendingKeywordSeeder::class,
+            ReturnCaseSeeder::class,
         ]);
     }
 }

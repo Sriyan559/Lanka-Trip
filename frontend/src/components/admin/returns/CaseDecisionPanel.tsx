@@ -111,7 +111,7 @@ export function CaseDecisionPanel({
         </div>
       )}
 
-      {/* 3. Recommended  */}
+      {/* 3. Recommended Decision */}
       <div>
         <div className={styles.panelSectionTitle}>
           <Bot size={14} style={{ color: "#2563eb" }} />

@@ -46,7 +46,7 @@ export function ProductApprovalSection() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse whitespace-nowrap">
           <thead>
             <tr className="border-b border-line bg-white">
               <th className="py-2.5 px-2 text-[10px] font-bold text-muted w-8"><input type="checkbox" className="rounded border-line" /></th>

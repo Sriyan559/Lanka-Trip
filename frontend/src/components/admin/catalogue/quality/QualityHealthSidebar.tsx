@@ -68,7 +68,7 @@ export function QualityHealthSidebar() {
       />
 
       {/* Duplicate Summary */}
-      <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
+      <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
         <h3 className="text-[13px] font-bold text-ink mb-4">Duplicate Summary</h3>
         <div className="flex flex-col gap-2.5">
           {[
@@ -87,7 +87,7 @@ export function QualityHealthSidebar() {
       </div>
 
       {/* SLA Summary */}
-      <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
+      <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
         <h3 className="text-[13px] font-bold text-ink mb-4">SLA Summary</h3>
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-[11px]">

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import MarketplacePage from "@/app/admin/marketplace/page";
+import { chartMaximum, toChartNumber } from "@/components/admin/marketplace/command-center/MarketplaceCommandCenter";
 import { exportMarketplaceDashboard, fetchMarketplaceDashboard } from "@/services/api/marketplaceDashboardService";
 import type { DashboardMetric, MarketplaceDashboardData, TrendPoint } from "@/types/marketplaceDashboard";
 import { ADMIN_NAVIGATION } from "@/constants/adminNavigation";
@@ -51,11 +52,15 @@ describe("Marketplace Command Center", () => {
   });
 
   it("normalizes formatted backend values and calculates a zero-based chart scale", async () => {
+    expect(toChartNumber("USD 4,850.25")).toBe(4850.25);
+    expect(toChartNumber(Number.NaN)).toBe(0);
+    expect(chartMaximum([{ date: "2026-07-30", gmv: 4850, revenue: 1250, orders: 1 }])).toBe(5578);
+
     vi.mocked(fetchMarketplaceDashboard).mockResolvedValueOnce({
       ...fixture,
       trend: {
         availability: "available",
-        items: [{ date: "2026-07-30", gmv: 4850, revenue: 1250, orders: 1 }],
+        items: [{ date: "2026-07-30", gmv: "USD 4,850", revenue: "USD 1,250", orders: "1" } as unknown as TrendPoint],
       },
     });
     render(<MarketplacePage />);

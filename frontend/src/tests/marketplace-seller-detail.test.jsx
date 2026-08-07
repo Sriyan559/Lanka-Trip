@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SellerPerformanceDetailView } from "@/components/admin/marketplace/sellers/detail/SellerPerformanceDetailView";
-import { fetchMarketplaceSellerDetail } from "@/services/api/marketplaceSellerDetailService";
+import {render,screen} from "@testing-library/react";
+import {describe,expect,it,vi} from "vitest";
+import {SellerPerformanceDetailView} from "@/components/admin/marketplace/sellers/detail/SellerPerformanceDetailView";
 
-vi.mock("@/services/api/marketplaceSellerDetailService",()=>({fetchMarketplaceSellerDetail:vi.fn()}));
-const fixture={source:"database",generatedAt:"2026-08-06T10:00:00Z",context:{currency:"LKR",currencies:["LKR"]},permissions:{canView:true,canExport:true,canManage:true},seller:{id:"7",sellerCode:"SELL-00000007",name:"Database Seller",businessType:"Manufacturer",activeListings:3,orders:1,gmv:{amount:1000,currency:"LKR"},averageOrderValue:{amount:1000,currency:"LKR"},fulfilmentRate:100,cancellationRate:0,returnRate:0,rating:4.5,riskLevel:"low",verificationStatus:"verified",status:"active",lastActivityAt:"2026-08-06T10:00:00Z"},profile:{description:"Real supplier",country:"Sri Lanka",city:"Colombo",email:"seller@example.com",phone:null,website:null,complianceStatus:"approved"},unavailable:{performanceScore:"No approved composite performance formula exists.",sla:"No approved seller SLA source exists.",assignedManager:"No supplier-manager assignment exists."}};
+const unavailable={available:false,value:null,reason:"not_defined"};
+const data={seller:{id:"1",sellerCode:"SELL-00000001",name:"Database Seller",type:"Brand Owner",country:"Sri Lanka",status:"active",verificationStatus:"verified",riskLevel:"low",activeListings:4,orders:2,gmv:{available:true,value:500,currency:"USD"},aov:{available:true,value:250,currency:"USD"},fulfilmentRate:unavailable,cancellationRate:{available:true,value:0},returnRate:unavailable,rating:{available:true,value:4.5},slaBreaches:unavailable,policyFindings:unavailable,lastActivityAt:"2026-08-07T10:00:00Z"},health:{...unavailable,reason:"health_formula_not_defined"},scorecard:{...unavailable,reason:"scorecard_formula_not_defined"},sla:{...unavailable,reason:"sla_policy_not_defined"},permissions:{canView:true,canManage:false,canExport:true},meta:{dataAsOf:"2026-08-07T10:00:00Z",refreshIntervalSeconds:30}};
+vi.mock("@/services/api/marketplaceSellerDetailService",()=>({fetchMarketplaceSellerDetail:vi.fn(async()=>data)}));
+
 describe("Seller Performance Detail",()=>{
-  beforeEach(()=>vi.mocked(fetchMarketplaceSellerDetail).mockResolvedValue(fixture));
-  it("renders database seller details and metric definitions",async()=>{render(<SellerPerformanceDetailView sellerId="7"/>);expect(await screen.findByRole("heading",{name:"Database Seller"})).toBeInTheDocument();expect(screen.getAllByText("SELL-00000007")).toHaveLength(2);expect(screen.getByRole("heading",{name:"Seller profile"})).toBeInTheDocument();expect(screen.getByText(/No approved composite performance formula/)).toBeInTheDocument();expect(fetchMarketplaceSellerDetail).toHaveBeenCalledWith("7",{},expect.any(AbortSignal));});
+  it("renders the database API record and honest unsupported states",async()=>{render(<SellerPerformanceDetailView sellerId="1"/>);expect(await screen.findByRole("heading",{name:"Database Seller"})).toBeInTheDocument();expect(screen.getAllByText("SELL-00000001")).toHaveLength(2);expect(screen.getByText(/\$.*500/)).toBeInTheDocument();expect(screen.getAllByText(/Not available/).length).toBeGreaterThan(0)});
+  it("keeps unsupported mutations disabled",async()=>{render(<SellerPerformanceDetailView sellerId="1"/>);expect(await screen.findByRole("button",{name:"Suspend Seller"})).toBeDisabled();expect(screen.getByRole("button",{name:"Reactivate Seller"})).toBeDisabled()});
 });

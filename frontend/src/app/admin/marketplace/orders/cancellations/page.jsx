@@ -1,1 +1,4 @@
-import {Suspense} from "react";import{MarketplaceWorkspaceView}from"@/components/admin/marketplace/shared/MarketplaceWorkspaceView";export default function Page(){return <Suspense fallback={null}><MarketplaceWorkspaceView workspace="cancellations"/></Suspense>}
+import {Suspense} from "react";
+import CancellationManagementView from "@/components/admin/marketplace/orders/cancellations/CancellationManagementView";
+
+export default function CancellationManagementPage(){return <Suspense fallback={<div className="state">Loading cancellations…</div>}><CancellationManagementView/></Suspense>}

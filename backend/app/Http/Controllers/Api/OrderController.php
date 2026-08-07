@@ -9,6 +9,7 @@ use App\Http\Resources\OrderCollection;
 use App\Http\Resources\OrderResource;
 use App\Jobs\SendNotificationJob;
 use App\Models\Order;
+use App\Models\OrderStatusHistory;
 use App\Models\Quotation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -135,8 +136,15 @@ class OrderController extends Controller
             );
         }
 
-        DB::transaction(function () use ($order, $status): void {
+        $previousStatus = $order->status;
+        DB::transaction(function () use ($request, $order, $status, $previousStatus): void {
             $order->update(['status' => $status]);
+            OrderStatusHistory::create(['order_id' => $order->id, 'changed_by' => $request->user()->id,
+                'previous_status' => $previousStatus, 'new_status' => $status]);
+            DB::table('order_audit_logs')->insert(['order_id' => $order->id, 'user_id' => $request->user()->id,
+                'event' => 'order.status_changed', 'auditable_type' => Order::class, 'auditable_id' => $order->id,
+                'old_values' => json_encode(['status' => $previousStatus], JSON_THROW_ON_ERROR),
+                'new_values' => json_encode(['status' => $status], JSON_THROW_ON_ERROR), 'created_at' => now(), 'updated_at' => now()]);
         });
 
         SendNotificationJob::dispatch(

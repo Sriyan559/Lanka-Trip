@@ -1,2 +1,11 @@
-import {MarketplaceRecordDetailView} from "@/components/admin/marketplace/shared/MarketplaceRecordDetailView";
-export default async function Page({params}:{params:Promise<{returnId:string}>}){const{returnId}=await params;return <MarketplaceRecordDetailView kind="return" id={decodeURIComponent(returnId)}/>}
+import React from "react";
+import { ReturnDetailView } from "@/components/admin/returns/ReturnDetailView";
+
+interface PageProps {
+  params: Promise<{ returnId: string }>;
+}
+
+export default async function ReturnDetailPage({ params }: PageProps) {
+  const { returnId } = await params;
+  return <ReturnDetailView returnId={returnId} />;
+}

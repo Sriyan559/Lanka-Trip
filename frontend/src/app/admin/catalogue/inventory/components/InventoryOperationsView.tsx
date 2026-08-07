@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import { InventoryPageHeader } from "./InventoryPageHeader";
 import { InventoryKpisRow } from "./InventoryKpisRow";
 import { ProductInventoryContextCard } from "./ProductInventoryContextCard";
-import { CatalogueTopFilterBar } from "@/components/admin/catalogue/shared/CatalogueTopFilterBar";
 import { InventoryFiltersBar } from "./InventoryFiltersBar";
 import { InventoryTable, InventoryRowData } from "./InventoryTable";
 import { RightInventorySidebar } from "./RightInventorySidebar";
@@ -225,15 +224,12 @@ export function InventoryOperationsView({
       {/* Header */}
       <InventoryPageHeader
         productId={productId}
-        productRef={productData?.id}
-        dbId={productData?.id}
+        productRef={productData?.id || "PROD-2024-00421"}
+        dbId={productId || "421"}
         onCreateBatch={() => setShowCreateBatch(true)}
         onRecordAdjustment={() => setShowStockAdjustment(true)}
         onStartRecall={() => setShowRecallReview(true)}
       />
-
-      {/* Top Filter Bar */}
-      <CatalogueTopFilterBar />
 
       {/* Main Layout Grid */}
       <div className={styles.mainLayoutGrid}>

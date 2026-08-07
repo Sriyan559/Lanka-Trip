@@ -4,7 +4,6 @@ import React from "react";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 export interface SharedHealthMetric {
   label: string;
@@ -17,14 +16,13 @@ export interface SharedCircularHealthProps {
   score: number;
   statusText: string;
   linkText: string;
-  href?: string;
   layout?: "vertical" | "horizontal";
   metrics?: SharedHealthMetric[];
 }
 
-export function SharedCircularHealth({ title, score, statusText, linkText, href, layout = "vertical", metrics = [] }: SharedCircularHealthProps) {
+export function SharedCircularHealth({ title, score, statusText, linkText, layout = "vertical", metrics = [] }: SharedCircularHealthProps) {
   return (
-    <div className="bg-white rounded-xl border border-line p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-line p-5 shadow-sm">
       <h3 className="text-[13px] font-bold text-ink mb-4">{title}</h3>
       
       {layout === "vertical" ? (
@@ -86,15 +84,9 @@ export function SharedCircularHealth({ title, score, statusText, linkText, href,
         </div>
       )}
 
-      {href ? (
-        <Link href={href} className={`text-[11px] font-bold text-[#741d35] hover:underline w-full ${layout === 'vertical' ? 'text-center flex items-center justify-center gap-1 mt-4' : 'text-left flex items-center gap-1 mt-2'}`}>
-          {linkText} <ChevronRight size={12} />
-        </Link>
-      ) : (
-        <button className={`text-[11px] font-bold text-[#741d35] hover:underline w-full ${layout === 'vertical' ? 'text-center flex items-center justify-center gap-1 mt-4' : 'text-left flex items-center gap-1 mt-2'}`}>
-          {linkText} <ChevronRight size={12} />
-        </button>
-      )}
+      <button className={`text-[11px] font-bold text-[#741d35] hover:underline w-full ${layout === 'vertical' ? 'text-center flex items-center justify-center gap-1 mt-4' : 'text-left flex items-center gap-1 mt-2'}`}>
+        {linkText} <ChevronRight size={12} />
+      </button>
     </div>
   );
 }

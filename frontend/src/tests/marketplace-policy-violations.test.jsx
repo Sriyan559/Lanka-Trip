@@ -1,20 +1,35 @@
-import {fireEvent,render,screen} from "@testing-library/react";
-import {describe,expect,it,vi} from "vitest";
+import {render, screen} from "@testing-library/react";
+import {describe, expect, it, vi} from "vitest";
 import MarketplacePolicyViolationsPage from "@/app/admin/marketplace/policy-violations/page";
 import {ADMIN_NAVIGATION} from "@/constants/adminNavigation";
-import {fetchMarketplacePolicyViolations,recordPolicyViolationPreviewAction} from "@/services/api/marketplacePolicyViolationsService";
+import {fetchMarketplacePolicyViolations} from "@/services/api/marketplacePolicyViolationsService";
 
-vi.mock("next/navigation",()=>({useRouter:()=>({push:vi.fn()})}));
-vi.mock("recharts",()=>({ResponsiveContainer:({children})=><div data-testid="chart">{children}</div>,LineChart:({children})=><div>{children}</div>,CartesianGrid:()=>null,XAxis:()=>null,YAxis:()=>null,Tooltip:()=>null,Legend:()=>null,Line:()=>null,PieChart:({children})=><div>{children}</div>,Pie:({children})=><div>{children}</div>,Cell:()=>null}));
+const apiData = {
+  context: {dateFrom: "2026-07-09", dateTo: "2026-08-07", timezone: "Asia/Colombo"},
+  kpis: [{id: "total", label: "Total Cases", available: true, value: 1, definition: "filtered_count"}, {id: "overdue", label: "Overdue Cases", available: false, value: null, reason: "policy_case_sla_deadline_not_present"}],
+  trend: {available: true, items: [{period: "2026-08-07", createdCount: 1}]},
+  categories: {available: true, items: [{key: "counterfeit_claim", count: 1, percentage: 100}]},
+  sources: {available: true, items: [{key: "App\\Models\\Supplier", count: 1, percentage: 100}]},
+  statuses: {available: true, items: [{key: "open", count: 1, percentage: 100}]},
+  scorecard: {available: false, reason: "policy_health_formula_not_defined"}, openOverdue: {available: false, reason: "policy_case_sla_deadline_not_present"}, evidence: {available: false, reason: "policy_evidence_domain_not_present"}, enforcement: {available: false, reason: "enforcement_domain_not_present"}, repeatOffenders: {available: false, reason: "repeat_offender_rule_not_defined"}, appeals: {available: false, reason: "appeal_domain_not_present"}, health: {available: false, reason: "policy_health_formula_not_defined"}, sla: {available: false, reason: "policy_case_sla_deadline_not_present"}, impact: {available: false, reason: "enforcement_impact_domain_not_present"},
+  items: [{id: "41", caseCode: "POL-DB-041", category: "counterfeit_claim", status: "open", complianceStatus: "pending", severity: "high", policy: {name: "Authenticity Rule"}, source: {type: "Supplier", id: "9"}, assignedReviewer: {name: "Database Reviewer"}, noteCount: 2, createdAt: "2026-08-07T08:00:00Z", updatedAt: "2026-08-07T09:00:00Z"}],
+  permissions: {canView: true, canCreate: false, canUpdate: false, canEnforce: false, canExport: true, canViewInternalNotes: false},
+  meta: {page: 1, perPage: 25, total: 1, totalPages: 1, from: 1, to: 1, dataAsOf: "2026-08-07T10:00:00Z", refreshIntervalSeconds: 600},
+};
 
-describe("Marketplace Policy Violations",()=>{
-  it("loads the explicit frontend fixture and local audit event",async()=>{const data=await fetchMarketplacePolicyViolations();expect(data.source).toBe("frontend-fixture");expect(data.kpis).toHaveLength(12);expect(data.cases).toHaveLength(4);const event=await recordPolicyViolationPreviewAction("Review",[data.cases[0].id],"QA");expect(event.source).toBe("local-preview");expect(event.persisted).toBe(false)});
+vi.mock("next/navigation", () => ({useRouter: () => ({replace: vi.fn()}), usePathname: () => "/admin/marketplace/policy-violations", useSearchParams: () => new URLSearchParams()}));
+vi.mock("@/services/api/marketplacePolicyViolationsService", () => ({fetchMarketplacePolicyViolations: vi.fn(async () => apiData), exportMarketplacePolicyViolations: vi.fn()}));
+vi.mock("recharts", () => ({ResponsiveContainer: ({children}) => <div data-testid="chart">{children}</div>, LineChart: ({children}) => <div>{children}</div>, CartesianGrid: () => null, XAxis: () => null, YAxis: () => null, Tooltip: () => null, Line: () => null}));
 
-  it("registers a prefix-active Marketplace navigation item",()=>{const marketplace=ADMIN_NAVIGATION.find(item=>item.id==="marketplace");const item=marketplace.children.find(child=>child.id==="policy-violations");expect(item.href).toBe("/admin/marketplace/policy-violations")});
-
-  it("renders the complete dashboard and operational rail",async()=>{render(<MarketplacePolicyViolationsPage/>);expect(await screen.findByRole("heading",{name:"M14 — Marketplace Policy Violations"})).toBeInTheDocument();for(const heading of ["Policy Violation Trend","Violation Category Distribution","Policy Source Distribution","Policy Health Scorecard","Marketplace Policy Violation Cases","Open & Overdue Cases","Violation Category Summary","Evidence Status","Enforcement Actions","Repeat-Offender Analysis","Active Appeals","Marketplace Policy Health","Priority Policy Alerts","Violation Status Summary","Investigation SLA Summary","Enforcement Impact (This Month)","Quick Queues"]){expect(screen.getByRole("heading",{name:new RegExp(heading.replace(/[()]/g,"\\$&"))})).toBeInTheDocument()}});
-
-  it("filters cases and status tabs",async()=>{render(<MarketplacePolicyViolationsPage/>);await screen.findByRole("checkbox",{name:"Select POL-2026-00421"});fireEvent.change(screen.getByLabelText("Search policy cases"),{target:{value:"counterfeit"}});expect(screen.getByRole("checkbox",{name:"Select POL-2026-00418"})).toBeInTheDocument();expect(screen.queryByRole("checkbox",{name:"Select POL-2026-00421"})).not.toBeInTheDocument();fireEvent.change(screen.getByLabelText("Search policy cases"),{target:{value:""}});fireEvent.click(screen.getByRole("tab",{name:"Overdue"}));expect(screen.getByRole("checkbox",{name:"Select POL-2026-00418"})).toBeInTheDocument()});
-
-  it("supports selection, comparison, columns, and create validation",async()=>{render(<MarketplacePolicyViolationsPage/>);const first=await screen.findByRole("checkbox",{name:"Select POL-2026-00421"});const second=screen.getByRole("checkbox",{name:"Select POL-2026-00418"});const compare=screen.getByRole("button",{name:/Compare Cases/});expect(compare).toBeDisabled();fireEvent.click(first);fireEvent.click(second);expect(compare).toBeEnabled();fireEvent.click(screen.getByRole("button",{name:/Columns/}));expect(screen.getByRole("dialog",{name:"Column Visibility"})).toBeInTheDocument();fireEvent.click(screen.getByRole("button",{name:"Cancel"}));fireEvent.click(screen.getByRole("button",{name:/Create Policy Case/}));expect(screen.getByRole("dialog",{name:"Create Policy Case"})).toBeInTheDocument();fireEvent.click(screen.getByRole("button",{name:"Confirm"}));expect(screen.getByRole("dialog",{name:"Create Policy Case"})).toBeInTheDocument()});
+describe("Marketplace Policy Violations", () => {
+  it("registers the Marketplace navigation item", () => {const marketplace = ADMIN_NAVIGATION.find(item => item.id === "marketplace"); expect(marketplace.children.find(child => child.id === "policy-violations").href).toBe("/admin/marketplace/policy-violations");});
+  it("renders real API records and makes unsupported operations explicit", async () => {
+    render(<MarketplacePolicyViolationsPage/>);
+    expect(await screen.findByRole("heading", {name: "Marketplace Policy Violations"})).toBeInTheDocument();
+    expect(screen.getByText("POL-DB-041")).toBeInTheDocument();
+    expect(screen.getByText("Database Reviewer")).toBeInTheDocument();
+    expect(screen.getByRole("button", {name: "Create Policy Case"})).toBeDisabled();
+    expect(screen.getAllByText(/Not available -/).length).toBeGreaterThan(3);
+    expect(fetchMarketplacePolicyViolations).toHaveBeenCalled();
+  });
 });

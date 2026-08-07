@@ -42,7 +42,7 @@ export function QualityIssuesTableSection() {
         </div>
 
         {/* Quick Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
            {[
              { label: "Assigned to Me", icon: User, active: true },
              { label: "Critical", icon: AlertTriangle, active: false },
@@ -61,8 +61,8 @@ export function QualityIssuesTableSection() {
         </div>
       </div>
 
-      <div className="overflow-x-auto w-full">
-        <table className="w-full text-left border-collapse min-w-[1200px]">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse whitespace-nowrap">
           <thead>
             <tr className="border-b border-line bg-slate-50/50">
               <th className="py-2.5 px-3 text-[10px] font-bold text-muted w-8"><input type="checkbox" className="rounded border-line" /></th>
