@@ -68,9 +68,16 @@ export function CustomerLifecycleJourney({
                 </div>
 
                 {/* Stage Label */}
-                <span className="text-[10px] font-bold text-slate-800 mt-2 leading-tight block text-center max-w-[80px] break-words group-hover:text-[#671021] transition-colors">
+                <span className="text-[10px] font-bold text-slate-800 mt-2 leading-tight block text-center max-w-[80px] break-words group-hover:text-[#8F002B] transition-colors">
                   {node.label}
                 </span>
+
+                {/* Node Count */}
+                {node.count !== undefined && (
+                  <span className="mt-0.5 text-[9px] font-mono font-bold text-[#8F002B] block text-center">
+                    {node.count}
+                  </span>
+                )}
 
                 {/* Stage Date */}
                 {node.date && (

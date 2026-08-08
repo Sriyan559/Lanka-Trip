@@ -89,4 +89,44 @@ export interface LifecycleNode {
   status: "Completed" | "Current" | "Warning" | "Critical" | "Upcoming";
   stepNumber: number;
   date?: string;
+  count?: string | number;
 }
+
+export interface CustomerHealthMetricItem {
+  label: string;
+  val: number;
+  color?: string;
+  target?: string;
+}
+
+export interface CustomerTabItem {
+  id: string;
+  label: string;
+  count?: number | string;
+  badge?: string;
+}
+
+export interface CustomerRightRailSectionData {
+  healthScore: number;
+  healthGrade: string;
+  healthTitle?: string;
+  healthBars: { label: string; val: number }[];
+  alertsTitle?: string;
+  alerts: { id: string; text: string; count?: number; severity: "High" | "Medium" | "Low" }[];
+  summaries?: { title: string; items: { label: string; count: string; pct: string; color?: string }[] }[];
+  quickQueues: { label: string; count: string | number }[];
+  actions: { label: string; primary?: boolean; variant?: "primary" | "secondary" | "outline" | "danger"; actionKey?: string }[];
+}
+
+export interface CustomerOperationCard {
+  id: string;
+  title: string;
+  seq?: string | number;
+  metrics?: { label: string; value: string | number; change?: string; color?: string }[];
+  donutData?: { name: string; value: number; color: string }[];
+  donutTotal?: string | number;
+  listItems?: { label: string; val: string | number; pct?: string; badge?: string; color?: string }[];
+  progressBars?: { label: string; val: number; color?: string }[];
+  viewLinkText?: string;
+}
+
