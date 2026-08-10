@@ -61,13 +61,13 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           {ADMIN_NAVIGATION.map((item) => {
             const Icon = item.icon;
             const isActive = activeParentId === item.id;
-            const activeChildHref = item.children
+            const activeChildId = item.children
               ?.filter(
                 (child) =>
                   pathname === child.href ||
                   (!child.exact && pathname.startsWith(`${child.href}/`)),
               )
-              .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+              .sort((a, b) => b.href.length - a.href.length)[0]?.id;
 
             if (item.disabled || !item.href) {
               return (
@@ -100,11 +100,11 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                 </Link>
                 {item.children && isActive && (
                   <div className="sidebar-subnav">
-                    {item.children.map((child) => {
-                      const childActive = activeChildHref === child.href;
+                    {item.children.map((child, idx) => {
+                      const childActive = activeChildId === child.id;
                       return (
                         <Link
-                          key={child.href}
+                          key={`${child.id || child.href}-${idx}`}
                           href={child.href}
                           className={`sidebar-subnav-link ${
                             childActive ? 'active' : ''
