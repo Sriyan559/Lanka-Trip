@@ -10,3 +10,10 @@ backend/.env
 
 # Logs
 *.log
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+backend/sl_beauty_platform
+
