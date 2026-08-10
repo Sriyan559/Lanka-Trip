@@ -7,6 +7,10 @@ import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { verificationComplianceApi } from '@/lib/api/verificationCompliance';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Domain', value: 'Product Recalls & Incidents' },
@@ -57,6 +61,17 @@ export default function RecallCommandCenterPage() {
             <KpiCard key={kpi.index} {...kpi} />
           ))}
         </DashboardGrid>
+
+        {/* RECALL ANALYTICS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Recall &amp; Safety Incident Trend (30 Days)" subtitle="Historical safety incidents and active recall campaigns" loading={loading}>
+            <TrendChart data={data?.trend || []} colors={['#dc2626', '#f59e0b', '#2563eb']} />
+          </ChartCard>
+
+          <ChartCard title="Incident Classification Distribution" subtitle="Incident breakdown by severity &amp; category" loading={loading}>
+            <DonutDistributionChart data={data?.donut || []} totalLabel="Incidents" totalValue={(data?.donut || []).reduce((a: any, c: any) => a + (c.value || 0), 0).toLocaleString()} />
+          </ChartCard>
+        </div>
 
         <div className="bg-white border border-gray-200 rounded-md shadow-sm flex flex-col mt-4">
           <div className="p-3 border-b border-gray-100 flex items-center justify-between">

@@ -7,6 +7,10 @@ import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { brandsSuppliersApi } from '@/lib/api/brandsSuppliers';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Ecosystem', value: 'Beauty Marketplace' },
@@ -60,8 +64,15 @@ export default function SupplierUsersAccessPage() {
           ))}
         </DashboardGrid>
 
-        <div className="bg-white border border-gray-200 rounded-md p-6 mt-2 text-center text-xs text-gray-500">
-          User access and role assignments loaded live from database context.
+        {/* ACCESS ANALYTICS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Supplier Access Activity Trend (30 Days)" subtitle="User logins and active sessions trajectory" loading={loading}>
+            <TrendChart data={data?.trend || []} colors={['#2563eb', '#16a34a']} />
+          </ChartCard>
+
+          <ChartCard title="User Role Distribution" subtitle="Role breakdown" loading={loading}>
+            <DonutDistributionChart data={data?.donut || []} totalLabel="Users" totalValue={(data?.donut || []).reduce((a: any, c: any) => a + (c.value || 0), 0).toLocaleString()} />
+          </ChartCard>
         </div>
       </div>
 

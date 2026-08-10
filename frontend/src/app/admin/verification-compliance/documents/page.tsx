@@ -14,6 +14,8 @@ import { TrendChart } from '@/components/admin/shared/TrendChart';
 import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
 import { verificationComplianceApi } from '@/lib/api/verificationCompliance';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Ecosystem', value: 'Beauty Marketplace' },
@@ -103,37 +105,19 @@ export default function DocumentVerificationPage() {
           })}
         </DashboardGrid>
 
-        {/* Tabs & Filters */}
-        <Tabs tabs={TABS} activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); setPage(1); }} />
-        
-        <FilterToolbar 
-          searchPlaceholder="Search document number or type..."
-          searchValue={search}
-          onSearchChange={setSearch}
-          onSearchSubmit={() => { setPage(1); fetchDashboard(); }}
-          filters={[]}
-          onClearAll={() => { setSearch(''); setActiveTab('overview'); setPage(1); }}
-        />
-
         {/* Dynamic Charts Section */}
-        <div className="grid grid-cols-2 gap-4 my-4">
-          <div className="bg-white border border-gray-200 rounded-md p-4 shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold text-gray-900">Document Verification Velocity (30 Days)</h3>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
+          <ChartCard title="Document Verification Velocity (30 Days)" subtitle="Daily submitted and verified regulatory dossiers" loading={loading}>
             <TrendChart data={trend} colors={['#2563eb', '#16a34a']} />
-          </div>
+          </ChartCard>
 
-          <div className="bg-white border border-gray-200 rounded-md p-4 shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold text-gray-900">Document Categories</h3>
-            </div>
+          <ChartCard title="Document Categories" subtitle="Distribution by document classification" loading={loading}>
             <DonutDistributionChart 
               data={donut} 
               totalLabel="Total Documents" 
-              totalValue={donut.reduce((acc: number, d: any) => acc + (d.value || 0), 0)} 
+              totalValue={donut.reduce((acc: number, d: any) => acc + (d.value || 0), 0).toLocaleString()} 
             />
-          </div>
+          </ChartCard>
         </div>
 
         {/* Documents Table */}

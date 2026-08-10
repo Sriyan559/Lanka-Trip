@@ -122,6 +122,29 @@ export default function SupplierManagementPage() {
           })}
         </DashboardGrid>
 
+        {/* FULL ANALYTICS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 my-2">
+          <div className="lg:col-span-2 bg-white border border-gray-200 rounded-md p-3 shadow-sm min-h-[260px] flex flex-col justify-between">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-xs font-bold text-gray-900">Supplier Onboarding Trend (30 Days)</h3>
+              <select className="text-[10px] bg-canvas border border-line rounded px-2 py-0.5 text-muted font-medium focus:outline-none">
+                <option value="30d">Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+              </select>
+            </div>
+            <TrendChart data={dashboardData?.trend || []} colors={['#0284c7', '#16a34a', '#d97706']} />
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-md p-3 shadow-sm min-h-[260px] flex flex-col justify-between">
+            <h3 className="text-xs font-bold text-gray-900 mb-2">Supplier Composition Distribution</h3>
+            <DonutDistributionChart 
+              data={dashboardData?.composition || []} 
+              totalLabel="Suppliers" 
+              totalValue={(dashboardData?.composition || []).reduce((acc: number, curr: any) => acc + (curr.value || 0), 0).toLocaleString()} 
+            />
+          </div>
+        </div>
+
         {/* Tabs & Filters */}
         <Tabs tabs={TABS} activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); setPage(1); }} />
         

@@ -7,6 +7,10 @@ import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { verificationComplianceApi } from '@/lib/api/verificationCompliance';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Domain', value: 'Governance & Rules' },
@@ -57,8 +61,15 @@ export default function ComplianceGovernancePage() {
           ))}
         </DashboardGrid>
 
-        <div className="bg-white border border-gray-200 rounded-md p-6 mt-2 text-center text-xs text-gray-500">
-          Governance rule enforcement engine active and linked to live database.
+        {/* GOVERNANCE ANALYTICS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Governance Activity Trend (30 Days)" subtitle="Rule publications, policy updates &amp; escalations" loading={loading}>
+            <TrendChart data={data?.trend || []} colors={['#2563eb', '#16a34a', '#f59e0b']} />
+          </ChartCard>
+
+          <ChartCard title="Rule Domain Distribution" subtitle="Active rule breakdown by domain" loading={loading}>
+            <DonutDistributionChart data={data?.donut || []} totalLabel="Rules" totalValue={(data?.donut || []).reduce((a: any, c: any) => a + (c.value || 0), 0).toLocaleString()} />
+          </ChartCard>
         </div>
       </div>
 

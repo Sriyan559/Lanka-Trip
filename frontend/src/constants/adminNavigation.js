@@ -41,10 +41,11 @@ export const ADMIN_NAVIGATION = [
     {id:"users-access",label:"Supplier Users & Access",href:"/admin/brands-suppliers/users-access"},
     {id:"import-export-audit",label:"Import, Export & Audit",href:"/admin/brands-suppliers/import-export-audit"},
   ]},
-  {id:"verification",label:"Verification & Compliance",href:"/admin/verification-compliance/documents",icon:ShieldCheck,children:[
+  {id:"verification",label:"Verification & Compliance",href:"/admin/verification-compliance",icon:ShieldCheck,children:[
     {id:"command-center",label:"Command Center",href:"/admin/verification-compliance",exact:true},
-    {id:"supplier-verification",label:"Supplier Verification",href:"/admin/brands-suppliers/verification"},
-    {id:"brand-authorizations",label:"Brand Authorizations",href:"/admin/brands-suppliers/authorizations"},
+    {id:"supplier-verification",label:"Supplier Verification",href:"/admin/verification-compliance/supplier-verification"},
+    {id:"brand-authorizations",label:"Brand Authorizations",href:"/admin/verification-compliance/brand-authorizations"},
+    {id:"compliance-cases",label:"Compliance Cases",href:"/admin/verification-compliance/cases"},
     {id:"document-verification",label:"Document Verification",href:"/admin/verification-compliance/documents"},
     {id:"product-safety",label:"Product Safety & Regulatory",href:"/admin/verification-compliance/product-safety"},
     {id:"authenticity-investigations",label:"Authenticity Investigations",href:"/admin/verification-compliance/authenticity"},

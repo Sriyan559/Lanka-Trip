@@ -12,6 +12,10 @@ import { Tabs } from '@/components/admin/shared/Tabs';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { brandsSuppliersApi } from '@/lib/api/brandsSuppliers';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Ecosystem', value: 'Beauty Marketplace' },
@@ -88,6 +92,17 @@ export default function SupplierCatalogueCoveragePage() {
             return <KpiCard key={kpi.index} {...kpi} icon={IconComponent} />;
           })}
         </DashboardGrid>
+
+        {/* CATALOGUE COVERAGE CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Supplier Catalogue Growth &amp; Readiness Trend (30 Days)" subtitle="Historical SKU additions and publication readiness" loading={loading}>
+            <TrendChart data={dashboardData?.trend || []} colors={['#2563eb', '#16a34a', '#dc2626']} />
+          </ChartCard>
+
+          <ChartCard title="Supplier Catalogue Composition" subtitle="Product breakdown by category &amp; brand" loading={loading}>
+            <DonutDistributionChart data={dashboardData?.donut || []} totalLabel="SKUs" totalValue={(dashboardData?.donut || []).reduce((a: any, c: any) => a + (c.value || 0), 0).toLocaleString()} />
+          </ChartCard>
+        </div>
 
         {/* Tabs & Filters */}
         <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />

@@ -12,6 +12,11 @@ import { Tabs } from '@/components/admin/shared/Tabs';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { brandsSuppliersApi } from '@/lib/api/brandsSuppliers';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+import { HorizontalStatusChart } from '@/components/admin/shared/HorizontalStatusChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Ecosystem', value: 'Beauty Marketplace' },
@@ -103,6 +108,17 @@ export default function SupplierContractsPage() {
             return <KpiCard key={kpi.index} {...kpi} icon={IconComponent} />;
           })}
         </DashboardGrid>
+
+        {/* CONTRACT ANALYTICS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Contract Operations Trend (30 Days)" subtitle="Historical contract creations, approvals and renewals" loading={loading}>
+            <TrendChart data={dashboardData?.trend || []} colors={['#16a34a', '#2563eb', '#f59e0b', '#dc2626']} />
+          </ChartCard>
+
+          <ChartCard title="Contract Status Distribution" subtitle="Portfolio distribution by legal status" loading={loading}>
+            <DonutDistributionChart data={dashboardData?.donut || []} totalLabel="Contracts" totalValue={(dashboardData?.donut || []).reduce((a: any, c: any) => a + (c.value || 0), 0).toLocaleString()} />
+          </ChartCard>
+        </div>
 
         {/* Tabs & Filters */}
         <Tabs tabs={TABS} activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); setPage(1); }} />
