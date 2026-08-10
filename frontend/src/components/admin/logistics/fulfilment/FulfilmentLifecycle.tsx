@@ -5,92 +5,83 @@ import { CheckCircle2 } from "lucide-react";
 
 export function FulfilmentLifecycle() {
   const stages = [
-    { name: "Fulfilment Created", state: "completed", time: "May 25 18:36" },
-    { name: "Order Validated", state: "completed", time: "May 25 18:37" },
-    { name: "Inventory Checked", state: "completed", time: "May 25 18:38" },
-    { name: "Reservation Created", state: "completed", time: "May 25 18:39" },
-    { name: "Allocation Completed", state: "completed", time: "May 25 18:40" },
-    { name: "Warehouse Confirmed", state: "completed", time: "May 25 18:42" },
-    { name: "Picking Started", state: "completed", time: "May 25 08:45" },
-    { name: "Picking Completed", state: "completed", time: "May 25 09:32" },
-    { name: "Packing Started", state: "current", time: "May 25 09:55" },
-    { name: "Packing Completed", state: "pending" },
-    { name: "Quality Check Completed", state: "pending" },
-    { name: "Ready for Dispatch", state: "pending" },
-    { name: "Shipment Created", state: "pending" },
-    { name: "Handoff Ready", state: "pending" },
-    { name: "Fulfilment Completed", state: "pending" },
-    { name: "Closed", state: "pending" },
-    { name: "Archived", state: "pending" },
+    { num: 1, name: "Fulfilment Created", state: "completed", time: "May 25 18:36" },
+    { num: 2, name: "Order Validated", state: "completed", time: "May 25 18:37" },
+    { num: 3, name: "Inventory Checked", state: "completed", time: "May 25 18:38" },
+    { num: 4, name: "Reservation Created", state: "completed", time: "May 25 18:39" },
+    { num: 5, name: "Allocation Completed", state: "completed", time: "May 25 18:40" },
+    { num: 6, name: "Warehouse Confirmed", state: "completed", time: "May 25 18:42" },
+    { num: 7, name: "Picking Started", state: "completed", time: "May 25 08:45" },
+    { num: 8, name: "Picking Completed", state: "completed", time: "May 25 09:32" },
+    { num: 9, name: "Packing Started", state: "current", time: "May 25 09:55" },
+    { num: 10, name: "Packing Completed", state: "pending" },
+    { num: 11, name: "Quality Check Completed", state: "pending" },
+    { num: 12, name: "Ready for Dispatch", state: "pending" },
+    { num: 13, name: "Shipment Created", state: "pending" },
+    { num: 14, name: "Handoff Ready", state: "pending" },
+    { num: 15, name: "Fulfilment Completed", state: "pending" },
+    { num: 16, name: "Closed", state: "pending" },
+    { num: 17, name: "Archived", state: "pending" },
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 text-[10px]">
       <div className="flex items-center justify-between">
-        <h4 className="text-[11px] font-bold text-ink uppercase tracking-wider">
+        <h4 className="text-[10px] font-bold text-ink uppercase tracking-wider">
           Customer Fulfilment / Logistics Lifecycle
         </h4>
-        <div className="flex items-center gap-3 text-[10px] text-muted font-medium">
+        <div className="flex items-center gap-3 text-[9px] text-muted font-medium">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-emerald-600" /> Completed
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-600" /> InProgress
+            <span className="w-2 h-2 rounded-full bg-blue-600" /> In Progress
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-gray-300" /> Pending
+            <span className="w-2 h-2 rounded-full bg-gray-200 border border-gray-400" /> Pending
           </span>
         </div>
       </div>
 
-      <div className="overflow-x-auto scrollbar-thin pb-3 pt-2">
-        <div className="flex items-center min-w-[1100px] px-2">
+      <div className="overflow-x-auto scrollbar-thin pb-2">
+        <div className="flex items-start min-w-[1500px] justify-between px-2 pt-2 relative">
+          {/* Connecting Line */}
+          <div className="absolute top-5 left-8 right-8 h-0.5 bg-gray-200 z-0" />
+
           {stages.map((stage, idx) => {
             const isCompleted = stage.state === "completed";
             const isCurrent = stage.state === "current";
 
             return (
-              <div key={idx} className="flex items-center flex-1 relative group">
-                {/* Connecting horizontal line */}
-                {idx < stages.length - 1 && (
-                  <div
-                    className={`absolute left-4 top-3.5 right-0 h-0.5 z-0 ${
-                      isCompleted ? "bg-emerald-500" : "bg-gray-200"
-                    }`}
-                  />
-                )}
+              <div key={idx} className="flex flex-col items-center z-10 w-[82px] flex-shrink-0 text-center space-y-1">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[9px] shadow-xs transition-transform hover:scale-110 ${
+                    isCompleted
+                      ? "bg-emerald-600 text-white ring-2 ring-emerald-100"
+                      : isCurrent
+                      ? "bg-blue-600 text-white ring-4 ring-blue-100 animate-pulse font-extrabold"
+                      : "bg-gray-100 text-gray-400 border border-gray-300"
+                  }`}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 size={12} />
+                  ) : isCurrent ? (
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                  ) : (
+                    stage.num
+                  )}
+                </div>
 
-                <div className="flex flex-col items-center gap-1.5 z-10 w-full text-center">
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] transition-transform group-hover:scale-110 shadow-sm ${
-                      isCompleted
-                        ? "bg-emerald-600 text-white ring-2 ring-emerald-100"
-                        : isCurrent
-                        ? "bg-blue-600 text-white ring-4 ring-blue-100 animate-pulse"
-                        : "bg-gray-100 text-gray-400 border border-gray-300"
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <CheckCircle2 size={15} />
-                    ) : isCurrent ? (
-                      <span className="w-2.5 h-2.5 rounded-full bg-white" />
-                    ) : (
-                      <span className="text-[10px]">{idx + 1}</span>
-                    )}
-                  </div>
-                  <span
-                    className={`text-[10px] leading-tight max-w-[85px] truncate font-medium ${
-                      isCompleted
-                        ? "text-emerald-800 font-semibold"
-                        : isCurrent
-                        ? "text-blue-800 font-bold"
-                        : "text-muted"
-                    }`}
-                  >
+                <div className="w-full px-0.5">
+                  <span className={`text-[8.5px] leading-tight block truncate ${
+                    isCompleted ? "text-emerald-800 font-semibold" : isCurrent ? "text-blue-800 font-bold" : "text-muted"
+                  }`} title={stage.name}>
                     {stage.name}
                   </span>
                   {stage.time && (
-                    <span className="text-[9px] text-muted font-mono whitespace-nowrap">{stage.time}</span>
+                    <span className="text-[7.5px] text-muted font-mono block whitespace-nowrap mt-0.5">
+                      {stage.time}
+                    </span>
                   )}
                 </div>
               </div>

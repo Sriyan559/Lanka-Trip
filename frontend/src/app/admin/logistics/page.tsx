@@ -106,10 +106,10 @@ function LogisticsContent() {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-[#faf8f8] p-3 sm:p-5 text-gray-900 font-sans">
-      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-5 items-start">
+    <div className="min-h-screen bg-[#faf8f8] p-2.5 sm:p-4 text-gray-900 font-sans">
+      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-3.5 items-start">
         {/* MAIN CENTER WORKSPACE */}
-        <main className="flex-1 min-w-0 w-full flex flex-col gap-4">
+        <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. BREADCRUMB, HEADING & TOP ACTION TOOLBAR */}
           <LogisticsCommandHeader
             onRefresh={refresh}
@@ -118,24 +118,24 @@ function LogisticsContent() {
 
           {/* 2. BUSINESS CONTEXT FILTER STRIP */}
           <LogisticsContextBar
-            lastSynced={dashboard?.lastSynced || "May 26, 2025 10:15 AM"}
+            lastSynced={dashboard?.lastSynced || "May 26 2025 10:15 AM"}
             onRefresh={refresh}
           />
 
           {/* 3. LOGISTICS SERVICE HEALTH STRIP */}
-          <LogisticsServiceHealthStrip />
+          <LogisticsServiceHealthStrip onRefresh={refresh} />
 
           {notification && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
               <span>{notification}</span>
               <button onClick={() => setNotification(null)} className="text-emerald-600 font-bold">&times;</button>
             </div>
           )}
 
-          {/* 4. PRIMARY KPI CARDS ROW (12 CARDS WITH SPARKLINES) */}
+          {/* 4. PRIMARY KPI CARDS ROW (12 CARDS IN 1 ROW WITH SPARKLINES) */}
           <LogisticsMetricsRow metrics={liveMetrics} />
 
-          {/* 5. SECONDARY LOGISTICS SUMMARY STRIP */}
+          {/* 5. SECONDARY LOGISTICS COST / CAPACITY SUMMARY STRIP */}
           <LogisticsSecondaryMetricsStrip
             logisticsCostToday={dashboard?.logisticsCostToday}
             carrierChargesPending={dashboard?.carrierChargesPending}
@@ -151,15 +151,15 @@ function LogisticsContent() {
             onTabChange={(tab) => setActiveTab(tab)}
           />
 
-          {/* 7. MAIN ANALYTICS SECTION (3 CHARTS) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* 7. MAIN ANALYTICS ROW (3 PANELS IN 1 ROW: TREND, DONUT, BOTTLENECK) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             <ChartCard
               title="Fulfilment & Delivery Trend (Last 30 Days)"
               subtitle="30-day operational volume trajectory across network"
               loading={loading}
               error={error}
               onRetry={refresh}
-              className="lg:col-span-2 min-h-[300px]"
+              className="min-h-[220px]"
             >
               <TrendChart
                 data={realTrendData}
@@ -173,7 +173,7 @@ function LogisticsContent() {
               loading={loading}
               error={error}
               onRetry={refresh}
-              className="min-h-[300px]"
+              className="min-h-[220px]"
             >
               <DonutDistributionChart
                 data={realStatusData}
@@ -181,16 +181,14 @@ function LogisticsContent() {
                 totalValue="2,746"
               />
             </ChartCard>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <ChartCard
               title="Operational Status Summary"
               subtitle="Health and resolution state breakdown"
               loading={loading}
               error={error}
               onRetry={refresh}
-              className="lg:col-span-2"
+              className="min-h-[220px]"
             >
               <HorizontalStatusChart
                 data={[
@@ -206,12 +204,10 @@ function LogisticsContent() {
                 total={2746}
               />
             </ChartCard>
-
-            {/* 8. LOGISTICS HEALTH SCORECARD */}
-            <div className="lg:col-span-1">
-              <LogisticsHealthScorecard />
-            </div>
           </div>
+
+          {/* 8. LOGISTICS & CUSTOMER HEALTH SCORECARD (THIN HORIZONTAL STRIP) */}
+          <LogisticsHealthScorecard />
 
           {/* 9. ADVANCED FILTER SYSTEM */}
           <LogisticsFilterPanel
@@ -224,7 +220,7 @@ function LogisticsContent() {
 
           {/* 10. MAIN LOGISTICS OPERATIONS TABLE & PAGINATION */}
           {loading ? (
-            <div className="bg-white rounded-xl border border-line shadow-sm p-6 animate-pulse space-y-4">
+            <div className="bg-white rounded-xl border border-line shadow-xs p-6 animate-pulse space-y-4">
               <div className="h-8 bg-canvas rounded w-1/4" />
               <div className="h-64 bg-canvas rounded w-full" />
             </div>
@@ -296,7 +292,7 @@ function LogisticsContent() {
 
 export default function LogisticsPage() {
   return (
-    <Suspense fallback={<div className="p-8 font-semibold text-sm">Loading Logistics Command Center...</div>}>
+    <Suspense fallback={<div className="p-6 font-semibold text-xs">Loading Logistics Command Center...</div>}>
       <LogisticsContent />
     </Suspense>
   );

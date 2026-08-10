@@ -47,10 +47,10 @@ function FulfilmentDetailContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f8] p-3 sm:p-5 text-gray-900 font-sans">
-      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-5 items-start">
+    <div className="min-h-screen bg-[#faf8f8] p-2.5 sm:p-4 text-gray-900 font-sans">
+      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-3.5 items-start">
         {/* MAIN CENTER WORKSPACE */}
-        <main className="flex-1 min-w-0 w-full flex flex-col gap-4">
+        <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. STALE / CONCURRENT UPDATE WARNING BANNER */}
           <StaleRecordWarning onRefresh={() => showToast("Record data refreshed from server.")} />
 
@@ -61,7 +61,7 @@ function FulfilmentDetailContent() {
           <FulfilmentDetailContextBar onRefresh={() => showToast("Refreshed service health.")} />
 
           {notification && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
               <span>{notification}</span>
               <button onClick={() => setNotification(null)} className="text-emerald-600 font-bold">&times;</button>
             </div>
@@ -80,7 +80,7 @@ function FulfilmentDetailContent() {
           {/* 6. FULFILMENT IDENTITY SECTION (6 BOXES) */}
           <FulfilmentIdentitySection fulfilmentId={fulfilmentId} />
 
-          {/* 7. CUSTOMER FULFILMENT / LOGISTICS LIFECYCLE (17 STAGES) */}
+          {/* 7. CUSTOMER FULFILMENT / LOGISTICS LIFECYCLE (16 STAGES) */}
           <FulfilmentDetailLifecycle />
 
           {/* 8. DETAIL NAVIGATION TABS (17 TABS) */}
@@ -90,7 +90,7 @@ function FulfilmentDetailContent() {
           />
 
           {/* 9. MAIN DATA PANELS GRID: ITEM LINES TABLE & QUALITY CHECKS */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
             <div className="lg:col-span-2 xl:col-span-3">
               <FulfilmentItemLinesTable />
             </div>
@@ -102,7 +102,7 @@ function FulfilmentDetailContent() {
           {/* 10. SECONDARY WORKSPACES: ALLOCATION, PICKING, PACKING */}
           <FulfilmentMiddleWorkspaces />
 
-          {/* 11. BOTTOM OPERATIONAL PANELS (7 SECTIONS) */}
+          {/* 11. BOTTOM OPERATIONAL PANELS (7 SECTIONS IN 1 ROW) */}
           <FulfilmentBottomPanels />
         </main>
 
@@ -118,7 +118,7 @@ function FulfilmentDetailContent() {
 
 export default function FulfilmentDetailPage() {
   return (
-    <Suspense fallback={<div className="p-8 font-semibold text-sm">Loading Fulfilment Order Detail...</div>}>
+    <Suspense fallback={<div className="p-6 font-semibold text-xs">Loading Fulfilment Order Detail...</div>}>
       <FulfilmentDetailContent />
     </Suspense>
   );

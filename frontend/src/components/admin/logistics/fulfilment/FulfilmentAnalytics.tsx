@@ -64,48 +64,46 @@ export function FulfilmentAnalytics({
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* PANEL A: Fulfilment Flow Trend */}
-        <ChartCard
-          title="Fulfilment Flow Trend (Last 30 Days)"
-          subtitle="30-day operational fulfilment volume trajectory"
-          loading={loading}
-          error={error}
-          onRetry={onRetry}
-          className="lg:col-span-2 min-h-[300px]"
-        >
-          <TrendChart
-            data={displayTrend}
-            colors={["#2563eb", "#10b981", "#9333ea", "#0284c7", "#4f46e5", "#ef4444", "#059669"]}
-          />
-        </ChartCard>
-
-        {/* PANEL B: Fulfilment Status Distribution */}
-        <ChartCard
-          title="Fulfilment Status Distribution"
-          subtitle="Breakdown by active operational state"
-          loading={loading}
-          error={error}
-          onRetry={onRetry}
-          className="min-h-[300px]"
-        >
-          <DonutDistributionChart
-            data={displayDonut}
-            totalLabel="Total Orders"
-            totalValue="1,248"
-          />
-        </ChartCard>
-      </div>
-
-      {/* PANEL C: Fulfilment Bottleneck Summary */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-2.5">
+      {/* PANEL 1: Fulfilment Flow Trend */}
       <ChartCard
-        title="Fulfilment Bottleneck Summary"
-        subtitle="Operational delay points and process constraint analysis"
+        title="Fulfilment Flow Trend (Last 30 Days)"
+        subtitle="30-day operational fulfilment volume trajectory"
         loading={loading}
         error={error}
         onRetry={onRetry}
-        className="w-full"
+        className="min-h-[240px]"
+      >
+        <TrendChart
+          data={displayTrend}
+          colors={["#2563eb", "#10b981", "#9333ea", "#0284c7", "#4f46e5", "#ef4444", "#059669"]}
+        />
+      </ChartCard>
+
+      {/* PANEL 2: Fulfilment Status Distribution */}
+      <ChartCard
+        title="Fulfilment Status Distribution"
+        subtitle="Breakdown by active operational state"
+        loading={loading}
+        error={error}
+        onRetry={onRetry}
+        className="min-h-[240px]"
+      >
+        <DonutDistributionChart
+          data={displayDonut}
+          totalLabel="Total Orders"
+          totalValue="1,248"
+        />
+      </ChartCard>
+
+      {/* PANEL 3: Fulfilment Bottleneck Summary */}
+      <ChartCard
+        title="Fulfilment Bottleneck Summary"
+        subtitle="Operational delay points and constraint analysis"
+        loading={loading}
+        error={error}
+        onRetry={onRetry}
+        className="min-h-[240px]"
       >
         <HorizontalStatusChart
           data={bottleneckData}

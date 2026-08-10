@@ -81,10 +81,10 @@ function FulfilmentOrdersContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f8] p-3 sm:p-5 text-gray-900 font-sans">
-      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-5 items-start">
+    <div className="min-h-screen bg-[#faf8f8] p-2.5 sm:p-4 text-gray-900 font-sans">
+      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-3.5 items-start">
         {/* MAIN CENTER WORKSPACE */}
-        <main className="flex-1 min-w-0 w-full flex flex-col gap-4">
+        <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. BREADCRUMB, HEADING & TOP ACTION TOOLBAR */}
           <FulfilmentPageHeader
             onRefresh={refresh}
@@ -98,16 +98,16 @@ function FulfilmentOrdersContent() {
           />
 
           {/* 3. FULFILMENT SERVICE HEALTH STRIP */}
-          <FulfilmentServiceHealth />
+          <FulfilmentServiceHealth onRefresh={refresh} />
 
           {notification && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
               <span>{notification}</span>
               <button onClick={() => setNotification(null)} className="text-emerald-600 font-bold">&times;</button>
             </div>
           )}
 
-          {/* 4. PRIMARY KPI CARDS ROW (12 CARDS WITH SPARKLINES) */}
+          {/* 4. PRIMARY KPI CARDS ROW (12 CARDS IN 1 ROW WITH SPARKLINES) */}
           <FulfilmentKpiGrid metrics={dashboard} />
 
           {/* 5. OPERATIONAL EFFICIENCY METRICS STRIP */}
@@ -119,7 +119,7 @@ function FulfilmentOrdersContent() {
             onTabChange={(tab) => setActiveTab(tab)}
           />
 
-          {/* 7. MAIN ANALYTICS SECTION (3 PANELS: TREND, DONUT, BOTTLENECK) */}
+          {/* 7. MAIN ANALYTICS SECTION (3 PANELS IN 1 ROW: TREND, DONUT, BOTTLENECK) */}
           <FulfilmentAnalytics
             loading={loading}
             error={error}
@@ -142,7 +142,7 @@ function FulfilmentOrdersContent() {
 
           {/* 10. FULFILMENT ORDER PORTFOLIO TABLE & PAGINATION */}
           {loading ? (
-            <div className="bg-white rounded-xl border border-line shadow-sm p-6 animate-pulse space-y-4">
+            <div className="bg-white rounded-xl border border-line shadow-xs p-6 animate-pulse space-y-4">
               <div className="h-8 bg-canvas rounded w-1/4" />
               <div className="h-64 bg-canvas rounded w-full" />
             </div>
@@ -209,7 +209,7 @@ function FulfilmentOrdersContent() {
 
 export default function FulfilmentOrdersPage() {
   return (
-    <Suspense fallback={<div className="p-8 font-semibold text-sm">Loading Fulfilment Order Management...</div>}>
+    <Suspense fallback={<div className="p-6 font-semibold text-xs">Loading Fulfilment Order Management...</div>}>
       <FulfilmentOrdersContent />
     </Suspense>
   );

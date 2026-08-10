@@ -63,36 +63,35 @@ export function SelectedFulfilmentPreview({ operation }: SelectedFulfilmentPrevi
   };
 
   return (
-    <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden text-xs space-y-0">
+    <div className="bg-white rounded-xl border border-line shadow-xs overflow-hidden text-[10px] space-y-0">
       {/* HEADER */}
-      <div className="p-4 border-b border-line bg-canvas flex flex-wrap items-center justify-between gap-3">
+      <div className="p-2.5 sm:p-3 border-b border-line bg-canvas flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Package size={18} className="text-primary-900" />
+          <Package size={15} className="text-primary-900" />
           <div>
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+            <h3 className="text-xs font-bold text-ink flex items-center gap-1.5">
               <span>Selected Fulfilment Preview:</span>
               <span className="font-mono text-primary-900 font-bold">{op.fulfilment_ref}</span>
-              <span className="text-muted font-normal text-xs">Order: <strong className="font-mono text-ink">{op.order_ref}</strong></span>
+              <span className="text-muted font-normal text-[10px]">Order: <strong className="font-mono text-ink">{op.order_ref}</strong></span>
             </h3>
-            <p className="text-[11px] text-muted">Comprehensive order manifest, warehouse execution details, and lifecycle audit</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 uppercase">
+          <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 uppercase">
             {op.allocation_status || "Active"}
           </span>
         </div>
       </div>
 
       {/* 17 PREVIEW TABS */}
-      <div className="border-b border-line bg-white px-4 overflow-x-auto scrollbar-none">
-        <div className="flex gap-1.5 text-[11px] font-semibold text-muted py-2 whitespace-nowrap">
+      <div className="border-b border-line bg-white px-3 overflow-x-auto scrollbar-thin">
+        <div className="flex gap-1 text-[9.5px] font-semibold text-muted py-1 whitespace-nowrap">
           {previewTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 rounded-lg transition-colors ${
+              className={`px-2.5 py-0.5 rounded-md transition-colors ${
                 activeTab === tab
                   ? "bg-primary-900 text-white font-bold"
                   : "hover:bg-canvas hover:text-ink text-muted"
@@ -105,119 +104,119 @@ export function SelectedFulfilmentPreview({ operation }: SelectedFulfilmentPrevi
       </div>
 
       {/* OVERVIEW DETAIL CARDS GRID */}
-      <div className="p-5 bg-white space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+      <div className="p-3 bg-white space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-10 gap-1.5 text-[9px]">
           {/* 1. Customer Details */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Customer Details
             </span>
-            <div className="font-bold text-ink">{op.customer_name}</div>
-            <div className="text-[10px] text-muted">{op.customer_email}</div>
-            <div className="text-[10px] text-muted">{op.customer_phone}</div>
-            <div className="text-[10px] text-muted">{op.customer_location}</div>
-            <a href="#" onClick={(e) => { e.preventDefault(); alert("Viewing Customer Profile..."); }} className="text-primary-900 hover:underline text-[10px] font-bold inline-flex items-center gap-0.5 pt-1">
-              View Profile <ExternalLink size={10} />
+            <div className="font-bold text-ink truncate">{op.customer_name}</div>
+            <div className="text-[8.5px] text-muted truncate">{op.customer_email}</div>
+            <div className="text-[8.5px] text-muted truncate">{op.customer_phone}</div>
+            <div className="text-[8.5px] text-muted truncate">{op.customer_location}</div>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("Viewing Customer Profile..."); }} className="text-primary-900 hover:underline text-[8.5px] font-bold inline-flex items-center gap-0.5 pt-0.5">
+              View Profile <ExternalLink size={9} />
             </a>
           </div>
 
           {/* 2. Order Details */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Order Details
             </span>
-            <div className="font-mono font-bold text-ink">{op.order_ref}</div>
-            <div className="text-[10px] text-muted">{op.order_date}</div>
-            <div className="text-[10px] text-muted">Channel: <strong className="text-ink">{op.order_channel}</strong></div>
-            <div className="text-[10px] text-emerald-700 font-bold">{op.payment_status}</div>
+            <div className="font-mono font-bold text-ink truncate">{op.order_ref}</div>
+            <div className="text-[8.5px] text-muted truncate">{op.order_date}</div>
+            <div className="text-[8.5px] text-muted truncate">Channel: <strong className="text-ink">{op.order_channel}</strong></div>
+            <div className="text-[8.5px] text-emerald-700 font-bold truncate">{op.payment_status}</div>
           </div>
 
           {/* 3. Warehouse Assignment */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Warehouse Assignment
             </span>
-            <div className="font-mono font-bold text-ink">{op.warehouse}</div>
-            <div className="text-[10px] text-muted">{op.warehouse_name}</div>
-            <div className="text-[10px] text-muted">Available Capacity: <strong className="text-emerald-700">{op.available_capacity}</strong></div>
-            <div className="text-[10px] text-muted">Zone: {op.zone}</div>
+            <div className="font-mono font-bold text-ink truncate">{op.warehouse}</div>
+            <div className="text-[8.5px] text-muted truncate">{op.warehouse_name}</div>
+            <div className="text-[8.5px] text-muted truncate">Available: <strong className="text-emerald-700">{op.available_capacity}</strong></div>
+            <div className="text-[8.5px] text-muted truncate">Zone: {op.zone}</div>
           </div>
 
           {/* 4. Carrier / Delivery Partner */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Carrier / Delivery Partner
             </span>
-            <div className="font-bold text-ink">{op.carrier}</div>
-            <div className="text-[10px] text-muted">Service: {op.carrier_service}</div>
-            <div className="text-[10px] text-muted">Est. Delivery: <strong className="text-ink">{op.est_delivery}</strong></div>
-            <div className="text-[10px] text-muted">Tracking: <span className="font-mono">{op.tracking_ref}</span></div>
+            <div className="font-bold text-ink truncate">{op.carrier}</div>
+            <div className="text-[8.5px] text-muted truncate">Service: {op.carrier_service}</div>
+            <div className="text-[8.5px] text-muted truncate">Est. Delivery: <strong className="text-ink">{op.est_delivery}</strong></div>
+            <div className="text-[8.5px] text-muted truncate">Tracking: <span className="font-mono">{op.tracking_ref}</span></div>
           </div>
 
           {/* 5. Allocation Summary */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Allocation Summary
             </span>
-            <div className="text-[10px]">Status: <strong className="text-emerald-700">{op.allocation_status}</strong></div>
-            <div className="text-[10px]">Reserved: <strong className="text-emerald-700">{op.reserved_qty}</strong></div>
-            <div className="text-[10px]">Short Qty: <strong className="text-ink">{op.short_qty}</strong></div>
-            <div className="text-[10px]">Transfer Required: <strong className="text-muted">{op.transfer_req}</strong></div>
+            <div className="text-[8.5px]">Status: <strong className="text-emerald-700">{op.allocation_status}</strong></div>
+            <div className="text-[8.5px]">Reserved: <strong className="text-emerald-700">{op.reserved_qty}</strong></div>
+            <div className="text-[8.5px]">Short Qty: <strong className="text-ink">{op.short_qty}</strong></div>
+            <div className="text-[8.5px]">Transfer Req: <strong className="text-muted">{op.transfer_req}</strong></div>
           </div>
 
           {/* 6. Picking Summary */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Picking Summary
             </span>
-            <div className="text-[10px]">Status: <strong className="text-emerald-700">{op.picking_status}</strong></div>
-            <div className="text-[10px]">Picked: <strong className="text-emerald-700">{op.picked_qty}</strong></div>
-            <div className="text-[10px]">Picker: <strong className="text-ink">{op.picker}</strong></div>
-            <div className="text-[10px]">Completed: <strong className="text-muted">{op.picking_completed}</strong></div>
+            <div className="text-[8.5px]">Status: <strong className="text-emerald-700">{op.picking_status}</strong></div>
+            <div className="text-[8.5px]">Picked: <strong className="text-emerald-700">{op.picked_qty}</strong></div>
+            <div className="text-[8.5px]">Picker: <strong className="text-ink">{op.picker}</strong></div>
+            <div className="text-[8.5px]">Completed: <strong className="text-muted">{op.picking_completed}</strong></div>
           </div>
 
           {/* 7. Packing Summary */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Packing Summary
             </span>
-            <div className="text-[10px]">Status: <strong className="text-blue-700">{op.packing_status}</strong></div>
-            <div className="text-[10px]">Packed: <strong className="text-blue-700">{op.packed_qty}</strong></div>
-            <div className="text-[10px]">Packer: <strong className="text-ink">{op.packer}</strong></div>
-            <div className="text-[10px] text-amber-700 font-semibold">{op.packing_state}</div>
+            <div className="text-[8.5px]">Status: <strong className="text-blue-700">{op.packing_status}</strong></div>
+            <div className="text-[8.5px]">Packed: <strong className="text-blue-700">{op.packed_qty}</strong></div>
+            <div className="text-[8.5px]">Packer: <strong className="text-ink">{op.packer}</strong></div>
+            <div className="text-[8.5px] text-amber-700 font-semibold">{op.packing_state}</div>
           </div>
 
           {/* 8. Quality Checks */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Quality Checks
             </span>
-            <div className="text-[10px]">Status: <strong className="text-emerald-700">{op.quality_status}</strong></div>
-            <div className="text-[10px]">Checks: <strong className="text-ink">{op.quality_checks}</strong></div>
-            <div className="text-[10px]">Checked By: <strong className="text-ink">{op.quality_by}</strong></div>
-            <div className="text-[10px] text-muted">{op.quality_time}</div>
+            <div className="text-[8.5px]">Status: <strong className="text-emerald-700">{op.quality_status}</strong></div>
+            <div className="text-[8.5px]">Checks: <strong className="text-ink">{op.quality_checks}</strong></div>
+            <div className="text-[8.5px]">Checked By: <strong className="text-ink">{op.quality_by}</strong></div>
+            <div className="text-[8.5px] text-muted">{op.quality_time}</div>
           </div>
 
           {/* 9. Shipment Summary */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Shipment Summary
             </span>
-            <div className="text-[10px]">Status: <strong className="text-blue-700">{op.shipment_status}</strong></div>
-            <div className="text-[10px]">Shipment: <span className="font-mono font-bold">{op.shipment_ref}</span></div>
-            <div className="text-[10px]">AWB: <strong className="text-muted">{op.awb}</strong></div>
-            <div className="text-[10px]">Est. Dispatch: <strong className="text-ink">{op.est_dispatch}</strong></div>
+            <div className="text-[8.5px]">Status: <strong className="text-blue-700">{op.shipment_status}</strong></div>
+            <div className="text-[8.5px]">Shipment: <span className="font-mono font-bold truncate block">{op.shipment_ref}</span></div>
+            <div className="text-[8.5px]">AWB: <strong className="text-muted">{op.awb}</strong></div>
+            <div className="text-[8.5px]">Est. Dispatch: <strong className="text-ink">{op.est_dispatch}</strong></div>
           </div>
 
           {/* 10. Exception Summary */}
-          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-1">
+          <div className="p-2 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-[8.5px] text-muted font-bold uppercase tracking-wider block border-b border-line pb-0.5">
               Exception Summary
             </span>
-            <div className="text-[10px]">Status: <strong className="text-emerald-700">{op.exception_status}</strong></div>
-            <div className="text-[10px]">Open Exceptions: <strong className="text-ink">{op.open_exceptions}</strong></div>
-            <div className="text-[10px]">Last Exception: <span className="text-muted">-</span></div>
-            <a href="#" onClick={(e) => { e.preventDefault(); alert("Viewing Exceptions..."); }} className="text-primary-900 hover:underline text-[10px] font-bold block pt-0.5">
+            <div className="text-[8.5px]">Status: <strong className="text-emerald-700">{op.exception_status}</strong></div>
+            <div className="text-[8.5px]">Open Exceptions: <strong className="text-ink">{op.open_exceptions}</strong></div>
+            <div className="text-[8.5px]">Last Exception: <span className="text-muted">-</span></div>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("Viewing Exceptions..."); }} className="text-primary-900 hover:underline text-[8.5px] font-bold block pt-0.5">
               View All (0)
             </a>
           </div>

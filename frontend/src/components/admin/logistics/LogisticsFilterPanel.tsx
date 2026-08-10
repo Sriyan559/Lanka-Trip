@@ -60,59 +60,46 @@ export function LogisticsFilterPanel({
     { label: "Exception Owner", key: "exception_owner" },
   ];
 
-  const quickFilterChips = [
-    { label: "Allocation Pending (84)", color: "bg-amber-50 text-amber-800 border-amber-200" },
-    { label: "Picking (126)", color: "bg-purple-50 text-purple-800 border-purple-200" },
-    { label: "Packing (96)", color: "bg-blue-50 text-blue-800 border-blue-200" },
-    { label: "Dispatched (142)", color: "bg-indigo-50 text-indigo-800 border-indigo-200" },
-    { label: "In Transit (286)", color: "bg-sky-50 text-sky-800 border-sky-200" },
-    { label: "Out for Delivery (118)", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-    { label: "Exceptions (42)", color: "bg-rose-50 text-rose-800 border-rose-200" },
-    { label: "SLA Breaches (12)", color: "bg-rose-100 text-rose-900 border-rose-300 font-bold" },
-    { label: "Returns Pending (38)", color: "bg-purple-50 text-purple-800 border-purple-200" },
-    { label: "Reconciliation Required (16)", color: "bg-amber-50 text-amber-800 border-amber-200" },
-  ];
-
   return (
-    <div className="bg-white rounded-xl border border-line shadow-sm p-4 space-y-4">
+    <div className="bg-white rounded-xl border border-line shadow-xs p-2.5 sm:p-3 space-y-2 text-[10px]">
       {/* SEARCH AND ACTION BAR */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" size={12} />
           <input
             type="text"
             placeholder="Search by ref, order, customer, supplier, shipment ID, tracking number..."
-            className="w-full pl-9 pr-4 py-2 bg-canvas border border-line rounded-lg text-xs font-medium focus:outline-none focus:border-primary-900 transition-colors"
+            className="w-full pl-7 pr-3 py-1 bg-canvas border border-line rounded-md text-[9.5px] font-medium focus:outline-none focus:border-primary-900 transition-colors"
             value={filters.search || ""}
             onChange={(e) => onFilterChange({ search: e.target.value })}
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 flex-shrink-0">
           <button
             type="button"
             onClick={() => alert("Saved current search view configuration!")}
-            className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+            className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
           >
-            <Bookmark size={13} className="text-muted" />
+            <Bookmark size={11} className="text-muted" />
             <span>Save View</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowAllFilters(!showAllFilters)}
-            className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+            className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
           >
-            <Filter size={13} className="text-muted" />
+            <Filter size={11} className="text-muted" />
             <span>{showAllFilters ? "Fewer Filters" : "More Filters"}</span>
           </button>
 
           <button
             type="button"
             onClick={onClearFilters}
-            className="px-3 py-1.5 bg-white border border-line text-muted hover:text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1"
+            className="px-2 py-1 bg-white border border-line text-muted hover:text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
           >
-            <X size={13} />
+            <X size={11} />
             <span>Clear All</span>
           </button>
 
@@ -120,9 +107,9 @@ export function LogisticsFilterPanel({
             <button
               type="button"
               onClick={onRefresh}
-              className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+              className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
             >
-              <RefreshCw size={13} />
+              <RefreshCw size={11} />
               <span>Refresh</span>
             </button>
           )}
@@ -130,31 +117,31 @@ export function LogisticsFilterPanel({
           <button
             type="button"
             onClick={() => alert("Exporting filtered operational data...")}
-            className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+            className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
           >
-            <Download size={13} />
+            <Download size={11} />
             <span>Export</span>
           </button>
 
           <button
             type="button"
             onClick={onCreateClick || (() => alert("Opening Create Operation Dialog"))}
-            className="px-3.5 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg hover:bg-primary-800 transition-colors shadow-sm flex items-center gap-1.5"
+            className="px-2.5 py-1 bg-primary-900 text-white text-[9.5px] font-bold rounded-md hover:bg-primary-800 transition-colors shadow-xs flex items-center gap-1"
           >
-            <Plus size={14} />
+            <Plus size={12} />
             <span>Create</span>
           </button>
         </div>
       </div>
 
       {/* FILTER DROPDOWN GRID */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 text-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-1.5">
         {primaryFilterKeys.map((item) => (
           <div key={item.key} className="relative">
             <select
               value={filters[item.key] || "all"}
               onChange={(e) => onFilterChange({ [item.key]: e.target.value })}
-              className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] font-medium text-ink focus:outline-none focus:border-primary-900 cursor-pointer appearance-none pr-6 truncate"
+              className="w-full px-2 py-1 bg-white border border-line rounded-md text-[9px] font-medium text-ink focus:outline-none focus:border-primary-900 cursor-pointer appearance-none pr-5 truncate"
             >
               <option value="all">{item.label}: All</option>
               <option value="active">Active</option>
@@ -162,7 +149,7 @@ export function LogisticsFilterPanel({
               <option value="completed">Completed</option>
               <option value="exception">Exception</option>
             </select>
-            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
           </div>
         ))}
 
@@ -172,28 +159,14 @@ export function LogisticsFilterPanel({
               <select
                 value={filters[item.key] || "all"}
                 onChange={(e) => onFilterChange({ [item.key]: e.target.value })}
-                className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] font-medium text-ink focus:outline-none focus:border-primary-900 cursor-pointer appearance-none pr-6 truncate"
+                className="w-full px-2 py-1 bg-white border border-line rounded-md text-[9px] font-medium text-ink focus:outline-none focus:border-primary-900 cursor-pointer appearance-none pr-5 truncate"
               >
                 <option value="all">{item.label}: All</option>
                 <option value="option1">Select {item.label}</option>
               </select>
-              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+              <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
             </div>
           ))}
-      </div>
-
-      {/* QUICK CHIPS */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-line">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-muted mr-1">Quick Filters:</span>
-        {quickFilterChips.map((chip, idx) => (
-          <button
-            key={idx}
-            onClick={() => onFilterChange({ quick: chip.label })}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-transform hover:scale-105 cursor-pointer ${chip.color}`}
-          >
-            {chip.label}
-          </button>
-        ))}
       </div>
     </div>
   );

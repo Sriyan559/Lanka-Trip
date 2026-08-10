@@ -7,8 +7,8 @@ export interface FulfilmentKpiGridProps {
 }
 
 function MiniSparkline({ strokeColor, points }: { strokeColor: string; points?: number[] }) {
-  const width = 56;
-  const height = 18;
+  const width = 40;
+  const height = 14;
   const data = points && points.length > 0 ? points : [10, 16, 12, 20, 17, 26, 22];
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -26,7 +26,7 @@ function MiniSparkline({ strokeColor, points }: { strokeColor: string; points?: 
         d={`M ${pathPoints.join(" L ")}`}
         fill="none"
         stroke={strokeColor}
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -53,23 +53,23 @@ export function FulfilmentKpiGrid({ metrics }: FulfilmentKpiGridProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-1.5 text-[10px]">
       {items.map((item) => (
         <div
           key={item.index}
-          className="bg-white p-3 rounded-xl border border-line shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between"
+          className="bg-white p-1.5 sm:p-2 rounded-xl border border-line shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between h-[60px]"
         >
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="text-[10px] font-bold text-muted bg-canvas border border-line px-1.5 py-0.2 rounded">
+          <div className="flex items-center gap-1">
+            <span className="text-[8px] font-bold text-muted bg-canvas border border-line px-1 py-0.1 rounded flex-shrink-0">
               {item.index}
             </span>
-            <span className="text-[11px] font-semibold text-muted leading-tight truncate">
+            <span className="text-[9px] font-semibold text-muted leading-tight truncate" title={item.title}>
               {item.title}
             </span>
           </div>
 
-          <div className="flex items-end justify-between gap-2 mt-1">
-            <div className={`text-xl font-bold ${item.textClass || "text-ink"}`}>
+          <div className="flex items-end justify-between gap-1 my-0.5">
+            <div className={`text-sm font-bold leading-none ${item.textClass || "text-ink"}`}>
               {item.value}
             </div>
             <MiniSparkline strokeColor={item.stroke} points={item.points} />

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { 
-  Download, ShieldAlert, ChevronDown, Clock, FileText, Plus, RefreshCw, Layers, CheckSquare, Truck, AlertTriangle
+  Download, ShieldAlert, ChevronDown, Clock, FileText, Plus, Layers, CheckSquare, Truck
 } from "lucide-react";
 
 interface LogisticsCommandHeaderProps {
@@ -10,7 +10,7 @@ interface LogisticsCommandHeaderProps {
   onCreateOperationClick?: (type?: string) => void;
 }
 
-export function LogisticsCommandHeader({ onRefresh, onCreateOperationClick }: LogisticsCommandHeaderProps) {
+export function LogisticsCommandHeader({ onCreateOperationClick }: LogisticsCommandHeaderProps) {
   const [createDropdownOpen, setCreateDropdownOpen] = useState(false);
   const [bulkDropdownOpen, setBulkDropdownOpen] = useState(false);
   const createMenuRef = useRef<HTMLDivElement>(null);
@@ -41,37 +41,37 @@ export function LogisticsCommandHeader({ onRefresh, onCreateOperationClick }: Lo
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-line shadow-sm">
-      <div>
-        <div className="text-[11px] font-semibold text-muted mb-1 flex items-center gap-1.5">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 bg-white p-2.5 sm:p-3 rounded-xl border border-line shadow-xs">
+      <div className="flex-1 min-w-0">
+        <div className="text-[10px] font-semibold text-muted mb-0.5 flex items-center gap-1">
           <span>Logistics</span>
           <span className="text-gray-300">/</span>
           <span className="text-ink font-bold">Command Center</span>
         </div>
-        <h1 className="text-xl md:text-2xl font-bold text-ink leading-tight">
+        <h1 className="text-base sm:text-lg font-bold text-ink leading-tight truncate">
           Logistics &amp; Fulfilment Command Center
         </h1>
-        <p className="text-xs text-muted mt-1 max-w-4xl">
+        <p className="text-[10.5px] text-muted mt-0.5 truncate max-w-4xl">
           Centralized monitoring and governance for fulfilment, warehouse operations, shipping, delivery, reverse logistics, logistics costs, claims, and SLA performance across the beauty marketplace.
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5 flex-shrink-0">
         <button
           type="button"
           onClick={() => alert("Exporting Logistics Operations Report...")}
-          className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+          className="px-2.5 py-1 bg-white border border-line text-ink text-[10px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
         >
-          <Download size={14} className="text-muted" />
+          <Download size={12} className="text-muted" />
           <span>Export Logistics Operations Report</span>
         </button>
 
         <button
           type="button"
           onClick={() => alert("Navigating to Critical Exceptions Queue...")}
-          className="px-3 py-1.5 bg-white border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg hover:bg-rose-50 transition-colors shadow-sm flex items-center gap-1.5"
+          className="px-2 py-1 bg-white border border-rose-200 text-rose-700 text-[10px] font-semibold rounded-md hover:bg-rose-50 transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
         >
-          <ShieldAlert size={14} />
+          <ShieldAlert size={12} />
           <span>Review Critical Exceptions</span>
         </button>
 
@@ -80,21 +80,21 @@ export function LogisticsCommandHeader({ onRefresh, onCreateOperationClick }: Lo
           <button
             type="button"
             onClick={() => setBulkDropdownOpen(!bulkDropdownOpen)}
-            className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1"
+            className="px-2 py-1 bg-white border border-line text-ink text-[10px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
           >
             <span>Bulk Actions</span>
-            <ChevronDown size={14} className="text-muted" />
+            <ChevronDown size={12} className="text-muted" />
           </button>
           {bulkDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-52 bg-white rounded-lg border border-line shadow-lg z-50 py-1 text-xs">
-              <button onClick={() => { setBulkDropdownOpen(false); alert("Bulk Re-assigning Carriers..."); }} className="w-full px-3 py-2 text-left hover:bg-canvas font-medium text-ink flex items-center gap-2">
-                <Truck size={14} className="text-blue-600" /> Bulk Carrier Assignment
+            <div className="absolute right-0 mt-1 w-48 bg-white rounded-md border border-line shadow-lg z-50 py-1 text-[10px]">
+              <button onClick={() => { setBulkDropdownOpen(false); alert("Bulk Re-assigning Carriers..."); }} className="w-full px-3 py-1.5 text-left hover:bg-canvas font-medium text-ink flex items-center gap-1.5">
+                <Truck size={12} className="text-blue-600" /> Bulk Carrier Assignment
               </button>
-              <button onClick={() => { setBulkDropdownOpen(false); alert("Bulk Printing Shipping Labels..."); }} className="w-full px-3 py-2 text-left hover:bg-canvas font-medium text-ink flex items-center gap-2">
-                <FileText size={14} className="text-purple-600" /> Print Waybills &amp; Labels
+              <button onClick={() => { setBulkDropdownOpen(false); alert("Bulk Printing Shipping Labels..."); }} className="w-full px-3 py-1.5 text-left hover:bg-canvas font-medium text-ink flex items-center gap-1.5">
+                <FileText size={12} className="text-purple-600" /> Print Waybills &amp; Labels
               </button>
-              <button onClick={() => { setBulkDropdownOpen(false); alert("Bulk Reconciling COD..."); }} className="w-full px-3 py-2 text-left hover:bg-canvas font-medium text-ink flex items-center gap-2">
-                <CheckSquare size={14} className="text-emerald-600" /> Mark Reconciled
+              <button onClick={() => { setBulkDropdownOpen(false); alert("Bulk Reconciling COD..."); }} className="w-full px-3 py-1.5 text-left hover:bg-canvas font-medium text-ink flex items-center gap-1.5">
+                <CheckSquare size={12} className="text-emerald-600" /> Mark Reconciled
               </button>
             </div>
           )}
@@ -103,18 +103,18 @@ export function LogisticsCommandHeader({ onRefresh, onCreateOperationClick }: Lo
         <button
           type="button"
           onClick={() => alert("Filtering Delayed Shipments...")}
-          className="px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold rounded-lg hover:bg-amber-100 transition-colors shadow-sm flex items-center gap-1.5"
+          className="px-2 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-semibold rounded-md hover:bg-amber-100 transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
         >
-          <Clock size={14} />
+          <Clock size={12} />
           <span>Review Delayed Shipments</span>
         </button>
 
         <button
           type="button"
           onClick={() => alert("Launching Logistics Performance Review...")}
-          className="px-3 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+          className="px-2 py-1 bg-white border border-line text-ink text-[10px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
         >
-          <Layers size={14} className="text-muted" />
+          <Layers size={12} className="text-muted" />
           <span>Create Logistics Review</span>
         </button>
 
@@ -123,15 +123,15 @@ export function LogisticsCommandHeader({ onRefresh, onCreateOperationClick }: Lo
           <button
             type="button"
             onClick={() => setCreateDropdownOpen(!createDropdownOpen)}
-            className="px-3.5 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg hover:bg-primary-800 transition-colors shadow-sm flex items-center gap-1.5"
+            className="px-2.5 py-1 bg-primary-900 text-white text-[10px] font-bold rounded-md hover:bg-primary-800 transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
           >
-            <Plus size={15} />
-            <span>Create Logistics Operation</span>
-            <ChevronDown size={14} className="text-white/80" />
+            <Plus size={13} />
+            <span>+ Create Logistics Operation</span>
+            <ChevronDown size={12} className="text-white/80" />
           </button>
           {createDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-64 bg-white rounded-xl border border-line shadow-xl z-50 py-1.5 text-xs">
-              <div className="px-3 py-1.5 font-bold text-[10px] uppercase tracking-wider text-muted border-b border-line">
+            <div className="absolute right-0 mt-1 w-56 bg-white rounded-md border border-line shadow-xl z-50 py-1 text-[10px]">
+              <div className="px-3 py-1 font-bold text-[9px] uppercase tracking-wider text-muted border-b border-line">
                 Logistics Operations Menu
               </div>
               {createOptions.map((opt, idx) => (
@@ -145,26 +145,15 @@ export function LogisticsCommandHeader({ onRefresh, onCreateOperationClick }: Lo
                       alert(`Initiating: ${opt.label}`);
                     }
                   }}
-                  className="w-full px-3 py-2 text-left hover:bg-canvas transition-colors flex flex-col group"
+                  className="w-full px-3 py-1.5 text-left hover:bg-canvas transition-colors flex flex-col group"
                 >
                   <span className="font-semibold text-ink group-hover:text-primary-900">{opt.label}</span>
-                  <span className="text-[10px] text-muted">{opt.desc}</span>
+                  <span className="text-[8.5px] text-muted">{opt.desc}</span>
                 </button>
               ))}
             </div>
           )}
         </div>
-
-        {onRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            className="p-1.5 bg-white border border-line text-muted hover:text-ink rounded-lg hover:bg-canvas transition-colors shadow-sm"
-            title="Refresh Logistics Data"
-          >
-            <RefreshCw size={14} />
-          </button>
-        )}
       </div>
     </div>
   );
