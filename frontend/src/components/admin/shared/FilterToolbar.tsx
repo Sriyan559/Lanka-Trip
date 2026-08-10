@@ -9,6 +9,9 @@ interface FilterOption {
 
 interface FilterToolbarProps {
   searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (val: string) => void;
+  onSearchSubmit?: () => void;
   filters: FilterOption[];
   onClearAll?: () => void;
   onSaveView?: () => void;
@@ -18,12 +21,21 @@ interface FilterToolbarProps {
 
 export function FilterToolbar({
   searchPlaceholder = 'Search...',
+  searchValue = '',
+  onSearchChange,
+  onSearchSubmit,
   filters,
   onClearAll,
   onSaveView,
   quickChips,
   onToggleChip
 }: FilterToolbarProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearchSubmit) {
+      onSearchSubmit();
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3 mb-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -34,6 +46,9 @@ export function FilterToolbar({
             <input
               type="text"
               placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => onSearchChange?.(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full pl-9 pr-3 py-1.5 text-[13px] border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-[#7a0023] focus:border-[#7a0023] shadow-sm placeholder:text-gray-400"
             />
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, ShieldCheck, AlertTriangle, CheckCircle2, Clock, 
   RefreshCw, FileText, ChevronDown, Edit, Award, ExternalLink, Lock
@@ -8,6 +8,7 @@ import {
 import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
 import { Tabs } from '@/components/admin/shared/Tabs';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
+import { brandsSuppliersApi } from '@/lib/api/brandsSuppliers';
 
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
@@ -28,14 +29,63 @@ const DETAIL_TABS = [
   { id: 'finance', label: 'Finance & Settlement' },
   { id: 'performance', label: 'Performance & SLA' },
   { id: 'risk', label: 'Risk & Compliance' },
-  { id: 'eligibility', label: 'Eligibility' },
-  { id: 'users', label: 'Users & Access' },
-  { id: 'cases', label: 'Cases & Activity' },
-  { id: 'audit', label: 'Audit History' },
 ];
 
 export default function SupplierDetailPage({ params }: { params: { supplierId: string } }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDetail = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await brandsSuppliersApi.getSupplierDetail(params.supplierId);
+      setData(res);
+    } catch (err: any) {
+      console.error("Error fetching supplier detail:", err);
+      setError(err?.message || "Supplier record not found");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetail();
+  }, [params.supplierId]);
+
+  if (loading) {
+    return (
+      <div className="flex w-full h-full min-h-screen bg-[#faf8f8] items-center justify-center p-6">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <RefreshCw size={16} className="animate-spin" />
+          <span>Loading supplier workspace...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data?.supplier) {
+    return (
+      <div className="flex w-full h-full min-h-screen bg-[#faf8f8] items-center justify-center p-6">
+        <div className="bg-white border border-gray-200 rounded-md p-8 text-center max-w-md shadow-sm">
+          <AlertTriangle size={32} className="text-amber-500 mx-auto mb-3" />
+          <h2 className="text-lg font-bold text-gray-900">Supplier Not Found</h2>
+          <p className="text-xs text-gray-500 mt-1 mb-4">No supplier record matched the requested ID: <span className="font-mono text-gray-700">{params.supplierId}</span></p>
+          <a href="/admin/brands-suppliers/suppliers" className="inline-block bg-[#7a0023] text-white text-xs font-semibold px-4 py-2 rounded hover:bg-[#a0002b]">
+            Return to Supplier Directory
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  const s = data.supplier;
+  const contracts = data.contracts || [];
+  const certificates = data.certificates || [];
+  const brandAuths = data.brandAuthorizations || [];
+  const products = data.products || [];
 
   return (
     <div className="flex w-full h-full min-h-screen bg-[#faf8f8] text-gray-900">
@@ -43,19 +93,8 @@ export default function SupplierDetailPage({ params }: { params: { supplierId: s
       {/* MAIN CONTENT AREA */}
       <div className="flex-grow flex flex-col min-w-0 px-6 py-4">
         
-        {/* Multi-user warning banner */}
-        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-2 rounded-md text-[12px] flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <AlertTriangle size={15} className="text-amber-600" />
-            <span>This supplier record is being viewed by multiple users. Please refresh before making edits to ensure you have the latest information.</span>
-          </div>
-          <button className="bg-white border border-amber-300 text-amber-900 px-2.5 py-1 rounded text-[11px] font-semibold hover:bg-amber-100 transition-colors">
-            Refresh Now
-          </button>
-        </div>
-
         {/* Page Header */}
-        <div className="text-[11px] text-gray-500 font-medium mb-1">Brands &amp; Suppliers / Suppliers / Supplier Detail</div>
+        <div className="text-[11px] text-gray-500 font-medium mb-1">Brands &amp; Suppliers / Suppliers / {s.id}</div>
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center text-gray-400">
@@ -63,181 +102,97 @@ export default function SupplierDetailPage({ params }: { params: { supplierId: s
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-gray-900 leading-tight">Luxe Distribution Pvt Ltd</h1>
-                <span className="bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded text-[10px] font-bold">Active</span>
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-[10px] font-bold">Verified</span>
-                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">Low Risk</span>
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded text-[10px] font-bold">Tier A</span>
+                <h1 className="text-2xl font-bold text-gray-900 leading-tight">{s.company_name || s.store_name}</h1>
+                <span className="bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded text-[10px] font-bold capitalize">{s.status}</span>
+                <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-[10px] font-bold capitalize">{s.verification_status}</span>
+                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold capitalize">{s.risk_level} Risk</span>
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">Public Ref: SUP-2024-00124</div>
-              <p className="text-xs text-gray-600 mt-1 max-w-3xl">Premier distributor of luxury cosmetics and skincare products across the South Asian region. Primary partner for premium catalogue expansion.</p>
+              <div className="text-xs text-gray-500 mt-0.5">Public Ref: {s.id}</div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">View Brand Authorizations</button>
-            <button className="bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-[13px] font-semibold hover:bg-gray-50">Start Verification Review</button>
-            <button className="bg-[#7a0023] text-white px-4 py-1.5 rounded-md text-[13px] font-semibold hover:bg-[#a0002b]">Edit Supplier</button>
-            <button className="bg-white border border-gray-300 text-gray-700 px-2.5 py-1.5 rounded-md text-[13px] font-semibold flex items-center gap-1 hover:bg-gray-50">More Actions <ChevronDown size={14} /></button>
+            <a href={`/admin/brands-suppliers/suppliers/${s.raw_id}/edit`} className="bg-[#7a0023] text-white px-4 py-1.5 rounded-md text-[13px] font-semibold hover:bg-[#a0002b]">Edit Supplier</a>
           </div>
         </div>
 
         {/* Context Scope Bar */}
         <ContextScopeBar 
           items={CONTEXT_ITEMS} 
-          lastSynced="04 Aug 2026, 12:57 AM" 
+          lastSynced="Just now" 
           accessNote="Access limited to assigned business context"
         />
 
         {/* Legal & Ownership Metadata Strip */}
-        <div className="bg-white border border-gray-200 rounded-md p-3 mb-4 grid grid-cols-6 gap-4 text-[11px]">
-          <div><div className="text-gray-400">Legal Company Name</div><div className="font-bold text-gray-900 mt-0.5">Luxe Distribution (Pvt) Ltd</div></div>
-          <div><div className="text-gray-400">Supplier Type</div><div className="font-bold text-gray-900 mt-0.5">Distributor</div></div>
-          <div><div className="text-gray-400">Registration No.</div><div className="font-bold text-gray-900 mt-0.5">PV 123456</div></div>
-          <div><div className="text-gray-400">Tax Number</div><div className="font-bold text-gray-900 mt-0.5">114-254-789-000</div></div>
-          <div><div className="text-gray-400">Primary Contact</div><div className="font-bold text-gray-900 mt-0.5">Priya Nair</div></div>
-          <div><div className="text-gray-400">Country / City</div><div className="font-bold text-gray-900 mt-0.5">Sri Lanka / Colombo</div></div>
+        <div className="bg-white border border-gray-200 rounded-md p-3 mb-4 grid grid-cols-5 gap-4 text-[11px]">
+          <div><div className="text-gray-400">Legal Company Name</div><div className="font-bold text-gray-900 mt-0.5">{s.legal_name || s.company_name}</div></div>
+          <div><div className="text-gray-400">Supplier Type</div><div className="font-bold text-gray-900 mt-0.5 capitalize">{s.business_type}</div></div>
+          <div><div className="text-gray-400">Email</div><div className="font-bold text-gray-900 mt-0.5">{s.email || 'N/A'}</div></div>
+          <div><div className="text-gray-400">Phone</div><div className="font-bold text-gray-900 mt-0.5">{s.phone || 'N/A'}</div></div>
+          <div><div className="text-gray-400">Country</div><div className="font-bold text-gray-900 mt-0.5">{s.country}</div></div>
         </div>
 
-        {/* Detail Tabs */}
+        {/* Tabs */}
         <Tabs tabs={DETAIL_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
-        {/* TAB CONTENT (OVERVIEW) */}
-        <div className="flex flex-col gap-4 mt-2">
-          
-          {/* Top Overview Grid */}
-          <div className="grid grid-cols-12 gap-4">
-            
-            {/* Supplier Profile Card */}
-            <div className="col-span-3 bg-white border border-gray-200 rounded-md p-4 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-gray-400 mb-2">
-                <Building2 size={32} />
-              </div>
-              <h3 className="font-bold text-gray-900 text-sm">Luxe Distribution Pvt Ltd</h3>
-              <span className="text-[10px] text-gray-400">SUP-2024-00124</span>
-              <div className="mt-3 text-[11px] text-gray-600 space-y-1 w-full text-left border-t border-gray-100 pt-3">
-                <div>📍 Colombo, Sri Lanka</div>
-                <div>✉️ contact@luxedistribution.lk</div>
-                <div>📞 +94 11 234 5678</div>
-                <div>🌐 www.luxedistribution.lk</div>
-              </div>
-            </div>
-
-            {/* Key Metrics Grid */}
-            <div className="col-span-6 bg-white border border-gray-200 rounded-md p-4">
-              <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wider">Key Metrics</h3>
-              <div className="grid grid-cols-4 gap-3 text-[11px]">
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Active Brands</div><div className="text-lg font-bold text-gray-900">12</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Active Authorizations</div><div className="text-lg font-bold text-gray-900">11</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Active Products</div><div className="text-lg font-bold text-gray-900">428</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Publication-Ready</div><div className="text-lg font-bold text-green-600">402</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Active Contracts</div><div className="text-lg font-bold text-gray-900">8</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Renewals Due</div><div className="text-lg font-bold text-amber-600">2</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Open Verification</div><div className="text-lg font-bold text-gray-900">4</div></div>
-                <div className="bg-gray-50 p-2.5 rounded border border-gray-100"><div className="text-gray-500">Open Compliance</div><div className="text-lg font-bold text-red-600">2</div></div>
-              </div>
-            </div>
-
-            {/* Lifecycle Actions */}
-            <div className="col-span-3 bg-white border border-gray-200 rounded-md p-4 flex flex-col">
-              <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wider">Lifecycle Actions</h3>
-              <div className="space-y-2">
-                <button className="w-full text-left px-3 py-1.5 border border-gray-200 rounded text-[11px] font-semibold hover:bg-gray-50 flex items-center justify-between">
-                  <span>Add Brand Relationship</span> <Award size={12} className="text-gray-400" />
-                </button>
-                <button className="w-full text-left px-3 py-1.5 border border-amber-200 bg-amber-50 text-amber-900 rounded text-[11px] font-semibold hover:bg-amber-100 flex items-center justify-between">
-                  <span>Restrict Supplier</span> <Lock size={12} className="text-amber-600" />
-                </button>
-                <button className="w-full text-left px-3 py-1.5 border border-red-200 bg-red-50 text-red-900 rounded text-[11px] font-semibold hover:bg-red-100 flex items-center justify-between">
-                  <span>Suspend Supplier</span> <AlertTriangle size={12} className="text-red-600" />
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Middle Operational Summaries */}
-          <div className="grid grid-cols-3 gap-4">
+        {/* Tab Content Cards */}
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-2 gap-4 mt-2">
             <div className="bg-white border border-gray-200 rounded-md p-4">
-              <h3 className="text-xs font-bold text-gray-900 mb-2">Company Profile Summary</h3>
-              <div className="space-y-1.5 text-[11px]">
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">Incorporation Country</span><span className="font-semibold">Sri Lanka</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">Entity Type</span><span className="font-semibold">Private Limited</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">Tax Registration</span><span className="font-semibold">114-254-789-000</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">Years Active</span><span className="font-semibold">6 Years</span></div>
-              </div>
+              <h3 className="font-bold text-xs text-gray-900 mb-3">Contracts &amp; Commercial ({contracts.length})</h3>
+              {contracts.length === 0 ? (
+                <div className="text-xs text-gray-400 border border-dashed border-gray-200 rounded p-4 text-center">No contracts found for this supplier.</div>
+              ) : (
+                <div className="flex flex-col gap-2 text-xs">
+                  {contracts.map((c: any) => (
+                    <div key={c.id} className="p-2 border border-gray-100 rounded flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-gray-900">{c.contract_name}</div>
+                        <div className="text-[10px] text-gray-400">{c.contract_number}</div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded text-[10px] font-semibold">{c.status}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="bg-white border border-gray-200 rounded-md p-4">
-              <h3 className="text-xs font-bold text-gray-900 mb-2">Verification &amp; Documents Summary</h3>
-              <div className="space-y-1.5 text-[11px]">
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">ISO 9001 Certificate</span><span className="text-green-600 font-bold">Verified</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">GMP Certificate</span><span className="text-green-600 font-bold">Verified</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">Financial Audit 2025</span><span className="text-green-600 font-bold">Verified</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="text-gray-500">Tax Registration</span><span className="text-green-600 font-bold">Verified</span></div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-md p-4">
-              <h3 className="text-xs font-bold text-gray-900 mb-2">Brands &amp; Authorizations (6)</h3>
-              <div className="space-y-1.5 text-[11px]">
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="font-bold">Estée Lauder</span><span className="text-green-600 font-bold">Active</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="font-bold">MAC Cosmetics</span><span className="text-green-600 font-bold">Active</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="font-bold">Clinique</span><span className="text-green-600 font-bold">Active</span></div>
-                <div className="flex justify-between border-b border-gray-100 pb-1"><span className="font-bold">The Ordinary</span><span className="text-green-600 font-bold">Active</span></div>
-              </div>
+              <h3 className="font-bold text-xs text-gray-900 mb-3">Certificates &amp; Credentials ({certificates.length})</h3>
+              {certificates.length === 0 ? (
+                <div className="text-xs text-gray-400 border border-dashed border-gray-200 rounded p-4 text-center">No uploaded certificates found.</div>
+              ) : (
+                <div className="flex flex-col gap-2 text-xs">
+                  {certificates.map((cert: any) => (
+                    <div key={cert.id} className="p-2 border border-gray-100 rounded flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-gray-900">{cert.certificate_type || 'Certificate'}</div>
+                        <div className="text-[10px] text-gray-400">Issuer: {cert.issuing_organization || 'Official'}</div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-semibold">{cert.status || 'Active'}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-
-        </div>
+        )}
 
       </div>
 
       {/* RIGHT INTELLIGENCE RAIL */}
       <RightIntelligenceRail>
-        <RailSection title="Supplier Health">
+        <RailSection title="Supplier Risk &amp; Health">
           <HealthScoreGauge 
-            score={92} 
-            label="Excellent" 
-            statusText="Excellent"
-            statusColor="#16a34a"
+            score={s.verification_status === 'verified' ? 90 : 50} 
+            label={s.verification_status === 'verified' ? 'Healthy' : 'Pending'} 
+            statusText={s.verification_status === 'verified' ? 'Verified' : 'Under Review'}
+            statusColor={s.verification_status === 'verified' ? '#16a34a' : '#d97706'}
             metrics={[
-              { label: 'Profile Completeness', value: '94%', progress: 94 },
-              { label: 'Verification Coverage', value: '92%', progress: 92 },
-              { label: 'Document Readiness', value: '90%', progress: 90 },
-              { label: 'Authorization Coverage', value: '94%', progress: 94 },
-              { label: 'Contract Coverage', value: '88%', progress: 88 },
+              { label: 'Contracts', value: contracts.length > 0 ? 'Active' : 'Missing', progress: contracts.length > 0 ? 100 : 0 },
+              { label: 'Products', value: `${products.length} Items`, progress: products.length > 0 ? 80 : 0 },
             ]}
           />
-        </RailSection>
-
-        <RailSection title="Current Supplier State">
-          <div className="space-y-1.5 text-[11px] border-t border-gray-200 pt-2">
-            <div className="flex justify-between"><span className="text-gray-500">Status</span><span className="font-bold text-green-600">Active</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Verification State</span><span className="font-bold text-green-600">Verified</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Authorization State</span><span className="font-bold text-green-600">Authorized</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Contract State</span><span className="font-bold text-green-600">Active</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Catalogue Readiness</span><span className="font-bold text-green-600">Ready</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Risk Level</span><span className="font-bold text-green-600">Low</span></div>
-          </div>
-        </RailSection>
-
-        <RailSection title="Priority Issues">
-          <div className="flex flex-col gap-1 text-[11px]">
-            <div className="flex justify-between items-center"><span className="text-gray-700">Insurance Expiry</span><span className="font-bold text-amber-600">2</span></div>
-            <div className="flex justify-between items-center"><span className="text-gray-700">Brand Authorization Expiry</span><span className="font-bold text-amber-600">1</span></div>
-            <div className="flex justify-between items-center"><span className="text-gray-700">Missing Financial Audit</span><span className="font-bold text-amber-600">1</span></div>
-          </div>
-        </RailSection>
-
-        <RailSection title="Final Supplier Actions">
-          <div className="flex flex-col gap-2 mt-2">
-            <button className="bg-[#7a0023] text-white py-1.5 rounded text-[11px] font-semibold hover:bg-[#a0002b]">Edit Supplier</button>
-            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Start Verification Review</button>
-            <button className="border border-gray-300 text-gray-700 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50">Add Brand Relationship</button>
-            <button className="border border-amber-300 text-amber-900 bg-amber-50 py-1.5 rounded text-[11px] font-semibold hover:bg-amber-100">Restrict Supplier</button>
-            <button className="border border-red-300 text-red-900 bg-red-50 py-1.5 rounded text-[11px] font-semibold hover:bg-red-100">Suspend Supplier</button>
-          </div>
         </RailSection>
       </RightIntelligenceRail>
 
