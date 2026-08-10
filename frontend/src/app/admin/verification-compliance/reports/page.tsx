@@ -7,6 +7,10 @@ import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { verificationComplianceApi } from '@/lib/api/verificationCompliance';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Domain', value: 'Compliance Analytics' },
@@ -62,8 +66,15 @@ export default function ComplianceReportsPage() {
           ))}
         </DashboardGrid>
 
-        <div className="bg-white border border-gray-200 rounded-md p-6 mt-2 text-center text-xs text-gray-500">
-          Analytics &amp; trust scores calculated dynamically from database events.
+        {/* COMPLIANCE REPORTS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Compliance Health &amp; Incident Trend (30 Days)" subtitle="Historical case resolutions &amp; audit events" loading={loading}>
+            <TrendChart data={data?.trend || []} colors={['#16a34a', '#2563eb', '#dc2626']} />
+          </ChartCard>
+
+          <ChartCard title="Compliance Risk Distribution" subtitle="Risk profile breakdown across network" loading={loading}>
+            <DonutDistributionChart data={data?.donut || []} totalLabel="Risks" totalValue={(data?.donut || []).reduce((a: any, c: any) => a + (c.value || 0), 0).toLocaleString()} />
+          </ChartCard>
         </div>
       </div>
 

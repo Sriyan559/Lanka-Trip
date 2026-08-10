@@ -7,6 +7,10 @@ import { ContextScopeBar } from '@/components/admin/shared/ContextScopeBar';
 import { RightIntelligenceRail, RailSection, HealthScoreGauge } from '@/components/admin/shared/RightIntelligenceRail';
 import { brandsSuppliersApi } from '@/lib/api/brandsSuppliers';
 
+import { ChartCard } from '@/components/admin/shared/ChartCard';
+import { TrendChart } from '@/components/admin/shared/TrendChart';
+import { DonutDistributionChart } from '@/components/admin/shared/DonutDistributionChart';
+
 const CONTEXT_ITEMS = [
   { label: 'Tenant', value: 'SL Beauty' },
   { label: 'Ecosystem', value: 'Beauty Marketplace' },
@@ -62,8 +66,23 @@ export default function SupplierRiskCompliancePage() {
           ))}
         </DashboardGrid>
 
-        <div className="bg-white border border-gray-200 rounded-md p-6 mt-2 text-center text-xs text-gray-500">
-          Risk profiles and compliance scores generated directly from database evaluations.
+        {/* RISK ANALYTICS CHART GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-3">
+          <ChartCard title="Supplier Risk &amp; Compliance Trajectory (30 Days)" subtitle="Historical risk case trends &amp; compliance scores" loading={loading}>
+            <TrendChart data={data?.trend || []} colors={['#dc2626', '#f59e0b', '#16a34a']} />
+          </ChartCard>
+
+          <ChartCard title="Supplier Risk Level Distribution" subtitle="Risk tier breakdown" loading={loading}>
+            <DonutDistributionChart 
+              data={[
+                { name: 'Low Risk', value: risk.low || 0, color: '#16a34a' },
+                { name: 'Medium Risk', value: risk.medium || 0, color: '#f59e0b' },
+                { name: 'High Risk', value: risk.high || 0, color: '#dc2626' }
+              ]} 
+              totalLabel="Risk Profiles" 
+              totalValue={(risk.low + risk.medium + risk.high).toLocaleString()} 
+            />
+          </ChartCard>
         </div>
       </div>
 
