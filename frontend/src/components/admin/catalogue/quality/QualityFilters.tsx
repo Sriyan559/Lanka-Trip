@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { Search, RotateCcw, Bookmark, RefreshCw, SlidersHorizontal, Check, X } from "lucide-react";
-import { QualityFilterState } from "@/types/catalogueQuality";
+import { Bookmark, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
+import type { CatalogueQualityDashboard, QualityFilterState } from "@/types/catalogueQuality";
 
-interface QualityFiltersProps {
+interface Props {
   filters: QualityFilterState;
-  onChange: (updated: Partial<QualityFilterState>) => void;
+  options: CatalogueQualityDashboard["options"];
+  onChange: (value: Partial<QualityFilterState>) => void;
   onToggleQuickChip: (chip: string) => void;
   onClearAll: () => void;
   onOpenSaveView: () => void;
@@ -15,191 +16,24 @@ interface QualityFiltersProps {
   isRefreshing: boolean;
 }
 
-export function QualityFilters({
-  filters,
-  onChange,
-  onToggleQuickChip,
-  onClearAll,
-  onOpenSaveView,
-  onOpenMoreFilters,
-  onRefresh,
-  isRefreshing,
-}: QualityFiltersProps) {
-  const quickChips = [
-    { label: "Assigned to Me", icon: "user" },
-    { label: "Critical", icon: "alert" },
-    { label: "Duplicate Conflict", icon: "copy" },
-    { label: "Publication Blocked", icon: "ban" },
-    { label: "SLA Breach", icon: "clock" },
-    { label: "Compliance Risk", icon: "shield" },
-  ];
+export function QualityFilters({ filters, options, onChange, onToggleQuickChip, onClearAll, onOpenSaveView, onOpenMoreFilters, onRefresh, isRefreshing }: Props) {
+  const chips = ["Assigned to Me", "Critical", "Duplicate Conflict", "Publication Blocked", "SLA Breach", "Compliance Risk"];
+  const select = "h-8 rounded border border-line bg-slate-50 px-2 text-[11px] font-semibold";
 
-  return (
-    <div className="bg-white border border-line rounded-lg p-3.5 shadow-sm mb-4 space-y-3">
-      {/* Top Controls Row */}
-      <div className="flex flex-wrap items-center gap-2 text-[12px]">
-        {/* Search Input */}
-        <div className="relative flex-1 min-w-[240px]">
-          <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search product, SKU, barcode, brand, category, media, issue or case ID..."
-            value={filters.searchQuery}
-            onChange={(e) => onChange({ searchQuery: e.target.value })}
-            className="w-full h-8 pl-9 pr-3 rounded border border-line text-[11.5px] font-medium text-ink placeholder:text-slate-400 focus:outline-none focus:border-[#671021]"
-          />
-        </div>
-
-        {/* Issue Type Filter */}
-        <select
-          value={filters.issueType}
-          onChange={(e) => onChange({ issueType: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Issue Type: All</option>
-          <option value="Possible Duplicate Product">Possible Duplicate Product</option>
-          <option value="Duplicate Barcode Conflict">Duplicate Barcode Conflict</option>
-          <option value="Missing Mandatory Media">Missing Mandatory Media</option>
-          <option value="Classification Conflict">Classification Conflict</option>
-          <option value="Publication Blocker">Publication Blocker</option>
-          <option value="Incomplete Safety Data">Incomplete Safety Data</option>
-        </select>
-
-        {/* Severity Filter */}
-        <select
-          value={filters.severity}
-          onChange={(e) => onChange({ severity: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Severity: All</option>
-          <option value="Critical">Critical</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-
-        {/* Status Filter */}
-        <select
-          value={filters.status}
-          onChange={(e) => onChange({ status: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Status: All</option>
-          <option value="New">New</option>
-          <option value="In Review">In Review</option>
-          <option value="Pending Review">Pending Review</option>
-          <option value="Pending Merge Review">Pending Merge Review</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Escalated">Escalated</option>
-          <option value="Resolved">Resolved</option>
-        </select>
-
-        {/* Category Filter */}
-        <select
-          value={filters.category}
-          onChange={(e) => onChange({ category: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Category: All</option>
-          <option value="Skincare">Skincare</option>
-          <option value="Makeup">Makeup</option>
-          <option value="Hair Care">Hair Care</option>
-          <option value="Fragrance">Fragrance</option>
-        </select>
-
-        {/* Brand Filter */}
-        <select
-          value={filters.brand}
-          onChange={(e) => onChange({ brand: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Brand: All</option>
-          <option value="Estée Lauder">Estée Lauder</option>
-          <option value="Chanel Beauty">Chanel Beauty</option>
-          <option value="Shiseido">Shiseido</option>
-          <option value="Neutrogena">Neutrogena</option>
-          <option value="MAC Cosmetics">MAC Cosmetics</option>
-        </select>
-
-        {/* Channel Filter */}
-        <select
-          value={filters.channel}
-          onChange={(e) => onChange({ channel: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Channel: All</option>
-          <option value="Marketplace">Marketplace</option>
-          <option value="Mobile App">Mobile App</option>
-          <option value="B2B">B2B Wholesale</option>
-        </select>
-
-        {/* Owner Filter */}
-        <select
-          value={filters.owner}
-          onChange={(e) => onChange({ owner: e.target.value })}
-          className="h-8 px-2.5 bg-slate-50 border border-line rounded font-semibold text-slate-700 text-[11px] focus:outline-none cursor-pointer"
-        >
-          <option value="All">Owner: All</option>
-          <option value="Elena Vance">Elena Vance</option>
-          <option value="Marcus Lee">Marcus Lee</option>
-          <option value="Priya Kapoor">Priya Kapoor</option>
-        </select>
-
-        {/* More Filters */}
-        <button
-          onClick={onOpenMoreFilters}
-          className="h-8 px-2.5 rounded border border-line bg-white text-slate-700 font-semibold text-[11px] hover:bg-slate-50 flex items-center gap-1"
-        >
-          <SlidersHorizontal size={12} />
-          <span>More Filters</span>
-        </button>
-
-        {/* Action Buttons */}
-        <button
-          onClick={onClearAll}
-          className="h-8 px-2 rounded text-[#671021] font-bold text-[11px] hover:underline"
-        >
-          Clear All
-        </button>
-
-        <button
-          onClick={onOpenSaveView}
-          className="h-8 px-2.5 rounded border border-line bg-white text-slate-700 font-semibold text-[11px] hover:bg-slate-50 flex items-center gap-1"
-        >
-          <Bookmark size={12} />
-          <span>Save View</span>
-        </button>
-
-        <button
-          onClick={onRefresh}
-          className="h-8 px-3 rounded bg-[#671021] text-white font-bold text-[11px] hover:bg-[#520d1a] flex items-center gap-1 shadow-xs"
-        >
-          <RefreshCw size={12} className={isRefreshing ? "animate-spin" : ""} />
-          <span>Refresh</span>
-        </button>
-      </div>
-
-      {/* Quick Filter Chips Row */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100 text-[10.5px]">
-        <span className="text-slate-400 font-medium mr-1">Quick Filters:</span>
-        {quickChips.map((chip) => {
-          const isSelected = filters.quickChips.includes(chip.label);
-          return (
-            <button
-              key={chip.label}
-              onClick={() => onToggleQuickChip(chip.label)}
-              className={`px-2.5 py-0.5 rounded-full font-bold transition-colors flex items-center gap-1 border ${
-                isSelected
-                  ? "bg-[#671021] text-white border-[#671021]"
-                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-              }`}
-            >
-              <span>{chip.label}</span>
-              {isSelected && <X size={11} />}
-            </button>
-          );
-        })}
-      </div>
+  return <div className="mb-4 space-y-3 rounded-lg border border-line bg-white p-3.5 shadow-sm">
+    <div className="flex flex-wrap gap-2">
+      <div className="relative min-w-[240px] flex-1"><Search size={14} className="absolute left-3 top-2.5 text-muted"/><input className="h-8 w-full rounded border pl-9 text-[11px]" placeholder="Search product, SKU, issue or case ID..." value={filters.searchQuery} onChange={event => onChange({ searchQuery: event.target.value })}/></div>
+      <select className={select} value={filters.issueType} onChange={event => onChange({ issueType: event.target.value })}><option value="All">Issue Type: All</option>{options.issueTypes.map(value => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}</select>
+      <select className={select} value={filters.severity} onChange={event => onChange({ severity: event.target.value })}><option value="All">Severity: All</option>{options.severities.map(value => <option key={value} value={value}>{value}</option>)}</select>
+      <select className={select} value={filters.status} onChange={event => onChange({ status: event.target.value })}><option value="All">Status: All</option><option value="open">Open (all active)</option>{options.statuses.map(value => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}</select>
+      <select className={select} value={filters.category} onChange={event => onChange({ category: event.target.value })}><option value="All">Category: All</option>{options.categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+      <select disabled className={select}><option>Brand unavailable</option></select><select disabled className={select}><option>Channel unavailable</option></select>
+      <select className={select} value={filters.owner} onChange={event => onChange({ owner: event.target.value })}><option value="All">Owner: All</option><option value="Unassigned">Unassigned</option>{options.users.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+      <button onClick={onOpenMoreFilters} className="flex h-8 items-center gap-1 rounded border px-2 text-[11px] font-bold"><SlidersHorizontal size={12}/>More Filters</button>
+      <button onClick={onClearAll} className="h-8 px-2 text-[11px] font-bold text-[#671021]">Clear All</button>
+      <button onClick={onOpenSaveView} className="flex h-8 items-center gap-1 rounded border px-2 text-[11px] font-bold"><Bookmark size={12}/>Save View</button>
+      <button onClick={onRefresh} disabled={isRefreshing} className="flex h-8 items-center gap-1 rounded bg-[#671021] px-3 text-[11px] font-bold text-white"><RefreshCw size={12} className={isRefreshing ? "animate-spin" : ""}/>Refresh</button>
     </div>
-  );
+    <div className="flex flex-wrap gap-1.5 border-t pt-2 text-[10px]"><b className="text-muted">Quick Filters:</b>{chips.map(chip => <button key={chip} onClick={() => onToggleQuickChip(chip)} className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-bold ${filters.quickChips.includes(chip) ? "bg-[#671021] text-white" : "bg-slate-50"}`}>{chip}{filters.quickChips.includes(chip) && <X size={10}/>}</button>)}</div>
+  </div>;
 }

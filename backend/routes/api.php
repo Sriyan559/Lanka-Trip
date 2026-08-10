@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
 use App\Http\Controllers\Api\Admin\BrandManagementController;
 use App\Http\Controllers\Api\Admin\CatalogueCommandCenterController;
 use App\Http\Controllers\Api\Admin\CatalogueDataOperationsController;
+use App\Http\Controllers\Api\Admin\CatalogueQualityController;
 use App\Http\Controllers\Api\Admin\CategoryManagementController;
 use App\Http\Controllers\Api\Admin\EcosystemModuleController;
 use App\Http\Controllers\Api\Admin\InventoryOperationsController;
@@ -191,6 +192,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/catalogue/import-export/jobs/{job}/retry', [CatalogueDataOperationsController::class, 'retry']);
         Route::post('/admin/catalogue/import-export/jobs/{job}/cancel', [CatalogueDataOperationsController::class, 'cancel']);
         Route::get('/admin/catalogue/import-export/jobs/{job}/download', [CatalogueDataOperationsController::class, 'download']);
+
+        Route::get('/admin/catalogue/quality', [CatalogueQualityController::class, 'index']);
+        Route::get('/admin/catalogue/quality/report', [CatalogueQualityController::class, 'report']);
+        Route::post('/admin/catalogue/quality/validate', [CatalogueQualityController::class, 'validateCatalogue']);
+        Route::get('/admin/catalogue/quality/validation-runs/{run}', [CatalogueQualityController::class, 'validationRun']);
+        Route::post('/admin/catalogue/quality/cases', [CatalogueQualityController::class, 'storeCase']);
+        Route::post('/admin/catalogue/quality/bulk', [CatalogueQualityController::class, 'bulk']);
+        Route::post('/admin/catalogue/quality/saved-views', [CatalogueQualityController::class, 'saveView']);
+        Route::get('/admin/catalogue/quality/issues/{issue}', [CatalogueQualityController::class, 'show']);
+        Route::patch('/admin/catalogue/quality/issues/{issue}', [CatalogueQualityController::class, 'updateIssue']);
+        Route::post('/admin/catalogue/quality/issues/{issue}/notes', [CatalogueQualityController::class, 'note']);
+        Route::post('/admin/catalogue/quality/duplicates/{candidate}/resolve', [CatalogueQualityController::class, 'resolveDuplicate']);
         Route::get('/admin/catalogue/attributes', [AttributeManagementController::class, 'index']);
         Route::get('/admin/catalogue/attributes/export', [AttributeManagementController::class, 'export']);
         Route::post('/admin/catalogue/attributes/import', [AttributeManagementController::class, 'import']);
