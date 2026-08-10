@@ -48,6 +48,11 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function categoryAttributes(): HasMany
+    {
+        return $this->hasMany(CategoryAttribute::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');

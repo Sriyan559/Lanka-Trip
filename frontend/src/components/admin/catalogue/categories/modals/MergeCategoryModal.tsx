@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, GitMerge, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import { CategoryItem } from "@/types/categoryManagement";
@@ -10,6 +10,7 @@ interface MergeCategoryModalProps {
   onClose: () => void;
   sourceCategory: CategoryItem | null;
   onConfirmMerge: (source: CategoryItem, targetName: string) => void;
+  categoryOptions: Array<{id:string;name:string}>;
 }
 
 export const MergeCategoryModal: React.FC<MergeCategoryModalProps> = ({
@@ -17,19 +18,20 @@ export const MergeCategoryModal: React.FC<MergeCategoryModalProps> = ({
   onClose,
   sourceCategory,
   onConfirmMerge,
+  categoryOptions,
 }) => {
-  const [targetCategory, setTargetCategory] = useState("Face Serum");
+  const [targetCategory, setTargetCategory] = useState("");
+  useEffect(() => setTargetCategory(""), [sourceCategory?.id]);
 
   if (!isOpen || !sourceCategory) return null;
 
   const handleMerge = () => {
-    if (targetCategory === sourceCategory.categoryName) {
+    if (!targetCategory || targetCategory === sourceCategory.id) {
       toast.error("Source and destination category cannot be the same!");
       return;
     }
 
     onConfirmMerge(sourceCategory, targetCategory);
-    toast.success(`Merged ${sourceCategory.categoryName} into ${targetCategory}!`);
     onClose();
   };
 
@@ -60,17 +62,15 @@ export const MergeCategoryModal: React.FC<MergeCategoryModalProps> = ({
               onChange={(e) => setTargetCategory(e.target.value)}
               className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none"
             >
-              <option value="Face Serum">Face Serum (CAT-SKN-0014)</option>
-              <option value="Moisturizer">Moisturizer (CAT-SKN-0015)</option>
-              <option value="Cleanser">Cleanser (CAT-SKN-0016)</option>
-              <option value="Toner">Toner (CAT-SKN-0017)</option>
+              <option value="">Select a category</option>
+              {categoryOptions.filter(p=>p.id!==sourceCategory.id).map(p=><option key={p.id} value={p.id}>{p.name} (ID {p.id})</option>)}
             </select>
           </div>
 
           <div className="p-2.5 bg-rose-50 border border-rose-200 rounded text-rose-800 flex items-start gap-2 text-[11px]">
             <AlertTriangle size={14} className="text-rose-600 shrink-0 mt-0.5" />
             <p>
-              Merging will re-assign all {sourceCategory.activeProductsCount} products to {targetCategory} and archive the source category record.
+              Merging reassigns products and children, combines non-conflicting required attributes, and permanently removes the source category. This installation has no archive model.
             </p>
           </div>
         </div>

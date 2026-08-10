@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, Move, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import { CategoryItem } from "@/types/categoryManagement";
@@ -10,6 +10,7 @@ interface MoveCategoryModalProps {
   onClose: () => void;
   category: CategoryItem | null;
   onConfirmMove: (category: CategoryItem, newParent: string) => void;
+  parentOptions: Array<{id:string;name:string}>;
 }
 
 export const MoveCategoryModal: React.FC<MoveCategoryModalProps> = ({
@@ -17,19 +18,20 @@ export const MoveCategoryModal: React.FC<MoveCategoryModalProps> = ({
   onClose,
   category,
   onConfirmMove,
+  parentOptions,
 }) => {
-  const [selectedParent, setSelectedParent] = useState("Skincare");
+  const [selectedParent, setSelectedParent] = useState("");
+  useEffect(() => setSelectedParent(category?.parentId || ""), [category?.id, category?.parentId]);
 
   if (!isOpen || !category) return null;
 
   const handleMove = () => {
-    if (selectedParent === category.categoryName) {
+    if (selectedParent === category.id) {
       toast.error("Circular Hierarchy Error: A category cannot be its own parent!");
       return;
     }
 
     onConfirmMove(category, selectedParent);
-    toast.success(`Category ${category.categoryName} moved under ${selectedParent}!`);
     onClose();
   };
 
@@ -60,19 +62,15 @@ export const MoveCategoryModal: React.FC<MoveCategoryModalProps> = ({
               onChange={(e) => setSelectedParent(e.target.value)}
               className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none"
             >
-              <option value="Beauty">Beauty (Root)</option>
-              <option value="Skincare">Skincare</option>
-              <option value="Face Care">Face Care</option>
-              <option value="Body Care">Body Care</option>
-              <option value="Makeup">Makeup</option>
-              <option value="Haircare">Haircare</option>
+              <option value="">Root</option>
+              {parentOptions.filter(p=>p.id!==category.id).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
 
           <div className="p-2.5 bg-amber-50 border border-amber-200 rounded text-amber-800 flex items-start gap-2 text-[11px]">
             <AlertTriangle size={14} className="text-amber-600 shrink-0 mt-0.5" />
             <p>
-              Moving this category will update hierarchy paths for all {category.activeProductsCount} assigned products.
+              Moving this category updates its hierarchy path and every descendant path derived from it.
             </p>
           </div>
         </div>

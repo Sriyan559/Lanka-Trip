@@ -19,35 +19,35 @@ export const CategoryBusinessContext: React.FC<CategoryBusinessContextProps> = (
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-700">
         <div>
           <span className="text-gray-400 font-semibold uppercase text-[9.5px]">Tenant:</span>{" "}
-          <span className="font-bold text-gray-800">SL Beauty</span>
+          <span className="font-bold text-amber-700">Unavailable in schema</span>
         </div>
         <div>
           <span className="text-gray-400 font-semibold uppercase text-[9.5px]">Ecosystem:</span>{" "}
-          <span className="font-bold text-gray-800">Beauty Marketplace</span>
+          <span className="font-bold text-gray-800">Catalogue database</span>
         </div>
         <div>
           <span className="text-gray-400 font-semibold uppercase text-[9.5px]">Business Unit:</span>{" "}
-          <span className="font-bold text-gray-800">All Business Units</span>
+          <span className="font-bold text-amber-700">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-semibold uppercase text-[9.5px]">Sales Channels:</span>{" "}
-          <span className="font-bold text-gray-800">All Channels</span>
+          <span className="font-bold text-amber-700">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-semibold uppercase text-[9.5px]">Region:</span>{" "}
-          <span className="font-bold text-gray-800">Sri Lanka</span>
+          <span className="font-bold text-amber-700">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-semibold uppercase text-[9.5px]">Currency:</span>{" "}
-          <span className="font-bold text-gray-800">LKR</span>
+          <span className="font-bold text-amber-700">Not applicable</span>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold text-emerald-700">Live Data</span>
+            <span className="w-2 h-2 rounded-full bg-sky-500" />
+            <span className="font-bold text-sky-700">30s polling</span>
           </div>
           <span className="text-gray-400 text-[10.5px]">Last synced: {lastSyncedTime}</span>
           <button
