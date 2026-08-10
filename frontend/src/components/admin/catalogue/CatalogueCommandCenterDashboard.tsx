@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { INITIAL_KPIS } from "@/data/catalogue.mock";
 import { BusinessContextFilter, ProductApprovalItem, RecentActivityItem } from "@/types/catalogue";
+import { useRouter } from "next/navigation";
+import { useCatalogueCommandCenter } from "@/hooks/useCatalogueCommandCenter";
+import { exportCatalogueCommandCenter } from "@/services/api/catalogueCommandCenter";
 import { CatalogueHeader } from "./components/CatalogueHeader";
 import { CatalogueContextFilters } from "./components/CatalogueContextFilters";
 import { CatalogueKpiGrid } from "./components/CatalogueKpiGrid";
@@ -16,46 +18,38 @@ import { PriorityProductApprovals } from "./components/PriorityProductApprovals"
 import { CatalogueQualityReadiness } from "./components/CatalogueQualityReadiness";
 import { InventoryExpiryOperations } from "./components/InventoryExpiryOperations";
 import { RecentCatalogueActivity } from "./components/RecentCatalogueActivity";
-import { ImportCatalogueModal } from "./components/ImportCatalogueModal";
 import { QuickQueryDrawer } from "./components/QuickQueryDrawer";
 import { DataCheckModal } from "./components/DataCheckModal";
+import { ImportCatalogueModal } from "./components/ImportCatalogueModal";
 import { FileCheck, Search } from "lucide-react";
 
 export function CatalogueCommandCenterDashboard() {
+  const router = useRouter();
   const [filters, setFilters] = useState<BusinessContextFilter>({
-    tenant: "SL Beauty",
-    ecosystem: "Beauty Marketplace",
-    businessUnit: "All Business Units",
-    salesChannel: "All Channels",
-    region: "Sri Lanka",
-    currency: "LKR",
+    tenant: "Platform catalogue",
+    ecosystem: "All ecosystems",
+    businessUnit: "All business units",
+    salesChannel: "All channels",
+    region: "All regions",
+    currency: "",
     dateRange: "Last 30 Days",
   });
 
   const [activeKpiFilter, setActiveKpiFilter] = useState<string | null>(null);
   const [selectedApprovalStage, setSelectedApprovalStage] = useState<string | null>(null);
 
-  // Modals & Drawers
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const dates = useMemo(() => {
+    const days = filters.dateRange === "Last 7 Days" ? 7 : filters.dateRange === "Last 90 Days" ? 90 : 30;
+    const to = new Date(); const from = new Date(); from.setDate(to.getDate() - days + 1);
+    return { dateFrom: from.toISOString().slice(0, 10), dateTo: to.toISOString().slice(0, 10) };
+  }, [filters.dateRange]);
+  const { data, error, loading, refreshing, refresh } = useCatalogueCommandCenter(dates);
+
   const [isQuickQueryOpen, setIsQuickQueryOpen] = useState(false);
   const [isDataCheckOpen, setIsDataCheckOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  // Export CSV handler
-  const handleExportCSV = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      "ID,Label,Value,Trend\n" +
-      INITIAL_KPIS.map((kpi) => `${kpi.id},"${kpi.label}","${kpi.value}","${kpi.trend}"`).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `catalogue_report_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success("Catalogue report exported successfully as CSV.");
-  };
+  const handleExportCSV = async () => { try { await exportCatalogueCommandCenter(dates); toast.success("Catalogue report exported successfully."); } catch { toast.error("Unable to export catalogue report."); } };
 
   const handleFilterChange = (updated: Partial<BusinessContextFilter>) => {
     setFilters((prev) => ({ ...prev, ...updated }));
@@ -63,15 +57,7 @@ export function CatalogueCommandCenterDashboard() {
   };
 
   const handleResetFilters = () => {
-    setFilters({
-      tenant: "SL Beauty",
-      ecosystem: "Beauty Marketplace",
-      businessUnit: "All Business Units",
-      salesChannel: "All Channels",
-      region: "Sri Lanka",
-      currency: "LKR",
-      dateRange: "Last 30 Days",
-    });
+    setFilters(data?.context.defaults ?? { tenant: "Platform catalogue", ecosystem: "All ecosystems", businessUnit: "All business units", salesChannel: "All channels", region: "All regions", currency: "", dateRange: "Last 30 Days" });
     setActiveKpiFilter(null);
     setSelectedApprovalStage(null);
     toast.success("Filters reset to default.");
@@ -79,16 +65,22 @@ export function CatalogueCommandCenterDashboard() {
 
   const handleKpiClick = (filterKey: string) => {
     setActiveKpiFilter((prev) => (prev === filterKey ? null : filterKey));
-    toast(`Applied quick filter: ${filterKey}`, { icon: "🔍" });
+    const inventory = ["available-inventory", "low-stock", "near-expiry", "recalled"].includes(filterKey);
+    const quality = ["incomplete", "duplicate", "missing-media", "compliance"].includes(filterKey);
+    router.push(`${inventory ? "/admin/catalogue/inventory" : quality ? "/admin/catalogue/quality" : "/admin/catalogue/products"}?filter=${encodeURIComponent(filterKey)}`);
   };
 
   const handleOpenApproval = (item: ProductApprovalItem) => {
-    toast.success(`Opening approval workspace for ${item.submissionId}`);
+    router.push(`/admin/catalogue/product-approvals/${item.id}`);
   };
 
   const handleViewAudit = (item: RecentActivityItem) => {
-    toast.success(`Opening audit record for ${item.productRecord}`);
+    router.push(`/admin/activity-logs?record=${encodeURIComponent(item.id)}`);
   };
+
+  if (loading && !data) return <div className="min-h-screen bg-[#f8fafc] p-6" role="status"><div className="h-24 bg-white border border-gray-200 animate-pulse rounded mb-4" /><div className="grid grid-cols-6 gap-3">{Array.from({length:12}).map((_,i)=><div key={i} className="h-28 bg-white border border-gray-200 animate-pulse rounded" />)}</div></div>;
+  if (error && !data) return <div className="min-h-screen bg-[#f8fafc] p-6"><CatalogueHeader onExport={()=>{}} onImportClick={()=>router.push('/admin/catalogue/import-export')} onSettingsClick={()=>router.push('/admin/catalogue/attributes')} onCreateClick={()=>router.push('/admin/catalogue/products/create')} /><div className="mt-6 bg-white border border-rose-200 rounded p-6 text-sm text-rose-700">Unable to load catalogue metrics. <button className="underline font-bold" onClick={()=>void refresh()}>Retry</button></div></div>;
+  if (!data) return null;
 
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#f8fafc]">
@@ -96,8 +88,8 @@ export function CatalogueCommandCenterDashboard() {
       <CatalogueHeader
         onExport={handleExportCSV}
         onImportClick={() => setIsImportModalOpen(true)}
-        onSettingsClick={() => toast("Navigating to Catalogue Settings", { icon: "⚙️" })}
-        onCreateClick={() => toast.success("Opening Product Master Creator")}
+        onSettingsClick={() => router.push("/admin/catalogue/attributes")}
+        onCreateClick={() => router.push("/admin/catalogue/products/create")}
       />
 
       {/* 2. Business Context Filter Bar */}
@@ -105,13 +97,18 @@ export function CatalogueCommandCenterDashboard() {
         filters={filters}
         onChange={handleFilterChange}
         onReset={handleResetFilters}
+        options={data.context.options}
+        unsupportedFilters={data.context.unsupportedFilters}
+        lastUpdated={data.meta.generatedAt}
+        isRefreshing={refreshing}
+        onRefresh={() => void refresh()}
       />
 
       {/* Main Container */}
       <div className="p-4 sm:p-6 flex flex-col gap-6 max-w-[1920px] mx-auto w-full">
         {/* 3. Primary KPI Cards */}
         <CatalogueKpiGrid
-          kpis={INITIAL_KPIS}
+          kpis={data.kpis}
           activeFilter={activeKpiFilter}
           onKpiClick={handleKpiClick}
         />
@@ -122,35 +119,38 @@ export function CatalogueCommandCenterDashboard() {
           <div className="flex flex-col gap-6 min-w-0">
             {/* Growth & Composition Section */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <CatalogueGrowthChart />
-              <CatalogueComposition />
+              <CatalogueGrowthChart initialData={data.trend} query={dates} />
+              <CatalogueComposition initialData={data.composition} />
             </div>
 
             {/* Health Scorecard */}
-            <CatalogueHealthScorecard />
+            <CatalogueHealthScorecard items={data.healthScorecard} />
 
             {/* Approval Pipeline + Priority Approvals Table */}
             <div className="flex flex-col gap-4">
               <ApprovalWorkflow
                 selectedStage={selectedApprovalStage}
                 onSelectStage={setSelectedApprovalStage}
+                stages={data.approvalPipeline}
               />
               <PriorityProductApprovals
                 selectedStageFilter={selectedApprovalStage}
                 onOpenApproval={handleOpenApproval}
+                initialData={data.priorityApprovals}
               />
             </div>
 
             {/* Quality & Readiness */}
             <CatalogueQualityReadiness
-              onIssueClick={(title) => toast(`Filtering by issue: ${title}`, { icon: "⚠️" })}
+              onIssueClick={(title) => router.push(`/admin/catalogue/quality?search=${encodeURIComponent(title)}`)}
+              data={data.quality}
             />
 
             {/* Inventory & Expiry Operations */}
-            <InventoryExpiryOperations />
+            <InventoryExpiryOperations data={data.inventory} />
 
             {/* Recent Catalogue Activity */}
-            <RecentCatalogueActivity onViewAudit={handleViewAudit} />
+            <RecentCatalogueActivity activities={data.recentActivity} onViewAudit={handleViewAudit} />
           </div>
 
           {/* Right Catalogue Health Sidebar */}
@@ -158,6 +158,7 @@ export function CatalogueCommandCenterDashboard() {
             <CatalogueInsightSidebar
               onQueueClick={handleKpiClick}
               onAlertClick={(alertTitle) => toast(`Viewing alert: ${alertTitle}`, { icon: "🚨" })}
+              data={{ health: data.health, alerts: data.alerts, approvalStatusSummary: data.approvalStatusSummary, slaSummary: data.slaSummary, inventoryRiskSummary: data.inventoryRiskSummary, quickQueues: data.quickQueues }}
             />
           </div>
         </div>
@@ -185,11 +186,6 @@ export function CatalogueCommandCenterDashboard() {
       </div>
 
       {/* Modals & Drawers */}
-      <ImportCatalogueModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-      />
-
       <QuickQueryDrawer
         isOpen={isQuickQueryOpen}
         onClose={() => setIsQuickQueryOpen(false)}
@@ -198,7 +194,11 @@ export function CatalogueCommandCenterDashboard() {
       <DataCheckModal
         isOpen={isDataCheckOpen}
         onClose={() => setIsDataCheckOpen(false)}
+        kpis={data.kpis}
+        isScanning={refreshing}
+        onRunCheck={() => void refresh()}
       />
+      <ImportCatalogueModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} onImported={() => void refresh()} />
     </div>
   );
 }

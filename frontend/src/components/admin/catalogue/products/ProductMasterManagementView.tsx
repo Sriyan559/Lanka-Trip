@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import {
-  PRODUCT_KPIS,
-  INITIAL_QUICK_FILTERS,
-  MOCK_PRODUCT_MASTERS,
-} from "@/data/productMasters.mock";
-import { AdvancedFilterState, ProductMasterRow } from "@/types/productMaster";
+import type { AdvancedFilterState, ProductMasterRow } from "@/types/productMaster";
+import { useProductMasterManagement } from "@/hooks/useProductMasterManagement";
+import { bulkProductMasters, exportProductMasters, saveProductMasterView } from "@/services/api/productMasterManagement";
 import { ProductMasterHeader } from "./components/ProductMasterHeader";
 import { ProductMasterKpiGrid } from "./components/ProductMasterKpiGrid";
 import { ProductStatusTabs } from "./components/ProductStatusTabs";
@@ -15,307 +13,51 @@ import { ProductAdvancedFilters } from "./components/ProductAdvancedFilters";
 import { ProductQuickFilters } from "./components/ProductQuickFilters";
 import { ProductHealthScorecard } from "./components/ProductHealthScorecard";
 import { ProductMasterTable } from "./components/ProductMasterTable";
-import { ProductMasterIntelligence } from "./components/ProductMasterIntelligence";
-import { LowerSummaryDashboards } from "./components/LowerSummaryDashboards";
 import { ImportProductsModal } from "./components/ImportProductsModal";
 import { SaveProductViewModal } from "./components/SaveProductViewModal";
 import { MoreProductFiltersDrawer } from "./components/MoreProductFiltersDrawer";
-import { useRouter } from "next/navigation";
+
+const EMPTY_FILTERS: AdvancedFilterState = {search:"",productStatus:"All",approvalStatus:"All",publicationStatus:"All",complianceStatus:"All",riskLevel:"All",brand:"All",supplier:"All",category:"All",subcategory:"All",productType:"All",businessUnit:"All",variantReadiness:"All",mediaReadiness:"All",inventoryLinkage:"All",duplicateRisk:"All",brandAuthorization:"All",batchEligibility:"All",channelEligibility:"All",countryOfOrigin:"All",createdDate:"",updatedDate:"",assignedReviewer:"All",dataCompleteness:"All"};
+const UNSUPPORTED = new Set(["brand","businessUnit","inventoryLinkage","batchEligibility","channelEligibility","assignedReviewer","riskLevel","productType","brandAuthorization","duplicateRisk","countryOfOrigin","dataCompleteness"]);
 
 export function ProductMasterManagementView() {
-  const router = useRouter();
+  const router=useRouter();const [activeTab,setActiveTab]=useState("all");const [activeKpiFilter,setActiveKpiFilter]=useState<string|null>(null);const [activeChips,setActiveChips]=useState<string[]>([]);const [filters,setFilters]=useState<AdvancedFilterState>(EMPTY_FILTERS);const [selectedIds,setSelectedIds]=useState<string[]>([]);const [page,setPage]=useState(1);const [pageSize,setPageSize]=useState(25);const [sort,setSort]=useState("updatedAt-desc");
+  const [isImportModalOpen,setIsImportModalOpen]=useState(false);const [isSaveViewModalOpen,setIsSaveViewModalOpen]=useState(false);const [isMoreFiltersOpen,setIsMoreFiltersOpen]=useState(false);
+  const query=useMemo(()=>({...filters,tab:activeTab,page,pageSize,sort}),[filters,activeTab,page,pageSize,sort]);
+  const {data,loading,refreshing,error,refresh}=useProductMasterManagement(query);
 
-  const [activeTab, setActiveTab] = useState("all");
-  const [activeKpiFilter, setActiveKpiFilter] = useState<string | null>(null);
-  const [activeChips, setActiveChips] = useState<string[]>([
-    "qf-1",
-    "qf-2",
-    "qf-3",
-    "qf-4",
-    "qf-5",
-    "qf-6",
-    "qf-7",
-    "qf-8",
-  ]);
+  const changeFilters=(updated:Partial<AdvancedFilterState>)=>{const unsupported=Object.keys(updated).find(key=>UNSUPPORTED.has(key)&&updated[key as keyof AdvancedFilterState]!=="All"&&updated[key as keyof AdvancedFilterState]!=="");if(unsupported){toast.error(data?.capabilities.unsupportedFields[unsupported]??"This filter is unavailable in the current schema.");return;}setPage(1);setFilters(prev=>({...prev,...updated}));};
+  const clearFilters=()=>{setFilters(EMPTY_FILTERS);setActiveTab("all");setActiveKpiFilter(null);setActiveChips([]);setPage(1);};
+  const toggleChip=(id:string)=>{const chip=data?.quickFilters.find(item=>item.id===id);if(!chip)return;setActiveChips(prev=>prev.includes(id)?prev.filter(x=>x!==id):[id]);setActiveTab(activeChips.includes(id)?"all":chip.filterKey);setPage(1);};
+  const kpiClick=(key:string)=>{if(["all","active","draft","pending","incomplete","published","archived","blocked"].includes(key)){setActiveTab(key);setPage(1);setActiveKpiFilter(prev=>prev===key?null:key);}else toast.error(data?.capabilities.unsupportedFields[key]??"This KPI has no list filter in the current schema.");};
+  const runBulk=async(action:string)=>{if(!selectedIds.length)return;if(action==="export-selected"){await exportProductMasters(query,selectedIds);return;}if(!data?.capabilities.supportedBulkActions.includes(action)){toast.error("This action is unavailable because its domain is not modeled.");return;}try{await bulkProductMasters(action,selectedIds,action==="change-status"?"active":undefined);toast.success("Bulk action completed.");setSelectedIds([]);await refresh();}catch(cause){toast.error(cause instanceof Error?cause.message:"Bulk action failed.");}};
+  const rowAction=async(product:ProductMasterRow,action:string)=>{if(action==="edit"){router.push(`/admin/catalogue/products/${product.id}/edit`);return;}if(action==="archive"){setSelectedIds([product.id]);try{await bulkProductMasters("archive",[product.id]);toast.success("Product archived.");setSelectedIds([]);await refresh();}catch(cause){toast.error(cause instanceof Error?cause.message:"Archive failed.");}return;}toast.error("This action is unavailable because the required backend domain is not modeled.");};
 
-  const [filters, setFilters] = useState<AdvancedFilterState>({
-    search: "",
-    productStatus: "All",
-    approvalStatus: "All",
-    publicationStatus: "All",
-    complianceStatus: "All",
-    riskLevel: "All",
-    brand: "All",
-    supplier: "All",
-    category: "All",
-    subcategory: "All",
-    productType: "All",
-    businessUnit: "All",
-    variantReadiness: "All",
-    mediaReadiness: "All",
-    inventoryLinkage: "All",
-    duplicateRisk: "All",
-    brandAuthorization: "All",
-    batchEligibility: "All",
-    channelEligibility: "All",
-    countryOfOrigin: "All",
-    createdDate: "",
-    updatedDate: "",
-    assignedReviewer: "All",
-    dataCompleteness: "All",
-  });
-
-  const [selectedIds, setSelectedIds] = useState<string[]>(["pm-1"]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Modals & Drawers
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isSaveViewModalOpen, setIsSaveViewModalOpen] = useState(false);
-  const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
-
-  // Export CSV handler
-  const handleExportCSV = () => {
-    const recordsToExport =
-      selectedIds.length > 0
-        ? MOCK_PRODUCT_MASTERS.filter((p) => selectedIds.includes(p.id))
-        : MOCK_PRODUCT_MASTERS;
-
-    const csvRows = [
-      ["Public ID", "DB Product ID", "Name", "SKU", "Barcode", "Brand", "Category", "Status"].join(","),
-      ...recordsToExport.map((p) =>
-        [
-          p.publicId,
-          p.dbProductId,
-          `"${p.productName}"`,
-          p.sku,
-          p.barcode,
-          `"${p.brand}"`,
-          `"${p.category}"`,
-          p.productStatus,
-        ].join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvRows], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `product_masters_${Date.now()}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-
-    toast.success(`Exported ${recordsToExport.length} product masters to CSV.`);
-  };
-
-  const handleFilterChange = (updated: Partial<AdvancedFilterState>) => {
-    setFilters((prev) => ({ ...prev, ...updated }));
-  };
-
-  const handleClearAllFilters = () => {
-    setFilters({
-      search: "",
-      productStatus: "All",
-      approvalStatus: "All",
-      publicationStatus: "All",
-      complianceStatus: "All",
-      riskLevel: "All",
-      brand: "All",
-      supplier: "All",
-      category: "All",
-      subcategory: "All",
-      productType: "All",
-      businessUnit: "All",
-      variantReadiness: "All",
-      mediaReadiness: "All",
-      inventoryLinkage: "All",
-      duplicateRisk: "All",
-      brandAuthorization: "All",
-      batchEligibility: "All",
-      channelEligibility: "All",
-      countryOfOrigin: "All",
-      createdDate: "",
-      updatedDate: "",
-      assignedReviewer: "All",
-      dataCompleteness: "All",
-    });
-    setActiveTab("all");
-    setActiveKpiFilter(null);
-    setActiveChips([]);
-    toast.success("Cleared all active filters.");
-  };
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast.success("Product Master dataset refreshed.");
-    }, 600);
-  };
-
-  const handleToggleChip = (chipId: string) => {
-    setActiveChips((prev) =>
-      prev.includes(chipId) ? prev.filter((id) => id !== chipId) : [...prev, chipId]
-    );
-  };
-
-  const handleKpiClick = (filterKey: string) => {
-    setActiveKpiFilter((prev) => (prev === filterKey ? null : filterKey));
-    toast(`Filtering by KPI: ${filterKey}`, { icon: "🔍" });
-  };
-
-  const handleSelectRow = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleSelectAllPage = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(MOCK_PRODUCT_MASTERS.map((p) => p.id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
-  const handleSelectAllMatching = () => {
-    setSelectedIds(MOCK_PRODUCT_MASTERS.map((p) => p.id));
-    toast.success("Selected all 12,840 product master records.");
-  };
-
-  const handleOpenProduct = (product: ProductMasterRow) => {
-    toast.success(`Opening master record for ${product.productName}`);
-    router.push(`/admin/catalogue/products/${product.id}`);
-  };
-
-  const handleBulkAction = (action: string) => {
-    if (selectedIds.length === 0) return;
-    toast.success(`Executed bulk action "${action}" on ${selectedIds.length} products.`);
-  };
-
-  const handleRowActionClick = (product: ProductMasterRow, action: string) => {
-    toast.success(`Executed action "${action}" for ${product.productName}`);
-  };
-
-  // Filtered dataset logic
-  const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCT_MASTERS.filter((p) => {
-      // Tab filter
-      if (activeTab === "active" && p.productStatus !== "Active") return false;
-      if (activeTab === "draft" && p.productStatus !== "Draft") return false;
-      if (activeTab === "pending" && p.approvalStatus !== "Pending Approval") return false;
-
-      // Text Search
-      if (filters.search) {
-        const query = filters.search.toLowerCase();
-        const match =
-          p.productName.toLowerCase().includes(query) ||
-          p.sku.toLowerCase().includes(query) ||
-          p.barcode.includes(query) ||
-          p.publicId.toLowerCase().includes(query);
-        if (!match) return false;
-      }
-
-      // Brand filter
-      if (filters.brand !== "All" && p.brand !== filters.brand) return false;
-
-      return true;
-    });
-  }, [activeTab, filters]);
-
-  return (
-    <div className="w-full flex flex-col min-h-screen bg-[#f8fafc]">
-      {/* 1. Page Header */}
-      <ProductMasterHeader
-        onExport={handleExportCSV}
-        onImportClick={() => setIsImportModalOpen(true)}
-        selectedCount={selectedIds.length}
-        onBulkAction={handleBulkAction}
-        onCreateClick={() => {
-          toast.success("Opening Product Master Creator");
-          router.push("/admin/catalogue/products/create");
-        }}
-      />
-
-      {/* Main Container */}
-      <div className="p-4 sm:p-6 flex flex-col gap-5 max-w-[1920px] mx-auto w-full">
-        {/* 2. Primary 12 KPI Cards */}
-        <ProductMasterKpiGrid
-          kpis={PRODUCT_KPIS}
-          activeFilter={activeKpiFilter}
-          onKpiClick={handleKpiClick}
-        />
-
-        {/* 3. Horizontal Status Tabs */}
-        <ProductStatusTabs activeTab={activeTab} onSelectTab={setActiveTab} />
-
-        {/* 4. Advanced Filters Panel */}
-        <ProductAdvancedFilters
-          filters={filters}
-          onChange={handleFilterChange}
-          onClearAll={handleClearAllFilters}
-          onSaveView={() => setIsSaveViewModalOpen(true)}
-          onRefresh={handleRefresh}
-          onMoreFilters={() => setIsMoreFiltersOpen(true)}
-          isRefreshing={isRefreshing}
-        />
-
-        {/* 5. Quick Filter Chips */}
-        <ProductQuickFilters
-          chips={INITIAL_QUICK_FILTERS}
-          activeChips={activeChips}
-          onToggleChip={handleToggleChip}
-          onClearAll={() => setActiveChips([])}
-        />
-
-        {/* 6. Product Master Health Scorecard */}
-        <ProductHealthScorecard />
-
-        {/* 2-Column Layout: Left Main Workspace & Right Intelligence Sidebar */}
+  return <div className="w-full flex flex-col min-h-screen bg-[#f8fafc]">
+    <ProductMasterHeader onExport={()=>void exportProductMasters(query,selectedIds).catch(e=>toast.error(e.message))} onImportClick={()=>setIsImportModalOpen(true)} selectedCount={selectedIds.length} onBulkAction={action=>void runBulk(action)} onCreateClick={()=>router.push("/admin/catalogue/products/create")}/>
+    <div className="p-4 sm:p-6 flex flex-col gap-5 max-w-[1920px] mx-auto w-full">
+      {error&&<div role="alert" className="rounded border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">{error.message} <button className="font-bold underline" onClick={()=>void refresh()}>Retry</button></div>}
+      {loading&&!data&&<div className="rounded border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">Loading product masters…</div>}
+      {data&&<>
+        <ProductMasterKpiGrid kpis={data.kpis} activeFilter={activeKpiFilter} onKpiClick={kpiClick}/>
+        <ProductStatusTabs tabs={data.tabs} activeTab={activeTab} onSelectTab={tab=>{setActiveTab(tab);setPage(1);setSelectedIds([]);}}/>
+        <ProductAdvancedFilters filters={filters} filterOptions={data.filterOptions} onChange={changeFilters} onClearAll={clearFilters} onSaveView={()=>setIsSaveViewModalOpen(true)} onRefresh={()=>void refresh()} onMoreFilters={()=>setIsMoreFiltersOpen(true)} isRefreshing={refreshing}/>
+        <ProductQuickFilters chips={data.quickFilters} activeChips={activeChips} onToggleChip={toggleChip} onClearAll={()=>{setActiveChips([]);setActiveTab("all");}}/>
+        <ProductHealthScorecard metrics={data.health}/>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_340px] gap-6 items-start">
-          {/* Main Left Column */}
           <div className="flex flex-col gap-6 min-w-0">
-            {/* 7. Product Masters Table */}
-            <ProductMasterTable
-              products={filteredProducts}
-              selectedIds={selectedIds}
-              onSelectRow={handleSelectRow}
-              onSelectAllPage={handleSelectAllPage}
-              onSelectAllMatching={handleSelectAllMatching}
-              onClearSelection={() => setSelectedIds([])}
-              totalMatching={12840}
-              onOpenProduct={handleOpenProduct}
-              onActionClick={handleRowActionClick}
-            />
-
-            {/* 8. Lower Summary Dashboards */}
-            <LowerSummaryDashboards />
+            <ProductMasterTable products={data.products} selectedIds={selectedIds} onSelectRow={id=>setSelectedIds(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id])} onSelectAllPage={checked=>setSelectedIds(checked?data.products.map(p=>p.id):[])} onSelectAllMatching={()=>{setSelectedIds(data.products.map(p=>p.id));toast("Selected the current server page. Cross-page mutation is intentionally not implicit.");}} onClearSelection={()=>setSelectedIds([])} totalMatching={data.pagination.total} onOpenProduct={p=>router.push(`/admin/catalogue/products/${p.id}`)} onActionClick={(p,a)=>void rowAction(p,a)} page={data.pagination.page} pageSize={data.pagination.pageSize} lastPage={data.pagination.lastPage} sort={sort} onPageChange={value=>{setPage(value);setSelectedIds([]);}} onPageSizeChange={value=>{setPageSize(value);setPage(1);setSelectedIds([]);}} onSortChange={value=>{setSort(value);setPage(1);}}/>
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[['Product Data Quality',['Identity Completeness','Classification Quality','Compliance Readiness']],['Variant & Attribute Readiness',['Variant Readiness']],['Product Media Readiness',['Media Readiness']],['Approval Status Summary',[]]].map(([title,names])=><div key={title as string} className="rounded border border-gray-200 bg-white p-4"><h2 className="text-xs font-bold text-gray-900">{title}</h2>{title==='Approval Status Summary'?<div className="mt-3 space-y-2">{data.tabs.filter(tab=>['draft','pending','approved','blocked'].includes(tab.id)).map(tab=><div key={tab.id} className="flex justify-between text-xs"><span className="text-gray-600">{tab.label}</span><span className="font-bold">{tab.count.toLocaleString()}</span></div>)}</div>:<div className="mt-3 space-y-2">{data.health.filter(metric=>(names as string[]).includes(metric.label)).map(metric=><div key={metric.label} className="flex justify-between text-xs"><span className="text-gray-600">{metric.label}</span><span className="font-bold">{metric.percentage}%</span></div>)}</div>}</div>)}
+              {['Inventory & Batch Linkage','Publication Readiness by Channel','Duplicate Product Risk','Recent Product Master Activity'].map(title=><div key={title} className="rounded border border-gray-200 bg-white p-4"><h2 className="text-xs font-bold text-gray-900">{title}</h2><p className="mt-3 text-xs text-gray-500">Unavailable: no authoritative {title.toLowerCase()} domain is linked to product masters.</p></div>)}
+            </section>
           </div>
-
-          {/* Right Product Master Intelligence Sidebar */}
-          <div className="sticky top-4">
-            <ProductMasterIntelligence
-              onQueueClick={(qLabel) => toast(`Filtering by queue: ${qLabel}`, { icon: "🔍" })}
-              onAlertClick={(aName) => toast(`Viewing alert: ${aName}`, { icon: "🚨" })}
-            />
-          </div>
+          <aside className="sticky top-4 rounded border border-gray-200 bg-white p-5"><h2 className="text-sm font-bold text-gray-900">Product Master Intelligence</h2><div className="mt-4 space-y-2">{data.tabs.slice(1,7).map(tab=><button key={tab.id} onClick={()=>{setActiveTab(tab.id);setPage(1);}} className="w-full flex justify-between rounded border border-gray-100 px-3 py-2 text-xs hover:bg-gray-50"><span>{tab.label}</span><span className="font-bold">{tab.count.toLocaleString()}</span></button>)}</div><p className="mt-4 border-t pt-3 text-xs text-gray-500">Risk, reviewer, channel, and SLA intelligence is unavailable in the current schema.</p><p className="mt-3 text-[11px] text-gray-400">Updated {new Date(data.generatedAt).toLocaleString()} via 30-second polling.</p></aside>
         </div>
-      </div>
-
-      {/* Modals & Drawers */}
-      <ImportProductsModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-      />
-
-      <SaveProductViewModal
-        isOpen={isSaveViewModalOpen}
-        onClose={() => setIsSaveViewModalOpen(false)}
-      />
-
-      <MoreProductFiltersDrawer
-        isOpen={isMoreFiltersOpen}
-        onClose={() => setIsMoreFiltersOpen(false)}
-      />
+      </>}
     </div>
-  );
+    <ImportProductsModal isOpen={isImportModalOpen} onClose={()=>setIsImportModalOpen(false)} onImported={()=>void refresh()}/>
+    <SaveProductViewModal isOpen={isSaveViewModalOpen} onClose={()=>setIsSaveViewModalOpen(false)} onSave={async(name,description,isDefault)=>{await saveProductMasterView({name,description,isDefault,filters,quickFilters:activeChips,activeTab,sort});}}/>
+    <MoreProductFiltersDrawer isOpen={isMoreFiltersOpen} onClose={()=>setIsMoreFiltersOpen(false)}/>
+  </div>;
 }

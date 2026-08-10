@@ -7,6 +7,10 @@ export interface CatalogueKpi {
   isPositive: boolean;
   iconName: string;
   filterKey: string;
+  availability?: 'available' | 'unavailable';
+  reason?: string;
+  rawValue?: number | null;
+  changePercent?: number | null;
 }
 
 export interface BusinessContextFilter {
@@ -29,6 +33,8 @@ export interface CatalogueAlert {
   title: string;
   severity: 'High' | 'Medium' | 'Low';
   category: string;
+  count?: number;
+  actionRoute?: string;
 }
 
 export interface StatusSummaryItem {
@@ -45,8 +51,9 @@ export interface SlaSummaryItem {
 
 export interface InventoryRiskSummaryItem {
   label: string;
-  count: number;
+  count: number | null;
   color: string;
+  availability?: string;
 }
 
 export interface QuickQueueItem {
@@ -95,9 +102,9 @@ export interface ProductApprovalItem {
   completeness: number;
   brandAuthStatus: 'Valid' | 'Pending' | 'Expired' | 'Rejected';
   complianceStatus: 'Valid' | 'Pending' | 'Review';
-  risk: 'High' | 'Medium' | 'Low';
+  risk: 'High' | 'Medium' | 'Low' | 'Unavailable';
   submittedDate: string;
-  slaDays: number;
+  slaDays: number | null;
   reviewer: string;
   status: string;
   thumbnail: string;
@@ -179,5 +186,29 @@ export interface RecentActivityItem {
   performedBy: string;
   dateTime: string;
   businessContext: string;
-  result: 'Approved' | 'Authorized' | 'Merged' | 'Quarantined' | 'Recall Initiated' | 'Published';
+  result: string;
+}
+
+export interface GrowthTrendResponse { granularity: string; points: GrowthTrendDataPoint[]; }
+export interface CompositionResponse { availability: 'available' | 'unavailable'; dimension: string; total: number; items: CompositionDataItem[]; reason?: string; }
+export interface PriorityApprovalsResponse { items: ProductApprovalItem[]; pagination: { page: number; pageSize: number; total: number; lastPage: number }; }
+export interface CatalogueCommandCenterData {
+  context: { defaults: BusinessContextFilter; options: Record<string, Array<{ value: string; label: string }>>; dateFrom: string; dateTo: string; unsupportedFilters: string[] };
+  kpis: CatalogueKpi[];
+  trend: GrowthTrendResponse;
+  composition: CompositionResponse;
+  health: { availability: string; score: number; state: string; metrics: Record<string, number> };
+  healthScorecard: HealthScorecardItem[];
+  alerts: CatalogueAlert[];
+  approvalPipeline: ApprovalStageItem[];
+  approvalStatusSummary: StatusSummaryItem[];
+  slaSummary: { availability: string; reason?: string; items: SlaSummaryItem[] };
+  inventoryRiskSummary: InventoryRiskSummaryItem[];
+  quickQueues: QuickQueueItem[];
+  priorityApprovals: PriorityApprovalsResponse;
+  quality: { issues: QualityIssueItem[]; completeness: CompletenessSummaryItem[]; categoryCoverage: CategoryCoverageData; brandCoverage: BrandCoverageData };
+  inventory: { availability: string; availableStock: number; lowStockProducts: number; batches: InventoryBatchItem[]; expiryExposure: ExpiryExposureRange[]; channels: ChannelReadinessItem[]; reason?: string };
+  recentActivity: RecentActivityItem[];
+  permissions: { canExport?: boolean; canManage?: boolean; canImport?: boolean };
+  meta: { generatedAt: string; timezone: string; refreshIntervalSeconds: number };
 }

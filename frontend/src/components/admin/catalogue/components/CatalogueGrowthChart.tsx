@@ -12,10 +12,18 @@ import {
   Legend,
 } from "recharts";
 import { Calendar, MoreHorizontal } from "lucide-react";
-import { GROWTH_TREND_WEEKLY } from "@/data/catalogue.mock";
+import type { GrowthTrendResponse } from "@/types/catalogue";
+import { getCatalogueTrends, type CatalogueQuery } from "@/services/api/catalogueCommandCenter";
 
-export const CatalogueGrowthChart: React.FC = () => {
+export const CatalogueGrowthChart: React.FC<{ initialData: GrowthTrendResponse; query: CatalogueQuery }> = ({ initialData, query }) => {
   const [timeframe, setTimeframe] = useState<"daily" | "weekly" | "monthly" | "quarterly" | "custom">("weekly");
+  const [data, setData] = useState(initialData.points);
+  const [error, setError] = useState<string | null>(null);
+  const changeTimeframe = async (period: "daily" | "weekly" | "monthly" | "quarterly") => {
+    setTimeframe(period); setError(null);
+    try { setData((await getCatalogueTrends({ ...query, granularity: period })).points); }
+    catch { setError("Unable to load approval trend."); }
+  };
 
   return (
     <div className="bg-white rounded border border-gray-200 p-5 shadow-xs">
@@ -33,7 +41,7 @@ export const CatalogueGrowthChart: React.FC = () => {
             {(["daily", "weekly", "monthly", "quarterly"] as const).map((period) => (
               <button
                 key={period}
-                onClick={() => setTimeframe(period)}
+                onClick={() => void changeTimeframe(period)}
                 className={`px-2.5 py-1 rounded capitalize transition-colors ${
                   timeframe === period
                     ? "bg-white text-gray-900 shadow-xs"
@@ -66,8 +74,9 @@ export const CatalogueGrowthChart: React.FC = () => {
 
       {/* Recharts Multi-line chart */}
       <div className="w-full h-72">
+        {error ? <div className="h-full flex items-center justify-center text-sm text-rose-600">{error}</div> : data.length === 0 ? <div className="h-full flex items-center justify-center text-sm text-gray-500">No catalogue activity for this period.</div> :
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={GROWTH_TREND_WEEKLY} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
             <XAxis dataKey="date" tickLine={false} axisLine={{ stroke: "#e2e8f0" }} tick={{ fill: "#64748b", fontSize: 11 }} />
             <YAxis tickLine={false} axisLine={{ stroke: "#e2e8f0" }} tick={{ fill: "#64748b", fontSize: 11 }} />
@@ -93,7 +102,7 @@ export const CatalogueGrowthChart: React.FC = () => {
             <Line type="monotone" dataKey="rejected" name="Products Rejected" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
             <Line type="monotone" dataKey="published" name="Products Published" stroke="#9333ea" strokeWidth={2} dot={{ r: 3 }} />
           </LineChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </div>
   );

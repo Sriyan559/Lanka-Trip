@@ -2,13 +2,12 @@
 
 import React from "react";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
-import {
-  INVENTORY_BATCHES,
-  EXPIRY_EXPOSURE_RANGES,
-  CHANNEL_READINESS_ITEMS,
-} from "@/data/catalogue.mock";
+import type { ChannelReadinessItem, ExpiryExposureRange, InventoryBatchItem } from "@/types/catalogue";
+import { useRouter } from "next/navigation";
 
-export const InventoryExpiryOperations: React.FC = () => {
+type InventoryData = { availability: string; availableStock: number; lowStockProducts: number; batches: InventoryBatchItem[]; expiryExposure: ExpiryExposureRange[]; channels: ChannelReadinessItem[]; reason?: string };
+export const InventoryExpiryOperations: React.FC<{ data: InventoryData }> = ({ data }) => {
+  const router = useRouter();
   return (
     <div className="bg-white rounded border border-gray-200 p-5 shadow-xs flex flex-col gap-6">
       {/* Title */}
@@ -25,35 +24,35 @@ export const InventoryExpiryOperations: React.FC = () => {
         <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Available Stock</span>
-            <span className="text-base font-extrabold text-gray-900">184,620 <span className="text-xs text-gray-500 font-normal">units</span></span>
+            <span className="text-base font-extrabold text-gray-900">{data.availableStock.toLocaleString()} <span className="text-xs text-gray-500 font-normal">units</span></span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Reserved Stock</span>
-            <span className="text-base font-extrabold text-gray-900">32,450 <span className="text-xs text-gray-500 font-normal">units</span></span>
+            <span className="text-base font-extrabold text-gray-400" title={data.reason}>Unavailable</span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Quarantined Stock</span>
-            <span className="text-base font-extrabold text-rose-600">2,380 <span className="text-xs text-gray-500 font-normal">units</span></span>
+            <span className="text-base font-extrabold text-gray-400" title={data.reason}>Unavailable</span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Low-Stock Products</span>
-            <span className="text-base font-extrabold text-amber-600">318 <span className="text-xs text-gray-500 font-normal">products</span></span>
+            <span className="text-base font-extrabold text-amber-600">{data.lowStockProducts.toLocaleString()} <span className="text-xs text-gray-500 font-normal">products</span></span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Out-of-Stock</span>
-            <span className="text-base font-extrabold text-rose-600">126 <span className="text-xs text-gray-500 font-normal">products</span></span>
+            <span className="text-base font-extrabold text-gray-400" title={data.reason}>Unavailable</span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Near-Expiry Batches</span>
-            <span className="text-base font-extrabold text-amber-600">42 <span className="text-xs text-gray-500 font-normal">batches</span></span>
+            <span className="text-base font-extrabold text-gray-400" title={data.reason}>Unavailable</span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Expired Batches</span>
-            <span className="text-base font-extrabold text-rose-600">9 <span className="text-xs text-gray-500 font-normal">batches</span></span>
+            <span className="text-base font-extrabold text-gray-400" title={data.reason}>Unavailable</span>
           </div>
           <div className="p-3 rounded bg-gray-50 border border-gray-200">
             <span className="text-[11px] font-medium text-gray-500 block mb-0.5">Recalled Batches</span>
-            <span className="text-base font-extrabold text-rose-700">5 <span className="text-xs text-gray-500 font-normal">batches</span></span>
+            <span className="text-base font-extrabold text-gray-400" title={data.reason}>Unavailable</span>
           </div>
         </div>
 
@@ -61,12 +60,12 @@ export const InventoryExpiryOperations: React.FC = () => {
         <div className="p-3.5 rounded bg-gray-50 border border-gray-200 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2 text-[11.5px]">
             <span className="font-bold text-gray-800">Expiry Exposure (Units)</span>
-            <span className="text-gray-500">Total: <strong className="text-gray-900">183,640 units</strong></span>
+            <span className="text-gray-500">Total: <strong className="text-gray-400">Unavailable</strong></span>
           </div>
 
           {/* Stacked Progress Bar */}
           <div className="w-full h-3 rounded-full overflow-hidden flex mb-3">
-            {EXPIRY_EXPOSURE_RANGES.map((item) => (
+            {data.expiryExposure.map((item) => (
               <div
                 key={item.range}
                 className="h-full"
@@ -77,7 +76,7 @@ export const InventoryExpiryOperations: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-[10.5px]">
-            {EXPIRY_EXPOSURE_RANGES.map((item) => (
+            {data.expiryExposure.length === 0 ? <span className="col-span-2 text-gray-400" title={data.reason}>Batch expiry data is unavailable.</span> : data.expiryExposure.map((item) => (
               <div key={item.range} className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                 <span className="text-gray-600 font-medium truncate">{item.range}:</span>
@@ -96,7 +95,7 @@ export const InventoryExpiryOperations: React.FC = () => {
             <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
               Priority Inventory Batches
             </h3>
-            <button className="text-[11px] font-semibold text-[#741d35] hover:underline flex items-center gap-0.5">
+            <button onClick={() => router.push('/admin/catalogue/inventory')} className="text-[11px] font-semibold text-[#741d35] hover:underline flex items-center gap-0.5">
               <span>View all inventory & expiry operations</span>
               <ChevronRight size={12} />
             </button>
@@ -118,7 +117,7 @@ export const InventoryExpiryOperations: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {INVENTORY_BATCHES.map((batch) => (
+                {data.batches.length === 0 ? <tr><td colSpan={9} className="py-8 text-center text-gray-400" title={data.reason}>Inventory batch data is unavailable.</td></tr> : data.batches.map((batch) => (
                   <tr key={batch.id} className="hover:bg-gray-50/80 transition-colors">
                     <td className="py-2.5 px-2.5 font-bold text-gray-900 whitespace-nowrap">{batch.batchName}</td>
                     <td className="py-2.5 px-2.5 font-mono text-blue-600 font-semibold text-[10.5px] whitespace-nowrap">{batch.batchId}</td>
@@ -164,7 +163,7 @@ export const InventoryExpiryOperations: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {CHANNEL_READINESS_ITEMS.map((item) => (
+                {data.channels.length === 0 ? <tr><td colSpan={7} className="py-8 text-center text-gray-400" title={data.reason}>Publication-channel data is unavailable.</td></tr> : data.channels.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
                     <td className="py-2.5 px-2.5 font-semibold text-gray-900 whitespace-nowrap">{item.channel}</td>
                     <td className="py-2.5 px-2.5 min-w-[110px]">

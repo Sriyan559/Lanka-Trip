@@ -2,15 +2,15 @@
 
 import React from "react";
 import { ChevronRight, ExternalLink } from "lucide-react";
-import { RECENT_ACTIVITIES } from "@/data/catalogue.mock";
 import { RecentActivityItem } from "@/types/catalogue";
 
 interface RecentCatalogueActivityProps {
   onViewAudit?: (item: RecentActivityItem) => void;
+  activities: RecentActivityItem[];
 }
 
 export const RecentCatalogueActivity: React.FC<RecentCatalogueActivityProps> = ({
-  onViewAudit,
+  onViewAudit, activities,
 }) => {
   return (
     <div className="bg-white rounded border border-gray-200 p-5 shadow-xs flex flex-col gap-4">
@@ -41,7 +41,7 @@ export const RecentCatalogueActivity: React.FC<RecentCatalogueActivityProps> = (
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {RECENT_ACTIVITIES.map((act) => (
+            {activities.length === 0 ? <tr><td colSpan={7} className="py-8 text-center text-gray-500">No catalogue activity found.</td></tr> : activities.map((act) => (
               <tr key={act.id} className="hover:bg-gray-50/80 transition-colors">
                 <td className="py-3 px-3 font-semibold text-gray-900 whitespace-nowrap">{act.action}</td>
                 <td className="py-3 px-3 font-medium text-gray-800">{act.productRecord}</td>
