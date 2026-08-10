@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Search, SlidersHorizontal, RotateCcw, Bookmark, RefreshCw } from "lucide-react";
-import { AttributeFilterState } from "@/types/attributeManagement";
+import { AttributeFilterState, AttributeManagementData } from "@/types/attributeManagement";
 
 interface AttributeFiltersProps {
   filters: AttributeFilterState;
@@ -11,6 +11,8 @@ interface AttributeFiltersProps {
   onOpenMoreFilters: () => void;
   onOpenSaveView: () => void;
   onRefresh: () => void;
+  options: AttributeManagementData["options"];
+  capabilities: AttributeManagementData["capabilities"];
 }
 
 export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
@@ -20,6 +22,8 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
   onOpenMoreFilters,
   onOpenSaveView,
   onRefresh,
+  options,
+  capabilities,
 }) => {
   return (
     <div className="bg-white rounded border border-gray-200 p-3.5 flex flex-col gap-3 shadow-2xs min-w-0">
@@ -45,15 +49,7 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
             className="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35] focus:bg-white"
           >
             <option value="All Groups">Attribute Group (All)</option>
-            <option value="Product Identity">Product Identity</option>
-            <option value="Classification">Classification</option>
-            <option value="Skin & Beauty">Skin & Beauty</option>
-            <option value="Ingredients & Safety">Ingredients & Safety</option>
-            <option value="Variants & Attributes">Variants & Attributes</option>
-            <option value="Pricing & Tax">Pricing & Tax</option>
-            <option value="Media">Media</option>
-            <option value="Publication">Publication</option>
-            <option value="Inventory">Inventory</option>
+            {options.groups.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
         </div>
 
@@ -65,11 +61,7 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
             className="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35] focus:bg-white"
           >
             <option value="All Categories">Category (All)</option>
-            <option value="Face Care">Face Care</option>
-            <option value="Face Serum">Face Serum</option>
-            <option value="Moisturizer">Moisturizer</option>
-            <option value="Cleanser">Cleanser</option>
-            <option value="Toner">Toner</option>
+            {options.categories.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
         </div>
 
@@ -81,10 +73,7 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
             className="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35] focus:bg-white"
           >
             <option value="All Statuses">Status (All)</option>
-            <option value="Active">Active</option>
-            <option value="Draft">Draft</option>
-            <option value="Pending Review">Pending Review</option>
-            <option value="Deprecated">Deprecated</option>
+            {options.statuses.map((option) => <option key={option} value={option}>{option}</option>)}
           </select>
         </div>
 
@@ -96,11 +85,7 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
             className="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35] focus:bg-white"
           >
             <option value="All Types">Data Type (All)</option>
-            <option value="Text">Text</option>
-            <option value="Number">Number</option>
-            <option value="Boolean">Boolean</option>
-            <option value="Date">Date</option>
-            <option value="Select">Select</option>
+            {options.dataTypes.map((option) => <option key={option} value={option}>{option}</option>)}
           </select>
         </div>
 
@@ -135,37 +120,33 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
           {/* Channel Eligibility */}
           <select
             value={filters.channelEligibility}
+            disabled={!capabilities.channelRequirements}
             onChange={(e) => onFilterChange("channelEligibility", e.target.value)}
             className="px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35]"
           >
             <option value="All Channels">Channel Eligibility (All)</option>
-            <option value="5 / 5">5 / 5 Channels</option>
-            <option value="4 / 5">4 / 5 Channels</option>
-            <option value="3 / 5">3 / 5 Channels</option>
+            {options.channels.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
 
           {/* Risk Level */}
           <select
             value={filters.riskLevel}
+            disabled
             onChange={(e) => onFilterChange("riskLevel", e.target.value)}
             className="px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35]"
           >
             <option value="All">Risk Level (All)</option>
-            <option value="Low">Low Risk</option>
-            <option value="Medium">Medium Risk</option>
-            <option value="High">High Risk</option>
           </select>
 
           {/* Owner */}
           <select
             value={filters.owner}
+            disabled={options.owners.length === 0}
             onChange={(e) => onFilterChange("owner", e.target.value)}
             className="px-2.5 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#741d35]"
           >
             <option value="All Owners">Owner (All)</option>
-            <option value="Elena Vance">Elena Vance</option>
-            <option value="Marcus Lee">Marcus Lee</option>
-            <option value="Priya Kapoor">Priya Kapoor</option>
+            {options.owners.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
 
           {/* Updated Date */}
@@ -197,6 +178,7 @@ export const AttributeFilters: React.FC<AttributeFiltersProps> = ({
           </button>
           <button
             onClick={onOpenSaveView}
+            disabled={!capabilities.savedViews}
             className="h-8 px-3 rounded bg-white border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 transition-colors"
           >
             <Bookmark size={13} />

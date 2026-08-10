@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Save, CheckCircle2 } from "lucide-react";
-import { MediaAsset } from "@/types/mediaManagement";
+import { MediaAsset, MediaDashboardData } from "@/types/mediaManagement";
 
 interface DrawerProps {
   isOpen: boolean;
   asset: MediaAsset | null;
   onClose: () => void;
   onSave: (updated: MediaAsset) => void;
+  options: MediaDashboardData["options"];
 }
 
-export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: DrawerProps) {
+export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave, options }: DrawerProps) {
   const [formData, setFormData] = useState<MediaAsset | null>(asset);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              disabled
               className="w-full h-9 px-3 border border-line rounded font-semibold text-ink"
             />
           </div>
@@ -62,6 +63,7 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
             <div>
               <label className="block font-bold text-ink mb-1">Asset Type</label>
               <select
+                disabled
                 value={formData.type}
                 onChange={(e) => handleChange("type", e.target.value)}
                 className="w-full h-9 px-2 border border-line rounded font-semibold text-ink"
@@ -92,12 +94,11 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
 
           <div>
             <label className="block font-bold text-ink mb-1">Product Name</label>
-            <input
-              type="text"
-              value={formData.productName}
-              onChange={(e) => handleChange("productName", e.target.value)}
+            <select
+              value={formData.productId || ""}
+              onChange={(e) => handleChange("productId", e.target.value)}
               className="w-full h-9 px-3 border border-line rounded font-semibold text-ink"
-            />
+            ><option value="">Unlinked</option>{options.products.map(product => <option key={product.id} value={product.id}>{product.name}</option>)}</select>
           </div>
 
           <div>
@@ -105,7 +106,7 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
             <input
               type="text"
               value={formData.brandName}
-              onChange={(e) => handleChange("brandName", e.target.value)}
+              disabled
               className="w-full h-9 px-3 border border-line rounded font-semibold text-ink"
             />
           </div>
@@ -127,8 +128,8 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
                 type="number"
                 min={0}
                 max={100}
-                value={formData.qualityScore}
-                onChange={(e) => handleChange("qualityScore", Number(e.target.value))}
+                value={formData.qualityScore ?? ""}
+                disabled
                 className="w-full h-9 px-3 border border-line rounded font-mono font-bold text-ink"
               />
             </div>
@@ -137,7 +138,7 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
               <input
                 type="text"
                 value={formData.usageRightsStatus}
-                onChange={(e) => handleChange("usageRightsStatus", e.target.value)}
+                disabled
                 className="w-full h-9 px-3 border border-line rounded font-semibold text-ink"
               />
             </div>
@@ -148,7 +149,7 @@ export function EditMediaMetadataDrawer({ isOpen, asset, onClose, onSave }: Draw
             <input
               type="text"
               value={formData.ownerName}
-              onChange={(e) => handleChange("ownerName", e.target.value)}
+              disabled
               className="w-full h-9 px-3 border border-line rounded font-semibold text-ink"
             />
           </div>

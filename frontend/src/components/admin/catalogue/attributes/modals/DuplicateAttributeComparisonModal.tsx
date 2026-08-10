@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, GitMerge, Check } from "lucide-react";
-import toast from "react-hot-toast";
+import { X, GitMerge } from "lucide-react";
 import { DuplicateAttributePair } from "@/types/attributeManagement";
 
 interface DuplicateAttributeComparisonModalProps {
@@ -50,32 +49,22 @@ export const DuplicateAttributeComparisonModal: React.FC<DuplicateAttributeCompa
                 </span>
               </div>
               <div className="text-[11px] text-gray-600 space-y-1 mt-2">
-                <div><span className="font-semibold text-gray-500">Attribute ID:</span> ATTR-0092</div>
-                <div><span className="font-semibold text-gray-500">Group:</span> Variants &amp; Attributes</div>
-                <div><span className="font-semibold text-gray-500">Data Type:</span> Text</div>
-                <div><span className="font-semibold text-gray-500">Input Type:</span> Dropdown</div>
-                <div><span className="font-semibold text-gray-500">Product Usage:</span> 12,450 products</div>
-                <div><span className="font-semibold text-gray-500">Category Coverage:</span> 92%</div>
-                <div><span className="font-semibold text-gray-500">Validation Rule:</span> VR-091</div>
+                <div><span className="font-semibold text-gray-500">Database ID:</span> {pair.attributeIds?.[0] || "Unavailable"}</div>
+                <div><span className="font-semibold text-gray-500">Name:</span> {pair.attributeName}</div>
               </div>
             </div>
 
             {/* Candidate B */}
             <div className="p-4 rounded border border-gray-300 bg-gray-50 flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-sm text-gray-900">{pair.attributeName} (Alt)</span>
+                <span className="font-extrabold text-sm text-gray-900">{pair.attributeName}</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
                   Duplicate Candidate
                 </span>
               </div>
               <div className="text-[11px] text-gray-600 space-y-1 mt-2">
-                <div><span className="font-semibold text-gray-500">Attribute ID:</span> ATTR-0099</div>
-                <div><span className="font-semibold text-gray-500">Group:</span> Skin &amp; Beauty</div>
-                <div><span className="font-semibold text-gray-500">Data Type:</span> Text</div>
-                <div><span className="font-semibold text-gray-500">Input Type:</span> Text</div>
-                <div><span className="font-semibold text-gray-500">Product Usage:</span> 142 products</div>
-                <div><span className="font-semibold text-gray-500">Category Coverage:</span> 18%</div>
-                <div><span className="font-semibold text-gray-500">Validation Rule:</span> None</div>
+                <div><span className="font-semibold text-gray-500">Database ID:</span> {pair.attributeIds?.[1] || "Unavailable"}</div>
+                <div><span className="font-semibold text-gray-500">Name:</span> {pair.attributeName}</div>
               </div>
             </div>
           </div>
@@ -84,12 +73,9 @@ export const DuplicateAttributeComparisonModal: React.FC<DuplicateAttributeCompa
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
           <button
-            onClick={() => {
-              onIgnore(pair);
-              toast.success("Ignored duplicate candidate pair.");
-              onClose();
-            }}
-            className="px-3.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-bold text-gray-600 hover:bg-gray-100"
+            disabled
+            title="Unavailable because no duplicate-ignore persistence schema is installed"
+            className="cursor-not-allowed rounded border border-gray-200 bg-gray-100 px-3.5 py-1.5 text-xs font-bold text-gray-400"
           >
             Ignore Match
           </button>
@@ -101,11 +87,8 @@ export const DuplicateAttributeComparisonModal: React.FC<DuplicateAttributeCompa
               Close
             </button>
             <button
-              onClick={() => {
-                onMerge(pair);
-                toast.success(`Merged duplicate into ${pair.attributeName}`);
-                onClose();
-              }}
+              disabled={!pair.attributeIds || pair.attributeIds.length < 2}
+              onClick={() => void onMerge(pair)}
               className="px-4 py-1.5 rounded bg-[#741d35] text-white text-xs font-bold hover:bg-[#5c172a]"
             >
               Merge Attributes

@@ -39,11 +39,11 @@ export function SelectedMediaPreviewCard({
       {/* Large Image Preview */}
       <div className="w-full h-44 rounded-lg border border-line bg-slate-100 overflow-hidden relative flex items-center justify-center">
         {asset.category === "image" && (
-          <img src={asset.thumbnailUrl} alt={asset.name} className="w-full h-full object-cover" />
+          <img src={asset.thumbnailUrl || ""} alt={asset.name} className="w-full h-full object-cover" />
         )}
         {asset.category === "video" && (
           <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white relative">
-            <img src={asset.thumbnailUrl} alt={asset.name} className="w-full h-full object-cover opacity-60" />
+            <img src={asset.thumbnailUrl || ""} alt={asset.name} className="w-full h-full object-cover opacity-60" />
             <span className="font-bold text-xs bg-black/60 px-2.5 py-1 rounded-full">
               Video Preview ({asset.resolution})
             </span>
@@ -84,18 +84,18 @@ export function SelectedMediaPreviewCard({
           </div>
           <div>
             <span className="text-muted block">Colour Space</span>
-            <span className="font-semibold text-slate-700">{asset.colourSpace || "sRGB / 300 dpi"}</span>
+            <span className="font-semibold text-slate-700">{asset.colourSpace || "Unavailable"}</span>
           </div>
           <div>
             <span className="text-muted block">Quality Score</span>
-            <span className="font-mono font-bold text-emerald-600">{asset.qualityScore}/100</span>
+            <span className="font-mono font-bold text-emerald-600">{asset.qualityScore == null ? "N/A" : `${asset.qualityScore}/100`}</span>
           </div>
         </div>
 
         {/* Channel Compatibility Icons */}
         <div className="mt-2 pt-2 border-t border-line">
           <span className="text-[10px] text-muted font-semibold block mb-1">Channel Compatibility</span>
-          <div className="flex items-center gap-2 text-slate-500 text-[10px]">
+          {asset.channelCompatibility ? <div className="flex items-center gap-2 text-slate-500 text-[10px]">
             <span className="flex items-center gap-1">
               <Globe size={13} className={asset.channelCompatibility.web ? "text-emerald-600" : "opacity-30"} /> Web
             </span>
@@ -105,7 +105,7 @@ export function SelectedMediaPreviewCard({
             <span className="flex items-center gap-1">
               <Store size={13} className={asset.channelCompatibility.b2b ? "text-emerald-600" : "opacity-30"} /> B2B
             </span>
-          </div>
+          </div> : <span className="text-[10px] text-muted">Unavailable — no channel requirement schema is installed.</span>}
         </div>
       </div>
 

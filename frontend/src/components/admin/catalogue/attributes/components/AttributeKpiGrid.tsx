@@ -52,7 +52,7 @@ export const AttributeKpiGrid: React.FC<AttributeKpiGridProps> = ({
         const Icon = KPI_ICONS[kpi.id] || FileText;
         const isActive = activeKpiId === kpi.id;
         const isWarning = WARNING_KPIS.has(kpi.id);
-        const isCritical = !kpi.trendUp && isWarning;
+        const isCritical = kpi.available !== false && kpi.trendUp === false && isWarning;
         const isAmber = kpi.isWarning && !isCritical;
 
         // Determine card background accent
@@ -91,10 +91,10 @@ export const AttributeKpiGrid: React.FC<AttributeKpiGridProps> = ({
             </div>
             <div className="flex items-end justify-between">
               <span className="text-[17px] font-black text-gray-900 font-mono tracking-tight leading-none">
-                {kpi.value}
+                {kpi.value === null ? "N/A" : kpi.value.toLocaleString()}
               </span>
               <span className={`text-[10px] font-bold ${trendColor}`}>
-                {kpi.trend}
+                {kpi.trend ?? (kpi.available === false ? "Unavailable" : "Live")}
               </span>
             </div>
           </div>

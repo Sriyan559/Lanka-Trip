@@ -10,6 +10,10 @@ interface AttributeHeaderProps {
   onCreateAttribute: () => void;
   onCreateVariantRule: () => void;
   selectedCount: number;
+  canExport: boolean;
+  canImport: boolean;
+  canManage: boolean;
+  variantRulesAvailable: boolean;
 }
 
 export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
@@ -18,7 +22,7 @@ export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
   onBulkActions,
   onCreateAttribute,
   onCreateVariantRule,
-  selectedCount,
+  selectedCount, canExport, canImport, canManage, variantRulesAvailable,
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-col gap-4">
@@ -38,6 +42,7 @@ export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={onExport}
+            disabled={!canExport}
             className="h-8 px-3 rounded bg-white border border-gray-300 text-[11.5px] font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 transition-colors shadow-2xs"
           >
             <Download size={13} />
@@ -45,6 +50,7 @@ export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
           </button>
           <button
             onClick={onImport}
+            disabled={!canImport}
             className="h-8 px-3 rounded bg-white border border-gray-300 text-[11.5px] font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 transition-colors shadow-2xs"
           >
             <Upload size={13} />
@@ -52,7 +58,7 @@ export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
           </button>
           <button
             onClick={onBulkActions}
-            disabled={selectedCount === 0}
+            disabled={selectedCount === 0 || !canManage}
             className={`h-8 px-3 rounded border text-[11.5px] font-semibold flex items-center gap-1.5 transition-colors shadow-2xs ${
               selectedCount > 0
                 ? "bg-white border-gray-300 text-gray-800 hover:bg-gray-50 cursor-pointer"
@@ -64,6 +70,7 @@ export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
           </button>
           <button
             onClick={onCreateAttribute}
+            disabled={!canManage}
             className="h-8 px-3.5 rounded bg-[#741d35] text-white text-[11.5px] font-bold hover:bg-[#5c172a] flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
           >
             <Plus size={14} />
@@ -71,6 +78,7 @@ export const AttributeHeader: React.FC<AttributeHeaderProps> = ({
           </button>
           <button
             onClick={onCreateVariantRule}
+            disabled={!canManage || !variantRulesAvailable}
             className="h-8 px-3.5 rounded bg-[#741d35] text-white text-[11.5px] font-bold hover:bg-[#5c172a] flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
           >
             <Plus size={14} />

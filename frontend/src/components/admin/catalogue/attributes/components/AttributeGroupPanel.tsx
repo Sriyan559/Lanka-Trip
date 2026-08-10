@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Folder, ChevronRight } from "lucide-react";
+import { Folder } from "lucide-react";
 import { AttributeGroupItem } from "@/types/attributeManagement";
 
 interface AttributeGroupPanelProps {
@@ -61,10 +61,7 @@ export const AttributeGroupPanel: React.FC<AttributeGroupPanelProps> = ({
         </div>
       </div>
 
-      {/* Footer Link */}
-      <button className="text-[11px] font-bold text-[#741d35] hover:underline mt-4 text-left flex items-center gap-1">
-        View all templates &amp; schemas <ChevronRight size={12} />
-      </button>
+      <p className="mt-4 text-[10px] text-gray-400">Templates are unavailable because no authoritative template schema is installed.</p>
     </div>
   );
 };

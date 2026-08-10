@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, Plus, Trash2, Sliders } from "lucide-react";
 import toast from "react-hot-toast";
 import { CatalogueAttribute } from "@/types/attributeManagement";
@@ -9,17 +9,18 @@ interface AllowedValuesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   attribute: CatalogueAttribute | null;
+  onSave: (values: string[]) => Promise<unknown>;
 }
 
 export const AllowedValuesDrawer: React.FC<AllowedValuesDrawerProps> = ({
   isOpen,
   onClose,
-  attribute,
+  attribute, onSave,
 }) => {
   const [newValue, setNewValue] = useState("");
-  const [valuesList, setValuesList] = useState<string[]>(
-    attribute?.allowedValues || ["Porcelain", "Ivory", "Beige", "Natural", "Honey", "Warm Nude", "Golden Amber", "Espresso"]
-  );
+  const [valuesList, setValuesList] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => setValuesList(attribute?.allowedValues || []), [attribute, isOpen]);
 
   if (!isOpen || !attribute) return null;
 
@@ -101,13 +102,11 @@ export const AllowedValuesDrawer: React.FC<AllowedValuesDrawerProps> = ({
         <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
           <span className="text-xs text-gray-500 font-medium">Total: {valuesList.length} values</span>
           <button
-            onClick={() => {
-              toast.success(`Saved allowed values for ${attribute.attributeName}!`);
-              onClose();
-            }}
+            disabled={saving}
+            onClick={async () => { setSaving(true); try { await onSave(valuesList); } finally { setSaving(false); } }}
             className="px-4 py-1.5 rounded bg-[#741d35] text-white text-xs font-bold hover:bg-[#5c172a]"
           >
-            Save Changes
+            {saving ? "Saving…" : "Save Changes"}
           </button>
         </div>
       </div>

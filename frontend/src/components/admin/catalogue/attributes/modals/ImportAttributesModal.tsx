@@ -8,12 +8,13 @@ interface ImportAttributesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImportSuccess: (count: number) => void;
+  onImport: (file: File) => Promise<{ created: number; updated: number; skipped: number; failed: number; warnings: string[] }>;
 }
 
 export const ImportAttributesModal: React.FC<ImportAttributesModalProps> = ({
   isOpen,
   onClose,
-  onImportSuccess,
+  onImportSuccess, onImport,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -24,9 +25,7 @@ export const ImportAttributesModal: React.FC<ImportAttributesModalProps> = ({
   const handleDownloadTemplate = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      "Attribute Name,Attribute ID,Group,Data Type,Input Type,Required,Variant Generating,Owner\n" +
-      "Coverage Index,ATTR-0210,Product Identity,Number,Number,Yes,No,Elena Vance\n" +
-      "Blue Light Shield,ATTR-0211,Skin & Beauty,Text,Dropdown,Yes,Yes,Marcus Lee\n";
+      "name,group,data_type,input_type,is_required,is_variant_defining,status,definition,allowed_values\n";
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -53,19 +52,19 @@ export const ImportAttributesModal: React.FC<ImportAttributesModalProps> = ({
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!selectedFile) {
       toast.error("Please select a file to import.");
       return;
     }
 
     setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
-      toast.success(`Successfully imported 24 attributes from ${selectedFile.name}!`);
-      onImportSuccess(24);
-      onClose();
-    }, 800);
+    try {
+      const result = await onImport(selectedFile);
+      toast.success(`Import completed: ${result.created} created, ${result.updated} updated, ${result.skipped} skipped, ${result.failed} failed.`);
+      onImportSuccess(result.created + result.updated);
+    } catch (cause) { toast.error(cause instanceof Error ? cause.message : "Import failed."); }
+    finally { setIsUploading(false); }
   };
 
   return (
@@ -88,7 +87,7 @@ export const ImportAttributesModal: React.FC<ImportAttributesModalProps> = ({
           <div className="p-3 bg-[#f5ebed]/40 border border-[#741d35]/20 rounded flex items-center justify-between">
             <div className="flex items-center gap-2 text-[#741d35]">
               <FileText size={16} />
-              <span className="font-semibold">Download standardized CSV/XLSX template</span>
+              <span className="font-semibold">Download standardized CSV template</span>
             </div>
             <button
               type="button"
@@ -118,13 +117,13 @@ export const ImportAttributesModal: React.FC<ImportAttributesModalProps> = ({
                 browse
                 <input
                   type="file"
-                  accept=".csv, .xlsx, .xls"
+                  accept=".csv,text/csv"
                   onChange={handleFileChange}
                   className="hidden"
                 />
               </label>
             </div>
-            <span className="text-[11px] text-gray-400">Supports .CSV, .XLSX up to 10MB</span>
+            <span className="text-[11px] text-gray-400">Supports .CSV up to 10MB</span>
 
             {selectedFile && (
               <div className="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 font-medium text-[11px] flex items-center gap-1.5">

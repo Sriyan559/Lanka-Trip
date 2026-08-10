@@ -15,13 +15,14 @@ import {
   ShieldAlert,
   Clock,
 } from "lucide-react";
-import { MOCK_C13_KPIS } from "@/data/importExport.mock";
+import type { DataOperationsKpi } from "@/types/importExport";
 
 interface DataOperationsKpiGridProps {
   onFilterClick?: (type: string, value: string) => void;
+  kpis: DataOperationsKpi[];
 }
 
-export function DataOperationsKpiGrid({ onFilterClick }: DataOperationsKpiGridProps) {
+export function DataOperationsKpiGrid({ onFilterClick, kpis }: DataOperationsKpiGridProps) {
   const getIcon = (seq: number) => {
     switch (seq) {
       case 1:
@@ -65,7 +66,7 @@ export function DataOperationsKpiGrid({ onFilterClick }: DataOperationsKpiGridPr
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-3 mb-4">
-      {MOCK_C13_KPIS.map((kpi) => {
+      {kpis.map((kpi) => {
         const Icon = getIcon(kpi.seqNumber);
         return (
           <div
@@ -87,7 +88,7 @@ export function DataOperationsKpiGrid({ onFilterClick }: DataOperationsKpiGridPr
 
             <div className="flex items-baseline justify-between gap-2 mt-1">
               <span className="text-[20px] font-black text-ink tracking-tight font-mono">
-                {kpi.value}
+                {kpi.available === false ? "N/A" : Number(kpi.value ?? 0).toLocaleString()}
               </span>
               <div
                 className={`flex items-center gap-0.5 text-[10px] font-bold ${
@@ -98,7 +99,7 @@ export function DataOperationsKpiGrid({ onFilterClick }: DataOperationsKpiGridPr
                     : "text-rose-600"
                 }`}
               >
-                <span>{kpi.trend}</span>
+                <span>{kpi.trend == null ? "Live" : kpi.trend}</span>
               </div>
             </div>
           </div>

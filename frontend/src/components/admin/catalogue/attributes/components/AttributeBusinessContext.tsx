@@ -19,8 +19,8 @@ export const AttributeBusinessContext: React.FC<AttributeBusinessContextProps> =
       {/* Scope Metadata Strip */}
       <div className="flex flex-wrap items-center gap-6 font-medium">
         <div>
-          <span className="text-gray-400 font-normal">Tenant: </span>
-          <span className="font-bold text-gray-800">SL Beauty</span>
+          <span className="text-gray-400 font-normal">Data scope: </span>
+          <span className="font-bold text-gray-800">Platform catalogue</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Ecosystem: </span>
@@ -28,11 +28,11 @@ export const AttributeBusinessContext: React.FC<AttributeBusinessContextProps> =
         </div>
         <div>
           <span className="text-gray-400 font-normal">Business Unit: </span>
-          <span className="font-bold text-gray-800">All Business Units</span>
+          <span className="font-bold text-gray-500">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Sales Channels: </span>
-          <span className="font-bold text-gray-800">All Channels</span>
+          <span className="font-bold text-gray-500">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Region: </span>

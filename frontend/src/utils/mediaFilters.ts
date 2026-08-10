@@ -35,7 +35,7 @@ export function filterMediaAssets(
           if (asset.approvalStatus !== "Pending" && asset.approvalStatus !== "Needs Review") return false;
           break;
         case "Quality Issues":
-          if (asset.qualityScore >= 80) return false;
+          if ((asset.qualityScore ?? 0) >= 80) return false;
           break;
         case "Duplicates":
           if (asset.duplicateRisk === "None") return false;
@@ -71,9 +71,9 @@ export function filterMediaAssets(
 
     // 7. Quality Status Select
     if (filters.qualityStatus && filters.qualityStatus !== "All") {
-      if (filters.qualityStatus === "High Quality" && asset.qualityScore < 90) return false;
-      if (filters.qualityStatus === "Needs Improvement" && (asset.qualityScore >= 90 || asset.qualityScore < 75)) return false;
-      if (filters.qualityStatus === "Low Quality" && asset.qualityScore >= 75) return false;
+      if (filters.qualityStatus === "High Quality" && (asset.qualityScore ?? 0) < 90) return false;
+      if (filters.qualityStatus === "Needs Improvement" && ((asset.qualityScore ?? 0) >= 90 || (asset.qualityScore ?? 0) < 75)) return false;
+      if (filters.qualityStatus === "Low Quality" && (asset.qualityScore ?? 0) >= 75) return false;
     }
 
     // 8. Quick Filter Chips
@@ -87,7 +87,7 @@ export function filterMediaAssets(
             if (asset.approvalStatus !== "Pending" && asset.approvalStatus !== "Needs Review") return false;
             break;
           case "Missing Mandatory":
-            if (asset.qualityScore >= 90 || asset.altTextStatus === "Yes") return false;
+            if ((asset.qualityScore ?? 0) >= 90 || asset.altTextStatus === "Yes") return false;
             break;
           case "Low Resolution":
             if (asset.resolution.includes("2400") || asset.resolution.includes("1920") || asset.resolution.includes("2000")) return false;
