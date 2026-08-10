@@ -86,7 +86,7 @@ export const ADMIN_NAVIGATION = [
   {id:"logistics",label:"Logistics",icon:Truck,href:"/admin/logistics",children:[
     {id:"logistics-command-center",label:"Command Center",href:"/admin/logistics",exact:true},
     {id:"fulfilment-orders",label:"Fulfilment Orders",href:"/admin/logistics/fulfilment-orders"},
-    {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses-fulfilment-centres"},
+    {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses"},
     {id:"inventory-allocation",label:"Inventory Allocation",href:"/admin/logistics/inventory-allocation"},
     {id:"shipments-tracking",label:"Shipments & Tracking",href:"/admin/logistics/shipments"},
     {id:"carriers-delivery-partners",label:"Carriers & Delivery Partners",href:"/admin/logistics/carriers-delivery-partners"},

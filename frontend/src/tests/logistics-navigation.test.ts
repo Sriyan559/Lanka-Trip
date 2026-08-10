@@ -8,7 +8,7 @@ import {
 const expectedChildren = [
   ["Command Center", "/admin/logistics"],
   ["Fulfilment Orders", "/admin/logistics/fulfilment-orders"],
-  ["Warehouses & Fulfilment Centres", "/admin/logistics/warehouses-fulfilment-centres"],
+  ["Warehouses & Fulfilment Centres", "/admin/logistics/warehouses"],
   ["Inventory Allocation", "/admin/logistics/inventory-allocation"],
   ["Shipments & Tracking", "/admin/logistics/shipments"],
   ["Carriers & Delivery Partners", "/admin/logistics/carriers-delivery-partners"],
@@ -31,6 +31,8 @@ describe("Logistics admin navigation", () => {
   it("distinguishes the command center from child and detail routes", () => {
     expect(getActiveAdminNavigation("/admin/logistics")?.id).toBe("logistics");
     expect(getActiveChildHref(logistics, "/admin/logistics")).toBe("/admin/logistics");
+    expect(getActiveChildHref(logistics, "/admin/logistics/warehouses")).toBe("/admin/logistics/warehouses");
+    expect(getActiveChildHref(logistics, "/admin/logistics/warehouses/WH-CMB-01")).toBe("/admin/logistics/warehouses");
     expect(getActiveChildHref(logistics, "/admin/logistics/inventory-allocation"))
       .toBe("/admin/logistics/inventory-allocation");
     expect(getActiveChildHref(logistics, "/admin/logistics/shipments/123"))
