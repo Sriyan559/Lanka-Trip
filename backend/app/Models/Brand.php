@@ -37,6 +37,11 @@ class Brand extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
+    }
+
     public function sellerBrandAuthorizations(): HasMany
     {
         return $this->hasMany(SellerBrandAuthorization::class);

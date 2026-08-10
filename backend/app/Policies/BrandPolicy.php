@@ -21,7 +21,7 @@ class BrandPolicy
             return false;
         }
 
-        if ($user?->role === 'admin') {
+        if ($user?->isAdministrator()) {
             return true;
         }
 
@@ -34,7 +34,7 @@ class BrandPolicy
 
     public function create(User $user): bool
     {
-        return $user->role === 'admin'
+        return $user->isAdministrator()
             && $this->featureEnabled('sl_beauty.brand_seller_verification');
     }
 

@@ -7,12 +7,14 @@ interface BrandBusinessContextProps {
   lastSynced: string;
   onRefresh: () => void;
   isRefreshing: boolean;
+  tenantScoped: boolean;
 }
 
 export const BrandBusinessContext: React.FC<BrandBusinessContextProps> = ({
   lastSynced,
   onRefresh,
   isRefreshing,
+  tenantScoped,
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-2.5 flex flex-wrap items-center justify-between text-[11px] text-gray-600 gap-3">
@@ -20,27 +22,27 @@ export const BrandBusinessContext: React.FC<BrandBusinessContextProps> = ({
       <div className="flex flex-wrap items-center gap-6 font-medium">
         <div>
           <span className="text-gray-400 font-normal">Tenant: </span>
-          <span className="font-bold text-gray-800">SL Beauty</span>
+          <span className="font-bold text-gray-800">{tenantScoped ? "Authenticated scope" : "Unavailable in brand schema"}</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Ecosystem: </span>
-          <span className="font-bold text-gray-800">Beauty Marketplace</span>
+          <span className="font-bold text-gray-800">Current installation</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Business Unit: </span>
-          <span className="font-bold text-gray-800">All Business Units</span>
+          <span className="font-bold text-gray-800">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Sales Channels: </span>
-          <span className="font-bold text-gray-800">All Channels</span>
+          <span className="font-bold text-gray-800">Unavailable</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Region: </span>
-          <span className="font-bold text-gray-800">Sri Lanka</span>
+          <span className="font-bold text-gray-800">All recorded countries</span>
         </div>
         <div>
           <span className="text-gray-400 font-normal">Currency: </span>
-          <span className="font-bold text-gray-800">LKR</span>
+          <span className="font-bold text-gray-800">Not applicable</span>
         </div>
       </div>
 
@@ -48,7 +50,7 @@ export const BrandBusinessContext: React.FC<BrandBusinessContextProps> = ({
       <div className="flex items-center gap-3 shrink-0">
         <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Live Data</span>
+          <span>30s polling</span>
         </div>
         <div className="text-gray-400 font-normal">
           Last synced: <span className="font-semibold text-gray-700">{lastSynced}</span>

@@ -68,11 +68,12 @@ class AdminBrandController extends Controller
         $this->ensureAdmin($request);
         Gate::authorize('create', Brand::class);
 
-        $brand = Brand::create([
-            'uuid' => (string) Str::uuid(),
-            'created_by' => $request->user()->id,
-            ...$this->brandAttributes($request->validated()),
-        ]);
+        $brand = DB::transaction(function () use ($request): Brand {
+            $brand = Brand::create(['uuid' => (string) Str::uuid(), 'created_by' => $request->user()->id, ...$this->brandAttributes($request->validated())]);
+            activity('brands')->causedBy($request->user())->performedOn($brand)->log('brand.created');
+
+            return $brand;
+        });
 
         return $this->brandResponse(
             $brand->refresh()->load('creator'),
@@ -100,7 +101,13 @@ class AdminBrandController extends Controller
         $this->ensureAdmin($request);
         Gate::authorize('update', $brand);
 
-        $brand->update($this->brandAttributes($request->validated(), $brand));
+        DB::transaction(function () use ($request, $brand): void {
+            $locked = Brand::lockForUpdate()->findOrFail($brand->id);
+            $attributes = $this->brandAttributes($request->validated(), $locked);
+            $before = $locked->only(array_keys($attributes));
+            $locked->update($attributes);
+            activity('brands')->causedBy($request->user())->performedOn($locked)->withProperties(['before' => $before, 'after' => $locked->only(array_keys($attributes))])->log('brand.updated');
+        });
 
         return $this->brandResponse(
             $brand->refresh()->load('creator')->loadCount('sellerBrandAuthorizations'),
@@ -121,7 +128,12 @@ class AdminBrandController extends Controller
             'is_verified' => ['sometimes', 'boolean'],
         ]);
 
-        $brand->update($validated);
+        DB::transaction(function () use ($request, $brand, $validated): void {
+            $locked = Brand::lockForUpdate()->findOrFail($brand->id);
+            $before = $locked->only(array_keys($validated));
+            $locked->update($validated);
+            activity('brands')->causedBy($request->user())->performedOn($locked)->withProperties(['before' => $before, 'after' => $locked->only(array_keys($validated))])->log('brand.status_updated');
+        });
 
         return $this->brandResponse(
             $brand->refresh()->load('creator')->loadCount('sellerBrandAuthorizations'),
@@ -136,19 +148,20 @@ class AdminBrandController extends Controller
         $this->ensureAdmin($request);
         Gate::authorize('delete', $brand);
 
-        if ($brand->sellerBrandAuthorizations()
-            ->whereIn('status', ['submitted', 'approved', 'suspended'])
-            ->exists()) {
-            abort(Response::HTTP_CONFLICT, 'Brand has active authorization records and cannot be deleted safely.');
-        }
-
-        $brand->delete();
+        DB::transaction(function () use ($request, $brand): void {
+            $locked = Brand::lockForUpdate()->findOrFail($brand->id);
+            if ($locked->sellerBrandAuthorizations()->whereIn('status', ['submitted', 'approved', 'suspended'])->lockForUpdate()->exists()) {
+                abort(Response::HTTP_CONFLICT, 'Brand has active authorization records and cannot be deleted safely.');
+            }
+            $locked->delete();
+            activity('brands')->causedBy($request->user())->performedOn($locked)->log('brand.archived');
+        });
 
         return $this->successResponse(message: 'Brand deleted successfully.');
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      * @return array<string, mixed>
      */
     private function brandAttributes(array $attributes, ?Brand $brand = null): array

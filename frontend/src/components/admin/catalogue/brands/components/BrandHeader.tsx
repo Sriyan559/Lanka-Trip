@@ -9,6 +9,9 @@ interface BrandHeaderProps {
   onBulkActions: () => void;
   onCreateBrand: () => void;
   selectedCount: number;
+  canExport?: boolean;
+  canImport?: boolean;
+  canManage?: boolean;
 }
 
 export const BrandHeader: React.FC<BrandHeaderProps> = ({
@@ -17,6 +20,9 @@ export const BrandHeader: React.FC<BrandHeaderProps> = ({
   onBulkActions,
   onCreateBrand,
   selectedCount,
+  canExport = true,
+  canImport = true,
+  canManage = true,
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-col gap-4">
@@ -36,6 +42,7 @@ export const BrandHeader: React.FC<BrandHeaderProps> = ({
         <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
           <button
             onClick={onExport}
+            disabled={!canExport}
             className="h-8 px-3 rounded bg-white border border-gray-300 text-[11.5px] font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 transition-colors shadow-2xs"
           >
             <Download size={13} />
@@ -43,6 +50,7 @@ export const BrandHeader: React.FC<BrandHeaderProps> = ({
           </button>
           <button
             onClick={onImport}
+            disabled={!canImport}
             className="h-8 px-3 rounded bg-white border border-gray-300 text-[11.5px] font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 transition-colors shadow-2xs"
           >
             <Upload size={13} />
@@ -62,6 +70,7 @@ export const BrandHeader: React.FC<BrandHeaderProps> = ({
           </button>
           <button
             onClick={onCreateBrand}
+            disabled={!canManage}
             className="h-8 px-3.5 rounded bg-[#741d35] text-white text-[11.5px] font-bold hover:bg-[#5c172a] flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
           >
             <Plus size={14} />
