@@ -31,11 +31,7 @@ export const CategoryHierarchyTree: React.FC<CategoryHierarchyTreeProps> = ({
   onMergeNode,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
-    "node-beauty": true,
-    "node-skincare": true,
-    "node-facecare": true,
-  });
+  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
 
   const toggleExpand = (nodeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -43,13 +39,10 @@ export const CategoryHierarchyTree: React.FC<CategoryHierarchyTreeProps> = ({
   };
 
   const handleExpandAll = () => {
-    setExpandedNodes({
-      "node-beauty": true,
-      "node-skincare": true,
-      "node-facecare": true,
-      "node-makeup": true,
-      "node-haircare": true,
-    });
+    const expanded: Record<string, boolean> = {};
+    const visit = (nodes: HierarchyNode[]) => nodes.forEach((node) => { if (node.children?.length) { expanded[node.id] = true; visit(node.children); } });
+    visit(tree);
+    setExpandedNodes(expanded);
   };
 
   const handleCollapseAll = () => {

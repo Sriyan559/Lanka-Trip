@@ -73,11 +73,11 @@ export const SelectedCategoryOverview: React.FC<SelectedCategoryOverviewProps> =
             <div className="w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-emerald-500 h-full rounded-full"
-                style={{ width: `${category.attributeCoveragePercent}%` }}
+                style={{ width: `${category.attributeCoveragePercent ?? 0}%` }}
               />
             </div>
             <span className="font-bold text-[10.5px] text-emerald-700">
-              {category.attributeCoveragePercent}%
+              {category.attributeCoveragePercent === null ? "N/A" : `${category.attributeCoveragePercent}%`}
             </span>
           </div>
         </div>
@@ -101,11 +101,11 @@ export const SelectedCategoryOverview: React.FC<SelectedCategoryOverviewProps> =
             <div className="w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-sky-500 h-full rounded-full"
-                style={{ width: `${category.seoReadinessPercent}%` }}
+                style={{ width: `${category.seoReadinessPercent ?? 0}%` }}
               />
             </div>
             <span className="font-bold text-[10.5px] text-sky-700">
-              {category.seoReadinessPercent}%
+              {category.seoReadinessPercent === null ? "N/A" : `${category.seoReadinessPercent}%`}
             </span>
           </div>
         </div>

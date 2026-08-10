@@ -19,6 +19,8 @@ interface CategoryTableProps {
   onMoveCategory: (cat: CategoryItem) => void;
   onMergeCategory: (cat: CategoryItem) => void;
   onArchiveCategory: (cat: CategoryItem) => void;
+  pagination?: { currentPage: number; lastPage: number; total: number; pageSize: number };
+  onPageChange?: (page: number) => void;
 }
 
 export const CategoryTable: React.FC<CategoryTableProps> = ({
@@ -35,6 +37,8 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
   onMoveCategory,
   onMergeCategory,
   onArchiveCategory,
+  pagination,
+  onPageChange,
 }) => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -55,8 +59,8 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
         {/* Table Title Bar */}
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="text-sm font-bold text-gray-900">Face Care Categories</h3>
-            <p className="text-[11px] text-gray-500">Showing categories under Face Care</p>
+            <h3 className="text-sm font-bold text-gray-900">Categories</h3>
+            <p className="text-[11px] text-gray-500">Authoritative taxonomy records matching the current filters</p>
           </div>
           <span className="text-[11px] font-semibold text-gray-500">
             {categories.length} records found
@@ -173,17 +177,17 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
                         <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
-                              cat.attributeCoveragePercent >= 85
+                              (cat.attributeCoveragePercent ?? 0) >= 85
                                 ? "bg-emerald-500"
-                                : cat.attributeCoveragePercent >= 70
+                                : (cat.attributeCoveragePercent ?? 0) >= 70
                                 ? "bg-amber-500"
                                 : "bg-rose-500"
                             }`}
-                            style={{ width: `${cat.attributeCoveragePercent}%` }}
+                            style={{ width: `${cat.attributeCoveragePercent ?? 0}%` }}
                           />
                         </div>
                         <span className="font-bold text-[10.5px] shrink-0 w-8 text-right">
-                          {cat.attributeCoveragePercent}%
+                          {cat.attributeCoveragePercent === null ? "N/A" : `${cat.attributeCoveragePercent}%`}
                         </span>
                       </div>
                     </td>
@@ -199,11 +203,11 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
                         <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
                           <div
                             className="bg-sky-500 h-full rounded-full"
-                            style={{ width: `${cat.seoReadinessPercent}%` }}
+                            style={{ width: `${cat.seoReadinessPercent ?? 0}%` }}
                           />
                         </div>
                         <span className="font-semibold text-[10.5px] shrink-0 w-8 text-right">
-                          {cat.seoReadinessPercent}%
+                          {cat.seoReadinessPercent === null ? "N/A" : `${cat.seoReadinessPercent}%`}
                         </span>
                       </div>
                     </td>
@@ -224,7 +228,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
                     {/* Status */}
                     <td className="py-2 px-3 align-middle whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 font-semibold text-gray-800">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span className={`w-1.5 h-1.5 rounded-full ${cat.status === "Active" ? "bg-emerald-500" : "bg-gray-400"}`} />
                         {cat.status}
                       </span>
                     </td>
@@ -342,25 +346,21 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
       {/* Pagination Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 mt-3 border-t border-gray-200 text-xs text-gray-500">
         <div>
-          Showing 1 to {categories.length} of {categories.length} categories
+          Showing {categories.length ? ((pagination?.currentPage ?? 1)-1)*(pagination?.pageSize ?? categories.length)+1 : 0} to {Math.min((pagination?.currentPage ?? 1)*(pagination?.pageSize ?? categories.length),pagination?.total ?? categories.length)} of {pagination?.total ?? categories.length} categories
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <button disabled className="w-7 h-7 rounded border border-gray-200 text-gray-300 cursor-not-allowed flex items-center justify-center">
+            <button disabled={!pagination || pagination.currentPage <= 1} onClick={()=>onPageChange?.((pagination?.currentPage ?? 1)-1)} className="w-7 h-7 rounded border border-gray-200 disabled:text-gray-300 disabled:cursor-not-allowed flex items-center justify-center">
               &lt;
             </button>
             <button className="w-7 h-7 rounded bg-[#741d35] text-white font-bold flex items-center justify-center">
-              1
+              {pagination?.currentPage ?? 1}
             </button>
-            <button disabled className="w-7 h-7 rounded border border-gray-200 text-gray-300 cursor-not-allowed flex items-center justify-center">
+            <button disabled={!pagination || pagination.currentPage >= pagination.lastPage} onClick={()=>onPageChange?.((pagination?.currentPage ?? 1)+1)} className="w-7 h-7 rounded border border-gray-200 disabled:text-gray-300 disabled:cursor-not-allowed flex items-center justify-center">
               &gt;
             </button>
           </div>
-          <select className="h-7 px-2 rounded border border-gray-300 text-xs font-semibold text-gray-700 focus:outline-none">
-            <option>25 / page</option>
-            <option>50 / page</option>
-            <option>100 / page</option>
-          </select>
+          <span className="h-7 px-2 flex items-center rounded border border-gray-300 text-xs font-semibold text-gray-700">{pagination?.pageSize ?? categories.length} / page</span>
         </div>
       </div>
     </div>

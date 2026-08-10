@@ -12,6 +12,7 @@ interface CategoryFiltersProps {
   onSaveView: () => void;
   onRefresh: () => void;
   isRefreshing?: boolean;
+  parentOptions: Array<{ id: string; name: string }>;
 }
 
 export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
@@ -22,6 +23,7 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
   onSaveView,
   onRefresh,
   isRefreshing = false,
+  parentOptions,
 }) => {
   return (
     <div className="bg-white rounded border border-gray-200 p-3.5 shadow-2xs mb-4 flex flex-col gap-2.5">
@@ -34,7 +36,7 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
             type="text"
             value={filters.searchQuery}
             onChange={(e) => onChange("searchQuery", e.target.value)}
-            placeholder="Search category / product / attribute / ID"
+            placeholder="Search category name or slug"
             className="w-full h-8 pl-8 pr-3 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           />
         </div>
@@ -42,14 +44,13 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
         {/* Department */}
         <div>
           <select
+            disabled
             value={filters.department}
             onChange={(e) => onChange("department", e.target.value)}
             className="w-full h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Department: All</option>
-            <option value="Skincare">Skincare</option>
-            <option value="Makeup">Makeup</option>
-            <option value="Haircare">Haircare</option>
+            <option value="unavailable">Unavailable in category schema</option>
           </select>
         </div>
 
@@ -61,9 +62,8 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
             className="w-full h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Parent: All Parents</option>
-            <option value="Beauty">Beauty</option>
-            <option value="Skincare">Skincare</option>
-            <option value="Face Care">Face Care</option>
+            <option value="root">Root categories</option>
+            {parentOptions.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
 
@@ -75,10 +75,7 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
             className="w-full h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Level: All Levels</option>
-            <option value="1">Level 1 (Department)</option>
-            <option value="2">Level 2 (Category)</option>
-            <option value="3">Level 3 (Subcategory)</option>
-            <option value="4">Level 4 (Leaf Category)</option>
+            <option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option>
           </select>
         </div>
 
@@ -91,9 +88,7 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
           >
             <option value="all">Status: All Statuses</option>
             <option value="Active">Active</option>
-            <option value="Draft">Draft</option>
-            <option value="Review Required">Review Required</option>
-            <option value="Archived">Archived</option>
+            <option value="Inactive">Inactive</option>
           </select>
         </div>
       </div>
@@ -108,42 +103,41 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
             className="h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Required Attributes: All</option>
-            <option value="Complete">100% Complete</option>
-            <option value="Missing">Has Missing Attributes</option>
+            <option value="with">Has required attributes</option>
+            <option value="without">No required attributes</option>
           </select>
 
           {/* Channel Eligibility */}
           <select
+            disabled
             value={filters.channelEligibility}
             onChange={(e) => onChange("channelEligibility", e.target.value)}
             className="h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Channel Eligibility: All Channels</option>
-            <option value="5/5">5/5 Eligible</option>
-            <option value="Partial">Partial Channels</option>
+            <option value="unavailable">Unavailable in category schema</option>
           </select>
 
           {/* Compliance Status */}
           <select
+            disabled
             value={filters.complianceStatus}
             onChange={(e) => onChange("complianceStatus", e.target.value)}
             className="h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Compliance: All</option>
-            <option value="Configured">Configured</option>
-            <option value="Partial">Partial</option>
+            <option value="unavailable">Unavailable in category schema</option>
           </select>
 
           {/* Owner */}
           <select
+            disabled
             value={filters.owner}
             onChange={(e) => onChange("owner", e.target.value)}
             className="h-8 px-2 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#741d35]"
           >
             <option value="all">Owner: All Owners</option>
-            <option value="Elena Vance">Elena Vance</option>
-            <option value="Marcus Lee">Marcus Lee</option>
-            <option value="Priya Kapoor">Priya Kapoor</option>
+            <option value="unavailable">Unavailable in category schema</option>
           </select>
         </div>
 

@@ -10,7 +10,8 @@ interface CategoryFormDrawerProps {
   onClose: () => void;
   initialData?: CategoryItem | null;
   mode: "create" | "edit";
-  onSave: (data: Partial<CategoryItem>) => void;
+  onSave: (data: Partial<CategoryItem>) => Promise<void>;
+  parentOptions: Array<{ id: string; name: string }>;
 }
 
 export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
@@ -19,22 +20,23 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
   initialData,
   mode,
   onSave,
+  parentOptions,
 }) => {
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<CategoryItem>>({
     categoryName: "",
     categoryId: "",
-    parentCategory: "Face Care",
-    level: 4,
+    parentCategory: "Root",
     description: "",
     status: "Active",
-    owner: "Elena Vance",
+    owner: "Unavailable",
     slug: "",
-    requiredAttributesCount: 10,
-    attributeCoveragePercent: 85,
-    seoReadinessPercent: 80,
-    channelEligibilityText: "5/5",
-    complianceStatus: "Configured",
-    riskLevel: "Low",
+    requiredAttributesCount: 0,
+    attributeCoveragePercent: null,
+    seoReadinessPercent: null,
+    channelEligibilityText: "Unavailable",
+    complianceStatus: "Unavailable",
+    riskLevel: "Unavailable",
   });
 
   useEffect(() => {
@@ -43,39 +45,34 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
     } else if (mode === "create") {
       setFormData({
         categoryName: "",
-        categoryId: `CAT-SKN-00${Math.floor(Math.random() * 90 + 10)}`,
-        parentCategory: initialData?.categoryName || "Face Care",
+        categoryId: "Assigned on create",
+        parentCategory: initialData?.categoryName || "Root",
+        parentId: initialData?.id || null,
         level: initialData ? initialData.level + 1 : 4,
         description: "",
         status: "Active",
-        owner: "Elena Vance",
+        owner: "Unavailable",
         slug: "",
-        requiredAttributesCount: 10,
-        attributeCoveragePercent: 85,
-        seoReadinessPercent: 80,
-        channelEligibilityText: "5/5",
-        complianceStatus: "Configured",
-        riskLevel: "Low",
+        requiredAttributesCount: 0,
+        attributeCoveragePercent: null,
+        seoReadinessPercent: null,
+        channelEligibilityText: "Unavailable",
+        complianceStatus: "Unavailable",
+        riskLevel: "Unavailable",
       });
     }
   }, [initialData, mode, isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.categoryName) {
       toast.error("Category name is required!");
       return;
     }
-    if (!formData.categoryId) {
-      toast.error("Category ID is required!");
-      return;
-    }
-
-    onSave(formData);
-    toast.success(`Category ${mode === "create" ? "created" : "updated"} successfully!`);
-    onClose();
+    setSaving(true);
+    try { await onSave(formData); onClose(); } catch { /* caller displays the API error */ } finally { setSaving(false); }
   };
 
   return (
@@ -116,24 +113,21 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
               <label className="block font-bold text-gray-700 mb-1">Category ID *</label>
               <input
                 type="text"
-                required
+                disabled
                 value={formData.categoryId || ""}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none font-mono"
+                className="w-full h-8 px-2.5 border border-gray-200 rounded bg-gray-100 font-mono"
               />
             </div>
 
             <div>
               <label className="block font-bold text-gray-700 mb-1">Parent Category</label>
               <select
-                value={formData.parentCategory || "Face Care"}
-                onChange={(e) => setFormData({ ...formData, parentCategory: e.target.value })}
+                value={formData.parentId || ""}
+                onChange={(e) => setFormData({ ...formData, parentId: e.target.value || null, parentCategory: parentOptions.find(p=>p.id===e.target.value)?.name || "Root" })}
                 className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none"
               >
-                <option value="Beauty">Beauty (Root)</option>
-                <option value="Skincare">Skincare</option>
-                <option value="Face Care">Face Care</option>
-                <option value="Makeup">Makeup</option>
+                <option value="">Root</option>
+                {parentOptions.filter(p=>p.id!==initialData?.id).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
           </div>
@@ -143,11 +137,9 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
               <label className="block font-bold text-gray-700 mb-1">Category Level</label>
               <input
                 type="number"
-                min={1}
-                max={5}
+                disabled
                 value={formData.level || 4}
-                onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) || 4 })}
-                className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none"
+                className="w-full h-8 px-2.5 border border-gray-200 bg-gray-100 rounded"
               />
             </div>
 
@@ -159,9 +151,7 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
                 className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none"
               >
                 <option value="Active">Active</option>
-                <option value="Draft">Draft</option>
-                <option value="Review Required">Review Required</option>
-                <option value="Archived">Archived</option>
+                <option value="Inactive">Inactive</option>
               </select>
             </div>
           </div>
@@ -180,9 +170,9 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
             <label className="block font-bold text-gray-700 mb-1">Owner</label>
             <input
               type="text"
-              value={formData.owner || "Elena Vance"}
-              onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
-              className="w-full h-8 px-2.5 border border-gray-300 rounded focus:border-[#741d35] focus:outline-none"
+              value="Unavailable — no category ownership field"
+              disabled
+              className="w-full h-8 px-2.5 border border-gray-200 rounded bg-gray-100"
             />
           </div>
 
@@ -210,7 +200,8 @@ export const CategoryFormDrawer: React.FC<CategoryFormDrawerProps> = ({
           <button
             form="categoryForm"
             type="submit"
-            className="h-8 px-4 rounded bg-[#741d35] text-white font-bold hover:bg-[#5c172a] flex items-center gap-1.5 shadow-2xs"
+            disabled={saving}
+            className="h-8 px-4 rounded bg-[#741d35] text-white font-bold hover:bg-[#5c172a] flex items-center gap-1.5 shadow-2xs disabled:opacity-60"
           >
             <Save size={13} />
             <span>{mode === "create" ? "Create Category" : "Save Changes"}</span>

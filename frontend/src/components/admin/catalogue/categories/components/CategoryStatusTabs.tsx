@@ -21,11 +21,12 @@ export const CategoryStatusTabs: React.FC<CategoryStatusTabsProps> = ({
         return (
           <button
             key={tab.id}
+            disabled={tab.count === null}
             onClick={() => onSelectTab(tab.id)}
             className={`px-3 py-1.5 rounded transition-all font-semibold shrink-0 relative flex items-center gap-1.5 ${
               isSelected
                 ? "text-[#741d35] font-bold bg-[#f5ebed]/70 border-b-2 border-[#741d35]"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70"
+                : tab.count === null ? "text-gray-400 cursor-not-allowed" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70"
             }`}
           >
             <span>{tab.label}</span>
@@ -34,7 +35,7 @@ export const CategoryStatusTabs: React.FC<CategoryStatusTabsProps> = ({
                 isSelected ? "bg-[#741d35] text-white" : "bg-gray-200 text-gray-700"
               }`}
             >
-              {tab.count}
+              {tab.count ?? "N/A"}
             </span>
           </button>
         );

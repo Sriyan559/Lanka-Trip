@@ -1,6 +1,6 @@
-export type CategoryStatus = 'Active' | 'Draft' | 'Review Required' | 'Archived';
-export type CategoryRisk = 'Low' | 'Medium' | 'High';
-export type ComplianceStatus = 'Configured' | 'Partial' | 'Missing';
+export type CategoryStatus = 'Active' | 'Inactive';
+export type CategoryRisk = 'Low' | 'Medium' | 'High' | 'Unavailable';
+export type ComplianceStatus = 'Configured' | 'Partial' | 'Missing' | 'Unavailable';
 
 export interface CategoryItem {
   id: string;
@@ -9,12 +9,13 @@ export interface CategoryItem {
   hierarchyPath: string;
   level: number;
   parentCategory: string;
+  parentId?: string | null;
   activeProductsCount: number;
   childCategoriesCount: number;
   requiredAttributesCount: number;
-  attributeCoveragePercent: number;
+  attributeCoveragePercent: number | null;
   channelEligibilityText: string;
-  seoReadinessPercent: number;
+  seoReadinessPercent: number | null;
   complianceStatus: ComplianceStatus;
   status: CategoryStatus;
   riskLevel: CategoryRisk;
@@ -45,7 +46,19 @@ export interface CategoryKpiItem {
 export interface CategoryStatusTab {
   id: string;
   label: string;
-  count: number;
+  count: number | null;
+}
+
+export interface CategoryManagementData {
+  kpis: CategoryKpiItem[];
+  tabs: CategoryStatusTab[];
+  tree: HierarchyNode[];
+  categories: { data: CategoryItem[]; currentPage: number; pageSize: number; total: number; lastPage: number };
+  options: { parents: Array<{ id: string; name: string }> };
+  summary: { uncategorizedProducts: number; duplicateCandidates: number; orphanCategories: number; attributeCoverage: number | null };
+  analytics: { hierarchyIntegrity: number; maxDepth: number; leafCategories: number; averageProductsPerCategory: number; productCoverage: ProductCoverageLevelItem[]; duplicatePairs: Array<DuplicateCategoryPair & {sourceId:string;targetId:string}>; activities: Array<{id:string;action:string;categoryName:string;user:string;dateTime:string}> };
+  capabilities: Record<string, boolean | string>;
+  lastSyncedAt: string;
 }
 
 export interface AttributeCoverageItem {
