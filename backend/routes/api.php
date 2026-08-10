@@ -1,26 +1,28 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\AdminSupplierDashboardController;
 use App\Http\Controllers\Api\Admin\AdminVerificationComplianceController;
-use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
-use App\Http\Controllers\Api\Admin\EcosystemModuleController;
-use App\Http\Controllers\Api\Admin\LogisticsController;
-use App\Http\Controllers\Api\Admin\MarketplaceCommissionsController;
-use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
-use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
+use App\Http\Controllers\Api\Admin\BrandManagementController;
 use App\Http\Controllers\Api\Admin\CatalogueCommandCenterController;
 use App\Http\Controllers\Api\Admin\CategoryManagementController;
-use App\Http\Controllers\Api\Admin\ProductMasterManagementController;
+use App\Http\Controllers\Api\Admin\EcosystemModuleController;
 use App\Http\Controllers\Api\Admin\InventoryOperationsController;
+use App\Http\Controllers\Api\Admin\LogisticsController;
+use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
+use App\Http\Controllers\Api\Admin\MarketplaceCommissionsController;
+use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
 use App\Http\Controllers\Api\Admin\MarketplaceListingsController;
 use App\Http\Controllers\Api\Admin\MarketplaceOrdersController;
 use App\Http\Controllers\Api\Admin\MarketplacePolicyViolationsController;
 use App\Http\Controllers\Api\Admin\MarketplacePromotionsController;
 use App\Http\Controllers\Api\Admin\MarketplaceReturnsController;
 use App\Http\Controllers\Api\Admin\MarketplaceSellersController;
+use App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController;
 use App\Http\Controllers\Api\Admin\PayoutController;
+use App\Http\Controllers\Api\Admin\ProductMasterManagementController;
 use App\Http\Controllers\Api\Admin\ReturnCaseController;
 use App\Http\Controllers\Api\Admin\SupportCaseController;
 use App\Http\Controllers\Api\AdminController;
@@ -177,6 +179,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/marketplace/dashboard', [MarketplaceDashboardController::class, 'show']);
         Route::get('/admin/catalogue/command-center', [CatalogueCommandCenterController::class, 'show']);
         Route::get('/admin/catalogue/categories', [CategoryManagementController::class, 'index']);
+        Route::get('/admin/catalogue/brands', [BrandManagementController::class, 'index']);
+        Route::get('/admin/catalogue/brands/export', [BrandManagementController::class, 'export']);
+        Route::post('/admin/catalogue/brands/import', [BrandManagementController::class, 'import']);
         Route::get('/admin/catalogue/categories/export', [CategoryManagementController::class, 'export']);
         Route::post('/admin/catalogue/categories', [CategoryManagementController::class, 'store']);
         Route::get('/admin/catalogue/categories/{category}', [CategoryManagementController::class, 'show'])->whereNumber('category');
@@ -197,11 +202,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/catalogue/command-center/composition', [CatalogueCommandCenterController::class, 'composition']);
         Route::get('/admin/catalogue/approvals/priority', [CatalogueCommandCenterController::class, 'approvals']);
         Route::get('/admin/marketplace/dashboard/export', [MarketplaceDashboardController::class, 'export']);
-        Route::get('/admin/marketplace/workspaces/{workspace}', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'index']);
-        Route::get('/admin/marketplace/workspaces/{workspace}/export', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'export']);
-        Route::get('/admin/marketplace/workspaces/orders/{order}', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'order'])->whereNumber('order');
-        Route::patch('/admin/marketplace/orders/{order}/status', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'transition'])->whereNumber('order');
-        Route::post('/admin/marketplace/orders/{order}/notes', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'note'])->whereNumber('order');
+        Route::get('/admin/marketplace/workspaces/{workspace}', [MarketplaceWorkspaceController::class, 'index']);
+        Route::get('/admin/marketplace/workspaces/{workspace}/export', [MarketplaceWorkspaceController::class, 'export']);
+        Route::get('/admin/marketplace/workspaces/orders/{order}', [MarketplaceWorkspaceController::class, 'order'])->whereNumber('order');
+        Route::patch('/admin/marketplace/orders/{order}/status', [MarketplaceWorkspaceController::class, 'transition'])->whereNumber('order');
+        Route::post('/admin/marketplace/orders/{order}/notes', [MarketplaceWorkspaceController::class, 'note'])->whereNumber('order');
         Route::get('/admin/marketplace/listings', [MarketplaceListingsController::class, 'index']);
         Route::get('/admin/marketplace/listings/export', [MarketplaceListingsController::class, 'export']);
         Route::get('/admin/marketplace/listings/{listing}', [MarketplaceListingsController::class, 'show'])->whereNumber('listing');
@@ -297,12 +302,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/maintenance/disable', [AdminController::class, 'disableMaintenance']);
 
         Route::prefix('admin/sl-beauty')->group(function () {
-            Route::get('/brands', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'index']);
-            Route::post('/brands', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'store']);
-            Route::get('/brands/{brand}', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'show'])->whereNumber('brand');
-            Route::put('/brands/{brand}', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'update'])->whereNumber('brand');
-            Route::patch('/brands/{brand}/status', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'updateStatus'])->whereNumber('brand');
-            Route::delete('/brands/{brand}', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'destroy'])->whereNumber('brand');
+            Route::get('/brands', [AdminBrandController::class, 'index']);
+            Route::post('/brands', [AdminBrandController::class, 'store']);
+            Route::get('/brands/{brand}', [AdminBrandController::class, 'show'])->whereNumber('brand');
+            Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])->whereNumber('brand');
+            Route::patch('/brands/{brand}/status', [AdminBrandController::class, 'updateStatus'])->whereNumber('brand');
+            Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])->whereNumber('brand');
         });
 
         Route::prefix('admin/brands-suppliers')->group(function () {

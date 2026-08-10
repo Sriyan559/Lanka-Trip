@@ -5,16 +5,7 @@ import React from "react";
 interface BrandStatusTabsProps {
   activeTab: string;
   onTabChange: (tabName: string) => void;
-  counts: {
-    all: number;
-    active: number;
-    verified: number;
-    pending: number;
-    conditional: number;
-    expiring: number;
-    unauthorized: number;
-    archived: number;
-  };
+  counts: Record<string, number | null>;
 }
 
 export const BrandStatusTabs: React.FC<BrandStatusTabsProps> = ({
@@ -57,7 +48,7 @@ export const BrandStatusTabs: React.FC<BrandStatusTabsProps> = ({
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
-                {t.count}
+                {t.count === null ? "N/A" : t.count}
               </span>
             </button>
           );

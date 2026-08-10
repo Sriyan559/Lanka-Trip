@@ -64,19 +64,19 @@ export const BrandKpiGrid: React.FC<BrandKpiGridProps> = ({
                 <span className="truncate pr-1" title={kpi.label}>
                   {kpi.label}
                 </span>
-                <Icon size={14} className={kpi.isWarning ? "text-amber-500 shrink-0" : "text-gray-400 shrink-0"} />
+                <Icon size={14} className={kpi.value === null ? "text-amber-500 shrink-0" : "text-gray-400 shrink-0"} />
               </div>
               <div className="flex items-baseline justify-between mt-1">
-                <span className="text-lg font-bold text-gray-900 font-mono tracking-tight">
-                  {kpi.value}
+                <span className="text-lg font-bold text-gray-900 font-mono tracking-tight" title={kpi.value === null ? "Unavailable: no authoritative source" : undefined}>
+                  {kpi.value === null ? "N/A" : kpi.value.toLocaleString()}
                 </span>
-                <span
+                {kpi.trend !== null && <span
                   className={`text-[10px] font-bold ${
-                    kpi.trendUp ? "text-emerald-600" : "text-rose-600"
+                    kpi.trend >= 0 ? "text-emerald-600" : "text-rose-600"
                   }`}
                 >
-                  {kpi.trend}
-                </span>
+                  {`${kpi.trend >= 0 ? "+" : ""}${kpi.trend}%`}
+                </span>}
               </div>
             </div>
           );
