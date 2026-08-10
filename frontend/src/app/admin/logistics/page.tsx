@@ -157,7 +157,16 @@ function LogisticsContent() {
       />
 
       {/* 2. GLOBAL CONTEXT SCOPE BAR */}
-      <ContextScopeBar items={[]} />
+      <ContextScopeBar
+        items={[
+          { label: "OPERATIONAL REGION", value: "Sri Lanka (Islandwide)" },
+          { label: "PRIMARY FULFILMENT HUB", value: "Colombo Main DC" },
+          { label: "DISPATCH MODE", value: "B2B Bulk & Direct Courier" },
+          { label: "ACTIVE CARRIERS", value: "3 Integrated Partners" },
+        ]}
+        lastSynced={dashboard?.lastSynced || "Just now"}
+        accessNote="Logistics & Dispatch Scope"
+      />
 
       {/* 3. SERVICE HEALTH STRIP */}
       <LogisticsServiceHealthStrip />
