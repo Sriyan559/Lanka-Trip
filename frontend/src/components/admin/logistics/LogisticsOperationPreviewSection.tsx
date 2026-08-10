@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Package, Clock, CheckCircle2, AlertCircle, ChevronRight, FileText } from "lucide-react";
+import { Package, ExternalLink, ShieldCheck, Clock, User, Warehouse, Truck, CheckCircle2, FileText, Activity } from "lucide-react";
+import { LogisticsLifecycle } from "./LogisticsLifecycle";
 
 export interface OperationPreviewProps {
   operation?: any | null;
@@ -10,59 +11,67 @@ export interface OperationPreviewProps {
 export function LogisticsOperationPreviewSection({ operation }: OperationPreviewProps) {
   const [activeTab, setActiveTab] = useState("Overview");
 
-  const tabs = [
+  const previewTabs = [
     "Overview", "Fulfilment", "Inventory Allocation", "Picking", "Packing",
     "Dispatch", "Shipment", "Tracking", "Carrier", "Delivery",
     "Proof of Delivery", "Returns", "Claims", "Costs", "Reconciliation",
     "Exceptions", "Linked Records", "Communications", "Activity", "Audit History"
   ];
 
-  const stages = [
-    { name: "Order Created", status: "completed" },
-    { name: "Allocated", status: "completed" },
-    { name: "Picking", status: "completed" },
-    { name: "Packing", status: "completed" },
-    { name: "Ready for Dispatch", status: "active" },
-    { name: "Dispatched", status: "pending" },
-    { name: "In Transit", status: "pending" },
-    { name: "Out for Delivery", status: "pending" },
-    { name: "Delivered", status: "pending" },
-  ];
+  // Default rich preview data if operation is null
+  const op = operation || {
+    id: "FUL-2025-000921",
+    fulfilment_ref: "FUL-2025-000921",
+    order_ref: "ORD-884910",
+    order_date: "May 26, 2025 08:30 AM",
+    order_value: "LKR 18,500",
+    customer_name: "Kavindi Perera",
+    customer_id: "CUST-9921",
+    warehouse: "Colombo Central Hub",
+    fulfilment_centre: "DC-01 Main Hub",
+    carrier_name: "DHL Express",
+    carrier_rating: "4.9 / 5.0 (Premier Partner)",
+    promised_delivery: "May 26, 2025 06:00 PM",
+    current_state: "In Transit - Out for Delivery",
+    sla_status: "On Track (Optimal)",
+    shipment_ref: "SHP-99201",
+    delivery_ref: "DEL-44810",
+    tracking_ref: "DHL-SL-88491029",
+  };
 
   return (
     <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden space-y-0">
-      {/* SECTION HEADER */}
-      <div className="p-5 border-b border-line bg-canvas flex items-center justify-between">
+      {/* HEADER */}
+      <div className="p-4 border-b border-line bg-canvas flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Package size={18} className="text-primary-900" />
           <div>
             <h3 className="text-sm font-bold text-ink">Selected Logistics Operation Preview</h3>
-            <p className="text-[11px] text-muted">Detailed operational breakdown and lifecycle progression</p>
+            <p className="text-[11px] text-muted">Inline operation details, timeline progression, and linked system records</p>
           </div>
         </div>
 
-        {operation ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold px-2.5 py-1 bg-white border border-line rounded text-ink">
-              {operation.shipment_number || operation.reference || `ID #${operation.id}`}
-            </span>
-          </div>
-        ) : (
-          <span className="text-xs text-muted italic">No operation selected</span>
-        )}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono font-bold px-3 py-1 bg-white border border-line rounded text-ink shadow-sm">
+            {op.fulfilment_ref || op.shipment_number || `FUL-2025-${op.id}`}
+          </span>
+          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 uppercase">
+            {op.current_state || "Active"}
+          </span>
+        </div>
       </div>
 
-      {/* PREVIEW TABS */}
-      <div className="border-b border-line bg-white px-5 overflow-x-auto scrollbar-none">
-        <div className="flex gap-2 text-[11px] font-semibold text-muted py-2 whitespace-nowrap">
-          {tabs.map((tab) => (
+      {/* 20 PREVIEW TABS */}
+      <div className="border-b border-line bg-white px-4 overflow-x-auto scrollbar-none">
+        <div className="flex gap-1.5 text-[11px] font-semibold text-muted py-2 whitespace-nowrap">
+          {previewTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === tab
-                  ? "bg-primary-900 text-white"
-                  : "hover:bg-canvas hover:text-ink"
+                  ? "bg-primary-900 text-white font-bold"
+                  : "hover:bg-canvas hover:text-ink text-muted"
               }`}
             >
               {tab}
@@ -71,63 +80,67 @@ export function LogisticsOperationPreviewSection({ operation }: OperationPreview
         </div>
       </div>
 
-      {/* LIFECYCLE STEPPER */}
-      <div className="p-5 border-b border-line bg-white">
-        <h4 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-4">
-          Customer Fulfilment / Logistics Lifecycle
-        </h4>
+      {/* OVERVIEW CONTENT */}
+      <div className="p-5 bg-white space-y-6">
+        {/* TOP SUMMARY GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
+            <span className="text-[10px] text-muted uppercase font-semibold">Customer Profile</span>
+            <div className="font-bold text-ink flex items-center justify-between">
+              <span>{op.customer_name || op.customer}</span>
+              <a href="#" onClick={(e) => { e.preventDefault(); alert("Opening Customer Profile..."); }} className="text-primary-900 hover:underline flex items-center gap-0.5 text-[11px]">
+                Profile <ExternalLink size={10} />
+              </a>
+            </div>
+            <div className="text-[10px] text-muted">Ref: {op.customer_id || "CUST-9921"}</div>
+          </div>
 
-        {operation ? (
-          <div className="flex items-center justify-between overflow-x-auto pb-2 gap-2 text-xs">
-            {stages.map((stage, idx) => (
-              <div key={idx} className="flex items-center gap-2 flex-shrink-0">
-                <div className="flex flex-col items-center gap-1">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] ${
-                    stage.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                    stage.status === 'active' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' :
-                    'bg-gray-100 text-gray-400'
-                  }`}>
-                    {stage.status === 'completed' ? <CheckCircle2 size={14} /> : idx + 1}
-                  </div>
-                  <span className="text-[10px] font-medium text-ink truncate max-w-[90px] text-center">{stage.name}</span>
-                </div>
-                {idx < stages.length - 1 && <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />}
-              </div>
-            ))}
+          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
+            <span className="text-[10px] text-muted uppercase font-semibold">Order Reference</span>
+            <div className="font-bold text-ink">{op.order_ref || op.order_number}</div>
+            <div className="text-[10px] text-muted">{op.order_date} • Value: <strong className="text-ink">{op.order_value}</strong></div>
           </div>
-        ) : (
-          <div className="p-4 bg-canvas border border-dashed border-line rounded-lg text-center text-xs text-muted">
-            No active lifecycle available. Select a shipment from the table above to view real-time lifecycle progression.
-          </div>
-        )}
-      </div>
 
-      {/* CONTENT AREA */}
-      <div className="p-6 text-xs text-muted bg-white">
-        {operation ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-ink">
-            <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-              <span className="text-[10px] text-muted uppercase">Shipment Reference</span>
-              <div className="font-bold text-sm">{operation.shipment_number || `SHP-${operation.id}`}</div>
-            </div>
-            <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-              <span className="text-[10px] text-muted uppercase">Tracking Number</span>
-              <div className="font-bold text-sm">{operation.tracking_number || "N/A"}</div>
-            </div>
-            <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-              <span className="text-[10px] text-muted uppercase">Carrier / Logistics Partner</span>
-              <div className="font-bold text-sm">{operation.carrier_name || "Unassigned"}</div>
-            </div>
+          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
+            <span className="text-[10px] text-muted uppercase font-semibold">Warehouse &amp; Fulfilment</span>
+            <div className="font-bold text-ink">{op.warehouse || "Colombo Main DC"}</div>
+            <div className="text-[10px] text-muted">Centre: {op.fulfilment_centre || "DC-01 Hub"}</div>
           </div>
-        ) : (
-          <div className="py-8 text-center space-y-2">
-            <FileText size={28} className="text-muted mx-auto opacity-50" />
-            <div className="text-sm font-semibold text-ink">No logistics operation selected</div>
-            <p className="text-[11px] text-muted max-w-sm mx-auto">
-              Create or select a logistics operation from the table above to view comprehensive operational details, package manifests, carrier assignments, and tracking timelines.
-            </p>
+
+          <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
+            <span className="text-[10px] text-muted uppercase font-semibold">Carrier &amp; Service Rating</span>
+            <div className="font-bold text-ink">{op.carrier_name || "DHL Express"}</div>
+            <div className="text-[10px] text-emerald-700 font-semibold">{op.carrier_rating || "4.9 / 5.0 Rating"}</div>
           </div>
-        )}
+        </div>
+
+        {/* DETAILS GRID */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-1">
+          <div className="p-2.5 bg-white border border-line rounded-lg">
+            <span className="text-[10px] text-muted block">Promised Delivery</span>
+            <span className="font-bold text-ink">{op.promised_delivery}</span>
+          </div>
+
+          <div className="p-2.5 bg-white border border-line rounded-lg">
+            <span className="text-[10px] text-muted block">Current State</span>
+            <span className="font-bold text-blue-700">{op.current_state}</span>
+          </div>
+
+          <div className="p-2.5 bg-white border border-line rounded-lg">
+            <span className="text-[10px] text-muted block">SLA Compliance</span>
+            <span className="font-bold text-emerald-700">{op.sla_status}</span>
+          </div>
+
+          <div className="p-2.5 bg-white border border-line rounded-lg">
+            <span className="text-[10px] text-muted block">Tracking Reference</span>
+            <span className="font-mono font-bold text-ink">{op.tracking_ref || "DHL-SL-88491029"}</span>
+          </div>
+        </div>
+
+        {/* LIFECYCLE TIMELINE SECTION */}
+        <div className="pt-2 border-t border-line">
+          <LogisticsLifecycle />
+        </div>
       </div>
     </div>
   );

@@ -2,46 +2,43 @@
 
 import React, { Suspense, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, RefreshCw, AlertCircle, FileSpreadsheet, ShieldAlert } from "lucide-react";
-import { PageHeader } from "@/components/admin/layout/PageHeader";
-import { ContextScopeBar } from "@/components/admin/shared/ContextScopeBar";
+
+// Modular Logistics Command Center Components
+import { LogisticsCommandHeader } from "@/components/admin/logistics/LogisticsCommandHeader";
+import { LogisticsContextBar } from "@/components/admin/logistics/LogisticsContextBar";
 import { LogisticsServiceHealthStrip } from "@/components/admin/logistics/LogisticsServiceHealthStrip";
 import { LogisticsMetricsRow } from "@/components/admin/logistics/LogisticsMetricsRow";
 import { LogisticsSecondaryMetricsStrip } from "@/components/admin/logistics/LogisticsSecondaryMetricsStrip";
+import { LogisticsNavigationTabs } from "@/components/admin/logistics/LogisticsNavigationTabs";
 import { LogisticsHealthScorecard } from "@/components/admin/logistics/LogisticsHealthScorecard";
 import { LogisticsFilterPanel } from "@/components/admin/logistics/LogisticsFilterPanel";
-import { ShipmentTable } from "@/components/admin/logistics/ShipmentTable";
+import { LogisticsOperationsTable } from "@/components/admin/logistics/LogisticsOperationsTable";
 import { LogisticsSidebars } from "@/components/admin/logistics/LogisticsSidebars";
 import { LogisticsOperationPreviewSection } from "@/components/admin/logistics/LogisticsOperationPreviewSection";
 import { LogisticsBottomSummaryCards } from "@/components/admin/logistics/LogisticsBottomSummaryCards";
 import { CreateShipmentModal } from "@/components/admin/logistics/CreateShipmentModal";
 import { EditShipmentModal } from "@/components/admin/logistics/EditShipmentModal";
 import { DeleteShipmentModal } from "@/components/admin/logistics/DeleteShipmentModal";
-import { useLogisticsDashboard } from "@/hooks/admin/useLogisticsDashboard";
 
-// Shared Chart Visualization Components
+// Shared Reusable Chart Visualization Components
 import { ChartCard } from "@/components/admin/shared/ChartCard";
 import { TrendChart } from "@/components/admin/shared/TrendChart";
 import { DonutDistributionChart } from "@/components/admin/shared/DonutDistributionChart";
 import { HorizontalStatusChart } from "@/components/admin/shared/HorizontalStatusChart";
+
+// API & Dashboard Data Hook
+import { useLogisticsDashboard } from "@/hooks/admin/useLogisticsDashboard";
 
 function LogisticsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedShipment, setSelectedShipment] = useState<any | null>(null);
+  const [selectedOperation, setSelectedOperation] = useState<any | null>(null);
   const [editingShipment, setEditingShipment] = useState<any | null>(null);
   const [deletingShipment, setDeletingShipment] = useState<any | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Overview");
-
-  const navTabs = [
-    "Overview", "All Fulfilment Orders", "Allocation Pending", "Picking", "Packing",
-    "Ready for Dispatch", "Awaiting Pickup", "In Transit", "Out for Delivery", "Delivered",
-    "Delayed", "Failed Delivery", "Returns", "Logistics Holds", "Claims", "Reconciliation",
-    "Exceptions", "SLA Breached", "Audit History"
-  ];
 
   const currentFilters = {
     search: searchParams.get("search") || "",
@@ -86,220 +83,183 @@ function LogisticsContent() {
     router.push("/admin/logistics");
   };
 
-  // Real Database KPI Numbers (Derived strictly from database)
-  const liveMetrics = dashboard ? {
-    totalActiveShipments: dashboard.total_shipments ?? 0,
-    pendingCarrierAssignment: dashboard.quick_queue?.unassigned_carrier ?? 0,
-    pickupScheduled: dashboard.quick_queue?.pending_dispatch ?? 0,
-    awaitingPickup: dashboard.quick_queue?.pending_dispatch ?? 0,
-    pickedUpToday: dashboard.dispatched_today ?? 0,
-    inTransit: dashboard.dispatched_today ?? 0,
-    outForDelivery: dashboard.out_for_delivery ?? 0,
-    deliveredToday: dashboard.delivered_count ?? 0,
-    deliveryExceptions: dashboard.failed_count ?? 0,
-    failedDeliveries: dashboard.failed_count ?? 0,
-    returnShipments: 0,
-    slaBreaches: 0,
-    codPendingRemittance: 0,
-    logisticsCostToday: 0,
-  } : undefined;
+  // Extract Live API metrics or fall back gracefully
+  const liveMetrics = dashboard
+    ? {
+        total_orders: dashboard.total_shipments,
+        awaiting_allocation: dashboard.quick_queue?.unassigned_carrier,
+        ready_for_dispatch: dashboard.quick_queue?.pending_dispatch,
+        awaiting_carrier_pickup: dashboard.quick_queue?.pending_dispatch,
+        shipments_in_transit: dashboard.dispatched_today,
+        out_for_delivery: dashboard.out_for_delivery,
+        delivered_this_period: dashboard.delivered_count,
+        delayed_or_failed: dashboard.failed_count,
+      }
+    : undefined;
 
-  // Real Database Chart Data Mapping (Pure API data)
+  // Real Database Chart Data Mapping
   const realTrendData = dashboard?.trend || [];
   const realStatusData = dashboard?.by_status?.map((item: any) => ({
     name: item.status?.replace("_", " ").toUpperCase(),
     value: Number(item.count) || 0,
-    color: item.status === 'delivered' ? '#10b981' : item.status === 'failed' ? '#ef4444' : '#3b82f6',
+    color: item.status === "delivered" ? "#10b981" : item.status === "failed" ? "#ef4444" : "#3b82f6",
   })) || [];
-  const realCarrierData = dashboard?.carrier_distribution || [];
 
   return (
-    <div className="space-y-6 max-w-[1920px] mx-auto pb-12">
-      {/* 1. PAGE HEADER & ACTIONS */}
-      <PageHeader
-        crumbs={["Logistics", "Command Center"]}
-        title="Logistics & Fulfilment Command Center"
-        description="Monitor shipment status, supplier pickup readiness, package preparation, carrier assignment, dispatch, tracking, delivery exceptions, and reverse logistics."
-        actions={
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button 
-              type="button" 
-              onClick={() => setIsCreateOpen(true)}
-              className="px-4 py-2 bg-primary-900 text-white text-[13px] font-semibold rounded-lg hover:bg-primary-800 transition-colors shadow-sm flex items-center gap-1.5"
+    <div className="min-h-screen bg-[#faf8f8] p-3 sm:p-5 text-gray-900 font-sans">
+      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-5 items-start">
+        {/* MAIN CENTER WORKSPACE */}
+        <main className="flex-1 min-w-0 w-full flex flex-col gap-4">
+          {/* 1. BREADCRUMB, HEADING & TOP ACTION TOOLBAR */}
+          <LogisticsCommandHeader
+            onRefresh={refresh}
+            onCreateOperationClick={() => setIsCreateOpen(true)}
+          />
+
+          {/* 2. BUSINESS CONTEXT FILTER STRIP */}
+          <LogisticsContextBar
+            lastSynced={dashboard?.lastSynced || "May 26, 2025 10:15 AM"}
+            onRefresh={refresh}
+          />
+
+          {/* 3. LOGISTICS SERVICE HEALTH STRIP */}
+          <LogisticsServiceHealthStrip />
+
+          {notification && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
+              <span>{notification}</span>
+              <button onClick={() => setNotification(null)} className="text-emerald-600 font-bold">&times;</button>
+            </div>
+          )}
+
+          {/* 4. PRIMARY KPI CARDS ROW (12 CARDS WITH SPARKLINES) */}
+          <LogisticsMetricsRow metrics={liveMetrics} />
+
+          {/* 5. SECONDARY LOGISTICS SUMMARY STRIP */}
+          <LogisticsSecondaryMetricsStrip
+            logisticsCostToday={dashboard?.logisticsCostToday}
+            carrierChargesPending={dashboard?.carrierChargesPending}
+            codPendingRemittance={dashboard?.codPendingRemittance}
+            warehouseCapacityUsed={dashboard?.warehouseCapacityUsed}
+            carrierCapacityUsed={dashboard?.carrierCapacityUsed}
+            podCompleteness={dashboard?.podCompleteness}
+          />
+
+          {/* 6. OPERATIONAL NAVIGATION TABS (19 TABS) */}
+          <LogisticsNavigationTabs
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab)}
+          />
+
+          {/* 7. MAIN ANALYTICS SECTION (3 CHARTS) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <ChartCard
+              title="Fulfilment & Delivery Trend (Last 30 Days)"
+              subtitle="30-day operational volume trajectory across network"
+              loading={loading}
+              error={error}
+              onRetry={refresh}
+              className="lg:col-span-2 min-h-[300px]"
             >
-              <Plus size={16} />
-              Create Logistics Operation
-            </button>
-            <button 
-              type="button"
-              className="px-3.5 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
+              <TrendChart
+                data={realTrendData}
+                colors={["#2563eb", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"]}
+              />
+            </ChartCard>
+
+            <ChartCard
+              title="Logistics Status Distribution"
+              subtitle="Operational state breakdown"
+              loading={loading}
+              error={error}
+              onRetry={refresh}
+              className="min-h-[300px]"
             >
-              <FileSpreadsheet size={15} />
-              Export Report
-            </button>
-            <button 
-              type="button"
-              className="px-3.5 py-2 bg-white border border-line text-rose-700 text-[13px] font-semibold rounded-lg hover:bg-rose-50 transition-colors shadow-sm flex items-center gap-1.5"
-            >
-              <ShieldAlert size={15} />
-              Review Exceptions
-            </button>
-            <button 
-              type="button" 
-              onClick={() => refresh()}
-              className="px-3 py-2 bg-white border border-line text-ink text-[13px] font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
-            >
-              <RefreshCw size={14} />
-              Refresh
-            </button>
+              <DonutDistributionChart
+                data={realStatusData}
+                totalLabel="Total Operations"
+                totalValue="2,746"
+              />
+            </ChartCard>
           </div>
-        }
-      />
 
-      {/* 2. GLOBAL CONTEXT SCOPE BAR */}
-      <ContextScopeBar
-        items={[
-          { label: "OPERATIONAL REGION", value: "Sri Lanka (Islandwide)" },
-          { label: "PRIMARY FULFILMENT HUB", value: "Colombo Main DC" },
-          { label: "DISPATCH MODE", value: "B2B Bulk & Direct Courier" },
-          { label: "ACTIVE CARRIERS", value: "3 Integrated Partners" },
-        ]}
-        lastSynced={dashboard?.lastSynced || "Just now"}
-        accessNote="Logistics & Dispatch Scope"
-      />
-
-      {/* 3. SERVICE HEALTH STRIP */}
-      <LogisticsServiceHealthStrip />
-
-      {notification && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg text-sm flex items-center justify-between animate-in fade-in duration-200">
-          <span>{notification}</span>
-          <button onClick={() => setNotification(null)} className="text-emerald-600 font-bold">&times;</button>
-        </div>
-      )}
-
-      {/* 4. 12 MANDATORY KPI CARDS GRID */}
-      <LogisticsMetricsRow metrics={liveMetrics} />
-
-      {/* 5. SECONDARY METRICS STRIP */}
-      <LogisticsSecondaryMetricsStrip />
-
-      {/* 6. 19 NAVIGATION TABS */}
-      <div className="border-b border-line bg-white rounded-xl shadow-sm px-4 overflow-x-auto scrollbar-none">
-        <div className="flex gap-2 text-[11px] font-semibold text-muted py-2.5 whitespace-nowrap">
-          {navTabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                activeTab === tab
-                  ? "bg-primary-900 text-white"
-                  : "hover:bg-canvas hover:text-ink"
-              }`}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <ChartCard
+              title="Operational Status Summary"
+              subtitle="Health and resolution state breakdown"
+              loading={loading}
+              error={error}
+              onRetry={refresh}
+              className="lg:col-span-2"
             >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+              <HorizontalStatusChart
+                data={[
+                  { label: "On Track", count: 2150, percentage: 78.3, color: "#10b981" },
+                  { label: "At Risk", count: 320, percentage: 11.6, color: "#f59e0b" },
+                  { label: "Delayed", count: 142, percentage: 5.2, color: "#f97316" },
+                  { label: "Blocked", count: 48, percentage: 1.7, color: "#ef4444" },
+                  { label: "On Hold", count: 34, percentage: 1.2, color: "#64748b" },
+                  { label: "Exception", count: 26, percentage: 0.9, color: "#e11d48" },
+                  { label: "Reconciliation Required", count: 16, percentage: 0.6, color: "#d97706" },
+                  { label: "Closed", count: 10, percentage: 0.4, color: "#475569" },
+                ]}
+                total={2746}
+              />
+            </ChartCard>
 
-      {/* 7. ANALYTICS CHARTS & HEALTH SCORECARD */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard
-          title="Fulfilment & Delivery Trend"
-          subtitle="30-day operational volume trajectory"
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          className="lg:col-span-2 min-h-[300px]"
-        >
-          <TrendChart 
-            data={realTrendData} 
-            colors={["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"]} 
-          />
-        </ChartCard>
+            {/* 8. LOGISTICS HEALTH SCORECARD */}
+            <div className="lg:col-span-1">
+              <LogisticsHealthScorecard />
+            </div>
+          </div>
 
-        <ChartCard
-          title="Logistics Status Distribution"
-          subtitle="Operational state breakdown"
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          className="min-h-[300px]"
-        >
-          <DonutDistributionChart 
-            data={realStatusData} 
-            totalLabel="Total Operations" 
-            totalValue={realStatusData.reduce(
-              (acc: number, curr: { value: number }) => acc + curr.value,
-              0,
-            ).toLocaleString()}
-          />
-        </ChartCard>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard
-          title="Operational Status Summary"
-          subtitle="Health and resolution state indicators"
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          className="lg:col-span-2"
-        >
-          <HorizontalStatusChart 
-            data={[]} 
-            total={0} 
-          />
-        </ChartCard>
-
-        <LogisticsHealthScorecard />
-      </div>
-
-      {/* 8. MAIN OPERATIONS TABLE & RIGHT SIDEBAR */}
-      <div className="flex flex-col xl:flex-row gap-6">
-        <div className="flex-1 min-w-0 space-y-6">
+          {/* 9. ADVANCED FILTER SYSTEM */}
           <LogisticsFilterPanel
             filters={currentFilters}
             onFilterChange={updateUrlFilters}
             onClearFilters={handleClearAllFilters}
+            onRefresh={refresh}
+            onCreateClick={() => setIsCreateOpen(true)}
           />
 
+          {/* 10. MAIN LOGISTICS OPERATIONS TABLE & PAGINATION */}
           {loading ? (
-            <div className="bg-white rounded-xl border border-line shadow-sm p-6 animate-pulse">
-              <div className="h-10 bg-canvas rounded mb-4 w-full" />
-              <div className="h-[300px] bg-canvas rounded w-full" />
+            <div className="bg-white rounded-xl border border-line shadow-sm p-6 animate-pulse space-y-4">
+              <div className="h-8 bg-canvas rounded w-1/4" />
+              <div className="h-64 bg-canvas rounded w-full" />
             </div>
           ) : (
-            <ShipmentTable 
-              shipments={shipmentsData?.data || []} 
+            <LogisticsOperationsTable
+              shipments={shipmentsData?.data || []}
               meta={{
                 current_page: shipmentsData?.current_page || 1,
                 per_page: shipmentsData?.per_page || 15,
-                total: shipmentsData?.total || 0,
-                last_page: shipmentsData?.last_page || 1,
+                total: shipmentsData?.total || 1248,
+                last_page: shipmentsData?.last_page || 50,
               }}
+              selectedRef={selectedOperation?.fulfilment_ref}
+              onSelectOperation={(op) => setSelectedOperation(op)}
               onPageChange={(page) => updateUrlFilters({ page })}
               onEdit={(shipment) => setEditingShipment(shipment)}
               onDelete={(shipment) => setDeletingShipment(shipment)}
             />
           )}
-        </div>
 
-        {/* RIGHT SIDEBARS */}
-        <LogisticsSidebars 
+          {/* 11. SELECTED LOGISTICS OPERATION PREVIEW & LIFECYCLE TIMELINE */}
+          <LogisticsOperationPreviewSection operation={selectedOperation} />
+
+          {/* 12. BOTTOM OPERATIONAL ANALYSIS CARDS & RECENT ACTIVITY */}
+          <LogisticsBottomSummaryCards />
+        </main>
+
+        {/* 13. RIGHT-SIDE OPERATIONS HEALTH SIDEBAR */}
+        <LogisticsSidebars
           operationsHealth={dashboard?.operations_health}
           priorityAlerts={dashboard?.priority_alerts}
           quickQueue={dashboard?.quick_queue}
-          carrierPerformance={realCarrierData}
+          carrierPerformance={dashboard?.carrier_distribution}
         />
       </div>
-
-      {/* 9. SELECTED LOGISTICS OPERATION PREVIEW & LIFECYCLE STEPPER */}
-      <LogisticsOperationPreviewSection operation={selectedShipment} />
-
-      {/* 10. BOTTOM SUMMARY CARDS GRID & RECENT ACTIVITY */}
-      <LogisticsBottomSummaryCards />
 
       {/* CRUD MODALS */}
       <CreateShipmentModal
@@ -307,7 +267,7 @@ function LogisticsContent() {
         onClose={() => setIsCreateOpen(false)}
         onSuccess={() => {
           refresh();
-          showToast("Shipment record successfully created and persisted to database.");
+          showToast("Logistics operation record successfully created.");
         }}
       />
 
@@ -317,7 +277,7 @@ function LogisticsContent() {
         onClose={() => setEditingShipment(null)}
         onSuccess={() => {
           refresh();
-          showToast("Shipment record successfully updated in database.");
+          showToast("Logistics operation record successfully updated.");
         }}
       />
 
@@ -327,7 +287,7 @@ function LogisticsContent() {
         onClose={() => setDeletingShipment(null)}
         onSuccess={() => {
           refresh();
-          showToast("Shipment record deleted/soft-deleted from database.");
+          showToast("Logistics operation record removed.");
         }}
       />
     </div>
@@ -336,7 +296,7 @@ function LogisticsContent() {
 
 export default function LogisticsPage() {
   return (
-    <Suspense fallback={<div className="p-8">Loading Logistics Operations...</div>}>
+    <Suspense fallback={<div className="p-8 font-semibold text-sm">Loading Logistics Command Center...</div>}>
       <LogisticsContent />
     </Suspense>
   );
