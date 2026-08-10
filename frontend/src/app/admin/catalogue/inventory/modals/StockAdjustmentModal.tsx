@@ -14,16 +14,14 @@ interface StockAdjustmentModalProps {
 
 export function StockAdjustmentModal({
   isOpen,
-  batchNumber = "BT-2024-0098",
+  batchNumber = "",
   onClose,
   onConfirm,
 }: StockAdjustmentModalProps) {
   const [targetBatch, setTargetBatch] = useState(batchNumber);
-  const [adjType, setAdjType] = useState("Damaged Stock Removal");
-  const [qty, setQty] = useState(50);
-  const [reason, setReason] = useState(
-    "Damaged outer carton packaging during transit to Colombo Main Hub."
-  );
+  const [adjType, setAdjType] = useState("");
+  const [qty, setQty] = useState(0);
+  const [reason, setReason] = useState("");
 
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose);

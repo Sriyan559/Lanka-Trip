@@ -23,15 +23,23 @@ interface InventoryPageHeaderProps {
   onCreateBatch: () => void;
   onRecordAdjustment: () => void;
   onStartRecall: () => void;
+  onExport: () => void;
+  onViewMovements: () => void;
+  onManageLocations: () => void;
+  capabilities: { export:boolean;viewMovements:boolean;manageLocations:boolean;createBatch:boolean;recordAdjustment:boolean;startRecall:boolean };
 }
 
 export function InventoryPageHeader({
   productId,
-  productRef = "PROD-2024-00421",
-  dbId = "421",
+  productRef,
+  dbId,
   onCreateBatch,
   onRecordAdjustment,
   onStartRecall,
+  onExport,
+  onViewMovements,
+  onManageLocations,
+  capabilities,
 }: InventoryPageHeaderProps) {
   return (
     <div className={styles.headerContainer}>
@@ -76,7 +84,7 @@ export function InventoryPageHeader({
             Monitor product inventory, available and reserved stock, expiry exposure, quarantine status, recall readiness and inventory discrepancies across verified suppliers and approved products.
           </p>
 
-          <div className={styles.headerRefMeta}>
+          {productRef&&dbId&&<div className={styles.headerRefMeta}>
             <div>
               <span className={styles.refMetaLabel}>Product Reference</span>
               <div className={styles.refMetaVal}>{productRef}</div>
@@ -85,7 +93,7 @@ export function InventoryPageHeader({
               <span className={styles.refMetaLabel}>Database Product ID</span>
               <div className={styles.refMetaVal}>{dbId}</div>
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* Action Buttons Row */}
@@ -93,7 +101,9 @@ export function InventoryPageHeader({
           <button
             type="button"
             className={styles.btnSecondary}
-            onClick={() => alert("Exporting Expiry Report PDF/CSV...")}
+            onClick={onExport}
+            disabled={!capabilities.export}
+            title={!capabilities.export?'No authoritative batch expiry data exists':undefined}
           >
             <Download size={14} /> Export Expiry Report
           </button>
@@ -101,7 +111,9 @@ export function InventoryPageHeader({
           <button
             type="button"
             className={styles.btnSecondary}
-            onClick={() => alert("Viewing inventory movement logs...")}
+            onClick={onViewMovements}
+            disabled={!capabilities.viewMovements}
+            title={!capabilities.viewMovements?'No stock movement ledger exists':undefined}
           >
             <Activity size={14} /> View Inventory Movements
           </button>
@@ -110,7 +122,9 @@ export function InventoryPageHeader({
             <button
               type="button"
               className={styles.btnSecondary}
-              onClick={() => alert("Opening inventory location manager...")}
+              onClick={onManageLocations}
+              disabled={!capabilities.manageLocations}
+              title={!capabilities.manageLocations?'No inventory location domain exists':undefined}
             >
               <MapPin size={14} /> Manage Inventory Locations <ChevronDown size={14} />
             </button>
@@ -120,6 +134,8 @@ export function InventoryPageHeader({
             type="button"
             className={`${styles.btn} ${styles.btnBurgundy}`}
             onClick={onCreateBatch}
+            disabled={!capabilities.createBatch}
+            title={!capabilities.createBatch?'No inventory batch domain exists':undefined}
           >
             <Plus size={14} /> Create Batch
           </button>
@@ -128,6 +144,8 @@ export function InventoryPageHeader({
             type="button"
             className={`${styles.btn} ${styles.btnDarkNeutral}`}
             onClick={onRecordAdjustment}
+            disabled={!capabilities.recordAdjustment}
+            title={!capabilities.recordAdjustment?'No stock movement ledger exists':undefined}
           >
             <FileText size={14} /> Record Stock Adjustments
           </button>
@@ -136,6 +154,8 @@ export function InventoryPageHeader({
             type="button"
             className={`${styles.btn} ${styles.btnRedSolid}`}
             onClick={onStartRecall}
+            disabled={!capabilities.startRecall}
+            title={!capabilities.startRecall?'No inventory recall workflow exists':undefined}
           >
             <AlertOctagon size={14} /> Start Recall Review
           </button>

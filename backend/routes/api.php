@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
 use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
 use App\Http\Controllers\Api\Admin\CatalogueCommandCenterController;
 use App\Http\Controllers\Api\Admin\ProductMasterManagementController;
+use App\Http\Controllers\Api\Admin\InventoryOperationsController;
 use App\Http\Controllers\Api\Admin\MarketplaceListingsController;
 use App\Http\Controllers\Api\Admin\MarketplaceOrdersController;
 use App\Http\Controllers\Api\Admin\MarketplacePolicyViolationsController;
@@ -173,6 +174,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/marketplace/dashboard', [MarketplaceDashboardController::class, 'show']);
         Route::get('/admin/catalogue/command-center', [CatalogueCommandCenterController::class, 'show']);
         Route::get('/admin/catalogue/product-masters', [ProductMasterManagementController::class, 'index']);
+        Route::get('/admin/catalogue/inventory', [InventoryOperationsController::class, 'index']);
+        Route::get('/admin/catalogue/inventory/export', [InventoryOperationsController::class, 'export']);
         Route::get('/admin/catalogue/product-masters/export', [ProductMasterManagementController::class, 'export']);
         Route::post('/admin/catalogue/product-masters/bulk', [ProductMasterManagementController::class, 'bulk']);
         Route::get('/admin/catalogue/product-masters/saved-views', [ProductMasterManagementController::class, 'savedViews']);

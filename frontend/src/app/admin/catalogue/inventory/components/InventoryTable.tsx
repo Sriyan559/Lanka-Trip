@@ -5,31 +5,9 @@ import Link from "next/link";
 import { MoreVertical, ExternalLink, RefreshCw, Eye, AlertOctagon, History } from "lucide-react";
 import { useClickOutside } from "@/lib/useClickOutside";
 import styles from "../inventory.module.css";
+import type { InventoryRowData } from "@/types/inventoryOperations";
 
-export interface InventoryRowData {
-  id: string;
-  dbId: string;
-  publicRef: string;
-  name: string;
-  variant: string;
-  brand: string;
-  supplier: string;
-  sku: string;
-  batchNumber: string;
-  location: string;
-  availableStock: number;
-  reservedStock: number;
-  quarantinedStock: number;
-  mfgDate: string;
-  expDate: string;
-  shelfLife: string;
-  shelfLifeStatus: "Healthy" | "Critical" | "Normal";
-  batchStatus: "Active" | "Near Expiry" | "Quarantined" | "Expired";
-  recallStatus: "None" | "Active Recall" | "Safety Review Open";
-  riskScore: "Low" | "High" | "Critical";
-  imageUrl: string;
-  productId: string;
-}
+export type { InventoryRowData } from "@/types/inventoryOperations";
 
 interface InventoryTableProps {
   rows: InventoryRowData[];
@@ -39,6 +17,7 @@ interface InventoryTableProps {
 
   onRecordAdjustment: (row: InventoryRowData) => void;
   onStartRecall: (row: InventoryRowData) => void;
+  lastPage: number;
 }
 
 export function InventoryTable({
@@ -48,6 +27,7 @@ export function InventoryTable({
   onPageChange,
   onRecordAdjustment,
   onStartRecall,
+  lastPage,
 }: InventoryTableProps) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
@@ -152,7 +132,7 @@ export function InventoryTable({
       {/* Footer & Pagination */}
       <div className={styles.tableFooterRow}>
         <div className={styles.tableCountText}>
-          Showing 1 to {rows.length} of {totalRows} products
+          Showing {totalRows===0?0:(currentPage-1)*25+1} to {Math.min(currentPage*25,totalRows)} of {totalRows} variants
         </div>
         <div className={styles.paginationControls}>
           <button
@@ -172,7 +152,7 @@ export function InventoryTable({
           <button
             type="button"
             className={styles.pageBtn}
-            disabled={currentPage * 10 >= totalRows}
+            disabled={currentPage >= lastPage}
             onClick={() => onPageChange(currentPage + 1)}
           >
             &gt;
@@ -257,22 +237,22 @@ function InventoryTableRow({
       </td>
 
       {/* Reserved Stock */}
-      <td>{row.reservedStock}</td>
+      <td>{row.reservedStock===null?'N/A':row.reservedStock}</td>
 
       {/* Quarantined Stock */}
-      <td className={row.quarantinedStock > 0 ? styles.stockValPurple : ""}>
-        {row.quarantinedStock.toLocaleString()}
+      <td className={(row.quarantinedStock??0) > 0 ? styles.stockValPurple : ""}>
+        {row.quarantinedStock===null?'N/A':row.quarantinedStock.toLocaleString()}
       </td>
 
       {/* Manufacturing Date */}
-      <td>{row.mfgDate}</td>
+      <td>{row.mfgDate??'N/A'}</td>
 
       {/* Expiry Date */}
-      <td>{row.expDate}</td>
+      <td>{row.expDate??'N/A'}</td>
 
       {/* Remaining Shelf Life */}
       <td>
-        <div className={styles.shelfLifeVal}>{row.shelfLife}</div>
+        <div className={styles.shelfLifeVal}>{row.shelfLife??'N/A'}</div>
         <div
           className={
             row.shelfLifeStatus === "Critical"
@@ -331,13 +311,7 @@ function InventoryTableRow({
 
       {/* Action: Open Batch */}
       <td>
-        <Link
-          href={`/admin/catalogue/inventory/batches/${row.batchNumber}`}
-          role="button"
-          className={styles.openBatchBtn}
-        >
-          Open Batch
-        </Link>
+        {row.batchNumber==='Unavailable'?<button type="button" disabled title="No inventory batch domain exists" className={styles.openBatchBtn}>Open Batch</button>:<Link href={`/admin/catalogue/inventory/batches/${row.batchNumber}`} role="button" className={styles.openBatchBtn}>Open Batch</Link>}
       </td>
 
       {/* 3-Dot Actions Dropdown */}
@@ -354,13 +328,7 @@ function InventoryTableRow({
 
           {isMenuOpen && (
             <div className={styles.rowDropdownMenu}>
-              <Link
-                href={`/admin/catalogue/inventory/batches/${row.batchNumber}`}
-                className={styles.menuItem}
-                onClick={onCloseMenu}
-              >
-                <Eye size={14} /> View Batch Details
-              </Link>
+              <button disabled type="button" className={styles.menuItem} title="No inventory batch domain exists"><Eye size={14}/> View Batch Details</button>
 
               <button
                 type="button"
@@ -378,8 +346,10 @@ function InventoryTableRow({
                 className={styles.menuItem}
                 onClick={() => {
                   onCloseMenu();
-                  alert(`Viewing inventory movements for batch ${row.batchNumber}...`);
+                  onCloseMenu();
                 }}
+                disabled
+                title="No stock movement ledger exists"
               >
                 <History size={14} /> View Inventory Movements
               </button>

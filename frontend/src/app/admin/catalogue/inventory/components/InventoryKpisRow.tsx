@@ -13,30 +13,12 @@ import {
   AlertOctagon,
 } from "lucide-react";
 import styles from "../inventory.module.css";
+import type { InventoryOperationsData, Metric } from "@/types/inventoryOperations";
 
-interface InventoryKpisRowProps {
-  totalActiveStock?: number;
-  availableStock?: number;
-  reservedStock?: number;
-  lowStockCount?: number;
-  outOfStockCount?: number;
-  nearExpiryUnits?: number;
-  expiredUnits?: number;
-  quarantinedStock?: number;
-  recalledCount?: number;
-}
+interface InventoryKpisRowProps { metrics: InventoryOperationsData['kpis']; }
+const value=(metric:Metric)=>metric.value===null?'N/A':metric.value.toLocaleString();
 
-export function InventoryKpisRow({
-  totalActiveStock = 124592,
-  availableStock = 108360,
-  reservedStock = 8401,
-  lowStockCount = 36,
-  outOfStockCount = 18,
-  nearExpiryUnits = 3120,
-  expiredUnits = 220,
-  quarantinedStock = 450,
-  recalledCount = 12,
-}: InventoryKpisRowProps) {
+export function InventoryKpisRow({ metrics }: InventoryKpisRowProps) {
   return (
     <div className={styles.kpiRow9}>
       {/* 1. Total Active Stock */}
@@ -47,7 +29,7 @@ export function InventoryKpisRow({
             <Package size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{totalActiveStock.toLocaleString()}</div>
+        <div className={styles.kpiVal} title={metrics.totalActiveStock.definition}>{value(metrics.totalActiveStock)}</div>
         <div className={styles.kpiSubText}>Units</div>
       </div>
 
@@ -59,7 +41,7 @@ export function InventoryKpisRow({
             <Box size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{availableStock.toLocaleString()}</div>
+        <div className={styles.kpiVal} title={metrics.availableStock.definition}>{value(metrics.availableStock)}</div>
         <div className={styles.kpiSubText}>Units</div>
       </div>
 
@@ -71,7 +53,7 @@ export function InventoryKpisRow({
             <Bookmark size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{reservedStock.toLocaleString()}</div>
+        <div className={styles.kpiVal} title={metrics.reservedStock.reason}>{value(metrics.reservedStock)}</div>
         <div className={styles.kpiSubText}>Units</div>
       </div>
 
@@ -83,7 +65,7 @@ export function InventoryKpisRow({
             <AlertTriangle size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{lowStockCount}</div>
+        <div className={styles.kpiVal}>{value(metrics.lowStockProducts)}</div>
         <div className={styles.kpiSubText}>Products</div>
       </div>
 
@@ -95,7 +77,7 @@ export function InventoryKpisRow({
             <XCircle size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{outOfStockCount}</div>
+        <div className={styles.kpiVal}>{value(metrics.outOfStockProducts)}</div>
         <div className={styles.kpiSubText}>Products</div>
       </div>
 
@@ -107,9 +89,9 @@ export function InventoryKpisRow({
             <Clock size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{nearExpiryUnits.toLocaleString()}</div>
+        <div className={styles.kpiVal} title={metrics.nearExpiryUnits.reason}>{value(metrics.nearExpiryUnits)}</div>
         <div className={`${styles.kpiSubText} ${styles.orangeSubText}`}>
-          High Risk — 30 Days
+          {metrics.nearExpiryUnits.availability === 'unavailable' ? 'Unavailable' : 'High Risk — 30 Days'}
         </div>
       </div>
 
@@ -121,7 +103,7 @@ export function InventoryKpisRow({
             <Calendar size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{expiredUnits}</div>
+        <div className={styles.kpiVal} title={metrics.expiredUnits.reason}>{value(metrics.expiredUnits)}</div>
         <div className={styles.kpiSubText}>Units</div>
       </div>
 
@@ -133,7 +115,7 @@ export function InventoryKpisRow({
             <Shield size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{quarantinedStock}</div>
+        <div className={styles.kpiVal} title={metrics.quarantinedStock.reason}>{value(metrics.quarantinedStock)}</div>
         <div className={styles.kpiSubText}>Units</div>
       </div>
 
@@ -145,7 +127,7 @@ export function InventoryKpisRow({
             <AlertOctagon size={16} />
           </div>
         </div>
-        <div className={styles.kpiVal}>{recalledCount}</div>
+        <div className={styles.kpiVal} title={metrics.recalledProducts.reason}>{value(metrics.recalledProducts)}</div>
         <div className={styles.kpiSubText}>Products</div>
       </div>
     </div>

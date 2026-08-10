@@ -17,11 +17,11 @@ interface ProductInventoryContextCardProps {
 }
 
 export function ProductInventoryContextCard({
-  productRef = "PROD-2024-00421",
-  dbId = "421",
-  productName = "Radiance Vitamin C Serum",
-  brand = "Estée Lauder",
-  supplier = "Luxe Distribution Pvt Ltd",
+  productRef = "",
+  dbId = "",
+  productName = "",
+  brand = "Unavailable",
+  supplier = "Unassigned",
   productId,
   onClearFilter,
 }: ProductInventoryContextCardProps) {

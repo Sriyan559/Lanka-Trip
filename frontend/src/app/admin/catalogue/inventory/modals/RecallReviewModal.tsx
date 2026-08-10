@@ -14,16 +14,14 @@ interface RecallReviewModalProps {
 
 export function RecallReviewModal({
   isOpen,
-  batchNumber = "RECALL-442",
+  batchNumber = "",
   onClose,
   onConfirm,
 }: RecallReviewModalProps) {
   const [targetBatch, setTargetBatch] = useState(batchNumber);
-  const [severity, setSeverity] = useState("Class I - Critical Safety Risk");
-  const [reason, setReason] = useState(
-    "Active safety recall triggered by regulatory authority due to potential ingredient contamination."
-  );
-  const [affectedUnits, setAffectedUnits] = useState(1100);
+  const [severity, setSeverity] = useState("");
+  const [reason, setReason] = useState("");
+  const [affectedUnits, setAffectedUnits] = useState(0);
 
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose);

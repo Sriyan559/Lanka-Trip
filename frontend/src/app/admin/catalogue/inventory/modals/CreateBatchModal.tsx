@@ -16,14 +16,14 @@ export function CreateBatchModal({
   onClose,
   onConfirm,
 }: CreateBatchModalProps) {
-  const [productName, setProductName] = useState("Radiance Vitamin C Serum");
-  const [sku, setSku] = useState("RAD-VITC-30ML");
-  const [batchNumber, setBatchNumber] = useState("BT-2024-0301");
-  const [supplier, setSupplier] = useState("Luxe Distribution Pvt Ltd");
-  const [location, setLocation] = useState("Colombo Main Hub");
-  const [mfgDate, setMfgDate] = useState("2024-08-01");
-  const [expDate, setExpDate] = useState("2027-08-01");
-  const [quantity, setQuantity] = useState(1500);
+  const [productName, setProductName] = useState("");
+  const [sku, setSku] = useState("");
+  const [batchNumber, setBatchNumber] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [location, setLocation] = useState("");
+  const [mfgDate, setMfgDate] = useState("");
+  const [expDate, setExpDate] = useState("");
+  const [quantity, setQuantity] = useState(0);
 
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose);
@@ -96,9 +96,7 @@ export function CreateBatchModal({
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               >
-                <option value="Colombo Main Hub">Colombo Main Hub</option>
-                <option value="Kandy Regional Hub">Kandy Regional Hub</option>
-                <option value="Galle Supplier Hub">Galle Supplier Hub</option>
+                <option value="">No inventory locations available</option>
               </select>
             </div>
           </div>
