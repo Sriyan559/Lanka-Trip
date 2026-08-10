@@ -1,90 +1,117 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Package, Clock, ShieldCheck, Warehouse, Truck, CheckSquare, Layers, AlertTriangle } from "lucide-react";
-import { SelectedFulfilmentPreview } from "@/components/admin/logistics/fulfilment/SelectedFulfilmentPreview";
+
+// Modular LG03 Fulfilment Order Detail Components
+import { StaleRecordWarning } from "@/components/admin/logistics/fulfilment/detail/StaleRecordWarning";
+import { FulfilmentDetailHeader } from "@/components/admin/logistics/fulfilment/detail/FulfilmentDetailHeader";
+import { FulfilmentDetailContextBar } from "@/components/admin/logistics/fulfilment/detail/FulfilmentDetailContextBar";
+import { FulfilmentRecordActionBar } from "@/components/admin/logistics/fulfilment/detail/FulfilmentRecordActionBar";
+import { FulfilmentDetailKpis } from "@/components/admin/logistics/fulfilment/detail/FulfilmentDetailKpis";
+import { FulfilmentIdentitySection } from "@/components/admin/logistics/fulfilment/detail/FulfilmentIdentitySection";
+import { FulfilmentDetailLifecycle } from "@/components/admin/logistics/fulfilment/detail/FulfilmentDetailLifecycle";
+import { FulfilmentDetailTabs } from "@/components/admin/logistics/fulfilment/detail/FulfilmentDetailTabs";
+import { FulfilmentItemLinesTable } from "@/components/admin/logistics/fulfilment/detail/FulfilmentItemLinesTable";
+import { QualityChecksPanel } from "@/components/admin/logistics/fulfilment/detail/QualityChecksPanel";
+import { FulfilmentMiddleWorkspaces } from "@/components/admin/logistics/fulfilment/detail/FulfilmentMiddleWorkspaces";
+import { FulfilmentBottomPanels } from "@/components/admin/logistics/fulfilment/detail/FulfilmentBottomPanels";
+import { FulfilmentRecordHealthSidebar } from "@/components/admin/logistics/fulfilment/detail/FulfilmentRecordHealthSidebar";
 
 function FulfilmentDetailContent() {
   const params = useParams();
   const router = useRouter();
-  const fulfilmentId = params?.fulfilmentId || "FUL25-0001248";
+  const rawId = params?.fulfilmentId;
+  const fulfilmentId = Array.isArray(rawId) ? rawId[0] : rawId || "FUL-2026-0008921";
+
+  const [activeTab, setActiveTab] = useState("Overview");
+  const [notification, setNotification] = useState<string | null>(null);
+  const [isPackingComplete, setIsPackingComplete] = useState(false);
+  const [isQualityPassed, setIsQualityPassed] = useState(false);
+
+  const showToast = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleAction = (actionName: string) => {
+    if (actionName === "Complete Packing") {
+      setIsPackingComplete(true);
+      showToast("Packing completed for fulfilment order!");
+    } else if (actionName === "Submit Quality Review") {
+      setIsQualityPassed(true);
+      showToast("Quality review submitted!");
+    } else {
+      showToast(`Action "${actionName}" executed.`);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#faf8f8] p-4 sm:p-6 text-gray-900 font-sans space-y-4">
-      {/* HEADER BREADCRUMB & BACK BUTTON */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-line shadow-sm">
-        <div>
-          <div className="text-[11px] font-semibold text-muted mb-1 flex items-center gap-1.5">
-            <button
-              onClick={() => router.push("/admin/logistics/fulfilment-orders")}
-              className="hover:underline flex items-center gap-1 text-primary-900 font-bold"
-            >
-              <ArrowLeft size={13} /> Fulfilment Orders
-            </button>
-            <span className="text-gray-300">/</span>
-            <span className="text-ink font-bold font-mono">{fulfilmentId}</span>
+    <div className="min-h-screen bg-[#faf8f8] p-3 sm:p-5 text-gray-900 font-sans">
+      <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-5 items-start">
+        {/* MAIN CENTER WORKSPACE */}
+        <main className="flex-1 min-w-0 w-full flex flex-col gap-4">
+          {/* 1. STALE / CONCURRENT UPDATE WARNING BANNER */}
+          <StaleRecordWarning onRefresh={() => showToast("Record data refreshed from server.")} />
+
+          {/* 2. BREADCRUMB, HEADING & HEADER ACTIONS */}
+          <FulfilmentDetailHeader fulfilmentId={fulfilmentId} />
+
+          {/* 3. BUSINESS CONTEXT & SERVICE/RECORD HEALTH STRIP */}
+          <FulfilmentDetailContextBar onRefresh={() => showToast("Refreshed service health.")} />
+
+          {notification && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
+              <span>{notification}</span>
+              <button onClick={() => setNotification(null)} className="text-emerald-600 font-bold">&times;</button>
+            </div>
+          )}
+
+          {/* 4. PRIMARY RECORD ACTION BAR */}
+          <FulfilmentRecordActionBar
+            isPackingComplete={isPackingComplete}
+            isQualityPassed={isQualityPassed}
+            onAction={handleAction}
+          />
+
+          {/* 5. DETAIL KPI ROW (12 CARDS) */}
+          <FulfilmentDetailKpis />
+
+          {/* 6. FULFILMENT IDENTITY SECTION (6 BOXES) */}
+          <FulfilmentIdentitySection fulfilmentId={fulfilmentId} />
+
+          {/* 7. CUSTOMER FULFILMENT / LOGISTICS LIFECYCLE (17 STAGES) */}
+          <FulfilmentDetailLifecycle />
+
+          {/* 8. DETAIL NAVIGATION TABS (17 TABS) */}
+          <FulfilmentDetailTabs
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab)}
+          />
+
+          {/* 9. MAIN DATA PANELS GRID: ITEM LINES TABLE & QUALITY CHECKS */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="lg:col-span-2 xl:col-span-3">
+              <FulfilmentItemLinesTable />
+            </div>
+            <div>
+              <QualityChecksPanel />
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-ink flex items-center gap-2">
-            <span>Fulfilment Order Detail:</span>
-            <span className="font-mono text-primary-900">{fulfilmentId}</span>
-          </h1>
-        </div>
 
-        <button
-          onClick={() => router.push("/admin/logistics/fulfilment-orders")}
-          className="px-3.5 py-1.5 bg-white border border-line text-ink text-xs font-semibold rounded-lg hover:bg-canvas transition-colors shadow-sm flex items-center gap-1.5"
-        >
-          <ArrowLeft size={14} />
-          <span>Back to Fulfilment Portfolio</span>
-        </button>
+          {/* 10. SECONDARY WORKSPACES: ALLOCATION, PICKING, PACKING */}
+          <FulfilmentMiddleWorkspaces />
+
+          {/* 11. BOTTOM OPERATIONAL PANELS (7 SECTIONS) */}
+          <FulfilmentBottomPanels />
+        </main>
+
+        {/* 12. DEDICATED RIGHT-SIDE FULFILMENT RECORD HEALTH SIDEBAR */}
+        <FulfilmentRecordHealthSidebar
+          fulfilmentId={fulfilmentId}
+          onRefresh={() => showToast("Refreshed record health.")}
+        />
       </div>
-
-      {/* FULL PREVIEW WORKSPACE */}
-      <SelectedFulfilmentPreview
-        operation={{
-          id: fulfilmentId,
-          fulfilment_ref: fulfilmentId,
-          order_ref: `ORD25-${String(fulfilmentId).replace(/[^0-9]/g, '') || '0048721'}`,
-          customer_name: "Maduni Perera",
-          customer_email: "maduni.perera@gmail.com",
-          customer_phone: "+94 76 123 4567",
-          customer_location: "Colombo, Sri Lanka",
-          order_date: "May 26, 2025 18:36",
-          order_channel: "Web",
-          payment_status: "Prepaid - LKR 24,650.00",
-          warehouse: "WH-CMB-01",
-          warehouse_name: "Main Warehouse Colombo",
-          available_capacity: "72%",
-          zone: "Colombo North",
-          carrier: "PickMe Delivery",
-          carrier_service: "Standard",
-          est_delivery: "May 27 12:00 PM",
-          tracking_ref: "SHP25-006721",
-          allocation_status: "Picked",
-          reserved_qty: "18/18 (100%)",
-          short_qty: "0",
-          transfer_req: "No",
-          picking_status: "Picked",
-          picked_qty: "18/18 (100%)",
-          picker: "Nimal S.",
-          picking_completed: "May 26 09:32",
-          packing_status: "Packed",
-          packed_qty: "14/18 (80%)",
-          packer: "Udara K.",
-          packing_state: "In Progress",
-          quality_status: "Passed",
-          quality_checks: "2/2",
-          quality_by: "Nipun M.",
-          quality_time: "May 26 10:05",
-          shipment_status: "Ready for Dispatch",
-          shipment_ref: "SHP25-006721",
-          awb: "Pending",
-          est_dispatch: "May 27 12:00",
-          exception_status: "None",
-          open_exceptions: "0",
-        }}
-      />
     </div>
   );
 }
