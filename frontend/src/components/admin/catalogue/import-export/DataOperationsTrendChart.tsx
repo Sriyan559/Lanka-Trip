@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -11,10 +11,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Calendar } from "lucide-react";
-import { MOCK_TREND_DATA } from "@/data/importExport.mock";
+import type { DataOperationsDashboard } from "@/types/importExport";
 
-export function DataOperationsTrendChart() {
-  const [period, setPeriod] = useState<"Daily" | "Weekly" | "Monthly" | "Quarterly" | "Custom">("Daily");
+type Granularity = "daily" | "weekly" | "monthly";
+
+export function DataOperationsTrendChart({ data, period, onPeriodChange }: { data: DataOperationsDashboard["trend"]; period: Granularity; onPeriodChange: (period: Granularity) => void }) {
 
   const series = [
     { key: "imports", label: "Imports", color: "#671021" },
@@ -34,20 +35,20 @@ export function DataOperationsTrendChart() {
 
         {/* Period Controls */}
         <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-md border border-line">
-          {(["Daily", "Weekly", "Monthly", "Quarterly", "Custom"] as const).map((p) => (
+          {(["daily", "weekly", "monthly"] as const).map((p) => (
             <button
               key={p}
-              onClick={() => setPeriod(p)}
+              onClick={() => onPeriodChange(p)}
               className={`px-2.5 py-1 text-[10px] font-bold rounded transition-colors ${
                 period === p
                   ? "bg-white text-ink shadow-xs border border-line"
                   : "text-muted hover:text-ink"
               }`}
             >
-              {p}
+              {p[0].toUpperCase() + p.slice(1)}
             </button>
           ))}
-          <button className="p-1 text-slate-500 hover:text-ink">
+          <button disabled title="Custom date aggregation is unavailable" className="p-1 text-slate-300 cursor-not-allowed">
             <Calendar size={13} />
           </button>
         </div>
@@ -66,7 +67,7 @@ export function DataOperationsTrendChart() {
       {/* Chart Canvas */}
       <div className="w-full h-[180px] min-w-0">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={MOCK_TREND_DATA} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
+          <LineChart data={data.points} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} dy={5} />
             <YAxis

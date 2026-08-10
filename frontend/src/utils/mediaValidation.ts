@@ -16,21 +16,7 @@ export function validateMediaUpload(draft: Partial<MediaUploadDraft>): Validatio
     errors.push({ field: "type", message: "Asset type is required." });
   }
 
-  if (!draft.linkedEntityType) {
-    errors.push({ field: "linkedEntityType", message: "Linked entity type is required." });
-  }
-
-  if (!draft.linkedEntityName || !draft.linkedEntityName.trim()) {
-    errors.push({ field: "linkedEntityName", message: "Product, brand, or compliance entity name is required." });
-  }
-
-  if (!draft.altText || !draft.altText.trim()) {
-    errors.push({ field: "altText", message: "Alt text is required for accessibility & channel compliance." });
-  }
-
-  if (!draft.rightsStartDate || !draft.rightsExpiryDate) {
-    errors.push({ field: "rights", message: "Usage rights start and expiry dates are required." });
-  } else if (new Date(draft.rightsExpiryDate) <= new Date(draft.rightsStartDate)) {
+  if (draft.rightsStartDate && draft.rightsExpiryDate && new Date(draft.rightsExpiryDate) <= new Date(draft.rightsStartDate)) {
     errors.push({ field: "rightsExpiryDate", message: "Rights expiry date must be after the start date." });
   }
 
@@ -60,16 +46,5 @@ export function validateImportFile(fileName: string): ImportValidationResult {
     };
   }
 
-  return {
-    valid: true,
-    totalRecords: 48,
-    validRecords: 44,
-    invalidRecords: 4,
-    errors: [
-      { row: 12, reason: "Missing alt text field." },
-      { row: 19, reason: "Resolution 400x400 below minimum threshold of 800x800." },
-      { row: 27, reason: "Invalid product entity ID PRD-9999." },
-      { row: 34, reason: "Usage rights expiry date is in the past." },
-    ],
-  };
+  return { valid: true, totalRecords: 0, validRecords: 0, invalidRecords: 0, errors: [] };
 }

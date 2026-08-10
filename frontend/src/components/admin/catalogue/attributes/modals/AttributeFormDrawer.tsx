@@ -3,14 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { X, Layers, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
-import { CatalogueAttribute, AttributeDataType, AttributeInputType } from "@/types/attributeManagement";
+import { AttributeOption, CatalogueAttribute, AttributeDataType, AttributeInputType } from "@/types/attributeManagement";
 
 interface AttributeFormDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   attributeToEdit: CatalogueAttribute | null;
-  onSave: (attr: Partial<CatalogueAttribute>) => void;
+  onSave: (attr: Partial<CatalogueAttribute>) => Promise<void>;
   existingAttributes: CatalogueAttribute[];
+  groups: AttributeOption[];
 }
 
 export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
@@ -18,7 +19,7 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
   onClose,
   attributeToEdit,
   onSave,
-  existingAttributes,
+  existingAttributes, groups,
 }) => {
   const [attributeName, setAttributeName] = useState("");
   const [attributeId, setAttributeId] = useState("");
@@ -27,7 +28,7 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
   const [inputType, setInputType] = useState<AttributeInputType>("Dropdown");
   const [isRequired, setIsRequired] = useState(true);
   const [isVariantGenerating, setIsVariantGenerating] = useState(true);
-  const [owner, setOwner] = useState("Elena Vance");
+  const [owner, setOwner] = useState("Unavailable");
   const [definition, setDefinition] = useState("");
 
   useEffect(() => {
@@ -43,20 +44,20 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
       setDefinition(attributeToEdit.definition || "");
     } else {
       setAttributeName("");
-      setAttributeId(`ATTR-0${Math.floor(100 + Math.random() * 900)}`);
-      setGroupName("Variants & Attributes");
+      setAttributeId("");
+      setGroupName(groups[0]?.name || "");
       setDataType("Text");
       setInputType("Dropdown");
       setIsRequired(true);
       setIsVariantGenerating(true);
-      setOwner("Elena Vance");
+      setOwner("Unavailable");
       setDefinition("");
     }
-  }, [attributeToEdit, isOpen]);
+  }, [attributeToEdit, isOpen, groups]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!attributeName.trim()) {
       toast.error("Please enter an Attribute Name.");
@@ -73,7 +74,7 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
       return;
     }
 
-    onSave({
+    await onSave({
       attributeName,
       attributeId,
       groupName,
@@ -85,8 +86,6 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
       definition,
     });
 
-    toast.success(attributeToEdit ? `Updated attribute "${attributeName}"!` : `Created attribute "${attributeName}"!`);
-    onClose();
   };
 
   return (
@@ -136,15 +135,7 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
                   onChange={(e) => setGroupName(e.target.value)}
                   className="w-full px-3 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-[#741d35]"
                 >
-                  <option value="Product Identity">Product Identity</option>
-                  <option value="Classification">Classification</option>
-                  <option value="Skin & Beauty">Skin & Beauty</option>
-                  <option value="Ingredients & Safety">Ingredients & Safety</option>
-                  <option value="Variants & Attributes">Variants & Attributes</option>
-                  <option value="Pricing & Tax">Pricing & Tax</option>
-                  <option value="Media">Media</option>
-                  <option value="Publication">Publication</option>
-                  <option value="Inventory">Inventory</option>
+                  {groups.map(group => <option key={group.id} value={group.name}>{group.name}</option>)}
                 </select>
               </div>
             </div>
@@ -205,15 +196,13 @@ export const AttributeFormDrawer: React.FC<AttributeFormDrawerProps> = ({
 
             <div>
               <label className="block font-semibold text-gray-700 mb-1">Attribute Owner *</label>
-              <select
+              <input
                 value={owner}
                 onChange={(e) => setOwner(e.target.value)}
+                disabled
                 className="w-full px-3 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-[#741d35]"
-              >
-                <option value="Elena Vance">Elena Vance</option>
-                <option value="Marcus Lee">Marcus Lee</option>
-                <option value="Priya Kapoor">Priya Kapoor</option>
-              </select>
+              />
+              <p className="mt-1 text-[10px] text-gray-400">Attribute ownership is unavailable; no authoritative owner mapping exists.</p>
             </div>
 
             <div>

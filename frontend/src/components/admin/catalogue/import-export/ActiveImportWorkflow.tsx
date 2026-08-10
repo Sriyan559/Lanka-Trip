@@ -5,7 +5,7 @@ import { CheckCircle2, ChevronRight } from "lucide-react";
 import { CatalogueDataJob } from "@/types/importExport";
 
 interface ActiveImportWorkflowProps {
-  job: CatalogueDataJob;
+  job: CatalogueDataJob | null;
   activeStage: number;
   onSelectStage: (stage: number) => void;
 }
@@ -13,7 +13,6 @@ interface ActiveImportWorkflowProps {
 export function ActiveImportWorkflow({
   job,
   activeStage,
-  onSelectStage,
 }: ActiveImportWorkflowProps) {
   const steps = [
     { num: 1, label: "Select Import Type" },
@@ -27,6 +26,8 @@ export function ActiveImportWorkflow({
     { num: 9, label: "Execute" },
     { num: 10, label: "Reconcile" },
   ];
+
+  if (!job) return <div className="bg-white border border-line rounded-lg p-4 shadow-sm mb-6"><h3 className="text-[12px] font-bold text-ink uppercase tracking-wider font-mono">Active Import / Export Pipeline</h3><p className="mt-3 text-[11px] text-muted">No active operations.</p></div>;
 
   return (
     <div className="bg-white border border-line rounded-lg p-4 shadow-sm mb-6">
@@ -60,8 +61,7 @@ export function ActiveImportWorkflow({
             return (
               <div
                 key={step.num}
-                onClick={() => onSelectStage(step.num)}
-                className="flex flex-col items-center gap-1.5 relative z-10 cursor-pointer group"
+                className="flex flex-col items-center gap-1.5 relative z-10 group"
               >
                 {/* Circle Icon */}
                 <div

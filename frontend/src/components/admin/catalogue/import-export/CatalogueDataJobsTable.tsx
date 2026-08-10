@@ -166,6 +166,7 @@ export function CatalogueDataJobsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 font-sans">
+            {jobs.length === 0 && <tr><td colSpan={16} className="py-12 text-center text-muted">No import/export jobs match the selected filters.</td></tr>}
             {jobs.map((job) => {
               const isSelected = selectedRowIds.includes(job.id);
               const isActive = selectedJobId === job.id;
@@ -190,7 +191,7 @@ export function CatalogueDataJobsTable({
                       onClick={() => onSelectJob(job.id)}
                       className="hover:underline text-left block"
                     >
-                      {job.id}
+                      {job.publicId || job.id}
                     </button>
                   </td>
                   <td className="py-2.5 px-2.5 font-semibold text-slate-700">
@@ -215,17 +216,17 @@ export function CatalogueDataJobsTable({
 
                   {/* Mapping Progress */}
                   <td className="py-2.5 px-2.5">
-                    {job.mappingPercentage > 0 ? (
+                    {(job.mappingPercentage ?? 0) > 0 ? (
                       <div className="flex items-center gap-1.5 w-20">
                         <span className="font-bold text-[10px] font-mono text-slate-700 w-7">
-                          {job.mappingPercentage}%
+                          {job.mappingPercentage ?? 0}%
                         </span>
                         <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full ${
-                              job.mappingPercentage >= 95 ? "bg-emerald-500" : "bg-amber-500"
+                              (job.mappingPercentage ?? 0) >= 95 ? "bg-emerald-500" : "bg-amber-500"
                             }`}
-                            style={{ width: `${job.mappingPercentage}%` }}
+                            style={{ width: `${job.mappingPercentage ?? 0}%` }}
                           />
                         </div>
                       </div>
@@ -254,26 +255,19 @@ export function CatalogueDataJobsTable({
                   {/* Action Column */}
                   <td className="py-2.5 px-3 text-right">
                     <div className="flex items-center justify-end gap-1.5 relative">
-                      {job.outcome === "Failed" ? (
+                      {job.canRetry ? (
                         <button
                           onClick={() => onRetryJob(job)}
                           className="px-2 py-1 rounded bg-rose-50 border border-rose-200 text-rose-700 font-bold hover:bg-rose-100 text-[10px]"
                         >
                           Retry Job
                         </button>
-                      ) : job.executionStatus === "Delivered" ? (
+                      ) : job.canDownload ? (
                         <button
                           onClick={() => onDownloadReport(job)}
                           className="px-2 py-1 rounded bg-slate-50 border border-line text-slate-700 font-bold hover:bg-slate-100 text-[10px]"
                         >
                           Download File
-                        </button>
-                      ) : job.outcome === "Success" ? (
-                        <button
-                          onClick={() => onDownloadReport(job)}
-                          className="px-2 py-1 rounded bg-slate-50 border border-line text-slate-700 font-bold hover:bg-slate-100 text-[10px]"
-                        >
-                          Download Report
                         </button>
                       ) : (
                         <button
@@ -318,7 +312,7 @@ export function CatalogueDataJobsTable({
                           >
                             <FileText size={12} /> Download Report
                           </button>
-                          {job.outcome === "Failed" && (
+                          {job.canRetry && (
                             <button
                               onClick={() => {
                                 onRetryJob(job);

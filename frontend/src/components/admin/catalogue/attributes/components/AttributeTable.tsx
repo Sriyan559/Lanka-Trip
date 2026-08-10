@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import {
-  Copy, MoreHorizontal, Eye, Edit3, Sliders, ExternalLink,
-  ShieldCheck, Check, Layers, AlertTriangle, Archive,
+  Copy, MoreHorizontal, Eye, Edit3, Sliders,
+  Check, Layers, AlertTriangle, Archive,
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -298,18 +298,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
                           >
                             <Sliders size={12} /> Manage Allowed Values
                           </button>
-                          <button
-                            onClick={() => { toast.success(`Validation Rules for ${attr.attributeName}`); setActiveMenuId(null); }}
-                            className="w-full px-3 py-1.5 hover:bg-gray-50 flex items-center gap-2 text-gray-700"
-                          >
-                            <ShieldCheck size={12} /> Validation Rules
-                          </button>
-                          <button
-                            onClick={() => { toast.success(`Product usage for ${attr.attributeName}`); setActiveMenuId(null); }}
-                            className="w-full px-3 py-1.5 hover:bg-gray-50 flex items-center gap-2 text-gray-700"
-                          >
-                            <ExternalLink size={12} /> View Product Usage
-                          </button>
+                          <div className="px-3 py-1.5 text-[10px] text-gray-400">Validation-rule details are unavailable.</div>
                           <div className="my-1 border-t border-gray-100" />
                           <button
                             onClick={() => { onArchiveAttribute(attr); setActiveMenuId(null); }}
