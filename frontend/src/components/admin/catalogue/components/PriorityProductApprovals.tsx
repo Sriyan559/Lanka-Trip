@@ -1,60 +1,41 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Search, ChevronLeft, ChevronRight, MoreHorizontal, ExternalLink } from "lucide-react";
-import { ProductApprovalItem } from "@/types/catalogue";
-import { MOCK_PRODUCT_APPROVALS } from "@/data/catalogue.mock";
+import React, { useEffect, useState } from "react";
+import { Search, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { ProductApprovalItem, PriorityApprovalsResponse } from "@/types/catalogue";
+import { getPriorityApprovals } from "@/services/api/catalogueCommandCenter";
+import { useRouter } from "next/navigation";
 
 interface PriorityProductApprovalsProps {
   selectedStageFilter: string | null;
   onOpenApproval: (item: ProductApprovalItem) => void;
+  initialData: PriorityApprovalsResponse;
 }
 
 export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> = ({
   selectedStageFilter,
   onOpenApproval,
+  initialData,
 }) => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [riskFilter, setRiskFilter] = useState<string>("All");
-  const [reviewerFilter, setReviewerFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
-
-  const filteredItems = useMemo(() => {
-    return MOCK_PRODUCT_APPROVALS.filter((item) => {
-      // Stage filter
-      if (selectedStageFilter && selectedStageFilter !== "all") {
-        const stageSlug = item.status.toLowerCase().replace(/\s+/g, "-");
-        if (!stageSlug.includes(selectedStageFilter) && !selectedStageFilter.includes(stageSlug)) {
-          // match stage loosely
-        }
-      }
-      // Search
-      if (
-        searchTerm &&
-        !item.productName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !item.submissionId.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !item.brand.toLowerCase().includes(searchTerm.toLowerCase())
-      ) {
-        return false;
-      }
-      // Risk
-      if (riskFilter !== "All" && item.risk !== riskFilter) {
-        return false;
-      }
-      // Reviewer
-      if (reviewerFilter !== "All" && item.reviewer !== reviewerFilter) {
-        return false;
-      }
-      return true;
-    });
-  }, [selectedStageFilter, searchTerm, riskFilter, reviewerFilter]);
-
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage) || 1;
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const [sort, setSort] = useState<"productName" | "submittedDate">("submittedDate");
+  const [direction, setDirection] = useState<"asc" | "desc">("desc");
+  const [response, setResponse] = useState(initialData);
+  const [loadError, setLoadError] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try { setResponse(await getPriorityApprovals({ page: currentPage, pageSize: 20, search: searchTerm || undefined, stage: selectedStageFilter || undefined, sort, direction }, controller.signal)); setLoadError(false); }
+      catch { if (!controller.signal.aborted) setLoadError(true); }
+    }, searchTerm ? 300 : 0);
+    return () => { controller.abort(); window.clearTimeout(timer); };
+  }, [currentPage, searchTerm, riskFilter, selectedStageFilter, sort, direction]);
+  const changeSort = (column: "productName" | "submittedDate") => { setCurrentPage(1); if (sort === column) setDirection((value) => value === "asc" ? "desc" : "asc"); else { setSort(column); setDirection("asc"); } };
+  const paginatedItems = response.items;
+  const totalPages = response.pagination.lastPage;
 
   return (
     <div className="bg-white rounded border border-gray-200 p-5 shadow-xs flex flex-col gap-4">
@@ -84,7 +65,7 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
           </div>
 
           {/* Risk Level Filter */}
-          <select
+          <select disabled title="Risk scoring is not modelled in the current catalogue schema."
             value={riskFilter}
             onChange={(e) => {
               setRiskFilter(e.target.value);
@@ -93,27 +74,16 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
             className="h-8 px-2.5 rounded border border-gray-300 text-[11.5px] font-medium text-gray-700 bg-white focus:outline-none"
           >
             <option value="All">All Risk Levels</option>
-            <option value="High">High Risk</option>
-            <option value="Medium">Medium Risk</option>
-            <option value="Low">Low Risk</option>
           </select>
 
           {/* Reviewer Filter */}
-          <select
-            value={reviewerFilter}
-            onChange={(e) => {
-              setReviewerFilter(e.target.value);
-              setCurrentPage(1);
-            }}
+          <select disabled title="Reviewer assignment is not modelled in the current catalogue schema."
             className="h-8 px-2.5 rounded border border-gray-300 text-[11.5px] font-medium text-gray-700 bg-white focus:outline-none"
           >
             <option value="All">All Reviewers</option>
-            <option value="Elena Vance">Elena Vance</option>
-            <option value="Marcus Lee">Marcus Lee</option>
-            <option value="Priya Kapoor">Priya Kapoor</option>
           </select>
 
-          <button className="h-8 px-3 rounded border border-gray-300 bg-white text-[11.5px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+          <button onClick={() => router.push('/admin/catalogue/product-approvals')} className="h-8 px-3 rounded border border-gray-300 bg-white text-[11.5px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
             View All Approvals
           </button>
         </div>
@@ -124,7 +94,7 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
         <table className="w-full text-left border-collapse text-[11.5px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase text-[10px]">
-              <th className="py-2.5 px-3">Product</th>
+              <th className="py-2.5 px-3"><button onClick={() => changeSort("productName")}>Product {sort === "productName" ? (direction === "asc" ? "↑" : "↓") : ""}</button></th>
               <th className="py-2.5 px-3">Submission ID</th>
               <th className="py-2.5 px-3">Brand</th>
               <th className="py-2.5 px-3">Category</th>
@@ -133,7 +103,7 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
               <th className="py-2.5 px-3">Brand Auth.</th>
               <th className="py-2.5 px-3">Compliance</th>
               <th className="py-2.5 px-3">Risk</th>
-              <th className="py-2.5 px-3">Submitted</th>
+              <th className="py-2.5 px-3"><button onClick={() => changeSort("submittedDate")}>Submitted {sort === "submittedDate" ? (direction === "asc" ? "↑" : "↓") : ""}</button></th>
               <th className="py-2.5 px-3">SLA</th>
               <th className="py-2.5 px-3">Reviewer</th>
               <th className="py-2.5 px-3">Status</th>
@@ -141,10 +111,10 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {paginatedItems.length === 0 ? (
+            {loadError ? <tr><td colSpan={14} className="text-center py-8 text-rose-600">Unable to load priority approvals.</td></tr> : paginatedItems.length === 0 ? (
               <tr>
                 <td colSpan={14} className="text-center py-8 text-gray-400">
-                  No approval submissions match the selected filters.
+                  No matching catalogue approvals found.
                 </td>
               </tr>
             ) : (
@@ -153,11 +123,11 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
                   {/* Product */}
                   <td className="py-3 px-3 font-semibold text-gray-900 min-w-[170px]">
                     <div className="flex items-center gap-2">
-                      <img
+                      {item.thumbnail ? <img
                         src={item.thumbnail}
                         alt={item.productName}
                         className="w-8 h-8 rounded object-cover border border-gray-200 bg-gray-100 shrink-0"
-                      />
+                      /> : <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200" />}
                       <span className="line-clamp-2 leading-tight">{item.productName}</span>
                     </div>
                   </td>
@@ -184,11 +154,11 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
                   {/* Completeness */}
                   <td className="py-3 px-3 min-w-[90px]">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900">{item.completeness}%</span>
+                      <span className="font-bold text-gray-900">{item.completeness === null ? "Unavailable" : `${item.completeness}%`}</span>
                       <div className="w-12 bg-gray-100 rounded-full h-1.5 overflow-hidden">
                         <div
                           className="bg-emerald-500 h-full rounded-full"
-                          style={{ width: `${item.completeness}%` }}
+                          style={{ width: `${item.completeness ?? 0}%` }}
                         />
                       </div>
                     </div>
@@ -242,10 +212,10 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
                   <td className="py-3 px-3 whitespace-nowrap">
                     <span
                       className={`font-bold ${
-                        item.slaDays <= 2 ? "text-rose-600" : item.slaDays <= 3 ? "text-amber-600" : "text-emerald-600"
+                        item.slaDays === null ? "text-gray-400" : item.slaDays <= 2 ? "text-rose-600" : item.slaDays <= 3 ? "text-amber-600" : "text-emerald-600"
                       }`}
                     >
-                      {item.slaDays} days
+                      {item.slaDays === null ? "Unavailable" : `${item.slaDays} days`}
                     </span>
                   </td>
 
@@ -283,7 +253,7 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
       {/* Pagination Footer */}
       <div className="flex items-center justify-between text-[11.5px] text-gray-500 pt-1">
         <span>
-          Showing 1 to {paginatedItems.length} of 128 submissions
+          Showing {response.pagination.total === 0 ? 0 : (currentPage - 1) * response.pagination.pageSize + 1} to {Math.min(currentPage * response.pagination.pageSize, response.pagination.total)} of {response.pagination.total} submissions
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -294,7 +264,7 @@ export const PriorityProductApprovals: React.FC<PriorityProductApprovalsProps> =
             <ChevronLeft size={14} />
           </button>
 
-          {[1, 2, 3, 4, 5].map((pageNum) => (
+          {Array.from({ length: Math.min(5, totalPages) }, (_, index) => index + 1).map((pageNum) => (
             <button
               key={pageNum}
               onClick={() => setCurrentPage(pageNum)}

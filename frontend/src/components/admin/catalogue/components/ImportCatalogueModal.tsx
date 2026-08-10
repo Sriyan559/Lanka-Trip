@@ -3,15 +3,18 @@
 import React, { useState } from "react";
 import { X, Upload, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { importCatalogue } from "@/services/api/catalogueCommandCenter";
 
 interface ImportCatalogueModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onImported?: () => void;
 }
 
 export const ImportCatalogueModal: React.FC<ImportCatalogueModalProps> = ({
   isOpen,
   onClose,
+  onImported,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -23,11 +26,11 @@ export const ImportCatalogueModal: React.FC<ImportCatalogueModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const validExts = [".csv", ".xlsx"];
+    const validExts = [".csv"];
     const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
 
     if (!validExts.includes(ext)) {
-      setErrorMsg("Invalid file format. Only .CSV and .XLSX files are supported.");
+      setErrorMsg("Invalid file format. Only .CSV files are supported by the current import service.");
       setSelectedFile(null);
       return;
     }
@@ -42,15 +45,20 @@ export const ImportCatalogueModal: React.FC<ImportCatalogueModalProps> = ({
     setSelectedFile(file);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!selectedFile) return;
     setIsUploading(true);
-    setTimeout(() => {
+    try {
+      const response = await importCatalogue(selectedFile);
       setIsUploading(false);
-      toast.success(`Successfully imported ${selectedFile.name}`);
+      toast.success(`Import complete: ${response.data.created} created, ${response.data.updated} updated.`);
       setSelectedFile(null);
+      onImported?.();
       onClose();
-    }, 800);
+    } catch (error) {
+      setIsUploading(false);
+      setErrorMsg(error instanceof Error ? error.message : "Unable to import catalogue data.");
+    }
   };
 
   return (
@@ -70,7 +78,7 @@ export const ImportCatalogueModal: React.FC<ImportCatalogueModalProps> = ({
           <div>
             <h3 className="text-base font-bold text-gray-900">Import Catalogue Data</h3>
             <p className="text-[12px] text-gray-500">
-              Bulk update or import product masters using CSV or Excel spreadsheets.
+            Bulk update or import product masters using a validated CSV file.
             </p>
           </div>
         </div>
@@ -79,7 +87,7 @@ export const ImportCatalogueModal: React.FC<ImportCatalogueModalProps> = ({
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#741d35] transition-colors bg-gray-50/50 relative mb-4">
           <input
             type="file"
-            accept=".csv, .xlsx"
+            accept=".csv"
             onChange={handleFileChange}
             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
           />
@@ -87,7 +95,7 @@ export const ImportCatalogueModal: React.FC<ImportCatalogueModalProps> = ({
           <p className="text-[12.5px] font-semibold text-gray-700">
             Drag and drop your file here, or <span className="text-[#741d35] underline">browse</span>
           </p>
-          <p className="text-[11px] text-gray-400 mt-1">Supports .CSV, .XLSX up to 10MB</p>
+          <p className="text-[11px] text-gray-400 mt-1">Required: sku, name, category_id, price, unit. CSV up to 10MB.</p>
         </div>
 
         {errorMsg && (

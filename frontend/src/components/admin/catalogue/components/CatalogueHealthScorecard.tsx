@@ -2,9 +2,9 @@
 
 import React from "react";
 import { ChevronRight } from "lucide-react";
-import { HEALTH_SCORECARD } from "@/data/catalogue.mock";
+import { HealthScorecardItem } from "@/types/catalogue";
 
-export const CatalogueHealthScorecard: React.FC = () => {
+export const CatalogueHealthScorecard: React.FC<{ items: HealthScorecardItem[] }> = ({ items }) => {
   return (
     <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
       <div className="flex items-center justify-between mb-3">
@@ -18,7 +18,7 @@ export const CatalogueHealthScorecard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-        {HEALTH_SCORECARD.map((item) => {
+        {items.map((item) => {
           const barColor =
             item.percentage >= 90
               ? "bg-emerald-500"

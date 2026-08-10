@@ -12,12 +12,8 @@ import {
   AlertOctagon,
   ChevronRight,
 } from "lucide-react";
-import {
-  QUALITY_ISSUES,
-  PRODUCT_COMPLETENESS_SUMMARY,
-  CATEGORY_COVERAGE_DATA,
-  BRAND_COVERAGE_DATA,
-} from "@/data/catalogue.mock";
+import type { BrandCoverageData, CategoryCoverageData, CompletenessSummaryItem, QualityIssueItem } from "@/types/catalogue";
+import { useRouter } from "next/navigation";
 
 const ISSUE_ICON_MAP: Record<string, React.ElementType> = {
   FileX,
@@ -32,11 +28,14 @@ const ISSUE_ICON_MAP: Record<string, React.ElementType> = {
 
 interface CatalogueQualityReadinessProps {
   onIssueClick?: (issueTitle: string) => void;
+  data: { issues: QualityIssueItem[]; completeness: CompletenessSummaryItem[]; categoryCoverage: CategoryCoverageData; brandCoverage: BrandCoverageData };
 }
 
 export const CatalogueQualityReadiness: React.FC<CatalogueQualityReadinessProps> = ({
   onIssueClick,
+  data,
 }) => {
+  const router = useRouter();
   return (
     <div className="flex flex-col gap-6">
       {/* 1. Quality Issues Cards */}
@@ -48,14 +47,14 @@ export const CatalogueQualityReadiness: React.FC<CatalogueQualityReadinessProps>
               Identify data gaps, structural issues, media deficiencies and publication blockers.
             </p>
           </div>
-          <button className="text-[11px] font-semibold text-[#741d35] hover:underline flex items-center gap-0.5">
+          <button onClick={() => router.push('/admin/catalogue/quality')} className="text-[11px] font-semibold text-[#741d35] hover:underline flex items-center gap-0.5">
             <span>View all issues</span>
             <ChevronRight size={12} />
           </button>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {QUALITY_ISSUES.map((issue) => {
+          {data.issues.map((issue) => {
             const IconComponent = ISSUE_ICON_MAP[issue.iconName] || FileX;
 
             return (
@@ -99,7 +98,7 @@ export const CatalogueQualityReadiness: React.FC<CatalogueQualityReadinessProps>
               Product Completeness Summary
             </h3>
             <div className="space-y-2.5">
-              {PRODUCT_COMPLETENESS_SUMMARY.map((item) => (
+              {data.completeness.map((item) => (
                 <div key={item.label} className="text-[11px]">
                   <div className="flex items-center justify-between mb-0.5">
                     <span className="text-gray-600 font-medium">{item.label}</span>
@@ -124,7 +123,7 @@ export const CatalogueQualityReadiness: React.FC<CatalogueQualityReadinessProps>
               <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
                 Category Coverage
               </h3>
-              <button className="text-[10.5px] font-semibold text-[#741d35] hover:underline">
+              <button onClick={() => router.push('/admin/catalogue/categories')} className="text-[10.5px] font-semibold text-[#741d35] hover:underline">
                 View all categories
               </button>
             </div>
@@ -132,26 +131,26 @@ export const CatalogueQualityReadiness: React.FC<CatalogueQualityReadinessProps>
             <div className="space-y-2 text-[11px] mb-4 pb-3 border-b border-gray-100">
               <div className="flex justify-between">
                 <span className="text-gray-500">Total Categories</span>
-                <span className="font-bold text-gray-900">{CATEGORY_COVERAGE_DATA.totalCategories}</span>
+                <span className="font-bold text-gray-900">{data.categoryCoverage.totalCategories}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Active Categories</span>
-                <span className="font-bold text-emerald-600">{CATEGORY_COVERAGE_DATA.activeCategories}</span>
+                <span className="font-bold text-emerald-600">{data.categoryCoverage.activeCategories}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Empty Categories</span>
-                <span className="font-bold text-amber-600">{CATEGORY_COVERAGE_DATA.emptyCategories}</span>
+                <span className="font-bold text-amber-600">{data.categoryCoverage.emptyCategories}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Products Missing Category</span>
-                <span className="font-bold text-rose-600">{CATEGORY_COVERAGE_DATA.productsMissingCategory}</span>
+                <span className="font-bold text-rose-600">{data.categoryCoverage.productsMissingCategory}</span>
               </div>
             </div>
 
             <div>
               <div className="text-[11px] font-semibold text-gray-700 mb-2">Top Category Gaps</div>
               <div className="space-y-1.5 text-[11px]">
-                {CATEGORY_COVERAGE_DATA.topCategoryGaps.map((gap) => (
+                {data.categoryCoverage.topCategoryGaps.length === 0 ? <span className="text-gray-400">No category gaps found.</span> : data.categoryCoverage.topCategoryGaps.map((gap) => (
                   <div key={gap.name} className="flex items-center justify-between p-1.5 rounded bg-gray-50">
                     <span className="text-gray-700 font-medium truncate">{gap.name}</span>
                     <span className="font-bold text-rose-600 shrink-0">{gap.count}</span>
@@ -172,36 +171,36 @@ export const CatalogueQualityReadiness: React.FC<CatalogueQualityReadinessProps>
             <div className="space-y-2 text-[11px] mb-4">
               <div className="flex justify-between">
                 <span className="text-gray-500">Total Brands</span>
-                <span className="font-bold text-gray-900">{BRAND_COVERAGE_DATA.totalBrands}</span>
+                <span className="font-bold text-gray-900">{data.brandCoverage.totalBrands}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Verified Brands</span>
-                <span className="font-bold text-emerald-600">{BRAND_COVERAGE_DATA.verifiedBrands}</span>
+                <span className="font-bold text-emerald-600">{data.brandCoverage.verifiedBrands}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Pending Verification</span>
-                <span className="font-bold text-amber-600">{BRAND_COVERAGE_DATA.pendingVerification}</span>
+                <span className="font-bold text-amber-600">{data.brandCoverage.pendingVerification}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Unauthorized Brand Use</span>
-                <span className="font-bold text-rose-600">{BRAND_COVERAGE_DATA.unauthorizedBrandUse}</span>
+                <span className="font-bold text-rose-600">{data.brandCoverage.unauthorizedBrandUse}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Products Missing Brand</span>
-                <span className="font-bold text-gray-700">{BRAND_COVERAGE_DATA.productsMissingBrand}</span>
+                <span className="font-bold text-gray-700">{data.brandCoverage.productsMissingBrand ?? "Unavailable"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Expiring Authorization</span>
-                <span className="font-bold text-amber-600">{BRAND_COVERAGE_DATA.expiringAuthorization}</span>
+                <span className="font-bold text-amber-600">{data.brandCoverage.expiringAuthorization}</span>
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5 pt-2 border-t border-gray-100 text-[11px]">
-              <button className="text-left font-semibold text-[#741d35] hover:underline flex items-center gap-1">
+              <button onClick={() => router.push('/admin/catalogue/brands')} className="text-left font-semibold text-[#741d35] hover:underline flex items-center gap-1">
                 <span>View brand coverage report</span>
                 <ChevronRight size={12} />
               </button>
-              <button className="text-left font-semibold text-[#741d35] hover:underline flex items-center gap-1">
+              <button onClick={() => router.push('/admin/verification/brand-authorizations')} className="text-left font-semibold text-[#741d35] hover:underline flex items-center gap-1">
                 <span>Manage brand authorizations</span>
                 <ChevronRight size={12} />
               </button>

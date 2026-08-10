@@ -1,25 +1,23 @@
 "use client";
 
 import React from "react";
-import { AlertCircle, ChevronRight, CheckCircle2 } from "lucide-react";
-import {
-  SIDEBAR_HEALTH_METRICS,
-  PRIORITY_ALERTS,
-  APPROVAL_STATUS_SUMMARY,
-  SLA_SUMMARY,
-  INVENTORY_RISK_SUMMARY,
-  QUICK_QUEUES,
-} from "@/data/catalogue.mock";
+import { AlertCircle, ChevronRight } from "lucide-react";
+import type { CatalogueAlert, InventoryRiskSummaryItem, QuickQueueItem, SlaSummaryItem, StatusSummaryItem } from "@/types/catalogue";
+import { useRouter } from "next/navigation";
 
 interface CatalogueInsightSidebarProps {
   onQueueClick?: (filterKey: string) => void;
   onAlertClick?: (alertTitle: string) => void;
+  data: { health: { score: number; state: string; metrics: Record<string, number> }; alerts: CatalogueAlert[]; approvalStatusSummary: StatusSummaryItem[]; slaSummary: { availability: string; reason?: string; items: SlaSummaryItem[] }; inventoryRiskSummary: InventoryRiskSummaryItem[]; quickQueues: QuickQueueItem[] };
 }
 
 export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = ({
   onQueueClick,
   onAlertClick,
+  data,
 }) => {
+  const router = useRouter();
+  const healthMetrics = [['Completeness', data.health.metrics.completeness], ['Approval Efficiency', data.health.metrics.approvalEfficiency], ['Data Quality', data.health.metrics.dataQuality], ['Media Readiness', data.health.metrics.media], ['Compliance', data.health.metrics.compliance]];
   return (
     <aside className="flex flex-col gap-4 text-xs">
       {/* A. Catalogue Health */}
@@ -27,29 +25,29 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-gray-900 text-sm">Catalogue Health</h3>
           <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
-            Stable
+            {data.health.state}
           </span>
         </div>
 
         <div className="flex items-center gap-4 mb-4 pb-3 border-b border-gray-100">
           <div className="relative w-16 h-16 rounded-full border-4 border-emerald-500 flex items-center justify-center bg-emerald-50/30 shrink-0">
             <div className="text-center leading-none">
-              <span className="text-lg font-black text-gray-900">89</span>
+              <span className="text-lg font-black text-gray-900">{data.health.score}</span>
               <span className="text-[10px] text-gray-400 font-medium block">/100</span>
             </div>
           </div>
 
           <div className="flex-1 space-y-1.5 text-[11px]">
-            {SIDEBAR_HEALTH_METRICS.map((item) => (
-              <div key={item.label} className="flex items-center justify-between">
-                <span className="text-gray-500">{item.label}</span>
-                <span className="font-bold text-gray-800">{item.value}%</span>
+            {healthMetrics.map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between">
+                <span className="text-gray-500">{label}</span>
+                <span className="font-bold text-gray-800">{value}%</span>
               </div>
             ))}
           </div>
         </div>
 
-        <button className="text-[11px] font-semibold text-[#741d35] hover:underline flex items-center gap-1">
+        <button onClick={() => router.push('/admin/catalogue/quality')} className="text-[11px] font-semibold text-[#741d35] hover:underline flex items-center gap-1">
           <span>View full health dashboard</span>
           <ChevronRight size={12} />
         </button>
@@ -59,16 +57,16 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
       <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
         <div className="flex items-center justify-between mb-2.5">
           <h3 className="font-bold text-gray-900 text-xs">Priority Catalogue Alerts</h3>
-          <button className="text-[10.5px] font-semibold text-[#741d35] hover:underline">
+          <button onClick={() => router.push('/admin/catalogue/quality')} className="text-[10.5px] font-semibold text-[#741d35] hover:underline">
             View all
           </button>
         </div>
 
         <div className="space-y-2">
-          {PRIORITY_ALERTS.map((alert) => (
+          {data.alerts.length === 0 ? <p className="text-[11px] text-gray-500 py-2">No priority catalogue alerts.</p> : data.alerts.map((alert) => (
             <button
               key={alert.id}
-              onClick={() => onAlertClick?.(alert.title)}
+              onClick={() => { onAlertClick?.(alert.title); if (alert.actionRoute) router.push(alert.actionRoute); }}
               className="w-full text-left p-2 rounded bg-gray-50/70 hover:bg-gray-100/80 border border-gray-100 transition-colors flex items-start gap-2 group"
             >
               <AlertCircle
@@ -81,7 +79,7 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
               />
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] font-medium text-gray-800 line-clamp-2 leading-snug group-hover:text-[#741d35]">
-                  {alert.title}
+                  {alert.title}{alert.count !== undefined ? ` (${alert.count})` : ''}
                 </p>
               </div>
               <span
@@ -102,7 +100,7 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
       <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
         <h3 className="font-bold text-gray-900 text-xs mb-3">Approval Status Summary</h3>
         <div className="space-y-2">
-          {APPROVAL_STATUS_SUMMARY.map((item) => (
+          {data.approvalStatusSummary.map((item) => (
             <div key={item.label} className="flex items-center justify-between text-[11px]">
               <div className="flex items-center gap-2">
                 <span
@@ -121,13 +119,13 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
       <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-gray-900 text-xs">Catalogue SLA Summary</h3>
-          <button className="text-[10.5px] font-semibold text-[#741d35] hover:underline">
+          <button disabled title={data.slaSummary.reason} className="text-[10.5px] font-semibold text-gray-400 cursor-not-allowed">
             View details
           </button>
         </div>
 
         <div className="space-y-2.5">
-          {SLA_SUMMARY.map((item) => (
+          {data.slaSummary.availability === 'unavailable' ? <p className="text-[11px] text-gray-500" title={data.slaSummary.reason}>Catalogue SLA rules are unavailable.</p> : data.slaSummary.items.map((item) => (
             <div key={item.stage} className="text-[11px]">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-gray-600 font-medium">{item.stage}</span>
@@ -155,7 +153,7 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
       <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
         <h3 className="font-bold text-gray-900 text-xs mb-3">Inventory Risk Summary</h3>
         <div className="grid grid-cols-2 gap-2">
-          {INVENTORY_RISK_SUMMARY.map((item) => (
+          {data.inventoryRiskSummary.map((item) => (
             <div
               key={item.label}
               className="p-2 rounded bg-gray-50 border border-gray-100 flex items-center justify-between"
@@ -165,7 +163,7 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
                 className="font-extrabold text-[12px]"
                 style={{ color: item.color }}
               >
-                {item.count}
+                {item.count === null ? "Unavailable" : item.count}
               </span>
             </div>
           ))}
@@ -176,7 +174,7 @@ export const CatalogueInsightSidebar: React.FC<CatalogueInsightSidebarProps> = (
       <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
         <h3 className="font-bold text-gray-900 text-xs mb-2.5">Quick Queues</h3>
         <div className="space-y-1.5">
-          {QUICK_QUEUES.map((queue) => (
+          {data.quickQueues.map((queue) => (
             <button
               key={queue.id}
               onClick={() => onQueueClick?.(queue.filterKey)}

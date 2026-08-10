@@ -14,7 +14,7 @@ import {
   Globe,
   ChevronRight,
 } from "lucide-react";
-import { APPROVAL_STAGES } from "@/data/catalogue.mock";
+import { ApprovalStageItem } from "@/types/catalogue";
 
 const STAGE_ICON_MAP: Record<string, React.ElementType> = {
   FileEdit,
@@ -32,11 +32,13 @@ const STAGE_ICON_MAP: Record<string, React.ElementType> = {
 interface ApprovalWorkflowProps {
   selectedStage: string | null;
   onSelectStage: (stageId: string | null) => void;
+  stages: ApprovalStageItem[];
 }
 
 export const ApprovalWorkflow: React.FC<ApprovalWorkflowProps> = ({
   selectedStage,
   onSelectStage,
+  stages,
 }) => {
   return (
     <div className="bg-white rounded border border-gray-200 p-4 shadow-xs">
@@ -56,7 +58,7 @@ export const ApprovalWorkflow: React.FC<ApprovalWorkflowProps> = ({
 
       {/* Horizontal Pipeline */}
       <div className="flex items-center justify-between gap-1 overflow-x-auto py-1">
-        {APPROVAL_STAGES.map((stage, idx) => {
+        {stages.map((stage, idx) => {
           const IconComp = STAGE_ICON_MAP[stage.iconName] || FileEdit;
           const isSelected = selectedStage === stage.id;
           const isApproved = stage.id === "approved" || stage.id === "published";
@@ -97,7 +99,7 @@ export const ApprovalWorkflow: React.FC<ApprovalWorkflowProps> = ({
                 </span>
               </button>
 
-              {idx < APPROVAL_STAGES.length - 1 && (
+              {idx < stages.length - 1 && (
                 <ChevronRight size={14} className="text-gray-300 shrink-0" />
               )}
             </React.Fragment>

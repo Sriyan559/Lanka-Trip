@@ -55,7 +55,9 @@ export const CatalogueKpiGrid: React.FC<CatalogueKpiGridProps> = ({
           <button
             key={kpi.id}
             onClick={() => onKpiClick(kpi.filterKey)}
-            className={`text-left bg-white rounded border p-3 flex flex-col justify-between transition-all duration-150 group shadow-xs hover:border-[#741d35] hover:shadow-md ${
+            title={kpi.reason}
+            disabled={kpi.availability === "unavailable"}
+            className={`text-left bg-white rounded border p-3 flex flex-col justify-between transition-all duration-150 group shadow-xs hover:border-[#741d35] hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed ${
               isActive ? "ring-2 ring-[#741d35] border-transparent" : "border-gray-200"
             }`}
           >
