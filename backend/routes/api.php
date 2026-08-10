@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\Admin\AdminSupplierDashboardController;
+use App\Http\Controllers\Api\Admin\AdminVerificationComplianceController;
 use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
 use App\Http\Controllers\Api\Admin\EcosystemModuleController;
@@ -186,6 +188,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/catalogue/command-center/composition', [CatalogueCommandCenterController::class, 'composition']);
         Route::get('/admin/catalogue/approvals/priority', [CatalogueCommandCenterController::class, 'approvals']);
         Route::get('/admin/marketplace/dashboard/export', [MarketplaceDashboardController::class, 'export']);
+        Route::get('/admin/marketplace/workspaces/{workspace}', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'index']);
+        Route::get('/admin/marketplace/workspaces/{workspace}/export', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'export']);
+        Route::get('/admin/marketplace/workspaces/orders/{order}', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'order'])->whereNumber('order');
+        Route::patch('/admin/marketplace/orders/{order}/status', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'transition'])->whereNumber('order');
+        Route::post('/admin/marketplace/orders/{order}/notes', [\App\Http\Controllers\Api\Admin\MarketplaceWorkspaceController::class, 'note'])->whereNumber('order');
         Route::get('/admin/marketplace/listings', [MarketplaceListingsController::class, 'index']);
         Route::get('/admin/marketplace/listings/export', [MarketplaceListingsController::class, 'export']);
         Route::get('/admin/marketplace/listings/{listing}', [MarketplaceListingsController::class, 'show'])->whereNumber('listing');
@@ -245,9 +252,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/brand-authorizations/{authorization}/decisions', [BrandAuthorizationDecisionController::class, 'decide'])->whereNumber('authorization');
 
         Route::get('/admin/logistics/dashboard', [LogisticsController::class, 'dashboard']);
+        Route::get('/admin/logistics/reference-data', [LogisticsController::class, 'referenceData']);
         Route::get('/admin/logistics/shipments', [LogisticsController::class, 'index']);
+        Route::post('/admin/logistics/shipments', [LogisticsController::class, 'store']);
         Route::get('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'show'])->whereNumber('shipment');
+        Route::put('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'update'])->whereNumber('shipment');
         Route::patch('/admin/logistics/shipments/{shipment}/status', [LogisticsController::class, 'updateStatus'])->whereNumber('shipment');
+        Route::delete('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'destroy'])->whereNumber('shipment');
 
         Route::get('/admin/reports', [AdminReportController::class, 'index']);
         Route::get('/admin/reports/{report}', [AdminReportController::class, 'execute']);
@@ -277,16 +288,35 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/maintenance/disable', [AdminController::class, 'disableMaintenance']);
 
         Route::prefix('admin/sl-beauty')->group(function () {
-            Route::get('/brands', [AdminBrandController::class, 'index']);
-            Route::post('/brands', [AdminBrandController::class, 'store']);
-            Route::get('/brands/{brand}', [AdminBrandController::class, 'show'])
-                ->whereNumber('brand');
-            Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])
-                ->whereNumber('brand');
-            Route::patch('/brands/{brand}/status', [AdminBrandController::class, 'updateStatus'])
-                ->whereNumber('brand');
-            Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])
-                ->whereNumber('brand');
+            Route::get('/brands', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'index']);
+            Route::post('/brands', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'store']);
+            Route::get('/brands/{brand}', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'show'])->whereNumber('brand');
+            Route::put('/brands/{brand}', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'update'])->whereNumber('brand');
+            Route::patch('/brands/{brand}/status', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'updateStatus'])->whereNumber('brand');
+            Route::delete('/brands/{brand}', [\App\Http\Controllers\SLBeauty\AdminBrandController::class, 'destroy'])->whereNumber('brand');
+        });
+
+        Route::prefix('admin/brands-suppliers')->group(function () {
+            Route::get('/suppliers/dashboard', [AdminSupplierDashboardController::class, 'suppliersDashboard']);
+            Route::get('/suppliers/{id}', [AdminSupplierDashboardController::class, 'supplierDetail']);
+            Route::post('/suppliers', [AdminSupplierDashboardController::class, 'storeSupplier']);
+            Route::put('/suppliers/{id}', [AdminSupplierDashboardController::class, 'updateSupplier']);
+            Route::get('/contracts/dashboard', [AdminSupplierDashboardController::class, 'contractsDashboard']);
+            Route::get('/catalogue-coverage/dashboard', [AdminSupplierDashboardController::class, 'catalogueCoverageDashboard']);
+            Route::get('/performance/dashboard', [AdminSupplierDashboardController::class, 'performanceDashboard']);
+            Route::get('/risk-compliance/dashboard', [AdminSupplierDashboardController::class, 'riskComplianceDashboard']);
+            Route::get('/users-access/dashboard', [AdminSupplierDashboardController::class, 'usersAccessDashboard']);
+            Route::get('/import-export-audit/dashboard', [AdminSupplierDashboardController::class, 'importExportAuditDashboard']);
+        });
+
+        Route::prefix('admin/verification-compliance')->group(function () {
+            Route::get('/documents/dashboard', [AdminVerificationComplianceController::class, 'documentsDashboard']);
+            Route::get('/product-safety/dashboard', [AdminVerificationComplianceController::class, 'productSafetyDashboard']);
+            Route::get('/authenticity/dashboard', [AdminVerificationComplianceController::class, 'authenticityDashboard']);
+            Route::get('/recalls/dashboard', [AdminVerificationComplianceController::class, 'recallsDashboard']);
+            Route::get('/governance/dashboard', [AdminVerificationComplianceController::class, 'governanceDashboard']);
+            Route::get('/reports/dashboard', [AdminVerificationComplianceController::class, 'reportsDashboard']);
+            Route::get('/import-export-audit/dashboard', [AdminVerificationComplianceController::class, 'importExportAuditDashboard']);
         });
     });
 
