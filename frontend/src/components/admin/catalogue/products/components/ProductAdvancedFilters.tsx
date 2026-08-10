@@ -12,6 +12,7 @@ interface ProductAdvancedFiltersProps {
   onRefresh: () => void;
   onMoreFilters: () => void;
   isRefreshing?: boolean;
+  filterOptions: { categories: Array<{ id: number; name: string }>; suppliers: Array<{ id: number; name: string }>; countries: string[] };
 }
 
 export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
@@ -22,6 +23,7 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
   onRefresh,
   onMoreFilters,
   isRefreshing = false,
+  filterOptions,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -65,9 +67,7 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
             >
               <option value="All">Product Status: All</option>
               <option value="Active">Active</option>
-              <option value="Draft">Draft</option>
-              <option value="Incomplete">Incomplete</option>
-              <option value="Archived">Archived</option>
+              <option value="Inactive">Inactive</option>
             </select>
 
             <select
@@ -90,7 +90,6 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
               <option value="All">Publication Status: All</option>
               <option value="Published">Published</option>
               <option value="Unpublished">Unpublished</option>
-              <option value="Blocked">Blocked</option>
             </select>
 
             <select
@@ -106,6 +105,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
 
             <select
               value={filters.riskLevel}
+              disabled
+              title="No authoritative product risk score exists."
               onChange={(e) => onChange({ riskLevel: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none focus:border-[#741d35]"
             >
@@ -120,6 +121,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
             <select
               value={filters.brand}
+              disabled
+              title="Products have no direct brand relationship."
               onChange={(e) => onChange({ brand: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -136,9 +139,7 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
               <option value="All">Supplier: All Suppliers</option>
-              <option value="Luxe Dist.">Luxe Dist.</option>
-              <option value="Glow Global Exports">Glow Global Exports</option>
-              <option value="Vertex Logistics Hub">Vertex Logistics Hub</option>
+              {filterOptions.suppliers.map((option) => <option key={option.id} value={String(option.id)}>{option.name}</option>)}
             </select>
 
             <select
@@ -147,10 +148,7 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
               <option value="All">Category: All Categories</option>
-              <option value="Skincare">Skincare</option>
-              <option value="Makeup">Makeup</option>
-              <option value="Haircare">Haircare</option>
-              <option value="Fragrance">Fragrance</option>
+              {filterOptions.categories.map((option) => <option key={option.id} value={String(option.id)}>{option.name}</option>)}
             </select>
 
             <select
@@ -159,15 +157,13 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
               <option value="All">Subcategory: All Subcategories</option>
-              <option value="Serums">Serums</option>
-              <option value="Essences">Essences</option>
-              <option value="Lipstick">Lipstick</option>
-              <option value="Cleansers">Cleansers</option>
-              <option value="Foundation">Foundation</option>
+              {filterOptions.categories.map((option) => <option key={option.id} value={String(option.id)}>{option.name}</option>)}
             </select>
 
             <select
               value={filters.productType}
+              disabled
+              title="Product type is not modeled separately from category."
               onChange={(e) => onChange({ productType: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -182,6 +178,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
             <select
               value={filters.businessUnit}
+              disabled
+              title="Business-unit ownership is not modeled."
               onChange={(e) => onChange({ businessUnit: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -197,9 +195,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
               <option value="All">Variant Readiness: All</option>
-              <option value="Ready">Fully Ready</option>
-              <option value="Partial">Partial Attributes</option>
-              <option value="Single">Single Item (No Variants)</option>
+              <option value="With Variants">With Variants</option>
+              <option value="Missing Variants">Missing Variants</option>
             </select>
 
             <select
@@ -208,13 +205,14 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
               <option value="All">Media Readiness: All</option>
-              <option value="Complete">Complete (1:1 Square)</option>
+              <option value="Ready">Ready</option>
               <option value="Missing">Missing Mandatory Assets</option>
-              <option value="LowRes">Low Resolution</option>
             </select>
 
             <select
               value={filters.inventoryLinkage}
+              disabled
+              title="No product-to-inventory linkage table exists."
               onChange={(e) => onChange({ inventoryLinkage: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -225,6 +223,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
 
             <select
               value={filters.duplicateRisk}
+              disabled
+              title="No authoritative product duplicate-risk score exists."
               onChange={(e) => onChange({ duplicateRisk: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -239,6 +239,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
             <select
               value={filters.brandAuthorization}
+              disabled
+              title="Seller brand authorization is not linked to products."
               onChange={(e) => onChange({ brandAuthorization: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -250,6 +252,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
 
             <select
               value={filters.batchEligibility}
+              disabled
+              title="No inventory batch eligibility domain exists."
               onChange={(e) => onChange({ batchEligibility: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -261,6 +265,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
 
             <select
               value={filters.channelEligibility}
+              disabled
+              title="No publication-channel eligibility domain exists."
               onChange={(e) => onChange({ channelEligibility: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -271,6 +277,8 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
 
             <select
               value={filters.countryOfOrigin}
+              disabled
+              title="Country of origin is not stored on products."
               onChange={(e) => onChange({ countryOfOrigin: e.target.value })}
               className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
             >
@@ -303,17 +311,18 @@ export const ProductAdvancedFilters: React.FC<ProductAdvancedFiltersProps> = ({
 
               <select
                 value={filters.assignedReviewer}
+                disabled
+                title="Reviewer assignment is not modeled."
                 onChange={(e) => onChange({ assignedReviewer: e.target.value })}
                 className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
               >
                 <option value="All">Assigned Reviewer: All</option>
-                <option value="Elena Vance">Elena Vance</option>
-                <option value="Marcus Lee">Marcus Lee</option>
-                <option value="Priya Kapoor">Priya Kapoor</option>
               </select>
 
               <select
                 value={filters.dataCompleteness}
+                disabled
+                title="Completeness buckets are not persisted as a filterable domain."
                 onChange={(e) => onChange({ dataCompleteness: e.target.value })}
                 className="h-8 rounded border border-gray-300 px-2.5 text-xs text-gray-700 focus:outline-none"
               >

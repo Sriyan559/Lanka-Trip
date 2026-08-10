@@ -25,6 +25,13 @@ interface ProductMasterTableProps {
   totalMatching: number;
   onOpenProduct: (product: ProductMasterRow) => void;
   onActionClick: (product: ProductMasterRow, action: string) => void;
+  page: number;
+  pageSize: number;
+  lastPage: number;
+  sort: string;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  onSortChange: (sort: string) => void;
 }
 
 export const ProductMasterTable: React.FC<ProductMasterTableProps> = ({
@@ -37,10 +44,14 @@ export const ProductMasterTable: React.FC<ProductMasterTableProps> = ({
   totalMatching,
   onOpenProduct,
   onActionClick,
+  page,
+  pageSize,
+  lastPage,
+  sort,
+  onPageChange,
+  onPageSizeChange,
+  onSortChange,
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [sortBy, setSortBy] = useState("updatedAt-desc");
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [isColumnsMenuOpen, setIsColumnsMenuOpen] = useState(false);
 
@@ -119,14 +130,13 @@ export const ProductMasterTable: React.FC<ProductMasterTableProps> = ({
           <div className="flex items-center gap-1.5">
             <span className="text-gray-500 font-medium">Sort By:</span>
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              value={sort}
+              onChange={(e) => onSortChange(e.target.value)}
               className="h-8 rounded border border-gray-300 px-2 text-xs font-semibold text-gray-700 bg-white focus:outline-none"
             >
               <option value="updatedAt-desc">Updated At (Newest)</option>
               <option value="name-asc">Product Name (A-Z)</option>
               <option value="completeness-desc">Completeness (Highest)</option>
-              <option value="risk-desc">Risk Level (Highest)</option>
             </select>
           </div>
         </div>
@@ -496,7 +506,7 @@ export const ProductMasterTable: React.FC<ProductMasterTableProps> = ({
                 onClick={onSelectAllMatching}
                 className="text-[#741d35] font-bold hover:underline"
               >
-                Select All ({totalMatching.toLocaleString()})
+                Select Page ({products.length.toLocaleString()})
               </button>
               <button onClick={onClearSelection} className="text-gray-500 font-medium hover:underline">
                 Clear Selection
@@ -509,8 +519,8 @@ export const ProductMasterTable: React.FC<ProductMasterTableProps> = ({
           <div className="flex items-center gap-1.5">
             <span className="text-gray-500 text-[11px]">Rows per page:</span>
             <select
-              value={rowsPerPage}
-              onChange={(e) => setRowsPerPage(Number(e.target.value))}
+              value={pageSize}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
               className="h-7 rounded border border-gray-300 px-1.5 text-xs text-gray-700 bg-white"
             >
               <option value={10}>10</option>
@@ -522,21 +532,18 @@ export const ProductMasterTable: React.FC<ProductMasterTableProps> = ({
 
           <div className="flex items-center gap-1">
             <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              onClick={() => onPageChange(Math.max(1, page - 1))}
               className="p-1 rounded border border-gray-300 text-gray-600 disabled:opacity-40 hover:bg-white"
             >
               <ChevronLeft size={14} />
             </button>
-            <span className="px-2 py-0.5 rounded bg-[#741d35] text-white font-bold text-[11px]">{currentPage}</span>
-            <span className="px-1 text-gray-400">2</span>
-            <span className="px-1 text-gray-400">3</span>
-            <span className="px-1 text-gray-400">4</span>
-            <span className="px-1 text-gray-400">5</span>
-            <span className="px-1 text-gray-400">...</span>
-            <span className="px-1 text-gray-600 font-semibold">514</span>
+            <span className="px-2 py-0.5 rounded bg-[#741d35] text-white font-bold text-[11px]">{page}</span>
+            <span className="px-1 text-gray-500">of</span>
+            <span className="px-1 text-gray-600 font-semibold">{lastPage}</span>
             <button
-              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={page >= lastPage}
+              onClick={() => onPageChange(Math.min(lastPage, page + 1))}
               className="p-1 rounded border border-gray-300 text-gray-600 hover:bg-white"
             >
               <ChevronRight size={14} />

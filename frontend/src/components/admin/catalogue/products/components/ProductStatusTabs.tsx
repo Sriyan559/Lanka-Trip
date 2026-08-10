@@ -1,20 +1,22 @@
 "use client";
 
 import React from "react";
-import { PRODUCT_STATUS_TABS } from "@/data/productMasters.mock";
+import type { ProductStatusTab } from "@/types/productMaster";
 
 interface ProductStatusTabsProps {
   activeTab: string;
   onSelectTab: (tabId: string) => void;
+  tabs: ProductStatusTab[];
 }
 
 export const ProductStatusTabs: React.FC<ProductStatusTabsProps> = ({
   activeTab,
   onSelectTab,
+  tabs,
 }) => {
   return (
     <div className="bg-white rounded border border-gray-200 px-4 py-2 flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
-      {PRODUCT_STATUS_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isSelected = activeTab === tab.id;
         return (
           <button

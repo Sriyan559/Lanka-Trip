@@ -7,28 +7,31 @@ import toast from "react-hot-toast";
 interface SaveProductViewModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSave: (name: string, description: string, isDefault: boolean) => Promise<void>;
 }
 
 export const SaveProductViewModal: React.FC<SaveProductViewModalProps> = ({
   isOpen,
   onClose,
+  onSave,
 }) => {
   const [viewName, setViewName] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState("private");
   const [isDefault, setIsDefault] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!viewName.trim()) {
       toast.error("Please enter a view name.");
       return;
     }
-    toast.success(`Saved custom filter view "${viewName}".`);
-    setViewName("");
-    setDescription("");
-    onClose();
+    setIsSaving(true);
+    try { await onSave(viewName, description, isDefault); toast.success(`Saved custom filter view "${viewName}".`); setViewName(""); setDescription(""); onClose(); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save view."); }
+    finally { setIsSaving(false); }
   };
 
   return (
@@ -107,9 +110,10 @@ export const SaveProductViewModal: React.FC<SaveProductViewModalProps> = ({
           </button>
           <button
             onClick={handleSave}
+            disabled={isSaving}
             className="h-9 px-4 rounded bg-[#741d35] text-white text-[12px] font-bold hover:bg-[#5c172a]"
           >
-            Save Preset View
+            {isSaving ? "Saving..." : "Save Preset View"}
           </button>
         </div>
       </div>

@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Info, ChevronRight } from "lucide-react";
-import { PRODUCT_HEALTH_SCORECARD } from "@/data/productMasters.mock";
+import type { ProductHealthScorecardMetric } from "@/types/productMaster";
 
-export const ProductHealthScorecard: React.FC = () => {
+export const ProductHealthScorecard: React.FC<{ metrics: ProductHealthScorecardMetric[] }> = ({ metrics }) => {
   return (
     <div className="bg-white rounded border border-gray-200 p-4 shadow-2xs">
       <div className="flex items-center justify-between mb-3">
@@ -21,8 +21,8 @@ export const ProductHealthScorecard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-        {PRODUCT_HEALTH_SCORECARD.map((metric, idx) => (
-          <div key={idx} className="flex flex-col gap-1.5 p-2 rounded bg-gray-50/70 border border-gray-100">
+        {metrics.map((metric, idx) => (
+          <div key={idx} title={metric.tooltipText} className="flex flex-col gap-1.5 p-2 rounded bg-gray-50/70 border border-gray-100">
             <div className="flex items-center justify-between">
               <span className="text-[10.5px] font-semibold text-gray-600 truncate">{metric.label}</span>
               <span className="text-[11px] font-bold text-gray-900">{metric.percentage}%</span>

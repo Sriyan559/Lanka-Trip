@@ -20,10 +20,7 @@ export const MoreProductFiltersDrawer: React.FC<MoreProductFiltersDrawerProps> =
 
   if (!isOpen) return null;
 
-  const handleApply = () => {
-    toast.success("Applied additional extended filters.");
-    onClose();
-  };
+  const handleApply = () => toast.error("Price, promotion, and extended variant filters are unavailable in the current product-master API.");
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/40 animate-in fade-in duration-150">

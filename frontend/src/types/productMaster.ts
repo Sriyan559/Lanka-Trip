@@ -70,19 +70,32 @@ export interface ProductMasterRow {
   subcategory: string;
   variantCount: number;
   completenessPercent: number;
-  brandAuthStatus: 'Valid' | 'Pending' | 'Expired' | 'Rejected';
-  complianceStatus: 'Compliant' | 'Pending' | 'Non-Compliant';
+  brandAuthStatus: 'Valid' | 'Pending' | 'Expired' | 'Rejected' | 'Unavailable';
+  complianceStatus: 'Compliant' | 'Pending' | 'Non-Compliant' | 'Unavailable';
   mediaStatus: 'Link' | 'At Risk' | 'Missing';
-  inventoryLinkStatus: 'Linked' | 'Unlinked';
+  inventoryLinkStatus: 'Linked' | 'Unlinked' | 'Unavailable';
   publicationReadyStatus: 'Ready' | 'At Risk' | 'Blocked';
   channelAvailability: string;
-  duplicateRisk: 'Low' | 'Medium' | 'High';
-  riskLevel: 'Low' | 'Medium' | 'High';
+  duplicateRisk: 'Low' | 'Medium' | 'High' | 'Unavailable';
+  riskLevel: 'Low' | 'Medium' | 'High' | 'Unavailable';
   approvalStatus: 'Approved' | 'Pending Approval' | 'Draft' | 'Rejected';
   productStatus: 'Active' | 'Draft' | 'Incomplete' | 'Archived' | 'Blocked';
   updatedAt: string;
   reviewer: string;
   thumbnail: string;
+}
+
+export interface ProductMasterManagementData {
+  kpis: ProductKpi[];
+  tabs: ProductStatusTab[];
+  quickFilters: QuickFilterChip[];
+  health: ProductHealthScorecardMetric[];
+  products: ProductMasterRow[];
+  pagination: { page: number; pageSize: number; total: number; lastPage: number };
+  filterOptions: { categories: Array<{ id: number; name: string }>; suppliers: Array<{ id: number; name: string }>; countries: string[] };
+  permissions: { canView: boolean; canManage: boolean; canExport: boolean; canImport: boolean };
+  capabilities: { supportedBulkActions: string[]; unsupportedFields: Record<string, string>; liveTransport: 'polling' };
+  generatedAt: string;
 }
 
 export interface PriorityAlertItem {
