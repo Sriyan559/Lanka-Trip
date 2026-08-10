@@ -1,5 +1,4 @@
 import "../admin-integrated.css";
-import "../admin-analytics.css";
 import "../authorization-detail.css";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
 import { AdminRouteGuard } from "@/components/admin/layout/AdminRouteGuard";

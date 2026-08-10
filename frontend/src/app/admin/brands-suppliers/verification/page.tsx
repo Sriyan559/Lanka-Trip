@@ -54,10 +54,10 @@ const TABS = [
 
 const TREND_DATA = Array.from({ length: 30 }).map((_, i) => ({
   date: `Jul ${i + 6}`,
-  Submitted: Math.floor(Math.random() * 30) + 100,
-  Verified: Math.floor(Math.random() * 25) + 80,
-  'Under Review': Math.floor(Math.random() * 15) + 30,
-  Rejected: Math.floor(Math.random() * 5) + 2,
+  Submitted: 100 + ((i * 17 + 7) % 30),
+  Verified: 80 + ((i * 13 + 5) % 25),
+  'Under Review': 30 + ((i * 7 + 3) % 15),
+  Rejected: 2 + ((i * 3 + 1) % 5),
 }));
 
 const DONUT_DATA = [

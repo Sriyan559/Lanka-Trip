@@ -7,7 +7,11 @@ import {
   Settings, X, ChevronsUpDown, UserRound, LogOut, ExternalLink
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
-import { ADMIN_NAVIGATION } from '@/constants/adminNavigation';
+import {
+  ADMIN_NAVIGATION,
+  getActiveAdminNavigation,
+  getActiveChildHref,
+} from '@/constants/adminNavigation';
 import { AdminBrandLogo } from './AdminBrandLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { initials } from '@/lib/utils';
@@ -19,18 +23,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   useClickOutside(menuRef, () => setMenuOpen(false));
-  const activeParentId =
-    ADMIN_NAVIGATION.find((item) => {
-      if (!item.href || item.disabled) return false;
-      if (item.exact) return pathname === item.href;
-      if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
-        return true;
-      }
-      return item.children?.some(
-        (child) =>
-          pathname === child.href || pathname.startsWith(`${child.href}/`),
-      );
-    })?.id ?? null;
+  const activeParentId = getActiveAdminNavigation(pathname)?.id ?? null;
 
   const handleLogout = async () => {
     await logout();
@@ -61,13 +54,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           {ADMIN_NAVIGATION.map((item) => {
             const Icon = item.icon;
             const isActive = activeParentId === item.id;
-            const activeChildHref = item.children
-              ?.filter(
-                (child) =>
-                  pathname === child.href ||
-                  (!child.exact && pathname.startsWith(`${child.href}/`)),
-              )
-              .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+            const activeChildHref = getActiveChildHref(item, pathname);
 
             if (item.disabled || !item.href) {
               return (

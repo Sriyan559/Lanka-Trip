@@ -157,7 +157,7 @@ function LogisticsContent() {
       />
 
       {/* 2. GLOBAL CONTEXT SCOPE BAR */}
-      <ContextScopeBar />
+      <ContextScopeBar items={[]} />
 
       {/* 3. SERVICE HEALTH STRIP */}
       <LogisticsServiceHealthStrip />
@@ -221,7 +221,10 @@ function LogisticsContent() {
           <DonutDistributionChart 
             data={realStatusData} 
             totalLabel="Total Operations" 
-            totalValue={realStatusData.reduce((acc, curr) => acc + curr.value, 0).toLocaleString()} 
+            totalValue={realStatusData.reduce(
+              (acc: number, curr: { value: number }) => acc + curr.value,
+              0,
+            ).toLocaleString()}
           />
         </ChartCard>
       </div>

@@ -84,8 +84,17 @@ export const ADMIN_NAVIGATION = [
     {id:"reports-audit",label:"Reports / Import / Export / Audit",href:"/admin/finance/reports-import-export-audit"},
   ]},
   {id:"logistics",label:"Logistics",icon:Truck,href:"/admin/logistics",children:[
-    {id:"logistics-overview",label:"Overview",href:"/admin/logistics",exact:true},
-    {id:"shipment-operations",label:"Shipment Operations",href:"/admin/logistics/shipments"},
+    {id:"logistics-command-center",label:"Command Center",href:"/admin/logistics",exact:true},
+    {id:"fulfilment-orders",label:"Fulfilment Orders",href:"/admin/logistics/fulfilment-orders"},
+    {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses-fulfilment-centres"},
+    {id:"inventory-allocation",label:"Inventory Allocation",href:"/admin/logistics/inventory-allocation"},
+    {id:"shipments-tracking",label:"Shipments & Tracking",href:"/admin/logistics/shipments"},
+    {id:"carriers-delivery-partners",label:"Carriers & Delivery Partners",href:"/admin/logistics/carriers-delivery-partners"},
+    {id:"delivery-configuration",label:"Delivery Configuration",href:"/admin/logistics/delivery-configuration"},
+    {id:"returns-reverse-logistics",label:"Returns & Reverse Logistics",href:"/admin/logistics/returns-reverse-logistics"},
+    {id:"exceptions",label:"Exceptions",href:"/admin/logistics/exceptions"},
+    {id:"claims-reconciliation",label:"Claims & Reconciliation",href:"/admin/logistics/claims-reconciliation"},
+    {id:"reports-import-export-audit",label:"Reports / Import / Export / Audit",href:"/admin/logistics/reports-import-export-audit"},
   ]},
   {id:"customer-support",label:"Customer Support",icon:LifeBuoy,href:"/admin/customer-support/cases"},
   {id:"analytics",label:"Analytics",icon:BarChart3,href:"/admin/analytics",children:[
@@ -95,3 +104,20 @@ export const ADMIN_NAVIGATION = [
   {id:"ecosystem-modules",label:"Ecosystem Modules",icon:LayoutGrid,href:"/admin/ecosystem-modules"},
   {id:"administration",label:"Administration",icon:Settings,disabled:true,badge:"Coming Soon"},
 ];
+
+export const navigationItemMatchesPath = (item, pathname) => {
+  if (!item?.href || item.disabled) return false;
+  if (item.exact) return pathname === item.href;
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+};
+
+export const getActiveAdminNavigation = (pathname) =>
+  ADMIN_NAVIGATION.find((item) =>
+    navigationItemMatchesPath(item, pathname) ||
+    item.children?.some((child) => navigationItemMatchesPath(child, pathname)),
+  ) ?? null;
+
+export const getActiveChildHref = (item, pathname) =>
+  item?.children
+    ?.filter((child) => navigationItemMatchesPath(child, pathname))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href ?? null;
