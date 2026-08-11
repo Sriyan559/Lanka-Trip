@@ -120,4 +120,20 @@ class AdminBrandsSuppliersAndComplianceTest extends TestCase
         $response = $this->getJson('/api/admin/brands-suppliers/suppliers/999999');
         $response->assertNotFound();
     }
+
+    public function test_document_verification_actions_and_export(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+        Sanctum::actingAs($admin);
+
+        $dashboardResponse = $this->getJson('/api/admin/verification-compliance/documents/dashboard');
+        $dashboardResponse->assertOk()
+            ->assertJsonStructure(['kpis', 'trend', 'donut', 'statusSummary', 'healthScorecard', 'health', 'alerts', 'documents']);
+
+        $exportResponse = $this->get('/api/admin/verification-compliance/documents/export-audit');
+        $exportResponse->assertOk()->assertHeader('content-type', 'text/csv; charset=utf-8');
+
+        $batchResponse = $this->postJson('/api/admin/verification-compliance/documents/approve-batch', ['ids' => [1, 2]]);
+        $batchResponse->assertOk();
+    }
 }

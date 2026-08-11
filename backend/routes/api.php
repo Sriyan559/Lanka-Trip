@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
 use App\Http\Controllers\Api\Admin\MarketplaceCommissionsController;
   use App\Http\Controllers\Api\Admin\FinanceCommandCenterController;
   use App\Http\Controllers\Api\Admin\FinanceRevenuePaymentsController;
+  use App\Http\Controllers\Api\Admin\FinanceRefundsCompensationController;
 use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
 use App\Http\Controllers\Api\Admin\MarketplaceListingsController;
 use App\Http\Controllers\Api\Admin\MarketplaceOrdersController;
@@ -270,6 +271,15 @@ Route::middleware('auth:sanctum')->group(function () {
           Route::get('/admin/finance/revenue-receivables/export', [FinanceRevenuePaymentsController::class, 'exportRevenue']);
           Route::get('/admin/finance/payments', [FinanceRevenuePaymentsController::class, 'payments']);
           Route::get('/admin/finance/payments/export', [FinanceRevenuePaymentsController::class, 'exportPayments']);
+          Route::get('/admin/finance/refunds-compensation/overview', [FinanceRefundsCompensationController::class, 'overview']);
+          Route::get('/admin/finance/refunds-compensation/export', [FinanceRefundsCompensationController::class, 'export']);
+          Route::get('/admin/finance/refunds-compensation', [FinanceRefundsCompensationController::class, 'index']);
+          Route::get('/admin/finance/refunds-compensation/{refundId}', [FinanceRefundsCompensationController::class, 'show'])->where('refundId', '[A-Za-z0-9\-]+');
+          Route::get('/admin/finance/refunds-compensation/{refundId}/audit', [FinanceRefundsCompensationController::class, 'audit'])->whereNumber('refundId');
+          Route::post('/admin/finance/refunds-compensation/{refundId}/review', [FinanceRefundsCompensationController::class, 'review'])->whereNumber('refundId');
+          Route::post('/admin/finance/refunds-compensation/{refundId}/approve', [FinanceRefundsCompensationController::class, 'approve'])->whereNumber('refundId');
+          Route::post('/admin/finance/refunds-compensation/{refundId}/reject', [FinanceRefundsCompensationController::class, 'reject'])->whereNumber('refundId');
+          Route::post('/admin/finance/refunds-compensation/{refundId}/process', [FinanceRefundsCompensationController::class, 'process'])->whereNumber('refundId');
         Route::get('/admin/marketplace/orders', [MarketplaceOrdersController::class, 'index']);
         Route::get('/admin/marketplace/orders/export', [MarketplaceOrdersController::class, 'export']);
         Route::get('/admin/marketplace/orders/manual-capabilities', [MarketplaceOrdersController::class, 'manualCapabilities']);
@@ -378,7 +388,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('admin/verification-compliance')->group(function () {
             Route::get('/documents/dashboard', [AdminVerificationComplianceController::class, 'documentsDashboard']);
+            Route::get('/documents', [AdminVerificationComplianceController::class, 'documentsDashboard']);
+            Route::get('/documents/export-audit', [AdminVerificationComplianceController::class, 'exportDocumentAudit']);
+            Route::post('/documents/approve-batch', [AdminVerificationComplianceController::class, 'approveBatchDocuments']);
+            Route::get('/documents/{id}', [AdminVerificationComplianceController::class, 'documentDetail']);
+            Route::post('/documents/{id}/verify', [AdminVerificationComplianceController::class, 'verifyDocument']);
+            Route::post('/documents/{id}/verify-with-conditions', [AdminVerificationComplianceController::class, 'verifyDocumentWithConditions']);
+            Route::post('/documents/{id}/request-replacement', [AdminVerificationComplianceController::class, 'requestDocumentReplacement']);
+            Route::post('/documents/{id}/request-evidence', [AdminVerificationComplianceController::class, 'requestDocumentEvidence']);
+            Route::post('/documents/{id}/reject', [AdminVerificationComplianceController::class, 'rejectDocument']);
+            Route::post('/documents/{id}/revalidate', [AdminVerificationComplianceController::class, 'revalidateDocument']);
+            Route::get('/documents/{id}/audit', [AdminVerificationComplianceController::class, 'documentDetail']);
             Route::get('/product-safety/dashboard', [AdminVerificationComplianceController::class, 'productSafetyDashboard']);
+            Route::get('/product-safety/export-report', [AdminVerificationComplianceController::class, 'exportProductSafetyReport']);
+            Route::post('/product-safety/products/{id}/approve', [AdminVerificationComplianceController::class, 'approveProductSafety']);
+            Route::post('/product-safety/products/{id}/block-publication', [AdminVerificationComplianceController::class, 'blockProductPublication']);
             Route::get('/authenticity/dashboard', [AdminVerificationComplianceController::class, 'authenticityDashboard']);
             Route::get('/recalls/dashboard', [AdminVerificationComplianceController::class, 'recallsDashboard']);
             Route::get('/governance/dashboard', [AdminVerificationComplianceController::class, 'governanceDashboard']);

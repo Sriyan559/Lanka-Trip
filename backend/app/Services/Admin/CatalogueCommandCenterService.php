@@ -20,7 +20,7 @@ class CatalogueCommandCenterService
         $draft = (clone $products)->where('approval_status', 'draft')->count();
         $missingMedia = (clone $products)->whereNull('featured_image')->whereNotExists(fn (Builder $q) => $q->selectRaw('1')->from('product_images')->whereColumn('product_images.product_id', 'products.id'))->count();
         $incomplete = (clone $products)->where(fn (Builder $q) => $q->whereNull('description')->orWhere('description', '')->orWhereNull('short_description')->orWhere('short_description', '')->orWhereNull('featured_image'))->count();
-        $duplicate = (int) DB::table('product_variants')->whereNull('deleted_at')->whereNotNull('sku')->groupBy('sku')->havingRaw('COUNT(*) > 1')->get()->sum(fn ($row) => 1);
+        $duplicate = (int) DB::table('product_variants')->select('sku')->whereNull('deleted_at')->whereNotNull('sku')->groupBy('sku')->havingRaw('COUNT(*) > 1')->get()->count();
         $compliance = Schema::hasTable('product_beauty_profiles') ? DB::table('product_beauty_profiles')->whereNotIn('compliance_status', ['approved', 'compliant'])->count() : 0;
         $availableInventory = Schema::hasTable('product_variants') ? (int) DB::table('product_variants')->whereNull('deleted_at')->where('is_active', true)->sum('stock_quantity') : 0;
         $lowStock = Schema::hasTable('product_variants') ? DB::table('product_variants')->whereNull('deleted_at')->where('is_active', true)->whereColumn('stock_quantity', '<=', 'low_stock_threshold')->distinct('product_id')->count('product_id') : 0;
