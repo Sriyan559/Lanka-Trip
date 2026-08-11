@@ -11,13 +11,41 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RefundRecordDetail } from '@/types/finance';
+import type { RefundDetail } from '@/services/api/financeRefundsService';
 
 interface Props {
-  record: RefundRecordDetail;
+  record?: RefundDetail | RefundRecordDetail;
+  loading?: boolean;
+  onReview?: (notes?: string) => void;
+  onApprove?: (notes?: string) => void;
+  onReject?: (reason: string) => void;
+  onProcess?: () => void;
+  submitting?: string | null;
 }
 
-export function SelectedRefundPreview({ record }: Props) {
+export function SelectedRefundPreview({ record, loading, onReview, onApprove, onReject, onProcess, submitting }: Props) {
   const [moreActionsOpen, setMoreActionsOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-40 mb-3" />
+        <div className="grid grid-cols-6 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-24 bg-gray-100 rounded-lg" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!record) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col items-center justify-center gap-2 min-h-[120px]">
+        <p className="text-xs text-gray-400 font-semibold">Select a refund from the table above to preview details and take action.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
@@ -37,30 +65,33 @@ export function SelectedRefundPreview({ record }: Props) {
         {/* Action Buttons */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <button
-            onClick={() => toast('Reviewing eligibility...')}
-            className="px-2.5 py-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+            onClick={() => onReview?.()}
+            disabled={!!submitting}
+            className="px-2.5 py-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
           >
-            Review Eligibility
+            {submitting === 'review' ? 'Reviewing…' : 'Review Eligibility'}
           </button>
           <button
-            onClick={() => toast.success('Refund approved!')}
-            className="px-2.5 py-1 bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold rounded-lg shadow-sm flex items-center gap-1 transition-colors"
+            onClick={() => onApprove?.()}
+            disabled={!!submitting}
+            className="px-2.5 py-1 bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold rounded-lg shadow-sm flex items-center gap-1 transition-colors disabled:opacity-50"
           >
             <CheckCircle2 size={12} />
             <span>Approve Refund</span>
           </button>
           <button
-            onClick={() => toast.success('Releasing refund to gateway...')}
-            className="px-2.5 py-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+            onClick={() => onProcess?.()}
+            disabled={!!submitting}
+            className="px-2.5 py-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
           >
-            Release Refund
+            {submitting === 'process' ? 'Processing…' : 'Release Refund'}
           </button>
           <button
-            onClick={() => toast.success('Reissuing refund...')}
-            className="px-2.5 py-1 bg-white border border-amber-300 text-amber-800 hover:bg-amber-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1 transition-colors"
+            onClick={() => setShowRejectModal(true)}
+            disabled={!!submitting}
+            className="px-2.5 py-1 bg-white border border-red-300 text-red-700 hover:bg-red-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1 transition-colors disabled:opacity-50"
           >
-            <RotateCcw size={12} />
-            <span>Reissue Refund</span>
+            <span>Reject Refund</span>
           </button>
 
           {/* More Actions Dropdown */}
