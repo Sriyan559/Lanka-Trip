@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Admin\InventoryOperationsController;
 use App\Http\Controllers\Api\Admin\LogisticsController;
 use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
 use App\Http\Controllers\Api\Admin\MarketplaceCommissionsController;
+use App\Http\Controllers\Api\Admin\FinanceCommandCenterController;
 use App\Http\Controllers\Api\Admin\MarketplaceDashboardController;
 use App\Http\Controllers\Api\Admin\MarketplaceListingsController;
 use App\Http\Controllers\Api\Admin\MarketplaceOrdersController;
@@ -260,6 +261,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/marketplace/promotions/{promotion}', [MarketplacePromotionsController::class, 'show'])->whereNumber('promotion');
         Route::get('/admin/marketplace/commissions', [MarketplaceCommissionsController::class, 'index']);
         Route::get('/admin/marketplace/commissions/export', [MarketplaceCommissionsController::class, 'export']);
+        Route::get('/admin/finance/command-center', [FinanceCommandCenterController::class, 'dashboard']);
+        Route::get('/admin/finance/command-center/export', [FinanceCommandCenterController::class, 'export']);
+        Route::get('/admin/finance/operations', [FinanceCommandCenterController::class, 'operations']);
+        Route::get('/admin/finance/operations/{recordKey}', [FinanceCommandCenterController::class, 'show'])->where('recordKey', '[a-z]+:[0-9]+');
         Route::get('/admin/marketplace/orders', [MarketplaceOrdersController::class, 'index']);
         Route::get('/admin/marketplace/orders/export', [MarketplaceOrdersController::class, 'export']);
         Route::get('/admin/marketplace/orders/manual-capabilities', [MarketplaceOrdersController::class, 'manualCapabilities']);

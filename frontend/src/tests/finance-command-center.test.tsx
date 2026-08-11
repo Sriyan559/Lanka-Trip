@@ -1,56 +1,7 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import FinanceCommandCenterPage from '@/app/admin/finance/page';
-
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/admin/finance',
-  useRouter: () => ({
-    push: vi.fn(),
-  }),
-}));
-
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: {
-      name: 'Elona Vance',
-      email: 'elona@slbeauty.test',
-      role: 'Compliance Lead / Finance Operations',
-    },
-    logout: vi.fn(),
-  }),
-}));
-
-describe('FN01 — Finance Command Center', () => {
-  it('renders the main heading and description', () => {
-    render(<FinanceCommandCenterPage />);
-    expect(screen.getByRole('heading', { level: 1, name: /Finance Command Center/i })).toBeInTheDocument();
-    expect(screen.getByText(/Centralized monitoring and governance for ecosystem revenue/i)).toBeInTheDocument();
-  });
-
-  it('renders context bar fields and live data indicator', () => {
-    render(<FinanceCommandCenterPage />);
-    expect(screen.getByText('SL Beauty')).toBeInTheDocument();
-    expect(screen.getByText('Beauty Marketplace')).toBeInTheDocument();
-    expect(screen.getByText('May 2025')).toBeInTheDocument();
-  });
-
-  it('renders KPI grid metrics', () => {
-    render(<FinanceCommandCenterPage />);
-    expect(screen.getByText('LKR 486.2M')).toBeInTheDocument();
-    expect(screen.getByText('LKR 432.8M')).toBeInTheDocument();
-    expect(screen.getByText('LKR 368.4M')).toBeInTheDocument();
-  });
-
-  it('renders Finance Operations Portfolio table and records', () => {
-    render(<FinanceCommandCenterPage />);
-    expect(screen.getByText('Finance Operations Portfolio')).toBeInTheDocument();
-    expect(screen.getAllByText('FIN-2025-00692')[0]).toBeInTheDocument();
-  });
-
-  it('renders Right Finance Operations Sidebar with health circular score', () => {
-    render(<FinanceCommandCenterPage />);
-    expect(screen.getByText('Finance Operations Health')).toBeInTheDocument();
-    expect(screen.getByText('Priority Finance Alerts')).toBeInTheDocument();
-  });
-});
+import React from'react';import{render,screen,fireEvent,waitFor}from'@testing-library/react';import{describe,expect,it,vi}from'vitest';import FinanceCommandCenterPage from'@/app/admin/finance/page';import{fetchFinanceDashboard,fetchFinanceOperations}from'@/services/api/financeCommandCenterService';
+vi.mock('next/navigation',()=>({useRouter:()=>({push:vi.fn(),replace:vi.fn(),refresh:vi.fn()}),useSearchParams:()=>new URLSearchParams(),usePathname:()=>'/admin/finance'}));vi.mock('@/services/api/financeCommandCenterService',()=>({fetchFinanceDashboard:vi.fn(),fetchFinanceOperations:vi.fn(),fetchFinanceOperation:vi.fn(),exportFinanceReport:vi.fn()}));
+const kpis=['gmv','gross_sales','net_revenue','payments_captured','failed_payments','refunds','receivables','payables','commission','settlements_pending','unreconciled','exceptions_open'].map((id,i)=>({id,label:id.replaceAll('_',' '),description:id,icon:'DollarSign',available:!['unreconciled','exceptions_open'].includes(id),value:i===0?1200:0,currency:id==='exceptions_open'?null:'LKR',comparison:null,sparkline:[],reason:null}));
+const dashboard={source:'database',context:{tenant:'SL Beauty',ecosystem:'Beauty Marketplace',businessUnit:'All Business Units',salesChannel:'All Channels',region:'Sri Lanka',currency:'LKR',currencies:['LKR'],dateFrom:'2026-07-13',dateTo:'2026-08-11',timezone:'Asia/Colombo',tenantScopeAvailable:false},kpis,trend:{currency:'LKR',items:[]},paymentMethods:{currency:'LKR',total:0,items:[]},statusSummary:{currency:'LKR',total:0,items:[]},health:{available:false,score:null,reason:'not_configured',items:[]},alerts:[],queues:{exceptions:0,approvals:0,receivables:0,payables:0,settlements:0},summaries:[],activity:[],capabilities:{financeExceptions:false},permissions:{canView:true,canExport:false,canCreateJournal:false,canMutate:false},meta:{generatedAt:'2026-08-11T10:00:00Z',dataAsOf:'2026-08-11T10:00:00Z',refreshIntervalSeconds:30}};
+const operations={items:[{recordKey:'payment:1',reference:'PAY-DB-001',domain:'payment',type:'Payment',relatedReference:'ORD-DB-001',party:'Database Buyer',currency:'LKR',grossAmount:1200,taxAmount:0,feeAmount:0,commissionAmount:0,refundAmount:0,netAmount:1200,status:'paid',approvalStatus:'approved',transactionDate:'2026-08-11T09:00:00Z',updatedAt:'2026-08-11T09:00:00Z'}],meta:{page:1,perPage:25,total:1,lastPage:1},permissions:{canView:true,canExport:false}};
+function setup(){vi.mocked(fetchFinanceDashboard).mockResolvedValue(dashboard as never);vi.mocked(fetchFinanceOperations).mockResolvedValue(operations);return render(<FinanceCommandCenterPage/>)}
+describe('Finance Command Center database integration',()=>{it('renders database dashboard and real operation rows',async()=>{setup();expect(screen.getByRole('heading',{name:'Finance Command Center'})).toBeInTheDocument();expect(await screen.findByText('PAY-DB-001')).toBeInTheDocument();expect(screen.getByText('SL Beauty')).toBeInTheDocument();expect(screen.getByText('No finance data for the selected period')).toBeInTheDocument()});it('propagates filters to server queries and preserves structural empty states',async()=>{setup();await screen.findByText('PAY-DB-001');fireEvent.change(screen.getByLabelText('Domain'),{target:{value:'payment'}});await waitFor(()=>expect(fetchFinanceOperations).toHaveBeenLastCalledWith(expect.objectContaining({domain:'payment',page:1}),expect.any(AbortSignal)));expect(screen.getByText('No payment data')).toBeInTheDocument()});it('disables unsupported financial mutations',async()=>{setup();await screen.findByText('PAY-DB-001');expect(screen.getByRole('button',{name:/Create Manual Financial Entry/})).toBeDisabled();expect(screen.getByRole('button',{name:/Bulk Actions/})).toBeDisabled()})});

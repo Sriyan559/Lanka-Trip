@@ -12,11 +12,15 @@ import { FinanceOperationsTable } from '@/components/admin/finance/FinanceOperat
 import { SelectedFinancialRecordPreview } from '@/components/admin/finance/SelectedFinancialRecordPreview';
 import { FinanceDomainSummaryGrid } from '@/components/admin/finance/FinanceDomainSummaryGrid';
 import { RightFinanceOperationsSidebar } from '@/components/admin/finance/RightFinanceOperationsSidebar';
-import { FinancePortfolioRow } from '@/types/finance';
+import { FinanceCommandCenterProvider, useFinanceCommandCenter } from '@/contexts/FinanceCommandCenterContext';
 
 export default function FinanceCommandCenterPage() {
+  return <FinanceCommandCenterProvider><FinanceCommandCenterContent /></FinanceCommandCenterProvider>;
+}
+
+function FinanceCommandCenterContent() {
   const [activeSectionTab, setActiveSectionTab] = useState('Executive Overview');
-  const [selectedRecord, setSelectedRecord] = useState<FinancePortfolioRow | null>(null);
+  const {error,refresh}=useFinanceCommandCenter();
 
   return (
     <div className="min-h-screen bg-[#fafafa] p-3 md:p-5 text-gray-900 font-sans">
@@ -25,6 +29,7 @@ export default function FinanceCommandCenterPage() {
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. Header & Actions */}
           <FinanceCommandHeader />
+          {error && <div role="alert" className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs flex justify-between"><span>{error.message || 'Unable to load finance data.'}</span><button onClick={refresh} className="font-bold underline">Retry</button></div>}
 
           {/* 2. Context Strip */}
           <FinanceContextBar />
@@ -49,12 +54,12 @@ export default function FinanceCommandCenterPage() {
 
           {/* 8. Finance Operations Portfolio Table */}
           <FinanceOperationsTable
-            selectedRef={selectedRecord?.ref}
-            onSelectRecord={(rec) => setSelectedRecord(rec)}
+            selectedRef={undefined}
+            onSelectRecord={() => undefined}
           />
 
           {/* 9. Selected Financial Record Preview */}
-          <SelectedFinancialRecordPreview record={selectedRecord} />
+          <SelectedFinancialRecordPreview record={null} />
 
           {/* 10. Bottom Finance Domain Mini Cards */}
           <FinanceDomainSummaryGrid />
