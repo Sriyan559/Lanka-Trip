@@ -11,13 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { FN02_AGEING_BUCKETS } from '@/data/mockRevenueData';
-
-const AGEING_CHART_DATA = FN02_AGEING_BUCKETS.map((b) => ({
-  bucket: b.label,
-  count: b.count,
-  fill: b.color,
-}));
+import { revenueView, useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
 
 const OVERDUE_ACCOUNTS = [
   { name: 'Beauté Collective', amount: 'LKR 204,352', days: 92, bucket: '90+', risk: 'Critical' },
@@ -34,11 +28,12 @@ const RISK_COLORS: Record<string, string> = {
 };
 
 export function ReceivablesAgeingSection() {
+  const {data}=useRevenueReceivables(); const live=revenueView(data);const colors=['#16a34a','#2563eb','#d97706','#ea580c','#dc2626'];const total=live.aging.reduce((s:number,b:any)=>s+Number(b.amount),0);const buckets=live.aging.map((b:any,i:number)=>({label:`${b.bucket} Days`,amount:`${live.context?.baseCurrency??'LKR'} ${Number(b.amount).toLocaleString()}`,count:live.rows.filter(r=>r.ageingBucket===b.bucket).length,percentage:total?Math.round(Number(b.amount)/total*100):0,color:colors[i]}));const AGEING_CHART_DATA=buckets.map((b:any)=>({bucket:b.label,count:b.count,fill:b.color}));
   return (
     <div className="flex flex-col gap-3">
       {/* Ageing Summary Cards */}
       <div className="grid grid-cols-5 gap-2">
-        {FN02_AGEING_BUCKETS.map((bucket) => (
+        {buckets.map((bucket:any) => (
           <div
             key={bucket.label}
             className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm"
@@ -146,7 +141,7 @@ export function ReceivablesAgeingSection() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {FN02_AGEING_BUCKETS.map((bucket) => {
+              {buckets.map((bucket:any) => {
                 const riskMap: Record<string, { level: string; action: string; color: string }> = {
                   '0–7 Days': { level: 'Normal', action: 'Monitor', color: 'bg-emerald-100 text-emerald-700' },
                   '8–30 Days': { level: 'Low', action: 'Send Reminder', color: 'bg-blue-100 text-blue-700' },

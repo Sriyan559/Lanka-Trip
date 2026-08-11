@@ -11,7 +11,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { FN02_ALERTS } from '@/data/mockRevenueData';
+import { revenueView, useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
 
 const SEVERITY_COLORS: Record<string, string> = {
   Critical: 'bg-red-100 border-l-2 border-red-500 text-red-700',
@@ -44,8 +44,9 @@ const QUICK_ACTIONS = [
 ];
 
 export function RightRevenueSidebar() {
+  const { data }=useRevenueReceivables(); const live=revenueView(data); const alerts=live.alerts;
   const [showAllAlerts, setShowAllAlerts] = useState(false);
-  const displayedAlerts = showAllAlerts ? FN02_ALERTS : FN02_ALERTS.slice(0, 4);
+  const displayedAlerts = showAllAlerts ? alerts : alerts.slice(0, 4);
 
   return (
     <aside className="w-full xl:w-72 2xl:w-80 flex-shrink-0 flex flex-col gap-3 text-[11px]">
@@ -139,7 +140,7 @@ export function RightRevenueSidebar() {
         <div className="px-3 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg flex items-center justify-between">
           <span className="text-xs font-bold text-gray-700">Priority Alerts</span>
           <span className="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-            {FN02_ALERTS.filter((a) => a.severity === 'Critical' || a.severity === 'High').length} critical/high
+            {alerts.filter((a) => a.severity === 'Critical' || a.severity === 'High').length} critical/high
           </span>
         </div>
         <div className="p-2 flex flex-col gap-1.5">
@@ -154,13 +155,13 @@ export function RightRevenueSidebar() {
             </div>
           ))}
         </div>
-        {FN02_ALERTS.length > 4 && (
+        {alerts.length > 4 && (
           <div className="px-3 py-1.5 border-t border-gray-100">
             <button
               onClick={() => setShowAllAlerts((p) => !p)}
               className="text-[10px] text-[#8f002b] font-bold hover:underline flex items-center gap-1"
             >
-              {showAllAlerts ? 'Show fewer' : `Show all ${FN02_ALERTS.length} alerts`}
+              {showAllAlerts ? 'Show fewer' : `Show all ${alerts.length} alerts`}
               <ChevronRight size={10} className={showAllAlerts ? 'rotate-90' : ''} />
             </button>
           </div>

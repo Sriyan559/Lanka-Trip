@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { ExternalLink, Maximize2, CheckCircle2, ShieldCheck, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PaymentPortfolioRow } from '@/types/finance';
-import { FN03_RECORD_DETAIL } from '@/data/mockPaymentData';
 
 interface Props {
   payment?: PaymentPortfolioRow | null;
@@ -29,7 +28,7 @@ export function SelectedPaymentPreview({ payment: paymentProp }: Props) {
 
   const detail = paymentProp
     ? {
-        ...FN03_RECORD_DETAIL,
+        ...paymentProp,
         id: paymentProp.id,
         ref: paymentProp.ref,
         relatedOrder: paymentProp.relatedOrder,
@@ -44,8 +43,12 @@ export function SelectedPaymentPreview({ payment: paymentProp }: Props) {
         paymentResponse: paymentProp.paymentResponse,
         settlementStatus: paymentProp.settlementStatus,
         reconciliationStatus: paymentProp.reconciliationStatus,
+        threeDS: 'Not available', billingMatch: 'Not available', providerRef: (paymentProp as any).providerRef ?? 'Not available',
+        refundLinkage: 'Not available', disputeLinkage: 'Not available', approvalStatus: 'Not available', recordVersion: 'Not available', updatedAt: (paymentProp as any).updatedAt ?? paymentProp.txnDate,
       }
-    : FN03_RECORD_DETAIL;
+    : null;
+
+  if (!detail) return <div className="bg-white border border-dashed border-gray-300 rounded-lg p-6 text-center text-xs text-gray-500">Select a payment record from the portfolio to view its live details.</div>;
 
   const navigateToDetail = () => {
     toast.loading(`Opening Payment Detail (${detail.id})...`, { id: 'nav-fn04-prev' });

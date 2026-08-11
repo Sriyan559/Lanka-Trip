@@ -12,7 +12,7 @@ import { PaymentPortfolioTable } from '@/components/admin/finance/PaymentPortfol
 import { SelectedPaymentPreview } from '@/components/admin/finance/SelectedPaymentPreview';
 import { PaymentOperationsBottomGrid } from '@/components/admin/finance/PaymentOperationsBottomGrid';
 import { RightPaymentSidebar } from '@/components/admin/finance/RightPaymentSidebar';
-import { FN03_CONTEXT, FN03_KPIS, FN03_HEALTH_SCORECARD } from '@/data/mockPaymentData';
+import { PaymentsManagementProvider, paymentsView, usePaymentsManagement } from '@/contexts/FinanceRevenuePaymentsContext';
 import { PaymentPortfolioRow } from '@/types/finance';
 
 const PAYMENT_TABS = [
@@ -36,7 +36,9 @@ const PAYMENT_TABS = [
   'Audit History',
 ];
 
-export default function PaymentsTransactionManagementPage() {
+function PaymentsTransactionManagementContent() {
+  const { data, loading, error, setFilters } = usePaymentsManagement();
+  const live = paymentsView(data);
   const [activeTab, setActiveTab] = useState('Overview');
   const [selectedPayment, setSelectedPayment] = useState<PaymentPortfolioRow | null>(null);
 
@@ -49,26 +51,28 @@ export default function PaymentsTransactionManagementPage() {
           <PaymentsHeader />
 
           {/* 2. Finance Context Strip */}
-          <FinanceContextBar context={FN03_CONTEXT} />
+          {error && <div className="rounded border border-red-200 bg-red-50 p-2 text-xs text-red-700">{error.message}</div>}
+          {loading && !data && <div className="rounded border border-gray-200 bg-white p-3 text-xs text-gray-500">Loading payments…</div>}
+          {live.context && <FinanceContextBar context={live.context} />}
 
           {/* 3. Payment KPI Grid (12 Cards) */}
-          <FinanceKpiGrid kpis={FN03_KPIS} />
+          <FinanceKpiGrid kpis={live.kpis} />
 
           {/* 4. Payment Navigation Tabs */}
           <FinanceSectionTabs
             tabs={PAYMENT_TABS}
             activeTab={activeTab}
-            onTabChange={(tab) => setActiveTab(tab)}
+            onTabChange={(tab) => {setActiveTab(tab);setFilters({status:tab==='Overview'||tab==='All Transactions'?'':tab.toLowerCase().replaceAll(' ','_')})}}
           />
 
           {/* 5. Payment Overview Section (3 Panels) */}
           <PaymentOverviewSection />
 
           {/* 6. Operations Health Scorecard */}
-          <FinanceHealthScorecard metrics={FN03_HEALTH_SCORECARD} />
+          <FinanceHealthScorecard metrics={live.health} />
 
           {/* 7. Active Filter Chips & Advanced Filter Matrix */}
-          <PaymentFilterBar />
+          <PaymentFilterBar onSearch={(search)=>setFilters({search})} />
 
           {/* 8. Main Workspace Split: Portfolio Table + Selected Record Preview */}
           <div className="flex flex-col lg:flex-row gap-3 items-start">
@@ -93,3 +97,5 @@ export default function PaymentsTransactionManagementPage() {
     </div>
   );
 }
+
+export default function PaymentsTransactionManagementPage(){return <PaymentsManagementProvider><PaymentsTransactionManagementContent /></PaymentsManagementProvider>}
