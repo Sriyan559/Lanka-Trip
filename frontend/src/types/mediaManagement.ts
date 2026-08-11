@@ -1,4 +1,5 @@
-export type MediaAssetType = 
+export type MediaAssetType = string;
+/*
   | "Product Image — Hero"
   | "Packaging Image — Back"
   | "Packaging Image — Ingredients"
@@ -8,13 +9,13 @@ export type MediaAssetType =
   | "Lifestyle Image — Model"
   | "360 View Asset"
   | "Variant Swatch"
-  | "Compliance Certificate";
+  | "Compliance Certificate"; */
 
-export type MediaAssetCategory = "image" | "video" | "document" | "360_view";
+export type MediaAssetCategory = "image" | "video" | "document" | "360_view" | string;
 
-export type LinkedEntityType = "Product" | "Brand" | "Campaign" | "Compliance" | "Supplier" | "Unlinked";
+export type LinkedEntityType = "Product" | "Brand" | "Campaign" | "Compliance" | "Supplier" | "Unlinked" | string;
 
-export type MediaApprovalStatus = "Approved" | "Pending" | "Needs Review" | "Rejected" | "Draft" | "Published";
+export type MediaApprovalStatus = "Approved" | "Pending" | "Needs Review" | "Rejected" | "Draft" | "Published" | string;
 
 export type MediaQualityStatus = "Optimal" | "Good" | "Needs Improvement" | "Low Resolution" | "Blurry" | "Wrong Ratio";
 
@@ -46,10 +47,10 @@ export interface MediaAsset {
   resolution: string; // e.g. "2400 × 2400" or "00:45"
   fileSizeBytes: number;
   fileSizeFormatted: string; // e.g. "2.3 MB"
-  channelCompatibility: ChannelCompatibility;
+  channelCompatibility: ChannelCompatibility | null;
   altTextStatus: AltTextStatus;
   altText?: string;
-  qualityScore: number; // 0-100
+  qualityScore: number | null;
   approvalStatus: MediaApprovalStatus;
   usageRightsStatus: string; // e.g. "Valid until 2027" or "Expiring 15 Aug 2026"
   rightsExpiryDate?: string;
@@ -59,12 +60,40 @@ export interface MediaAsset {
   updatedAt: string; // ISO or formatted "04 Aug 2026 10:25 AM"
   ownerName: string;
   reviewerName?: string;
-  thumbnailUrl: string;
+  thumbnailUrl: string | null;
+  downloadUrl?: string;
+  filename?: string;
+  mimeType?: string;
+  processingStatus?: string;
+  uploadedAt?: string;
+  product?: { id: string; name: string; sku?: string | null } | null;
+  productId?: string;
+  variantId?: string;
   isArchived?: boolean;
   colourSpace?: string;
   dimensions?: { width: number; height: number };
   durationSeconds?: number;
 }
+
+export interface MediaKpi { id: string; label: string; value: number | null; trend: number | null; available: boolean; scope: string; reason?: string | null }
+export interface MediaTab { label: string; count: number | null; scope: string }
+export interface MediaDashboardData {
+  kpis: MediaKpi[];
+  tabs: MediaTab[];
+  assets: { data: MediaAsset[]; page: number; pageSize: number; total: number; totalPages: number };
+  options: { products: Array<{id:string;name:string}>; categories: Array<{id:string;name:string}>; suppliers: Array<{id:string;name:string}>; fileTypes: string[]; approvalStatuses: string[]; processingStatuses: string[] };
+  health: { score: number; status: string; dimensions: Array<{label:string;value:number}> };
+  alerts: Array<{id:string;label:string;count:number;severity:string;scope:string}>;
+  statusSummary: Array<{label:string;count:number}>;
+  storageSummary: { assetCount:number; bytes:number; disk:string; cdnAvailable:boolean };
+  processingSummary: Array<{label:string;count:number}>;
+  lower: { formatSummary:Array<{label:string;count:number}>; productCoverage:{missingMandatory:number;unlinked:number}; duplicates:MediaDuplicateCandidate[]; activities:MediaActivity[] };
+  capabilities: Record<string, boolean | string>;
+  lastSyncedAt: string;
+  meta: { refreshIntervalSeconds: number };
+}
+
+export interface MediaQuery { page:number; pageSize:number; search?:string; linkedEntity?:"product"|"unlinked"; fileType?:string; category?:string; approvalStatus?:string; processingStatus?:string; productId?:string; categoryId?:string; supplierId?:string; dateFrom?:string; dateTo?:string; scope?:string; sort?:string; direction?:"asc"|"desc" }
 
 export interface MediaFilterState {
   search: string;

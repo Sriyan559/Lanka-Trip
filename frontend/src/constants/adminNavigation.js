@@ -69,7 +69,20 @@ export const ADMIN_NAVIGATION = [
     {id:"support-communications",label:"Support & Communications",href:"/admin/customers/support-communications"},
     {id:"import-export-audit",label:"Import, Export & Audit",href:"/admin/customers/import-export-audit"},
   ]},
-  {id:"marketing",label:"Marketing",icon:Megaphone,disabled:true,badge:"Coming Soon"},
+  {id:"marketing",label:"Marketing",href:"/admin/marketing",icon:Megaphone,children:[
+    {id:"command-center",label:"Command Center",href:"/admin/marketing",exact:true},
+    {id:"campaigns",label:"Campaigns",href:"/admin/marketing/campaigns"},
+    {id:"audiences",label:"Audiences",href:"/admin/marketing/audiences"},
+    {id:"journeys",label:"Journeys",href:"/admin/marketing/journeys"},
+    {id:"content",label:"Content & Creative",href:"/admin/marketing/content"},
+    {id:"channels",label:"Channels",href:"/admin/marketing/channels"},
+    {id:"web-app-campaigns",label:"Web & App Campaigns",href:"/admin/marketing/web-app-campaigns"},
+    {id:"paid-media",label:"Paid Media",href:"/admin/marketing/paid-media"},
+    {id:"budgets",label:"Budgets",href:"/admin/marketing/budgets"},
+    {id:"attribution-analytics",label:"Attribution & Analytics",href:"/admin/marketing/attribution-analytics"},
+    {id:"governance",label:"Governance",href:"/admin/marketing/governance"},
+    {id:"reports-audit",label:"Reports / Audit",href:"/admin/marketing/reports-audit"},
+  ]},
   {id:"finance",label:"Finance",icon:Wallet,href:"/admin/finance",children:[
     {id:"command-center",label:"Command Center",href:"/admin/finance",exact:true},
     {id:"revenue-receivables",label:"Revenue & Receivables",href:"/admin/finance/revenue-receivables"},
@@ -86,15 +99,16 @@ export const ADMIN_NAVIGATION = [
   {id:"logistics",label:"Logistics",icon:Truck,href:"/admin/logistics",children:[
     {id:"logistics-command-center",label:"Command Center",href:"/admin/logistics",exact:true},
     {id:"fulfilment-orders",label:"Fulfilment Orders",href:"/admin/logistics/fulfilment-orders"},
-    {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses-fulfilment-centres"},
+    {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses"},
     {id:"inventory-allocation",label:"Inventory Allocation",href:"/admin/logistics/inventory-allocation"},
     {id:"shipments-tracking",label:"Shipments & Tracking",href:"/admin/logistics/shipments"},
+    {id:"shipment-detail-carrier-tracking",label:"Shipment Detail & Carrier Tracking",href:"/admin/logistics/shipments/SHP-LK-00192"},
     {id:"carriers-delivery-partners",label:"Carriers & Delivery Partners",href:"/admin/logistics/carriers-delivery-partners"},
     {id:"delivery-configuration",label:"Delivery Configuration",href:"/admin/logistics/delivery-configuration"},
     {id:"returns-reverse-logistics",label:"Returns & Reverse Logistics",href:"/admin/logistics/returns-reverse-logistics"},
-    {id:"exceptions",label:"Exceptions",href:"/admin/logistics/exceptions"},
-    {id:"claims-reconciliation",label:"Claims & Reconciliation",href:"/admin/logistics/claims-reconciliation"},
-    {id:"reports-import-export-audit",label:"Reports / Import / Export / Audit",href:"/admin/logistics/reports-import-export-audit"},
+    {id:"returns-reverse-logistics-details",label:"Return/Reverse Logistics Details",href:"/admin/logistics/reverse-logistics/RET-2026-004281"},
+    {id:"exceptions-reconciliation",label:"Exceptions, Claims & Reconciliation",href:"/admin/logistics/exceptions-reconciliation"},
+    {id:"reports-import-export-audit",label:"Reports, Import, Export & Audit",href:"/admin/logistics/reports-import-export-audit"},
   ]},
   {id:"customer-support",label:"Customer Support",icon:LifeBuoy,href:"/admin/customer-support/cases"},
   {id:"analytics",label:"Analytics",icon:BarChart3,href:"/admin/analytics",children:[
@@ -108,6 +122,24 @@ export const ADMIN_NAVIGATION = [
 export const navigationItemMatchesPath = (item, pathname) => {
   if (!item?.href || item.disabled) return false;
   if (item.exact) return pathname === item.href;
+  if (item.id === "carriers-delivery-partners" && (pathname === "/admin/logistics/carriers" || pathname.startsWith("/admin/logistics/carriers/"))) {
+    return true;
+  }
+  if (item.id === "shipment-detail-carrier-tracking" && pathname.startsWith("/admin/logistics/shipments/") && pathname !== "/admin/logistics/shipments") {
+    return true;
+  }
+  if (item.id === "shipments-tracking" && pathname === "/admin/logistics/shipments") {
+    return true;
+  }
+  if (item.id === "returns-reverse-logistics-details" && pathname.startsWith("/admin/logistics/reverse-logistics/") && pathname !== "/admin/logistics/reverse-logistics") {
+    return true;
+  }
+  if (item.id === "returns-reverse-logistics" && (pathname === "/admin/logistics/returns-reverse-logistics" || pathname === "/admin/logistics/reverse-logistics")) {
+    return true;
+  }
+  if (item.id === "exceptions-reconciliation" && (pathname === "/admin/logistics/exceptions-reconciliation" || pathname === "/admin/logistics/exceptions" || pathname === "/admin/logistics/claims-reconciliation")) {
+    return true;
+  }
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 };
 

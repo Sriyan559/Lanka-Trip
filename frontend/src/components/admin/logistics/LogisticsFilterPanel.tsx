@@ -1,106 +1,172 @@
-import React from "react";
-import { Search, SlidersHorizontal, ChevronDown, Filter } from "lucide-react";
+"use client";
+
+import React, { useState } from "react";
+import { Search, ChevronDown, Filter, Bookmark, RefreshCw, Download, Plus, X } from "lucide-react";
 
 interface LogisticsFilterPanelProps {
   filters: any;
   onFilterChange: (filters: any) => void;
   onClearFilters: () => void;
+  onRefresh?: () => void;
+  onCreateClick?: () => void;
 }
 
 export function LogisticsFilterPanel({
   filters,
   onFilterChange,
   onClearFilters,
+  onRefresh,
+  onCreateClick,
 }: LogisticsFilterPanelProps) {
-  
-  const dropdownFilters = [
+  const [showAllFilters, setShowAllFilters] = useState(false);
+
+  const primaryFilterKeys = [
+    { label: "Operation Type", key: "op_type" },
+    { label: "Fulfilment Status", key: "fulfilment_status" },
+    { label: "Allocation Status", key: "allocation_status" },
+    { label: "Picking Status", key: "picking_status" },
+    { label: "Packing Status", key: "packing_status" },
+    { label: "Dispatch Status", key: "dispatch_status" },
     { label: "Shipment Status", key: "status" },
-    { label: "Delivery Status", key: "deliveryStatus" },
-    { label: "Pickup Status", key: "pickupStatus" },
-    { label: "Package Status", key: "packageStatus" },
-    { label: "Shipment Type", key: "type" },
-    { label: "Carrier", key: "carrier" },
-    { label: "Supplier", key: "supplier" },
-    { label: "Customer", key: "customer" },
+    { label: "Delivery Status", key: "delivery_status" },
+    { label: "Return Status", key: "return_status" },
+    { label: "Exception Status", key: "exception_status" },
+    { label: "Claim Status", key: "claim_status" },
+    { label: "Reconciliation Status", key: "reconciliation_status" },
+  ];
+
+  const secondaryFilterKeys = [
+    { label: "SLA Status", key: "sla_status" },
     { label: "Warehouse", key: "warehouse" },
-    { label: "Destination Region", key: "destination" },
-    { label: "Risk Level", key: "risk" },
-    { label: "SLA Status", key: "sla" },
-  ];
-
-  const dateFilters = [
-    { label: "Assigned Officer", key: "officer", type: "text" },
-    { label: "Created Date", key: "createdDate", type: "date" },
-    { label: "Pickup Date", key: "pickupDate", type: "date" },
-    { label: "Expected Delivery Date", key: "expectedDelivery", type: "date" },
-  ];
-
-  const quickFilters = [
-    { label: "Pending Carrier (36)", color: "bg-gray-100 text-muted" },
-    { label: "In Transit (486)", color: "bg-gray-100 text-muted" },
-    { label: "Pickup Today (84)", color: "bg-gray-100 text-muted" },
-    { label: "Exceptions (23)", color: "bg-red-50 text-danger border border-red-100" },
-    { label: "COD Pending (1.84M)", color: "bg-yellow-50 text-warning border border-yellow-100" },
-    { label: "SLA Breach (9)", color: "bg-red-50 text-danger border border-red-100" },
-    { label: "Delivery Delay (58)", color: "bg-yellow-50 text-warning border border-yellow-100" },
-    { label: "Returns (18)", color: "bg-purple-50 text-purple-600 border border-purple-100" },
-    { label: "Out for Delivery (96)", color: "bg-gray-100 text-muted" },
-    { label: "High Risk", color: "bg-red-50 text-danger border border-red-100" },
-    { label: "Package Not Ready (31)", color: "bg-yellow-50 text-warning border border-yellow-100" },
-    { label: "Missing Tracking (27)", color: "bg-gray-100 text-muted" },
-    { label: "Customer Complaint (15)", color: "bg-purple-50 text-purple-600 border border-purple-100" },
+    { label: "Fulfilment Centre", key: "fulfilment_centre" },
+    { label: "Carrier", key: "carrier" },
+    { label: "Courier", key: "courier" },
+    { label: "Delivery Service", key: "delivery_service" },
+    { label: "Delivery Zone", key: "delivery_zone" },
+    { label: "Service Level", key: "service_level" },
+    { label: "Order Type", key: "order_type" },
+    { label: "Customer Type", key: "customer_type" },
+    { label: "Supplier", key: "supplier" },
+    { label: "Seller", key: "seller" },
+    { label: "Product Category", key: "category" },
+    { label: "Brand", key: "brand" },
+    { label: "Sales Channel", key: "channel" },
+    { label: "Business Unit", key: "bu" },
+    { label: "Region", key: "region" },
+    { label: "District", key: "district" },
+    { label: "City", key: "city" },
+    { label: "Fulfilment Owner", key: "fulfilment_owner" },
+    { label: "Logistics Owner", key: "logistics_owner" },
+    { label: "Exception Owner", key: "exception_owner" },
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-line shadow-sm p-4 space-y-4">
-      {/* SEARCH ROW */}
-      <div className="relative w-full max-w-4xl">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
-        <input
-          type="text"
-          placeholder="Search shipment ID, order ID, customer, supplier, tracking number, package or batch..."
-          className="w-full pl-10 pr-4 py-2 bg-canvas border border-line rounded-lg text-sm focus:outline-none focus:border-primary-900 transition-colors"
-          value={filters.search}
-          onChange={(e) => onFilterChange({ search: e.target.value })}
-        />
-      </div>
+    <div className="bg-white rounded-xl border border-line shadow-xs p-2.5 sm:p-3 space-y-2 text-[10px]">
+      {/* SEARCH AND ACTION BAR */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" size={12} />
+          <input
+            type="text"
+            placeholder="Search by ref, order, customer, supplier, shipment ID, tracking number..."
+            className="w-full pl-7 pr-3 py-1 bg-canvas border border-line rounded-md text-[9.5px] font-medium focus:outline-none focus:border-primary-900 transition-colors"
+            value={filters.search || ""}
+            onChange={(e) => onFilterChange({ search: e.target.value })}
+          />
+        </div>
 
-      {/* DROPDOWN GRID */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {dropdownFilters.map(filter => (
-          <div key={filter.key} className="relative cursor-pointer">
-            <div className="w-full px-3 py-2 bg-white border border-line rounded-lg text-[13px] flex items-center justify-between hover:border-slate-300 transition-colors group">
-              <span className="text-muted group-hover:text-ink transition-colors">{filter.label}</span>
-              <ChevronDown size={14} className="text-muted" />
-            </div>
-          </div>
-        ))}
-        {dateFilters.map(filter => (
-          <div key={filter.key} className="relative cursor-pointer">
-            <div className="w-full px-3 py-2 bg-white border border-line rounded-lg text-[13px] flex items-center justify-between hover:border-slate-300 transition-colors group">
-              <span className="text-muted group-hover:text-ink transition-colors">{filter.label}</span>
-              {filter.type === 'date' ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              ) : (
-                <ChevronDown size={14} className="text-muted" />
-              )}
-            </div>
-          </div>
-        ))}
-        <div className="relative cursor-pointer flex items-center justify-end">
-          <button className="text-[13px] font-medium text-ink hover:text-primary-900 transition-colors flex items-center gap-1">
-            <Filter size={14} /> More Filters
+        <div className="flex flex-wrap items-center gap-1.5 flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => alert("Saved current search view configuration!")}
+            className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
+          >
+            <Bookmark size={11} className="text-muted" />
+            <span>Save View</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowAllFilters(!showAllFilters)}
+            className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
+          >
+            <Filter size={11} className="text-muted" />
+            <span>{showAllFilters ? "Fewer Filters" : "More Filters"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="px-2 py-1 bg-white border border-line text-muted hover:text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
+          >
+            <X size={11} />
+            <span>Clear All</span>
+          </button>
+
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
+            >
+              <RefreshCw size={11} />
+              <span>Refresh</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => alert("Exporting filtered operational data...")}
+            className="px-2 py-1 bg-white border border-line text-ink text-[9.5px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1"
+          >
+            <Download size={11} />
+            <span>Export</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onCreateClick || (() => alert("Opening Create Operation Dialog"))}
+            className="px-2.5 py-1 bg-primary-900 text-white text-[9.5px] font-bold rounded-md hover:bg-primary-800 transition-colors shadow-xs flex items-center gap-1"
+          >
+            <Plus size={12} />
+            <span>Create</span>
           </button>
         </div>
       </div>
 
-      {/* QUICK CHIPS */}
-      <div className="flex flex-wrap gap-2 pt-2 border-t border-line">
-        {quickFilters.map((chip, i) => (
-          <button key={i} className={`px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-transform hover:scale-105 active:scale-95 cursor-pointer ${chip.color}`}>
-            {chip.label}
-          </button>
+      {/* FILTER DROPDOWN GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-1.5">
+        {primaryFilterKeys.map((item) => (
+          <div key={item.key} className="relative">
+            <select
+              value={filters[item.key] || "all"}
+              onChange={(e) => onFilterChange({ [item.key]: e.target.value })}
+              className="w-full px-2 py-1 bg-white border border-line rounded-md text-[9px] font-medium text-ink focus:outline-none focus:border-primary-900 cursor-pointer appearance-none pr-5 truncate"
+            >
+              <option value="all">{item.label}: All</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="exception">Exception</option>
+            </select>
+            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+          </div>
         ))}
+
+        {showAllFilters &&
+          secondaryFilterKeys.map((item) => (
+            <div key={item.key} className="relative">
+              <select
+                value={filters[item.key] || "all"}
+                onChange={(e) => onFilterChange({ [item.key]: e.target.value })}
+                className="w-full px-2 py-1 bg-white border border-line rounded-md text-[9px] font-medium text-ink focus:outline-none focus:border-primary-900 cursor-pointer appearance-none pr-5 truncate"
+              >
+                <option value="all">{item.label}: All</option>
+                <option value="option1">Select {item.label}</option>
+              </select>
+              <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+            </div>
+          ))}
       </div>
     </div>
   );

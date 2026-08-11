@@ -2,14 +2,15 @@
 
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
-import { MOCK_JOB_DISTRIBUTION } from "@/data/importExport.mock";
+import type { DataOperationsDashboard } from "@/types/importExport";
 
 interface JobStatusDistributionChartProps {
   onStatusClick?: (statusName: string) => void;
+  data: DataOperationsDashboard["distribution"];
 }
 
-export function JobStatusDistributionChart({ onStatusClick }: JobStatusDistributionChartProps) {
-  const totalJobs = MOCK_JOB_DISTRIBUTION.reduce((sum, item) => sum + item.value, 0);
+export function JobStatusDistributionChart({ onStatusClick, data }: JobStatusDistributionChartProps) {
+  const totalJobs = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <div className="bg-white border border-line rounded-lg p-4 shadow-sm flex flex-col justify-between h-full min-w-0">
@@ -25,7 +26,7 @@ export function JobStatusDistributionChart({ onStatusClick }: JobStatusDistribut
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={MOCK_JOB_DISTRIBUTION}
+                data={data}
                 cx="50%"
                 cy="50%"
                 innerRadius={44}
@@ -34,7 +35,7 @@ export function JobStatusDistributionChart({ onStatusClick }: JobStatusDistribut
                 dataKey="value"
                 stroke="none"
               >
-                {MOCK_JOB_DISTRIBUTION.map((entry, index) => (
+                {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -54,7 +55,7 @@ export function JobStatusDistributionChart({ onStatusClick }: JobStatusDistribut
 
         {/* Legend List */}
         <div className="flex flex-col gap-1.5 text-[11px]">
-          {MOCK_JOB_DISTRIBUTION.map((item) => (
+          {data.map((item) => (
             <div
               key={item.name}
               onClick={() => onStatusClick && onStatusClick(item.name)}

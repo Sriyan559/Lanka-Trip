@@ -9,6 +9,10 @@ interface ImportExportHeaderProps {
   onOpenNewImport: () => void;
   onOpenScheduleExport: () => void;
   onBulkAction: (action: string) => void;
+  canExport: boolean;
+  canImport: boolean;
+  canSchedule: boolean;
+  canManage: boolean;
 }
 
 export function ImportExportHeader({
@@ -17,15 +21,19 @@ export function ImportExportHeader({
   onOpenNewImport,
   onOpenScheduleExport,
   onBulkAction,
+  canExport,
+  canImport,
+  canSchedule,
+  canManage,
 }: ImportExportHeaderProps) {
   const [isBulkOpen, setIsBulkOpen] = useState(false);
 
   const bulkOptions = [
-    { label: "Assign Reviewer", icon: UserPlus },
-    { label: "Retry Failed Jobs", icon: RotateCcw },
-    { label: "Approve Selected Jobs", icon: CheckCircle2 },
-    { label: "Export Selected Details", icon: FileSpreadsheet },
-    { label: "Archive Completed Jobs", icon: Archive },
+    { label: "Assign Reviewer", icon: UserPlus, supported: false },
+    { label: "Retry Failed Jobs", icon: RotateCcw, supported: true },
+    { label: "Approve Selected Jobs", icon: CheckCircle2, supported: false },
+    { label: "Export Selected Details", icon: FileSpreadsheet, supported: false },
+    { label: "Archive Completed Jobs", icon: Archive, supported: false },
   ];
 
   return (
@@ -47,7 +55,8 @@ export function ImportExportHeader({
         <div className="flex items-center flex-wrap gap-2.5">
           <button
             onClick={onExportReport}
-            className="h-9 px-3.5 rounded-md bg-white border border-line text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-sm"
+            disabled={!canExport}
+            className="h-9 px-3.5 rounded-md bg-white border border-line text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-40"
           >
             <Download size={14} className="text-slate-600" />
             <span>Export Data Operations Report</span>
@@ -55,7 +64,8 @@ export function ImportExportHeader({
 
           <button
             onClick={onOpenNewImport}
-            className="h-9 px-4 rounded-md bg-[#671021] text-white text-[12px] font-bold hover:bg-[#520d1a] flex items-center gap-1.5 transition-colors shadow-sm"
+            disabled={!canImport}
+            className="h-9 px-4 rounded-md bg-[#671021] text-white text-[12px] font-bold hover:bg-[#520d1a] flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-40"
           >
             <Upload size={14} />
             <span>+ New Import</span>
@@ -63,7 +73,8 @@ export function ImportExportHeader({
 
           <button
             onClick={onOpenScheduleExport}
-            className="h-9 px-3.5 rounded-md bg-white border border-line text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-sm"
+            disabled={!canSchedule}
+            className="h-9 px-3.5 rounded-md bg-white border border-line text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-40"
           >
             <Calendar size={14} className="text-slate-600" />
             <span>Schedule Export</span>
@@ -73,7 +84,7 @@ export function ImportExportHeader({
           <div className="relative">
             <button
               onClick={() => setIsBulkOpen((prev) => !prev)}
-              disabled={selectedCount === 0}
+              disabled={selectedCount === 0 || !canManage}
               className={`h-9 px-3.5 rounded-md border text-[12px] font-semibold flex items-center gap-1.5 transition-colors shadow-sm ${
                 selectedCount > 0
                   ? "bg-white border-line text-ink hover:bg-slate-50 cursor-pointer"
@@ -91,11 +102,13 @@ export function ImportExportHeader({
                   return (
                     <button
                       key={opt.label}
+                      disabled={!opt.supported}
+                      title={opt.supported ? undefined : "Unavailable — no authoritative backend transition exists."}
                       onClick={() => {
                         onBulkAction(opt.label);
                         setIsBulkOpen(false);
                       }}
-                      className="w-full text-left px-3.5 py-2 text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-2"
+                      className="w-full text-left px-3.5 py-2 text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Icon size={14} className="text-slate-500" />
                       <span>{opt.label}</span>

@@ -10,8 +10,11 @@ import {
   Layers,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { usePaymentsManagement } from '@/contexts/FinanceRevenuePaymentsContext';
+import { API_BASE, withQuery } from '@/lib/api/client';
 
 export function PaymentsHeader() {
+  const {data,filters,setFilters}=usePaymentsManagement();const canMutate=data?.permissions.canMutate??false;
   const [exceptionsOpen, setExceptionsOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
 
@@ -39,7 +42,8 @@ export function PaymentsHeader() {
         <div className="flex items-center gap-2 flex-wrap">
           {/* Export Payment Operations Report */}
           <button
-            onClick={() => toast.success('Exporting Payment Operations Report...')}
+            disabled={!data?.permissions.canExport}
+            onClick={() => {window.location.href=`${API_BASE}${withQuery('/admin/finance/payments/export',filters)}`}}
             className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
           >
             <Download size={13} className="text-gray-500" />
@@ -80,6 +84,7 @@ export function PaymentsHeader() {
           {/* Bulk Actions Dropdown */}
           <div className="relative">
             <button
+              disabled={!canMutate} title={!canMutate?'Bulk payment mutations are not configured':undefined}
               onClick={() => setBulkOpen((p) => !p)}
               className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
             >
@@ -108,7 +113,7 @@ export function PaymentsHeader() {
 
           {/* Review Failed Payments */}
           <button
-            onClick={() => toast.error('Reviewing 4,720 Failed Payments')}
+            onClick={() => setFilters({status:'failed'})}
             className="px-3 py-1.5 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
           >
             <ShieldAlert size={13} className="text-red-600" />
@@ -117,7 +122,8 @@ export function PaymentsHeader() {
 
           {/* Create Payment Review */}
           <button
-            onClick={() => toast.success('Opening Payment Review dialog')}
+            disabled={!canMutate} title={!canMutate?'Payment review workflow is not configured':undefined}
+            onClick={() => toast.error('Payment review workflow is unavailable')}
             className="px-3.5 py-1.5 bg-[#8f002b] text-white hover:bg-[#741d35] text-xs font-bold rounded-lg shadow flex items-center gap-1.5 transition-all"
           >
             <Plus size={14} className="text-white" />

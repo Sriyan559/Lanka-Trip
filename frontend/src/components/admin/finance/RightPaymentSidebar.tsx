@@ -15,7 +15,7 @@ import {
   Clock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { FN03_ALERTS, FN03_HEALTH_SCORECARD } from '@/data/mockPaymentData';
+import { paymentsView, usePaymentsManagement } from '@/contexts/FinanceRevenuePaymentsContext';
 
 const SEVERITY_STYLES: Record<string, string> = {
   Critical: 'bg-red-50 text-red-700 border-l-2 border-l-red-500',
@@ -26,6 +26,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 };
 
 export function RightPaymentSidebar() {
+  const { data }=usePaymentsManagement(); const live=paymentsView(data); const alerts=live.alerts;
   const [showAlertsAll, setShowAlertsAll] = useState(false);
 
   return (
@@ -71,12 +72,12 @@ export function RightPaymentSidebar() {
 
           {/* Key Indicators List */}
           <div className="flex-1 flex flex-col gap-1 text-[10px]">
-            {FN03_HEALTH_SCORECARD.slice(0, 5).map((h) => (
+            {live.health.length ? live.health.slice(0,5).map((h) => (
               <div key={h.label} className="flex justify-between items-center">
                 <span className="text-gray-600 truncate">{h.label}</span>
                 <span className="font-bold text-gray-900 ml-1">{h.score}%</span>
               </div>
-            ))}
+            )) : <div className="text-gray-500">Health thresholds not configured</div>}
           </div>
         </div>
       </div>
@@ -84,7 +85,7 @@ export function RightPaymentSidebar() {
       {/* 2. Priority Payment Alerts */}
       <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold text-gray-900">Priority Payment Alerts ({FN03_ALERTS.length})</h2>
+          <h2 className="text-xs font-bold text-gray-900">Priority Payment Alerts ({alerts.length})</h2>
           <button
             onClick={() => setShowAlertsAll(!showAlertsAll)}
             className="text-[10px] text-[#8f002b] font-bold hover:underline"
@@ -94,7 +95,7 @@ export function RightPaymentSidebar() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          {(showAlertsAll ? FN03_ALERTS : FN03_ALERTS.slice(0, 4)).map((alert) => (
+          {(showAlertsAll ? alerts : alerts.slice(0, 4)).map((alert) => (
             <div
               key={alert.id}
               className={`p-2 rounded text-[10px] font-medium flex items-start gap-1.5 ${

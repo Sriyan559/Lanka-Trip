@@ -19,12 +19,23 @@ class Upload extends Model
 
     protected $fillable = [
         'user_id',
+        'product_id',
+        'product_variant_id',
         'original_name',
         'file_name',
         'file_path',
         'file_type',
         'mime_type',
         'file_size',
+        'sha256',
+        'width',
+        'height',
+        'alt_text',
+        'description',
+        'approval_status',
+        'processing_status',
+        'rights_expires_at',
+        'archived_at',
         'category',
     ];
 
@@ -32,11 +43,25 @@ class Upload extends Model
     {
         return [
             'file_size' => 'integer',
+            'width' => 'integer',
+            'height' => 'integer',
+            'rights_expires_at' => 'date',
+            'archived_at' => 'datetime',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 }

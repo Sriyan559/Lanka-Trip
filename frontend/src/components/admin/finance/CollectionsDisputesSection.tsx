@@ -10,7 +10,7 @@ import {
   Send,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { FN02_ACTIVITY } from '@/data/mockRevenueData';
+import { revenueView, useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
 
 const COLLECTION_QUEUE = [
   { name: 'Beauté Collective', amount: 'LKR 204,352', days: 92, status: 'Dispute Open', priority: 'P1' },
@@ -46,6 +46,8 @@ const ACT_COLORS: Record<string, string> = {
 };
 
 export function CollectionsDisputesSection() {
+  const { data } = useRevenueReceivables();
+  const activity = revenueView(data).activity;
   const [selectedDispute, setSelectedDispute] = useState<string | null>(null);
 
   return (
@@ -164,10 +166,10 @@ export function CollectionsDisputesSection() {
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
         <div className="text-xs font-bold text-gray-800 mb-2">Recent Collection Activity</div>
         <div className="flex flex-col gap-0">
-          {FN02_ACTIVITY.map((item, idx) => (
+          {activity.map((item, idx) => (
             <div key={item.id} className="flex gap-3 relative">
               {/* Timeline line */}
-              {idx < FN02_ACTIVITY.length - 1 && (
+              {idx < activity.length - 1 && (
                 <div className="absolute left-[15px] top-5 w-px h-full bg-gray-100" />
               )}
               {/* Icon */}

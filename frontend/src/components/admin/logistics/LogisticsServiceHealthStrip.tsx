@@ -1,43 +1,48 @@
-import React from "react";
-import { CheckCircle2, ShieldCheck, Activity, Radio, Cpu } from "lucide-react";
+"use client";
 
-export function LogisticsServiceHealthStrip() {
+import React from "react";
+import { RefreshCw } from "lucide-react";
+
+interface LogisticsServiceHealthStripProps {
+  onRefresh?: () => void;
+}
+
+export function LogisticsServiceHealthStrip({ onRefresh }: LogisticsServiceHealthStripProps) {
   const healthServices = [
-    { label: "Warehouse Service Health", status: "Healthy / Active", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "Allocation Service Health", status: "Healthy", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "Shipment Service Health", status: "Operational", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "Carrier Tracking Health", status: "Operational", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "Delivery Notification Health", status: "Active", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "Return Logistics Health", status: "Operational", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "Reconciliation Service Health", status: "Active", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
+    { label: "Warehouse Service Health", status: "Healthy", isGreen: true },
+    { label: "Allocation Service Health", status: "Stable", isGreen: false },
+    { label: "Shipment Service Health", status: "Healthy", isGreen: true },
+    { label: "Carrier Tracking Health", status: "Healthy", isGreen: true },
+    { label: "Delivery Notification Health", status: "Healthy", isGreen: true },
+    { label: "Return Logistics Health", status: "Healthy", isGreen: true },
+    { label: "Reconciliation Service Health", status: "Healthy", isGreen: true },
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-line p-3.5 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
-      <div className="flex items-center gap-2 font-bold text-ink uppercase tracking-wider text-[11px] pr-2 border-r border-line">
-        <Activity size={14} className="text-primary-900" />
-        Service Health
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2 flex-1">
+    <div className="bg-white rounded-xl border border-line p-2 sm:p-2.5 shadow-xs flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[9.5px]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {healthServices.map((service, idx) => (
-          <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[11px] font-semibold bg-canvas border-line">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <div key={idx} className="flex items-center gap-1 font-medium">
+            <span className={`w-1.5 h-1.5 rounded-full ${service.isGreen ? "bg-emerald-500" : "bg-amber-500"} animate-pulse`} />
             <span className="text-muted">{service.label}:</span>
-            <span className="text-emerald-700 font-bold">{service.status}</span>
+            <span className={`font-bold ${service.isGreen ? "text-emerald-700" : "text-amber-700"}`}>{service.status}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center gap-3 text-[11px] text-muted pl-2 border-l border-line">
-        <div className="flex items-center gap-1">
-          <ShieldCheck size={13} className="text-emerald-600" />
-          <span>Access: <strong className="text-ink font-semibold">Admin (Full)</strong></span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Cpu size={13} className="text-muted" />
-          <span>Version: <strong className="text-ink font-semibold">v2.4.0</strong></span>
-        </div>
+      <div className="flex items-center gap-2.5 text-muted border-l border-line pl-2.5 flex-shrink-0">
+        <div>Access: <strong className="text-ink font-semibold">Assigned business context</strong></div>
+        <div>Record Version: <strong className="text-ink font-semibold">v2.4</strong></div>
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="p-0.5 rounded hover:bg-canvas text-muted hover:text-ink transition-colors"
+            title="Refresh service health"
+          >
+            <RefreshCw size={11} />
+          </button>
+        )}
       </div>
     </div>
   );

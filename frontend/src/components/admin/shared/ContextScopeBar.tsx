@@ -7,16 +7,18 @@ export interface ContextScopeItem {
 }
 
 interface ContextScopeBarProps {
-  items: ContextScopeItem[];
+  items?: ContextScopeItem[];
   lastSynced?: string;
   accessNote?: string;
 }
 
-export function ContextScopeBar({ items, lastSynced, accessNote }: ContextScopeBarProps) {
+export function ContextScopeBar({ items = [], lastSynced, accessNote }: ContextScopeBarProps) {
+  const safeItems = Array.isArray(items) ? items : [];
+
   return (
     <div className="flex flex-wrap items-start justify-between bg-white border-y border-gray-200 py-3 mb-4">
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-        {items.map((item, i) => (
+        {safeItems.map((item, i) => (
           <div key={i} className="flex flex-col">
             <span className="text-[10px] font-medium text-gray-500 mb-0.5">{item.label}</span>
             <span className="text-xs font-semibold text-gray-900">{item.value}</span>

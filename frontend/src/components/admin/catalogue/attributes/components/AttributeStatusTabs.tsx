@@ -12,7 +12,7 @@ interface AttributeStatusTabsProps {
     variant: number;
     dataQuality: number;
     duplicates: number;
-    invalidCombos: number;
+    invalidCombos: number | null;
   };
 }
 
@@ -55,7 +55,7 @@ export const AttributeStatusTabs: React.FC<AttributeStatusTabsProps> = ({
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
-                {t.count}
+                {t.count ?? "N/A"}
               </span>
             </button>
           );

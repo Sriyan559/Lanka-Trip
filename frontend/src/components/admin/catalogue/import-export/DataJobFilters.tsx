@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Search, Filter, RefreshCw, Bookmark, SlidersHorizontal } from "lucide-react";
-import { FilterState } from "@/types/importExport";
+import { DataOperationsDashboard, FilterState } from "@/types/importExport";
 
 interface DataJobFiltersProps {
   filters: FilterState;
@@ -12,6 +12,7 @@ interface DataJobFiltersProps {
   onOpenMoreFilters: () => void;
   onRefresh: () => void;
   isRefreshing: boolean;
+  options: DataOperationsDashboard["options"];
 }
 
 export function DataJobFilters({
@@ -22,6 +23,7 @@ export function DataJobFilters({
   onOpenMoreFilters,
   onRefresh,
   isRefreshing,
+  options,
 }: DataJobFiltersProps) {
   return (
     <div className="bg-white border border-line rounded-lg p-3 shadow-sm mb-4 flex flex-col gap-3">
@@ -61,10 +63,7 @@ export function DataJobFilters({
             className="h-8 px-2.5 rounded border border-line text-[11px] font-semibold text-ink bg-white focus:outline-none focus:border-[#671021]"
           >
             <option value="All">All</option>
-            <option value="Supplier Feed">Supplier Feed</option>
-            <option value="Internal">Internal</option>
-            <option value="Media System">Media System</option>
-            <option value="Brand System">Brand System</option>
+            {options.sources.map(source=><option key={source} value={source}>{source}</option>)}
           </select>
         </div>
 
@@ -72,6 +71,7 @@ export function DataJobFilters({
         <div className="flex flex-col">
           <label className="text-[9px] font-bold text-slate-500 uppercase mb-0.5">Business Unit</label>
           <select
+            disabled
             value={filters.businessUnit}
             onChange={(e) => onChange({ businessUnit: e.target.value })}
             className="h-8 px-2.5 rounded border border-line text-[11px] font-semibold text-ink bg-white focus:outline-none focus:border-[#671021]"
@@ -87,6 +87,7 @@ export function DataJobFilters({
         <div className="flex flex-col">
           <label className="text-[9px] font-bold text-slate-500 uppercase mb-0.5">Template</label>
           <select
+            disabled
             value={filters.template}
             onChange={(e) => onChange({ template: e.target.value })}
             className="h-8 px-2.5 rounded border border-line text-[11px] font-semibold text-ink bg-white focus:outline-none focus:border-[#671021]"
@@ -102,6 +103,7 @@ export function DataJobFilters({
         <div className="flex flex-col">
           <label className="text-[9px] font-bold text-slate-500 uppercase mb-0.5">Approval Status</label>
           <select
+            disabled
             value={filters.approvalStatus}
             onChange={(e) => onChange({ approvalStatus: e.target.value })}
             className="h-8 px-2.5 rounded border border-line text-[11px] font-semibold text-ink bg-white focus:outline-none focus:border-[#671021]"
@@ -122,10 +124,7 @@ export function DataJobFilters({
             className="h-8 px-2.5 rounded border border-line text-[11px] font-semibold text-ink bg-white focus:outline-none focus:border-[#671021]"
           >
             <option value="All">All</option>
-            <option value="Validating">Validating</option>
-            <option value="Passed">Passed</option>
-            <option value="Warnings">Warnings</option>
-            <option value="Failed">Failed</option>
+            {options.statuses.map(status=><option key={status} value={status}>{status}</option>)}
           </select>
         </div>
 
@@ -153,9 +152,7 @@ export function DataJobFilters({
             className="h-8 px-2.5 rounded border border-line text-[11px] font-semibold text-ink bg-white focus:outline-none focus:border-[#671021]"
           >
             <option value="All">All</option>
-            <option value="Elena Vance">Elena Vance</option>
-            <option value="Marcus Lee">Marcus Lee</option>
-            <option value="Priya Kapoor">Priya Kapoor</option>
+            {options.users.map(user=><option key={user.id} value={user.id}>{user.name}</option>)}
           </select>
         </div>
 

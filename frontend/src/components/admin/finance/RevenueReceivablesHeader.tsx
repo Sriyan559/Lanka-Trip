@@ -12,8 +12,11 @@ import {
   RefreshCcw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
+import { API_BASE, withQuery } from '@/lib/api/client';
 
 export function RevenueReceivablesHeader() {
+  const {data,filters}=useRevenueReceivables(); const canMutate=data?.permissions.canMutate??false;
   const [actionsOpen, setActionsOpen] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
 
@@ -42,7 +45,8 @@ export function RevenueReceivablesHeader() {
         <div className="flex items-center gap-2 flex-wrap">
           {/* Export */}
           <button
-            onClick={() => toast.success('Exporting Revenue & Receivables Report...')}
+            disabled={!data?.permissions.canExport}
+            onClick={() => {window.location.href=`${API_BASE}${withQuery('/admin/finance/revenue-receivables/export',filters)}`}}
             className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
           >
             <Download size={13} className="text-gray-500" />
@@ -52,6 +56,7 @@ export function RevenueReceivablesHeader() {
           {/* Collection Actions */}
           <div className="relative">
             <button
+              disabled={!canMutate} title={!canMutate?'Collection mutation endpoints are not configured':undefined}
               onClick={() => setCollectionsOpen((p) => !p)}
               className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
             >
@@ -93,6 +98,7 @@ export function RevenueReceivablesHeader() {
           {/* Revenue Actions */}
           <div className="relative">
             <button
+              disabled={!canMutate} title={!canMutate?'Revenue recognition is not present in the schema':undefined}
               onClick={() => setActionsOpen((p) => !p)}
               className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
             >
@@ -135,7 +141,8 @@ export function RevenueReceivablesHeader() {
 
           {/* Create Invoice */}
           <button
-            onClick={() => toast.success('Opening invoice creation form...')}
+            disabled={!canMutate} title={!canMutate?'Invoice creation is not authorized from this workspace':undefined}
+            onClick={() => toast.error('Invoice creation is unavailable from this workspace')}
             className="px-3.5 py-1.5 bg-[#8f002b] text-white hover:bg-[#741d35] text-xs font-bold rounded-lg shadow flex items-center gap-1.5 transition-all"
           >
             <Plus size={14} />

@@ -15,12 +15,12 @@ export function DataOperationsContext({
   onRefresh,
 }: DataOperationsContextProps) {
   const fields = [
-    { label: "Tenant", value: "SL Beauty" },
-    { label: "Ecosystem", value: "Beauty Marketplace" },
-    { label: "Business Unit", value: "All Business Units" },
-    { label: "Sales Channel", value: "All Channels" },
-    { label: "Region", value: "Sri Lanka" },
-    { label: "Currency", value: "LKR" },
+    { label: "Data Scope", value: "Authorized platform catalogue" },
+    { label: "Ecosystem", value: "Unavailable" },
+    { label: "Business Unit", value: "Unavailable" },
+    { label: "Sales Channel", value: "Unavailable" },
+    { label: "Region", value: "Unavailable" },
+    { label: "Currency", value: "Not applicable" },
   ];
 
   return (
@@ -37,10 +37,9 @@ export function DataOperationsContext({
       <div className="flex items-center gap-3 ml-auto">
         <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span>Live Data</span>
+          <span>Near-live (30s)</span>
         </div>
 
         <div className="flex items-center gap-1.5 text-muted text-[11px]">

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MoreHorizontal, Edit3, CheckCircle2, ChevronRight, Layers } from "lucide-react";
+import { Edit3, Layers } from "lucide-react";
 import { CatalogueAttribute } from "@/types/attributeManagement";
 
 interface SelectedAttributePreviewProps {
@@ -25,7 +25,7 @@ export const SelectedAttributePreview: React.FC<SelectedAttributePreviewProps> =
     );
   }
 
-  const allowedValues = attribute.allowedValues || ["Porcelain", "Ivory", "Beige", "Natural", "Honey"];
+  const allowedValues = attribute.allowedValues || [];
   const remainingValuesCount = Math.max(0, attribute.allowedValueCount - 5);
 
   return (
@@ -37,23 +37,20 @@ export const SelectedAttributePreview: React.FC<SelectedAttributePreviewProps> =
             <div className="flex items-center gap-2">
               <h3 className="font-extrabold text-sm text-gray-900">{attribute.attributeName}</h3>
               <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Active
+                {attribute.status || "Unknown"}
               </span>
             </div>
             <span className="text-[10.5px] font-mono text-gray-400 block mt-0.5">
               ID: {attribute.attributeId} • {attribute.groupName}
             </span>
           </div>
-          <button className="p-1 rounded text-gray-400 hover:text-gray-700">
-            <MoreHorizontal size={14} />
-          </button>
         </div>
 
         {/* Definition */}
         <div className="mb-3">
           <span className="text-[10.5px] font-semibold text-gray-400 uppercase block mb-1">Definition</span>
           <p className="text-[11px] text-gray-700 leading-relaxed bg-gray-50 p-2 rounded border border-gray-100">
-            {attribute.definition || "Name of the shade or color variant used to differentiate product color."}
+            {attribute.definition || "No definition has been stored."}
           </p>
         </div>
 
@@ -110,7 +107,7 @@ export const SelectedAttributePreview: React.FC<SelectedAttributePreviewProps> =
         <div className="mb-3">
           <span className="text-[10.5px] font-semibold text-gray-400 uppercase block mb-1">Validation Logic</span>
           <p className="text-[10.5px] text-gray-600 italic">
-            {attribute.validationLogic || "Must match standardized shade list. No special characters allowed."}
+            {attribute.validationLogic || "Unavailable — no authoritative validation-rule schema is installed."}
           </p>
         </div>
 
@@ -118,7 +115,7 @@ export const SelectedAttributePreview: React.FC<SelectedAttributePreviewProps> =
         <div className="mb-3">
           <span className="text-[10.5px] font-semibold text-gray-400 uppercase block mb-1">Dependent Attributes</span>
           <div className="flex flex-wrap gap-1">
-            {(attribute.dependentAttributes || ["Skin Type", "Undertone", "Finish Type"]).map((dep, idx) => (
+            {(attribute.dependentAttributes || []).map((dep, idx) => (
               <span key={idx} className="px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200 text-[10px] font-semibold">
                 {dep}
               </span>
@@ -129,23 +126,7 @@ export const SelectedAttributePreview: React.FC<SelectedAttributePreviewProps> =
         {/* Eligible Channels */}
         <div className="mb-3">
           <span className="text-[10.5px] font-semibold text-gray-400 uppercase block mb-1">Eligible Channels</span>
-          <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-emerald-800">
-            <span className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              <CheckCircle2 size={11} /> Online Marketplace
-            </span>
-            <span className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              <CheckCircle2 size={11} /> Mobile App
-            </span>
-            <span className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              <CheckCircle2 size={11} /> B2B Wholesale
-            </span>
-            <span className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              <CheckCircle2 size={11} /> Partner Storefront
-            </span>
-            <span className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              <CheckCircle2 size={11} /> Social Commerce
-            </span>
-          </div>
+          <p className="rounded bg-gray-50 p-2 text-[10.5px] text-gray-500">Unavailable — no authoritative channel requirement schema is installed.</p>
         </div>
 
         {/* Completeness & Metadata */}

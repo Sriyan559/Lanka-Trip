@@ -36,7 +36,7 @@ export interface CatalogueDataJob {
   submittedBy: string;
   recordsCount: number;
   recordsFormatted: string;
-  mappingPercentage: number;
+  mappingPercentage: number | null;
   validationStatus: ValidationStatus;
   duplicatesCount: number;
   approvalStatus: ApprovalStatus;
@@ -46,18 +46,52 @@ export interface CatalogueDataJob {
   templateName?: string;
   businessUnit?: string;
   owner?: string;
+  publicId?: string;
+  dataType?: string;
+  processedRecords?: number;
+  successfulRecords?: number;
+  failedRecords?: number;
+  progress?: number;
+  currentStage?: string;
+  canDownload?: boolean;
+  canRetry?: boolean;
+  canCancel?: boolean;
+  failureMessage?: string | null;
 }
 
 export interface DataOperationsKpi {
   id: string;
   seqNumber: number;
   label: string;
-  value: string;
-  trend: string;
-  trendUp: boolean;
-  trendType: "positive" | "negative" | "warning" | "neutral";
-  category: "import" | "export" | "validation" | "review";
+  value: string | number | null;
+  trend: string | number | null;
+  trendUp?: boolean;
+  trendType?: "positive" | "negative" | "warning" | "neutral";
+  category?: "import" | "export" | "validation" | "review";
+  available?: boolean;
+  scope?: string;
+  reason?: string | null;
 }
+
+export interface DataOperationsDashboard {
+  kpis: DataOperationsKpi[];
+  trend: { granularity:string; points:Array<{name:string;imports:number;exports:number;processed:number;failures:number}> };
+  distribution: Array<{name:string;value:number;percentage:number;color:string}>;
+  tabs: Array<{label:string;scope:string;count:number}>;
+  jobs: {data:CatalogueDataJob[];page:number;pageSize:number;total:number;totalPages:number};
+  activeJob: CatalogueDataJob | null;
+  workflow: {activeStage:number;stage:string;progress:number} | null;
+  health: {score:number|null;status:string;metrics:Array<{label:string;value:number|null}>};
+  alerts: Array<{id:string;label:string;count:number;severity:string;scope:string}>;
+  statusSummaries: {imports:Array<{label:string;count:number}>;exports:Array<{label:string;count:number}>};
+  lower: {fieldMappings:FieldMappingItem[];validationIssues:Array<{label:string;count:number;severity:string}>;duplicateConflicts:DuplicateConflictItem[];schedules:ScheduledExportItem[];templates:ImportTemplateItem[];reconciliation:ReconciliationRecordItem[];activities:ImportExportActivityItem[]};
+  options: {dataTypes:Array<{value:string;label:string}>;users:Array<{id:number;name:string}>;sources:string[];statuses:string[]};
+  capabilities: Record<string,boolean|string>;
+  lastSyncedAt:string;
+  meta:{refreshIntervalSeconds:number;queueConnection:string};
+}
+
+export interface DataOperationsQuery {page:number;pageSize:number;search?:string;operationType?:"import"|"export";dataType?:string;status?:string;userId?:number;dateFrom?:string;dateTo?:string;scope?:string;granularity?:"daily"|"weekly"|"monthly";sort?:string;direction?:"asc"|"desc"}
 
 export interface FieldMappingItem {
   sourceField: string;

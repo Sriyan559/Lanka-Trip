@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Package, Clock, CheckCircle2, AlertCircle, ChevronRight, FileText } from "lucide-react";
+import { Package, ExternalLink } from "lucide-react";
+import { LogisticsLifecycle } from "./LogisticsLifecycle";
 
 export interface OperationPreviewProps {
   operation?: any | null;
@@ -10,59 +11,68 @@ export interface OperationPreviewProps {
 export function LogisticsOperationPreviewSection({ operation }: OperationPreviewProps) {
   const [activeTab, setActiveTab] = useState("Overview");
 
-  const tabs = [
+  const previewTabs = [
     "Overview", "Fulfilment", "Inventory Allocation", "Picking", "Packing",
     "Dispatch", "Shipment", "Tracking", "Carrier", "Delivery",
     "Proof of Delivery", "Returns", "Claims", "Costs", "Reconciliation",
     "Exceptions", "Linked Records", "Communications", "Activity", "Audit History"
   ];
 
-  const stages = [
-    { name: "Order Created", status: "completed" },
-    { name: "Allocated", status: "completed" },
-    { name: "Picking", status: "completed" },
-    { name: "Packing", status: "completed" },
-    { name: "Ready for Dispatch", status: "active" },
-    { name: "Dispatched", status: "pending" },
-    { name: "In Transit", status: "pending" },
-    { name: "Out for Delivery", status: "pending" },
-    { name: "Delivered", status: "pending" },
-  ];
+  // Default rich preview data matching reference screenshot
+  const op = operation || {
+    id: "FUL-2025-000921",
+    fulfilment_ref: "FUL-2025-000921",
+    order_ref: "ORD-2025-008921",
+    order_date: "May 25, 2025 11:30 AM",
+    order_value: "LKR 18,600",
+    customer_name: "Araya Perera",
+    customer_id: "CUST-8821",
+    warehouse: "Colombo Main DC",
+    fulfilment_centre: "Kandy FC",
+    carrier_name: "DHL Express",
+    carrier_rating: "4.8",
+    promised_delivery: "May 27, 2025",
+    current_state: "In Transit",
+    sla_status: "On Track",
+    shipment_ref: "SHP-2025-077421",
+    delivery_ref: "DEL-2025-058721",
+    tracking_ref: "JD01460000725458769",
+    cod_amount: "LKR 3,250",
+  };
 
   return (
-    <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden space-y-0">
-      {/* SECTION HEADER */}
-      <div className="p-5 border-b border-line bg-canvas flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Package size={18} className="text-primary-900" />
+    <div className="bg-white rounded-xl border border-line shadow-xs overflow-hidden space-y-0 text-[10px]">
+      {/* HEADER */}
+      <div className="p-2.5 sm:p-3 border-b border-line bg-canvas flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <Package size={14} className="text-primary-900" />
           <div>
-            <h3 className="text-sm font-bold text-ink">Selected Logistics Operation Preview</h3>
-            <p className="text-[11px] text-muted">Detailed operational breakdown and lifecycle progression</p>
+            <h3 className="text-[11px] font-bold text-ink uppercase tracking-wider">Selected Logistics Operation Preview</h3>
+            <p className="text-[9.5px] text-muted">Inline operation details, timeline progression, and linked system records</p>
           </div>
         </div>
 
-        {operation ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold px-2.5 py-1 bg-white border border-line rounded text-ink">
-              {operation.shipment_number || operation.reference || `ID #${operation.id}`}
-            </span>
-          </div>
-        ) : (
-          <span className="text-xs text-muted italic">No operation selected</span>
-        )}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-white border border-line rounded text-ink">
+            {op.fulfilment_ref || op.shipment_number || `FUL-2025-${op.id}`}
+          </span>
+          <span className="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase">
+            {op.current_state || "Active"}
+          </span>
+        </div>
       </div>
 
-      {/* PREVIEW TABS */}
-      <div className="border-b border-line bg-white px-5 overflow-x-auto scrollbar-none">
-        <div className="flex gap-2 text-[11px] font-semibold text-muted py-2 whitespace-nowrap">
-          {tabs.map((tab) => (
+      {/* 20 PREVIEW TABS */}
+      <div className="border-b border-line bg-white px-2.5 overflow-x-auto scrollbar-thin">
+        <div className="flex gap-1 text-[9.5px] font-semibold text-muted py-1.5 whitespace-nowrap">
+          {previewTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
+              className={`px-2 py-1 rounded-md transition-colors ${
                 activeTab === tab
-                  ? "bg-primary-900 text-white"
-                  : "hover:bg-canvas hover:text-ink"
+                  ? "bg-primary-900 text-white font-bold"
+                  : "hover:bg-canvas hover:text-ink text-muted"
               }`}
             >
               {tab}
@@ -71,63 +81,77 @@ export function LogisticsOperationPreviewSection({ operation }: OperationPreview
         </div>
       </div>
 
-      {/* LIFECYCLE STEPPER */}
-      <div className="p-5 border-b border-line bg-white">
-        <h4 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-4">
-          Customer Fulfilment / Logistics Lifecycle
-        </h4>
+      {/* OVERVIEW CONTENT */}
+      <div className="p-3 bg-white space-y-3">
+        {/* 10 DETAIL CARDS IN 1 DENSE ROW */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-1.5 text-[9px]">
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Customer</span>
+            <div className="font-bold text-ink truncate">{op.customer_name}</div>
+            <div className="text-[7.5px] text-muted">Araya Perera</div>
+          </div>
 
-        {operation ? (
-          <div className="flex items-center justify-between overflow-x-auto pb-2 gap-2 text-xs">
-            {stages.map((stage, idx) => (
-              <div key={idx} className="flex items-center gap-2 flex-shrink-0">
-                <div className="flex flex-col items-center gap-1">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] ${
-                    stage.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                    stage.status === 'active' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' :
-                    'bg-gray-100 text-gray-400'
-                  }`}>
-                    {stage.status === 'completed' ? <CheckCircle2 size={14} /> : idx + 1}
-                  </div>
-                  <span className="text-[10px] font-medium text-ink truncate max-w-[90px] text-center">{stage.name}</span>
-                </div>
-                {idx < stages.length - 1 && <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />}
-              </div>
-            ))}
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Order Ref</span>
+            <div className="font-bold text-ink truncate">{op.order_ref}</div>
+            <div className="text-[7.5px] text-muted">{op.order_date}</div>
           </div>
-        ) : (
-          <div className="p-4 bg-canvas border border-dashed border-line rounded-lg text-center text-xs text-muted">
-            No active lifecycle available. Select a shipment from the table above to view real-time lifecycle progression.
-          </div>
-        )}
-      </div>
 
-      {/* CONTENT AREA */}
-      <div className="p-6 text-xs text-muted bg-white">
-        {operation ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-ink">
-            <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-              <span className="text-[10px] text-muted uppercase">Shipment Reference</span>
-              <div className="font-bold text-sm">{operation.shipment_number || `SHP-${operation.id}`}</div>
-            </div>
-            <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-              <span className="text-[10px] text-muted uppercase">Tracking Number</span>
-              <div className="font-bold text-sm">{operation.tracking_number || "N/A"}</div>
-            </div>
-            <div className="p-3 bg-canvas border border-line rounded-lg space-y-1">
-              <span className="text-[10px] text-muted uppercase">Carrier / Logistics Partner</span>
-              <div className="font-bold text-sm">{operation.carrier_name || "Unassigned"}</div>
-            </div>
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Order Value / COD</span>
+            <div className="font-bold text-ink truncate">{op.order_value}</div>
+            <div className="text-[7.5px] text-muted">COD: {op.cod_amount}</div>
           </div>
-        ) : (
-          <div className="py-8 text-center space-y-2">
-            <FileText size={28} className="text-muted mx-auto opacity-50" />
-            <div className="text-sm font-semibold text-ink">No logistics operation selected</div>
-            <p className="text-[11px] text-muted max-w-sm mx-auto">
-              Create or select a logistics operation from the table above to view comprehensive operational details, package manifests, carrier assignments, and tracking timelines.
-            </p>
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Warehouse / FC</span>
+            <div className="font-bold text-ink truncate">{op.warehouse}</div>
+            <div className="text-[7.5px] text-muted">{op.fulfilment_centre}</div>
           </div>
-        )}
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Carrier / Rating</span>
+            <div className="font-bold text-ink truncate">{op.carrier_name}</div>
+            <div className="text-[7.5px] text-emerald-700 font-semibold">Rating: {op.carrier_rating} ★</div>
+          </div>
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Promised Delivery</span>
+            <div className="font-bold text-ink truncate">{op.promised_delivery}</div>
+            <div className="text-[7.5px] text-muted">2 Days Remaining</div>
+          </div>
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Current State</span>
+            <div className="font-bold text-blue-700 truncate">{op.current_state}</div>
+            <div className="text-[7.5px] text-muted">Hub Transit</div>
+          </div>
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">SLA Status</span>
+            <div className="font-bold text-emerald-700 truncate">{op.sla_status}</div>
+            <div className="text-[7.5px] text-muted">Exception: None</div>
+          </div>
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Shipment / Delivery</span>
+            <div className="font-mono text-ink font-semibold text-[8px] truncate">{op.shipment_ref}</div>
+            <div className="font-mono text-muted text-[7.5px] truncate">{op.delivery_ref}</div>
+          </div>
+
+          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
+            <span className="text-muted uppercase text-[7.5px] block">Tracking Ref</span>
+            <div className="font-mono font-bold text-ink text-[8px] truncate">{op.tracking_ref}</div>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("Tracking Details..."); }} className="text-primary-900 text-[7.5px] hover:underline flex items-center gap-0.5">
+              Live Track <ExternalLink size={8} />
+            </a>
+          </div>
+        </div>
+
+        {/* LIFECYCLE TIMELINE SECTION */}
+        <div className="pt-2 border-t border-line">
+          <LogisticsLifecycle />
+        </div>
       </div>
     </div>
   );

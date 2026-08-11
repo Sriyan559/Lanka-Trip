@@ -18,4 +18,9 @@ class CategoryAttribute extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function attribute(): BelongsTo
+    {
+        return $this->belongsTo(ProductAttribute::class, 'product_attribute_id');
+    }
 }

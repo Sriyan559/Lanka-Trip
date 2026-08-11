@@ -1,22 +1,12 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import {
-  CatalogueAttribute,
-  AttributeGroupItem,
-  AttributeFilterState,
-  DuplicateAttributePair,
-  VariantGenerationRule,
-} from "@/types/attributeManagement";
-import {
-  MOCK_ATTRIBUTES,
-  MOCK_ATTRIBUTE_GROUPS,
-  MOCK_ATTRIBUTE_KPIS,
-  MOCK_VARIANT_RULES,
-} from "@/data/attributes.mock";
-
+import type { AttributeFilterState, AttributeMutationPayload, CatalogueAttribute, DuplicateAttributePair } from "@/types/attributeManagement";
+import { useAttributeManagement } from "@/hooks/useAttributeManagement";
+import { useDebounce } from "@/hooks/useDebounce";
+import { archiveAttribute, bulkAttributes, createAttribute, exportAttributes, importAttributes, mergeAttributes, updateAttribute, updateAttributeValues } from "@/services/api/attributeManagement";
 import { AttributeHeader } from "./components/AttributeHeader";
 import { AttributeBusinessContext } from "./components/AttributeBusinessContext";
 import { AttributeKpiGrid } from "./components/AttributeKpiGrid";
@@ -27,457 +17,73 @@ import { AttributeTable } from "./components/AttributeTable";
 import { SelectedAttributePreview } from "./components/SelectedAttributePreview";
 import { AttributeIntelligenceSidebar } from "./components/AttributeIntelligenceSidebar";
 import { AttributeLowerDashboards } from "./components/AttributeLowerDashboards";
-
 import { AttributeFormDrawer } from "./modals/AttributeFormDrawer";
-import { VariantRuleDrawer } from "./modals/VariantRuleDrawer";
 import { AllowedValuesDrawer } from "./modals/AllowedValuesDrawer";
 import { ImportAttributesModal } from "./modals/ImportAttributesModal";
 import { DuplicateAttributeComparisonModal } from "./modals/DuplicateAttributeComparisonModal";
-import { SaveAttributeViewModal } from "./modals/SaveAttributeViewModal";
-import { MoreAttributeFiltersDrawer } from "./modals/MoreAttributeFiltersDrawer";
+
+const defaults: AttributeFilterState = { searchQuery: "", statusTab: "All Attributes", group: "All Groups", category: "All Categories", status: "All Statuses", dataType: "All Types", requiredStatus: "All", variantGenerating: "All", channelEligibility: "All Channels", riskLevel: "All", owner: "All Owners", updatedDate: "" };
+
+const payloadFrom = (attribute: Partial<CatalogueAttribute>, groupId?: string | null): AttributeMutationPayload => ({
+  name: attribute.attributeName?.trim() || "",
+  attribute_group_id: groupId ? Number(groupId) : null,
+  data_type: (attribute.dataType || "Text").toLowerCase(),
+  input_type: (attribute.inputType || "Text").toLowerCase().replace("-", "_"),
+  is_required: Boolean(attribute.isRequired),
+  is_variant_defining: Boolean(attribute.isVariantGenerating),
+  status: (attribute.status || "active").toLowerCase(),
+  definition: attribute.definition || "",
+});
 
 export const AttributeManagementView: React.FC = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+  const params = useSearchParams(); const router = useRouter(); const pathname = usePathname();
+  const [filters, setFilters] = useState<AttributeFilterState>({ ...defaults, searchQuery: params.get("search") || "", statusTab: params.get("tab") || defaults.statusTab });
+  const [page, setPage] = useState(1); const [pageSize, setPageSize] = useState(10);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]); const [selected, setSelected] = useState<CatalogueAttribute | null>(null);
+  const [activeKpi, setActiveKpi] = useState<string | null>(null); const [editing, setEditing] = useState<CatalogueAttribute | null>(null);
+  const [formOpen, setFormOpen] = useState(false); const [valuesOpen, setValuesOpen] = useState(false); const [importOpen, setImportOpen] = useState(false);
+  const [duplicate, setDuplicate] = useState<DuplicateAttributePair | null>(null);
+  const debouncedSearch = useDebounce(filters.searchQuery, 350);
+  const scope = ({ Active: "active", Required: "required", "Variant Attributes": "variant", "Data Quality Issues": "quality", Duplicates: "duplicates", "Invalid Combinations": "invalid" } as Record<string,string>)[filters.statusTab];
+  const query = useMemo(() => ({ page, pageSize, search: debouncedSearch || undefined, groupId: filters.group !== "All Groups" ? filters.group : undefined, categoryId: filters.category !== "All Categories" ? filters.category : undefined, status: filters.status !== "All Statuses" ? filters.status.toLowerCase() : undefined, dataType: filters.dataType !== "All Types" ? filters.dataType.toLowerCase() : undefined, required: filters.requiredStatus === "Required" ? true : filters.requiredStatus === "Optional" ? false : undefined, variantGenerating: filters.variantGenerating === "Yes" ? true : filters.variantGenerating === "No" ? false : undefined, scope, updatedFrom: filters.updatedDate || undefined }), [page, pageSize, debouncedSearch, filters, scope]);
+  const { data, loading, refreshing, error, refresh } = useAttributeManagement(query);
+  const rows = data?.attributes.data || [];
 
-  // Primary Data State
-  const [attributes, setAttributes] = useState<CatalogueAttribute[]>(MOCK_ATTRIBUTES);
-  const [groups] = useState<AttributeGroupItem[]>(MOCK_ATTRIBUTE_GROUPS);
-  const [selectedGroupName, setSelectedGroupName] = useState<string>("All Groups");
-  const [selectedAttributeIds, setSelectedAttributeIds] = useState<string[]>([]);
-  const [selectedAttribute, setSelectedAttribute] = useState<CatalogueAttribute | null>(MOCK_ATTRIBUTES[0] || null);
-  const [activeKpiId, setActiveKpiId] = useState<string | null>(null);
+  useEffect(() => { const queryParams = new URLSearchParams(); if (filters.searchQuery) queryParams.set("search", filters.searchQuery); if (filters.statusTab !== defaults.statusTab) queryParams.set("tab", filters.statusTab); router.replace(queryParams.size ? `${pathname}?${queryParams}` : pathname, { scroll: false }); }, [filters.searchQuery, filters.statusTab, pathname, router]);
+  useEffect(() => { setPage(1); }, [filters]);
+  useEffect(() => { if (!selected || !rows.some(row => row.id === selected.id)) setSelected(rows[0] || null); }, [rows, selected]);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const mutate = async (work: () => Promise<unknown>, message: string) => { try { await work(); toast.success(message); await refresh(); } catch (cause) { toast.error(cause instanceof Error ? cause.message : "The operation failed."); throw cause; } };
+  const setFilter = (key: keyof AttributeFilterState, value: string) => setFilters(previous => ({ ...previous, [key]: value }));
+  const counts = { all: data?.tabs.find(t => t.scope === "all")?.count || 0, active: data?.tabs.find(t => t.scope === "active")?.count || 0, required: data?.tabs.find(t => t.scope === "required")?.count || 0, variant: data?.tabs.find(t => t.scope === "variant")?.count || 0, dataQuality: data?.tabs.find(t => t.scope === "quality")?.count || 0, duplicates: data?.tabs.find(t => t.scope === "duplicates")?.count || 0, invalidCombos: data?.tabs.find(t => t.scope === "invalid")?.count ?? null };
 
-  // Filters State
-  const [filters, setFilters] = useState<AttributeFilterState>({
-    searchQuery: searchParams.get("search") || "",
-    statusTab: searchParams.get("tab") || "All Attributes",
-    group: searchParams.get("group") || "All Groups",
-    category: searchParams.get("category") || "All Categories",
-    status: searchParams.get("status") || "All Statuses",
-    dataType: searchParams.get("type") || "All Types",
-    requiredStatus: searchParams.get("required") || "All",
-    variantGenerating: searchParams.get("variant") || "All",
-    channelEligibility: searchParams.get("channel") || "All Channels",
-    riskLevel: searchParams.get("risk") || "All",
-    owner: searchParams.get("owner") || "All Owners",
-    updatedDate: "",
-  });
+  if (loading && !data) return <div className="m-5 min-h-[420px] animate-pulse rounded border border-gray-200 bg-white p-8 text-sm text-gray-500">Loading live attribute management data…</div>;
+  if (error && !data) return <div className="m-5 rounded border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800"><p className="font-bold">Attribute management could not be loaded.</p><p className="mt-1">{error.message}</p><button onClick={refresh} className="mt-3 rounded bg-[#741d35] px-3 py-1.5 font-bold text-white">Retry</button></div>;
+  if (!data) return null;
 
-  const [lastSynced, setLastSynced] = useState("04 Aug 2026, 12:57 AM");
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const save = async (draft: Partial<CatalogueAttribute>) => { const groupId = data.options.groups.find(g => g.name === draft.groupName)?.id || draft.groupId; await mutate(() => editing ? updateAttribute(editing.id, payloadFrom(draft, groupId)) : createAttribute(payloadFrom(draft, groupId)), editing ? "Attribute updated." : "Attribute created."); setFormOpen(false); };
+  const doMerge = async (pair: DuplicateAttributePair) => { const [target, source] = pair.attributeIds || []; if (!target || !source) return toast.error("The database did not return both duplicate IDs."); await mutate(() => mergeAttributes(source, target), "Duplicate attributes merged."); setDuplicate(null); };
 
-  // Modal & Drawer States
-  const [isCreateAttributeOpen, setIsCreateAttributeOpen] = useState(false);
-  const [attributeToEdit, setAttributeToEdit] = useState<CatalogueAttribute | null>(null);
-  const [isVariantRuleOpen, setIsVariantRuleOpen] = useState(false);
-  const [ruleToEdit, setRuleToEdit] = useState<VariantGenerationRule | null>(null);
-  const [isAllowedValuesOpen, setIsAllowedValuesOpen] = useState(false);
-  const [allowedValuesAttribute, setAllowedValuesAttribute] = useState<CatalogueAttribute | null>(null);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
-  const [duplicatePair, setDuplicatePair] = useState<DuplicateAttributePair | null>(null);
-  const [isSaveViewModalOpen, setIsSaveViewModalOpen] = useState(false);
-  const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
-
-  // Sync state to URL
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (filters.searchQuery) params.set("search", filters.searchQuery);
-    if (filters.statusTab && filters.statusTab !== "All Attributes") params.set("tab", filters.statusTab);
-    if (filters.dataType !== "All Types") params.set("type", filters.dataType);
-    if (filters.requiredStatus !== "All") params.set("required", filters.requiredStatus);
-    const queryString = params.toString();
-    const targetUrl = queryString ? `${pathname}?${queryString}` : pathname;
-    router.replace(targetUrl, { scroll: false });
-  }, [filters, pathname, router]);
-
-  // Reset page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, selectedGroupName]);
-
-  // Filter Computation
-  const filteredAttributes = useMemo(() => {
-    return attributes.filter((a) => {
-      if (filters.searchQuery) {
-        const q = filters.searchQuery.toLowerCase();
-        if (
-          !a.attributeName.toLowerCase().includes(q) &&
-          !a.attributeId.toLowerCase().includes(q) &&
-          !a.groupName.toLowerCase().includes(q) &&
-          !a.owner.toLowerCase().includes(q)
-        )
-          return false;
-      }
-      if (selectedGroupName && selectedGroupName !== "All Groups") {
-        if (a.groupName.toLowerCase() !== selectedGroupName.toLowerCase()) return false;
-      }
-      if (filters.group !== "All Groups" && a.groupName.toLowerCase() !== filters.group.toLowerCase()) return false;
-      if (filters.statusTab !== "All Attributes") {
-        const tab = filters.statusTab.toLowerCase();
-        if (tab === "active" && !a.isRequired) return false;
-        if (tab === "required" && !a.isRequired) return false;
-        if (tab === "variant attributes" && !a.isVariantGenerating) return false;
-        if (tab === "data quality issues" && a.issuesCount === 0) return false;
-        if (tab === "duplicates" && a.riskLevel !== "Medium") return false;
-        if (tab === "invalid combinations" && a.issuesCount < 3) return false;
-      }
-      if (filters.dataType !== "All Types" && a.dataType !== filters.dataType) return false;
-      if (filters.requiredStatus === "Required" && !a.isRequired) return false;
-      if (filters.requiredStatus === "Optional" && a.isRequired) return false;
-      if (filters.variantGenerating === "Yes" && !a.isVariantGenerating) return false;
-      if (filters.variantGenerating === "No" && a.isVariantGenerating) return false;
-      if (filters.riskLevel !== "All" && a.riskLevel !== filters.riskLevel) return false;
-      if (filters.owner !== "All Owners" && a.owner !== filters.owner) return false;
-      return true;
-    });
-  }, [attributes, selectedGroupName, filters]);
-
-  // Paginated slice
-  const totalFiltered = filteredAttributes.length;
-  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
-  const paginatedAttributes = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredAttributes.slice(start, start + pageSize);
-  }, [filteredAttributes, currentPage, pageSize]);
-
-  // Tab counts
-  const tabCounts = useMemo(() => ({
-    all: attributes.length,
-    active: attributes.filter((a) => a.isRequired).length,
-    required: attributes.filter((a) => a.isRequired).length,
-    variant: attributes.filter((a) => a.isVariantGenerating).length,
-    dataQuality: attributes.filter((a) => a.issuesCount > 0).length,
-    duplicates: attributes.filter((a) => a.riskLevel === "Medium").length,
-    invalidCombos: attributes.filter((a) => a.issuesCount >= 3).length,
-  }), [attributes]);
-
-  // Event Handlers
-  const handleFilterChange = (key: keyof AttributeFilterState, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleClearAll = () => {
-    setFilters({
-      searchQuery: "",
-      statusTab: "All Attributes",
-      group: "All Groups",
-      category: "All Categories",
-      status: "All Statuses",
-      dataType: "All Types",
-      requiredStatus: "All",
-      variantGenerating: "All",
-      channelEligibility: "All Channels",
-      riskLevel: "All",
-      owner: "All Owners",
-      updatedDate: "",
-    });
-    setSelectedGroupName("All Groups");
-    setActiveKpiId(null);
-    setSelectedAttributeIds([]);
-    toast.success("Filters cleared.");
-  };
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      const now = new Date();
-      setLastSynced(
-        now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
-          ", " +
-          now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      );
-      toast.success("Refreshed Attribute Management dataset.");
-    }, 600);
-  };
-
-  const handleKpiClick = (kpiId: string) => {
-    setActiveKpiId(kpiId === activeKpiId ? null : kpiId);
-    if (kpiId === "kpi-2") setFilters((prev) => ({ ...prev, statusTab: "Active" }));
-    else if (kpiId === "kpi-4") setFilters((prev) => ({ ...prev, statusTab: "Variant Attributes" }));
-    else if (kpiId === "kpi-5") setFilters((prev) => ({ ...prev, requiredStatus: "Required" }));
-    else if (kpiId === "kpi-6") setFilters((prev) => ({ ...prev, statusTab: "Data Quality Issues" }));
-    else if (kpiId === "kpi-7") setFilters((prev) => ({ ...prev, statusTab: "Invalid Combinations" }));
-    else setFilters((prev) => ({ ...prev, statusTab: "All Attributes" }));
-  };
-
-  const handleToggleSelectRow = (id: string) => {
-    setSelectedAttributeIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleToggleSelectAll = () => {
-    if (paginatedAttributes.every((a) => selectedAttributeIds.includes(a.id))) {
-      setSelectedAttributeIds([]);
-    } else {
-      setSelectedAttributeIds(paginatedAttributes.map((a) => a.id));
-    }
-  };
-
-  const handleExport = () => {
-    const targetAttrs =
-      selectedAttributeIds.length > 0
-        ? attributes.filter((a) => selectedAttributeIds.includes(a.id))
-        : filteredAttributes;
-    const headers = ["Attribute Name", "Attribute ID", "Group", "Data Type", "Input Type", "Required", "Variant Generating", "Completeness", "Owner"];
-    const rows = targetAttrs.map((a) => [
-      `"${a.attributeName}"`,
-      `"${a.attributeId}"`,
-      `"${a.groupName}"`,
-      `"${a.dataType}"`,
-      `"${a.inputType}"`,
-      a.isRequired ? "Yes" : "No",
-      a.isVariantGenerating ? "Yes" : "No",
-      `${a.completenessPercent}%`,
-      `"${a.owner}"`,
-    ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const link = document.createElement("a");
-    link.setAttribute("href", encodeURI(csvContent));
-    link.setAttribute("download", `attribute_report_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success(`Exported ${targetAttrs.length} attribute records to CSV!`);
-  };
-
-  const handleSaveAttribute = (attrData: Partial<CatalogueAttribute>) => {
-    if (attributeToEdit) {
-      setAttributes((prev) =>
-        prev.map((a) =>
-          a.id === attributeToEdit.id ? ({ ...a, ...attrData } as CatalogueAttribute) : a
-        )
-      );
-    } else {
-      const newAttr: CatalogueAttribute = {
-        id: `attr-${Date.now()}`,
-        attributeName: attrData.attributeName || "New Attribute",
-        attributeId: attrData.attributeId || `ATTR-0${Math.floor(200 + Math.random() * 800)}`,
-        groupName: attrData.groupName || "Variants & Attributes",
-        dataType: attrData.dataType || "Text",
-        inputType: attrData.inputType || "Dropdown",
-        isRequired: attrData.isRequired ?? true,
-        isVariantGenerating: attrData.isVariantGenerating ?? true,
-        categoryCoveragePercent: 85,
-        productUsageCount: 0,
-        allowedValueCount: 10,
-        variantCount: 10,
-        validationRuleId: "VR-200",
-        inheritance: "None",
-        channelEligibilityText: "5 / 5",
-        eligibleChannelsCount: 5,
-        totalChannelsCount: 5,
-        completenessPercent: 90,
-        issuesCount: 0,
-        riskLevel: "Low",
-        owner: attrData.owner || "Elena Vance",
-        updatedAt: "Just now",
-        definition: attrData.definition,
-      };
-      setAttributes((prev) => [newAttr, ...prev]);
-    }
-  };
-
-  const handleArchiveAttribute = (attr: CatalogueAttribute) => {
-    setAttributes((prev) => prev.filter((a) => a.id !== attr.id));
-    toast.success(`Archived attribute "${attr.attributeName}".`);
-  };
-
-  return (
-    <div className="w-full flex flex-col bg-gray-50/50 pb-12 min-w-0">
-      {/* 1. Page Header */}
-      <AttributeHeader
-        onExport={handleExport}
-        onImport={() => setIsImportModalOpen(true)}
-        onBulkActions={() => toast.success(`Executing bulk action on ${selectedAttributeIds.length} items.`)}
-        onCreateAttribute={() => {
-          setAttributeToEdit(null);
-          setIsCreateAttributeOpen(true);
-        }}
-        onCreateVariantRule={() => {
-          setRuleToEdit(null);
-          setIsVariantRuleOpen(true);
-        }}
-        selectedCount={selectedAttributeIds.length}
-      />
-
-      {/* 2. Business Context Strip */}
-      <AttributeBusinessContext
-        lastSynced={lastSynced}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-      />
-
-      {/* Main Body — Two zones: ~82% workspace + ~18% sticky right rail */}
-      <div className="flex flex-col xl:flex-row gap-4 p-4 sm:p-5 items-start min-w-0">
-
-        {/* LEFT+CENTER: Main Workspace (82%) */}
-        <div className="flex flex-col gap-4 min-w-0 flex-1">
-
-          {/* 3. KPI Grid */}
-          <AttributeKpiGrid
-            kpis={MOCK_ATTRIBUTE_KPIS}
-            activeKpiId={activeKpiId}
-            onKpiClick={handleKpiClick}
-          />
-
-          {/* 4. Status Tabs */}
-          <AttributeStatusTabs
-            activeTab={filters.statusTab}
-            onTabChange={(tab) => setFilters((prev) => ({ ...prev, statusTab: tab }))}
-            counts={tabCounts}
-          />
-
-          {/* 5. Filter Bar */}
-          <AttributeFilters
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClearAll={handleClearAll}
-            onOpenMoreFilters={() => setIsMoreFiltersOpen(true)}
-            onOpenSaveView={() => setIsSaveViewModalOpen(true)}
-            onRefresh={handleRefresh}
-          />
-
-          {/* 6. Three-column workspace: Groups | Table | Preview */}
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(160px,200px)_1fr_minmax(220px,280px)] gap-3 items-start min-w-0">
-
-            {/* Left: Attribute Groups */}
-            <div className="min-w-0">
-              <AttributeGroupPanel
-                groups={groups}
-                selectedGroupName={selectedGroupName}
-                onSelectGroup={(grpName) => setSelectedGroupName(grpName)}
-              />
-            </div>
-
-            {/* Centre: Attributes Table */}
-            <div className="min-w-0 overflow-hidden">
-              <AttributeTable
-                attributes={paginatedAttributes}
-                totalCount={1842}
-                filteredCount={totalFiltered}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
-                selectedAttributeIds={selectedAttributeIds}
-                selectedAttribute={selectedAttribute}
-                onSelectAttribute={(a) => setSelectedAttribute(a)}
-                onToggleSelectRow={handleToggleSelectRow}
-                onToggleSelectAll={handleToggleSelectAll}
-                onEditAttribute={(a) => {
-                  setAttributeToEdit(a);
-                  setIsCreateAttributeOpen(true);
-                }}
-                onManageAllowedValues={(a) => {
-                  setAllowedValuesAttribute(a);
-                  setIsAllowedValuesOpen(true);
-                }}
-                onArchiveAttribute={handleArchiveAttribute}
-              />
-            </div>
-
-            {/* Right: Selected Attribute Preview */}
-            <div className="min-w-0">
-              <SelectedAttributePreview
-                attribute={selectedAttribute}
-                onEditAttribute={(a) => {
-                  setAttributeToEdit(a);
-                  setIsCreateAttributeOpen(true);
-                }}
-                onManageAllowedValues={(a) => {
-                  setAllowedValuesAttribute(a);
-                  setIsAllowedValuesOpen(true);
-                }}
-              />
-            </div>
-          </div>
-
-          {/* 7. Lower Summary Dashboards */}
-          <AttributeLowerDashboards
-            onCompareDuplicate={(pair) => {
-              setDuplicatePair(pair);
-              setIsDuplicateModalOpen(true);
-            }}
-            onMergeDuplicate={(pair) => toast.success(`Merged duplicate into ${pair.attributeName}`)}
-            onIgnoreDuplicate={() => toast.success("Ignored duplicate candidate match.")}
-            onEditVariantRule={(rule) => {
-              setRuleToEdit(rule);
-              setIsVariantRuleOpen(true);
-            }}
-          />
+  return <div className="w-full min-w-0 bg-gray-50/50 pb-12">
+    <AttributeHeader canExport={Boolean(data.capabilities.canExport)} canImport={Boolean(data.capabilities.canImport)} canManage={Boolean(data.capabilities.canManage)} variantRulesAvailable={Boolean(data.capabilities.variantRules)} onExport={() => void exportAttributes(query)} onImport={() => setImportOpen(true)} onBulkActions={() => void mutate(() => bulkAttributes(selectedIds, "archive"), `Archived ${selectedIds.length} attributes.`).then(() => setSelectedIds([]))} onCreateAttribute={() => { setEditing(null); setFormOpen(true); }} onCreateVariantRule={() => toast.error(String(data.capabilities.variantRulesReason || "Variant rules are unavailable because no authoritative schema is installed."))} selectedCount={selectedIds.length} />
+    <AttributeBusinessContext lastSynced={new Date(data.lastSyncedAt).toLocaleString()} onRefresh={refresh} isRefreshing={refreshing} />
+    <div className="flex min-w-0 flex-col items-start gap-4 p-4 sm:p-5 xl:flex-row">
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <AttributeKpiGrid kpis={data.kpis} activeKpiId={activeKpi} onKpiClick={id => { setActiveKpi(id === activeKpi ? null : id); const kpi = data.kpis.find(item => item.id === id); if (kpi?.filterKey) setFilter("statusTab", data.tabs.find(tab => tab.scope === kpi.filterKey)?.label || "All Attributes"); }} />
+        <AttributeStatusTabs activeTab={filters.statusTab} onTabChange={tab => setFilter("statusTab", tab)} counts={counts} />
+        <AttributeFilters filters={filters} onFilterChange={setFilter} onClearAll={() => { setFilters(defaults); setSelectedIds([]); setActiveKpi(null); }} onOpenMoreFilters={() => toast.error("Additional filters require authoritative governance schemas.")} onOpenSaveView={() => toast.error("Saved views are unavailable because no saved-view schema is installed.")} onRefresh={refresh} options={data.options} capabilities={data.capabilities} />
+        <div className="grid min-w-0 grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(160px,200px)_1fr_minmax(220px,280px)]">
+          <AttributeGroupPanel groups={data.groups} selectedGroupName={data.options.groups.find(g => g.id === filters.group)?.name || "All Groups"} onSelectGroup={name => setFilter("group", data.options.groups.find(g => g.name === name)?.id || "All Groups")} />
+          <div className="min-w-0 overflow-hidden"><AttributeTable attributes={rows} totalCount={data.attributes.total} filteredCount={data.attributes.total} currentPage={data.attributes.currentPage} pageSize={data.attributes.pageSize} totalPages={data.attributes.lastPage} onPageChange={setPage} onPageSizeChange={size => { setPageSize(size); setPage(1); }} selectedAttributeIds={selectedIds} selectedAttribute={selected} onSelectAttribute={setSelected} onToggleSelectRow={id => setSelectedIds(old => old.includes(id) ? old.filter(item => item !== id) : [...old, id])} onToggleSelectAll={() => setSelectedIds(rows.every(row => selectedIds.includes(row.id)) ? [] : rows.map(row => row.id))} onEditAttribute={attribute => { setEditing(attribute); setFormOpen(true); }} onManageAllowedValues={attribute => { setSelected(attribute); setValuesOpen(true); }} onArchiveAttribute={attribute => { if (window.confirm(`Archive ${attribute.attributeName}?`)) void mutate(() => archiveAttribute(attribute.id), "Attribute archived."); }} /></div>
+          <SelectedAttributePreview attribute={selected} onEditAttribute={attribute => { setEditing(attribute); setFormOpen(true); }} onManageAllowedValues={attribute => { setSelected(attribute); setValuesOpen(true); }} />
         </div>
-
-        {/* RIGHT: Intelligence Sidebar (18%, sticky) */}
-        <div className="w-full xl:w-[280px] xl:shrink-0 xl:sticky xl:top-4 flex flex-col gap-3">
-          <AttributeIntelligenceSidebar
-            onSelectQueue={(queueKey) => {
-              if (queueKey === "missing") setFilters((prev) => ({ ...prev, statusTab: "Data Quality Issues" }));
-              else if (queueKey === "invalid") setFilters((prev) => ({ ...prev, statusTab: "Invalid Combinations" }));
-              else if (queueKey === "skus") setFilters((prev) => ({ ...prev, statusTab: "Duplicates" }));
-              else toast.success(`Filtering by ${queueKey}`);
-            }}
-          />
-        </div>
+        <AttributeLowerDashboards data={data.lower} capabilities={data.capabilities} onCompareDuplicate={pair => setDuplicate(pair)} />
       </div>
-
-      {/* Modals & Drawers */}
-      <AttributeFormDrawer
-        isOpen={isCreateAttributeOpen}
-        onClose={() => setIsCreateAttributeOpen(false)}
-        attributeToEdit={attributeToEdit}
-        onSave={handleSaveAttribute}
-        existingAttributes={attributes}
-      />
-
-      <VariantRuleDrawer
-        isOpen={isVariantRuleOpen}
-        onClose={() => setIsVariantRuleOpen(false)}
-        ruleToEdit={ruleToEdit}
-        onSaveRule={() => toast.success("Saved variant rule!")}
-      />
-
-      <AllowedValuesDrawer
-        isOpen={isAllowedValuesOpen}
-        onClose={() => setIsAllowedValuesOpen(false)}
-        attribute={allowedValuesAttribute}
-      />
-
-      <ImportAttributesModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImportSuccess={() => handleRefresh()}
-      />
-
-      <DuplicateAttributeComparisonModal
-        isOpen={isDuplicateModalOpen}
-        onClose={() => setIsDuplicateModalOpen(false)}
-        pair={duplicatePair}
-        onMerge={(pair) => toast.success(`Merged duplicate into ${pair.attributeName}`)}
-        onIgnore={() => toast.success("Ignored match.")}
-      />
-
-      <SaveAttributeViewModal
-        isOpen={isSaveViewModalOpen}
-        onClose={() => setIsSaveViewModalOpen(false)}
-      />
-
-      <MoreAttributeFiltersDrawer
-        isOpen={isMoreFiltersOpen}
-        onClose={() => setIsMoreFiltersOpen(false)}
-        onApply={() => {}}
-      />
+      <div className="flex w-full flex-col gap-3 xl:sticky xl:top-4 xl:w-[280px] xl:shrink-0"><AttributeIntelligenceSidebar health={data.health} alerts={data.alerts} statusSummary={data.statusSummary} variantReadiness={data.variantReadiness} coverageSummary={data.coverageSummary} capabilities={data.capabilities} onSelectQueue={scopeKey => setFilter("statusTab", data.tabs.find(tab => tab.scope === scopeKey)?.label || "All Attributes")} /></div>
     </div>
-  );
+    <AttributeFormDrawer isOpen={formOpen} onClose={() => setFormOpen(false)} attributeToEdit={editing} onSave={save} existingAttributes={rows} groups={data.options.groups} />
+    <AllowedValuesDrawer isOpen={valuesOpen} onClose={() => setValuesOpen(false)} attribute={selected} onSave={values => mutate(() => updateAttributeValues(selected!.id, values), "Allowed values saved.").then(() => setValuesOpen(false))} />
+    <ImportAttributesModal isOpen={importOpen} onClose={() => setImportOpen(false)} onImport={file => importAttributes(file)} onImportSuccess={() => { setImportOpen(false); void refresh(); }} />
+    <DuplicateAttributeComparisonModal isOpen={Boolean(duplicate)} onClose={() => setDuplicate(null)} pair={duplicate} onMerge={doMerge} onIgnore={() => toast.error("Ignoring duplicate matches requires a persistence schema that is not installed.")} />
+  </div>;
 };

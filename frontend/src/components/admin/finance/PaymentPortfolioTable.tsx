@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PaymentPortfolioRow } from '@/types/finance';
-import { FN03_PORTFOLIO } from '@/data/mockPaymentData';
+import { paymentsView, usePaymentsManagement } from '@/contexts/FinanceRevenuePaymentsContext';
 
 function StatusBadge({ status, type }: { status: string; type?: 'auth' | 'cap' | 'resp' | 'risk' | 'dup' | 'hold' | 'settle' | 'recon' | 'sla' }) {
   let color = 'bg-gray-100 text-gray-700';
@@ -38,6 +38,8 @@ interface Props {
 }
 
 export function PaymentPortfolioTable({ selectedId, onSelectRow }: Props) {
+  const { data } = usePaymentsManagement();
+  const portfolio = paymentsView(data).rows;
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState<keyof PaymentPortfolioRow>('id');
@@ -67,7 +69,7 @@ export function PaymentPortfolioTable({ selectedId, onSelectRow }: Props) {
       <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <h2 className="text-xs font-bold text-gray-900">Payments &amp; Transaction Portfolio</h2>
-          <span className="text-[10px] text-gray-500 font-medium">Showing 1 to 10 of 8,542 records</span>
+          <span className="text-[10px] text-gray-500 font-medium">Showing {portfolio.length} of {data?.meta.total ?? portfolio.length} records</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -121,7 +123,7 @@ export function PaymentPortfolioTable({ selectedId, onSelectRow }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 font-medium">
-            {FN03_PORTFOLIO.map((row) => {
+            {portfolio.map((row) => {
               const isSelected = row.id === selectedId;
               return (
                 <tr

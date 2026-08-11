@@ -27,6 +27,8 @@ import {
 interface TableProps {
   assets: MediaAsset[];
   totalCount: number;
+  totalPages: number;
+  canManage: boolean;
   selectedAssetId: string;
   onSelectAsset: (id: string) => void;
   selectedRowIds: string[];
@@ -50,6 +52,8 @@ interface TableProps {
 export function MediaAssetTable({
   assets,
   totalCount,
+  totalPages,
+  canManage,
   selectedAssetId,
   onSelectAsset,
   selectedRowIds,
@@ -210,14 +214,14 @@ export function MediaAssetTable({
                       <div className="w-10 h-10 rounded border border-line bg-slate-100 overflow-hidden relative flex items-center justify-center mx-auto">
                         {asset.category === "image" && (
                           <img
-                            src={asset.thumbnailUrl}
+                            src={asset.thumbnailUrl || ""}
                             alt={asset.name}
                             className="w-full h-full object-cover"
                           />
                         )}
                         {asset.category === "video" && (
                           <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white relative">
-                            <img src={asset.thumbnailUrl} alt={asset.name} className="w-full h-full object-cover opacity-60" />
+                            <img src={asset.thumbnailUrl || ""} alt={asset.name} className="w-full h-full object-cover opacity-60" />
                             <Play size={14} className="absolute fill-white text-white" />
                           </div>
                         )}
@@ -288,11 +292,13 @@ export function MediaAssetTable({
                     {/* Channel Compatibility Icons */}
                     <td className="py-2 px-3 align-middle text-center">
                       <div className="flex items-center justify-center gap-1.5 text-slate-400">
-                        <span title="Web"><Globe size={13} className={asset.channelCompatibility.web ? "text-emerald-600" : "opacity-30"} /></span>
-                        <span title="Mobile"><Smartphone size={13} className={asset.channelCompatibility.mobile ? "text-emerald-600" : "opacity-30"} /></span>
-                        <span title="B2B"><Store size={13} className={asset.channelCompatibility.b2b ? "text-emerald-600" : "opacity-30"} /></span>
-                        <span title="Partner"><ShoppingBag size={13} className={asset.channelCompatibility.partner ? "text-emerald-600" : "opacity-30"} /></span>
-                        <span title="Social"><Share2 size={13} className={asset.channelCompatibility.social ? "text-emerald-600" : "opacity-30"} /></span>
+                        {asset.channelCompatibility ? <>
+                          <span title="Web"><Globe size={13} className={asset.channelCompatibility.web ? "text-emerald-600" : "opacity-30"} /></span>
+                          <span title="Mobile"><Smartphone size={13} className={asset.channelCompatibility.mobile ? "text-emerald-600" : "opacity-30"} /></span>
+                          <span title="B2B"><Store size={13} className={asset.channelCompatibility.b2b ? "text-emerald-600" : "opacity-30"} /></span>
+                          <span title="Partner"><ShoppingBag size={13} className={asset.channelCompatibility.partner ? "text-emerald-600" : "opacity-30"} /></span>
+                          <span title="Social"><Share2 size={13} className={asset.channelCompatibility.social ? "text-emerald-600" : "opacity-30"} /></span>
+                        </> : <span className="text-[9px] text-muted">N/A</span>}
                       </div>
                     </td>
 
@@ -312,13 +318,13 @@ export function MediaAssetTable({
                     {/* Quality Status Score */}
                     <td className="py-2 px-3 align-middle font-bold">
                       <span className={
-                        asset.qualityScore >= 90
+                        (asset.qualityScore ?? 0) >= 90
                           ? "text-emerald-600 font-mono"
-                          : asset.qualityScore >= 75
+                          : (asset.qualityScore ?? 0) >= 75
                           ? "text-amber-600 font-mono"
                           : "text-rose-600 font-mono"
                       }>
-                        {asset.qualityScore}/100
+                        {asset.qualityScore == null ? "N/A" : `${asset.qualityScore}/100`}
                       </span>
                     </td>
 
@@ -402,27 +408,31 @@ export function MediaAssetTable({
                             <Eye size={13} className="text-slate-500" /> Preview Asset
                           </button>
                           <button
+                            disabled={!canManage}
                             onClick={() => { setOpenMenuId(null); onEdit(asset); }}
-                            className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2"
+                            className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <Edit3 size={13} className="text-slate-500" /> Edit Metadata
                           </button>
                           <button
+                            disabled={!canManage}
                             onClick={() => { setOpenMenuId(null); onApprove(asset.id); }}
-                            className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-emerald-700 font-semibold"
+                            className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-emerald-700 font-semibold disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <ShieldCheck size={13} /> Approve Asset
                           </button>
                           <button
+                            disabled={!canManage}
                             onClick={() => { setOpenMenuId(null); onRevoke(asset.id); }}
-                            className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-amber-700"
+                            className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-amber-700 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <RotateCcw size={13} /> Revoke Approval
                           </button>
                           <div className="border-t border-line my-1" />
                           <button
+                            disabled={!canManage}
                             onClick={() => { setOpenMenuId(null); onArchive(asset.id); }}
-                            className="w-full px-3 py-1.5 hover:bg-rose-50 flex items-center gap-2 text-rose-600"
+                            className="w-full px-3 py-1.5 hover:bg-rose-50 flex items-center gap-2 text-rose-600 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <Archive size={13} /> Archive Asset
                           </button>
@@ -440,8 +450,8 @@ export function MediaAssetTable({
       {/* Pagination Footer */}
       <div className="px-4 py-3 border-t border-line bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
         <div className="text-muted">
-          Showing <span className="font-bold text-ink">1</span> to{" "}
-          <span className="font-bold text-ink">{assets.length}</span> of{" "}
+          Showing <span className="font-bold text-ink">{assets.length ? (currentPage - 1) * rowsPerPage + 1 : 0}</span> to{" "}
+          <span className="font-bold text-ink">{Math.min(currentPage * rowsPerPage, totalCount)}</span> of{" "}
           <span className="font-bold text-ink">{totalCount.toLocaleString()}</span> assets
         </div>
 
@@ -454,40 +464,11 @@ export function MediaAssetTable({
             >
               <ChevronLeft size={13} />
             </button>
-            <button
-              onClick={() => onPageChange(1)}
-              className={`w-7 h-7 rounded text-[11px] font-bold ${
-                currentPage === 1 ? "bg-[#671021] text-white" : "bg-white border border-line text-ink"
-              }`}
-            >
-              1
-            </button>
-            <button
-              onClick={() => onPageChange(2)}
-              className={`w-7 h-7 rounded text-[11px] font-bold ${
-                currentPage === 2 ? "bg-[#671021] text-white" : "bg-white border border-line text-ink"
-              }`}
-            >
-              2
-            </button>
-            <button
-              onClick={() => onPageChange(3)}
-              className={`w-7 h-7 rounded text-[11px] font-bold ${
-                currentPage === 3 ? "bg-[#671021] text-white" : "bg-white border border-line text-ink"
-              }`}
-            >
-              3
-            </button>
-            <span className="text-muted font-bold px-1">...</span>
-            <button
-              onClick={() => onPageChange(2000)}
-              className="w-8 h-7 rounded bg-white border border-line text-ink text-[11px] font-bold"
-            >
-              2,000
-            </button>
+            {Array.from(new Set([1, Math.max(1, currentPage - 1), currentPage, Math.min(totalPages, currentPage + 1), totalPages])).sort((a,b)=>a-b).map((pageNumber, index, pages) => <React.Fragment key={pageNumber}>{index > 0 && pageNumber - pages[index - 1] > 1 && <span className="text-muted font-bold px-1">...</span>}<button onClick={() => onPageChange(pageNumber)} className={`min-w-7 h-7 px-1 rounded text-[11px] font-bold ${currentPage === pageNumber ? "bg-[#671021] text-white" : "bg-white border border-line text-ink"}`}>{pageNumber}</button></React.Fragment>)}
             <button
               onClick={() => onPageChange(currentPage + 1)}
-              className="p-1.5 rounded border border-line bg-white hover:bg-slate-50"
+              disabled={currentPage >= totalPages}
+              className="p-1.5 rounded border border-line bg-white hover:bg-slate-50 disabled:opacity-40"
             >
               <ChevronRight size={13} />
             </button>

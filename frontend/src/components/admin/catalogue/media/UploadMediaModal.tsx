@@ -3,26 +3,29 @@
 import React, { useState } from "react";
 import { X, Upload, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { validateMediaUpload, ValidationError } from "@/utils/mediaValidation";
+import type { MediaDashboardData } from "@/types/mediaManagement";
 
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (assetName: string) => void;
+  onUpload: (form: FormData, onProgress: (loaded: number, total: number) => void) => Promise<void>;
+  options: MediaDashboardData["options"];
 }
 
-export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
+export function UploadMediaModal({ isOpen, onClose, onSuccess, onUpload, options }: UploadModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [type, setType] = useState("Product Image — Hero");
-  const [linkedEntityType, setLinkedEntityType] = useState("Product");
+  const linkedEntityType = "Product";
   const [linkedEntityName, setLinkedEntityName] = useState("");
   const [variant, setVariant] = useState("");
   const [altText, setAltText] = useState("");
   const [description, setDescription] = useState("");
-  const [rightsOwner, setRightsOwner] = useState("Estée Lauder Global");
-  const [licenseType, setLicenseType] = useState("Commercial License");
-  const [rightsStartDate, setRightsStartDate] = useState("2026-08-01");
-  const [rightsExpiryDate, setRightsExpiryDate] = useState("2027-08-01");
+  const [rightsOwner, setRightsOwner] = useState("");
+  const [licenseType, setLicenseType] = useState("");
+  const [rightsStartDate, setRightsStartDate] = useState("");
+  const [rightsExpiryDate, setRightsExpiryDate] = useState("");
   const [isPrimary, setIsPrimary] = useState(true);
 
   const [isUploading, setIsUploading] = useState(false);
@@ -39,7 +42,7 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validateMediaUpload({
       name,
@@ -63,21 +66,18 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
     setErrors([]);
     setIsUploading(true);
 
-    // Simulate progress
-    let p = 0;
-    const interval = setInterval(() => {
-      p += 25;
-      setUploadProgress(p);
-      if (p >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-          onSuccess(name);
-          onClose();
-        }, 400);
-      }
-    }, 200);
+    const form = new FormData();
+    form.append("file", file!);
+    form.append("category", file!.type.startsWith("image/") ? (type.includes("Banner") ? "banner_image" : "product_image") : "document");
+    if (linkedEntityName) form.append("product_id", linkedEntityName);
+    if (altText.trim()) form.append("alt_text", altText.trim());
+    if (description.trim()) form.append("description", description.trim());
+    if (rightsExpiryDate) form.append("rights_expires_at", rightsExpiryDate);
+    try {
+      await onUpload(form, (loaded, total) => setUploadProgress(total ? Math.round(loaded / total * 100) : 0));
+      onSuccess(name || file!.name); onClose();
+    } catch (cause) { setErrors([{ field: "file", message: cause instanceof Error ? cause.message : "Unable to upload media." }]); }
+    finally { setIsUploading(false); setUploadProgress(0); }
   };
 
   return (
@@ -116,7 +116,7 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
               id="media-upload-input"
               className="hidden"
               onChange={handleFileChange}
-              accept="image/*,video/*,application/pdf"
+              accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xlsx"
             />
             <label htmlFor="media-upload-input" className="cursor-pointer flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-full bg-rose-50 text-[#671021] flex items-center justify-center">
@@ -125,7 +125,7 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
               <div>
                 <span className="font-bold text-ink">Click to upload</span> or drag and drop
               </div>
-              <p className="text-[10px] text-muted">Supported formats: JPEG, PNG, WEBP, MP4, PDF (max 50 MB)</p>
+              <p className="text-[10px] text-muted">Supported formats: JPEG, PNG, WEBP, PDF, DOC, DOCX, XLSX (max 20 MB)</p>
             </label>
             {file && (
               <div className="mt-3 p-2 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 font-mono text-[11px] font-bold inline-flex items-center gap-2">
@@ -158,7 +158,7 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
                 <option value="Packaging Image — Ingredients">Packaging Image — Ingredients</option>
                 <option value="Document — Certificate">Document — Certificate</option>
                 <option value="Campaign Image — Banner">Campaign Image — Banner</option>
-                <option value="Product Demo — Video">Product Demo — Video</option>
+                <option value="Product Demo — Video" disabled>Product Demo — Video (unsupported)</option>
                 <option value="Lifestyle Image — Model">Lifestyle Image — Model</option>
               </select>
             </div>
@@ -170,24 +170,19 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
               <label className="block font-bold text-ink mb-1">Linked Entity *</label>
               <select
                 value={linkedEntityType}
-                onChange={(e) => setLinkedEntityType(e.target.value)}
+                disabled
                 className="w-full h-9 px-3 border border-line rounded text-[12px] font-semibold text-ink focus:outline-none focus:border-[#671021]"
               >
                 <option value="Product">Product</option>
-                <option value="Brand">Brand</option>
-                <option value="Campaign">Campaign</option>
-                <option value="Compliance">Compliance</option>
               </select>
             </div>
             <div>
-              <label className="block font-bold text-ink mb-1">Entity Name / SKU *</label>
-              <input
-                type="text"
+              <label className="block font-bold text-ink mb-1">Product Master</label>
+              <select
                 value={linkedEntityName}
                 onChange={(e) => setLinkedEntityName(e.target.value)}
-                placeholder="e.g. Radiance Vitamin C Serum"
                 className="w-full h-9 px-3 border border-line rounded text-[12px] font-semibold text-ink focus:outline-none focus:border-[#671021]"
-              />
+              ><option value="">Unlinked</option>{options.products.map(product=><option key={product.id} value={product.id}>{product.name}</option>)}</select>
             </div>
             <div>
               <label className="block font-bold text-ink mb-1">Variant / Size</label>
@@ -196,6 +191,8 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
                 value={variant}
                 onChange={(e) => setVariant(e.target.value)}
                 placeholder="e.g. 30 ml"
+                disabled
+                title="Variant mapping is available after upload in Edit Metadata."
                 className="w-full h-9 px-3 border border-line rounded text-[12px] font-semibold text-ink focus:outline-none focus:border-[#671021]"
               />
             </div>
@@ -221,6 +218,8 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
                 type="text"
                 value={rightsOwner}
                 onChange={(e) => setRightsOwner(e.target.value)}
+                disabled
+                title="A rights-owner schema is not installed."
                 className="w-full h-9 px-3 border border-line rounded text-[12px] font-semibold text-ink"
               />
             </div>
@@ -230,6 +229,8 @@ export function UploadMediaModal({ isOpen, onClose, onSuccess }: UploadModalProp
                 type="date"
                 value={rightsStartDate}
                 onChange={(e) => setRightsStartDate(e.target.value)}
+                disabled
+                title="A rights-start schema is not installed."
                 className="w-full h-9 px-3 border border-line rounded text-[12px] font-semibold text-ink"
               />
             </div>

@@ -75,6 +75,7 @@ export function RevenueSearchFilterBar({ onSearch }: Props) {
     setBu('All BUs');
     setException('All');
     setApproval('All');
+    onSearch?.('');
   }
 
   return (

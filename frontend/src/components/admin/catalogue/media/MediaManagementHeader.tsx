@@ -9,6 +9,9 @@ interface HeaderProps {
   onOpenImport: () => void;
   onOpenUpload: () => void;
   onBulkAction: (action: string) => void;
+  canExport: boolean;
+  canImport: boolean;
+  canManage: boolean;
 }
 
 export function MediaManagementHeader({
@@ -17,6 +20,9 @@ export function MediaManagementHeader({
   onOpenImport,
   onOpenUpload,
   onBulkAction,
+  canExport,
+  canImport,
+  canManage,
 }: HeaderProps) {
   const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
 
@@ -47,6 +53,7 @@ export function MediaManagementHeader({
         <div className="flex items-center flex-wrap gap-2.5">
           <button
             onClick={onExport}
+            disabled={!canExport}
             className="h-9 px-3.5 rounded-md bg-white border border-line text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-sm"
           >
             <Download size={14} className="text-slate-600" />
@@ -55,6 +62,7 @@ export function MediaManagementHeader({
 
           <button
             onClick={onOpenImport}
+            disabled={!canImport}
             className="h-9 px-3.5 rounded-md bg-white border border-line text-[12px] font-semibold text-ink hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-sm"
           >
             <Upload size={14} className="text-slate-600" />
@@ -65,7 +73,7 @@ export function MediaManagementHeader({
           <div className="relative">
             <button
               onClick={() => setBulkMenuOpen(!bulkMenuOpen)}
-              disabled={selectedCount === 0}
+              disabled={selectedCount === 0 || !canManage}
               className={`h-9 px-3.5 rounded-md border text-[12px] font-semibold flex items-center gap-1.5 transition-colors shadow-sm ${
                 selectedCount > 0
                   ? "bg-white border-line text-ink hover:bg-slate-50 cursor-pointer"
@@ -86,14 +94,14 @@ export function MediaManagementHeader({
                   <ShieldCheck size={14} /> Approve Selected ({selectedCount})
                 </button>
                 <button
-                  onClick={() => handleBulkClick("Request Changes")}
-                  className="w-full text-left px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-amber-700"
+                  disabled title="Unavailable — no review-request workflow is installed"
+                  className="w-full cursor-not-allowed text-left px-3 py-1.5 flex items-center gap-2 text-slate-400"
                 >
                   <Tag size={14} /> Request Changes
                 </button>
                 <button
-                  onClick={() => handleBulkClick("Link Assets")}
-                  className="w-full text-left px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-sky-700"
+                  disabled title="Use per-asset metadata editing for authoritative product linking"
+                  className="w-full cursor-not-allowed text-left px-3 py-1.5 flex items-center gap-2 text-slate-400"
                 >
                   <Link2 size={14} /> Link to Product / Entity
                 </button>
@@ -110,6 +118,7 @@ export function MediaManagementHeader({
 
           <button
             onClick={onOpenUpload}
+            disabled={!canManage}
             className="h-9 px-4 rounded-md bg-[#671021] text-white text-[12px] font-bold hover:bg-[#520c1a] flex items-center gap-1.5 transition-colors shadow-sm"
           >
             <Plus size={16} />

@@ -43,7 +43,7 @@ export function MediaPreviewModal({ isOpen, asset, onClose, onDownload }: Previe
         <div className="flex-1 min-h-[350px] bg-black flex items-center justify-center p-6 relative overflow-hidden">
           {asset.category === "image" && (
             <img
-              src={asset.thumbnailUrl}
+              src={asset.thumbnailUrl || ""}
               alt={asset.name}
               style={{ transform: `scale(${zoomLevel / 100})` }}
               className="max-h-[60vh] max-w-full object-contain transition-transform duration-200"
@@ -52,7 +52,7 @@ export function MediaPreviewModal({ isOpen, asset, onClose, onDownload }: Previe
 
           {asset.category === "video" && (
             <div className="relative w-full max-w-xl aspect-video bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center">
-              <img src={asset.thumbnailUrl} alt={asset.name} className="w-full h-full object-cover opacity-60" />
+              <img src={asset.thumbnailUrl || ""} alt={asset.name} className="w-full h-full object-cover opacity-60" />
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
                 className="w-16 h-16 rounded-full bg-[#671021] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"

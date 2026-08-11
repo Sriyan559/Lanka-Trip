@@ -13,10 +13,12 @@ import { RevenueSearchFilterBar } from '@/components/admin/finance/RevenueSearch
 import { RevenuePortfolioTable } from '@/components/admin/finance/RevenuePortfolioTable';
 import { SelectedRevenueRecordPreview } from '@/components/admin/finance/SelectedRevenueRecordPreview';
 import { RightRevenueSidebar } from '@/components/admin/finance/RightRevenueSidebar';
-import { FN02_CONTEXT, FN02_KPIS } from '@/data/mockRevenueData';
+import { RevenueReceivablesProvider, revenueView, useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
 import { RevenuePortfolioRow } from '@/types/finance';
 
-export default function SalesRevenueReceivablesPage() {
+function SalesRevenueReceivablesContent() {
+  const { data, loading, error, setFilters } = useRevenueReceivables();
+  const live = revenueView(data);
   const [activeTab, setActiveTab] = useState('Revenue Overview');
   const [selectedRecord, setSelectedRecord] = useState<RevenuePortfolioRow | null>(null);
 
@@ -29,10 +31,12 @@ export default function SalesRevenueReceivablesPage() {
           <RevenueReceivablesHeader />
 
           {/* 2. Finance Context Strip */}
-          <FinanceContextBar context={FN02_CONTEXT} />
+          {error && <div className="rounded border border-red-200 bg-red-50 p-2 text-xs text-red-700">{error.message}</div>}
+          {loading && !data && <div className="rounded border border-gray-200 bg-white p-3 text-xs text-gray-500">Loading revenue and receivables…</div>}
+          {live.context && <FinanceContextBar context={live.context} />}
 
           {/* 3. Revenue KPI Cards (12) */}
-          <FinanceKpiGrid kpis={FN02_KPIS} />
+          <FinanceKpiGrid kpis={live.kpis} />
 
           {/* 4. Section Navigation Tabs */}
           <RevenueReceivablesTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -44,7 +48,7 @@ export default function SalesRevenueReceivablesPage() {
           {activeTab === 'Adjustments & Deferred' && <AdjustmentsDeferredSection />}
 
           {/* 6. Search & Filter Bar */}
-          <RevenueSearchFilterBar />
+          <RevenueSearchFilterBar onSearch={(search)=>setFilters({search})} />
 
           {/* 7. Revenue Portfolio Table */}
           <RevenuePortfolioTable
@@ -65,3 +69,5 @@ export default function SalesRevenueReceivablesPage() {
     </div>
   );
 }
+
+export default function SalesRevenueReceivablesPage(){return <RevenueReceivablesProvider><SalesRevenueReceivablesContent /></RevenueReceivablesProvider>}

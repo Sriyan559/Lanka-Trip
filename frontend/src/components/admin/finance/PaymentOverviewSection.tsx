@@ -14,11 +14,9 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import {
-  FN03_VOLUME_TREND,
-  FN03_PAYMENT_METHODS,
-  FN03_STATUS_SUMMARY,
-} from '@/data/mockPaymentData';
+import { paymentsView, usePaymentsManagement } from '@/contexts/FinanceRevenuePaymentsContext';
+
+const COLORS=['#2563eb','#7c3aed','#16a34a','#d97706','#64748b','#dc2626'];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -39,6 +37,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function PaymentOverviewSection() {
+  const { data }=usePaymentsManagement(); const live=paymentsView(data);
+  const volume=live.trend.map((r:any)=>({date:r.period,attempts:Number(r.attempts),authorizations:Number(r.success),captures:Number(r.success),failures:Math.max(0,Number(r.attempts)-Number(r.success)),reversals:0,value:Number(r.amount)/1_000_000}));
+  const methodTotal=live.methods.reduce((s:number,r:any)=>s+Number(r.amount),0); const methods=live.methods.map((r:any,i:number)=>({name:r.method,value:Number(r.amount)/1_000_000,percentage:methodTotal?Math.round(Number(r.amount)/methodTotal*100):0,color:COLORS[i%COLORS.length]}));
+  const statusTotal=live.statuses.reduce((s:number,r:any)=>s+Number(r.count),0); const statuses=live.statuses.map((r:any,i:number)=>({id:r.status,status:r.status,count:Number(r.count),percentage:statusTotal?Math.round(Number(r.count)/statusTotal*100):0,color:COLORS[i%COLORS.length]}));
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
       {/* Panel 1: Payment Volume & Success Trend */}
@@ -76,7 +78,7 @@ export function PaymentOverviewSection() {
 
         <div className="h-40 w-full mt-1">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={FN03_VOLUME_TREND} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+            <ComposedChart data={volume} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis yAxisId="left" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
@@ -106,7 +108,7 @@ export function PaymentOverviewSection() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={FN03_PAYMENT_METHODS}
+                  data={methods}
                   cx="50%"
                   cy="50%"
                   innerRadius={36}
@@ -114,7 +116,7 @@ export function PaymentOverviewSection() {
                   paddingAngle={2}
                   dataKey="value"
                 >
-                  {FN03_PAYMENT_METHODS.map((entry, index) => (
+                  {methods.map((entry:any, index:number) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -132,7 +134,7 @@ export function PaymentOverviewSection() {
           <div className="flex-1 min-w-0">
             <table className="w-full text-[10px]">
               <tbody className="divide-y divide-gray-100">
-                {FN03_PAYMENT_METHODS.map((m) => (
+                {methods.map((m:any) => (
                   <tr key={m.name}>
                     <td className="py-1 flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: m.color }} />
@@ -165,7 +167,7 @@ export function PaymentOverviewSection() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {FN03_STATUS_SUMMARY.map((row) => (
+              {statuses.map((row:any) => (
                 <tr key={row.id} className="hover:bg-gray-50/50">
                   <td className="py-1 font-semibold text-gray-800 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color }} />
