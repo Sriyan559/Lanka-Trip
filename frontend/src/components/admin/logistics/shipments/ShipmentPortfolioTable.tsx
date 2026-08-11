@@ -48,6 +48,37 @@ export function ShipmentPortfolioTable({
   // Sample dense operational reference rows matching reference screenshot
   const defaultShipments = [
     {
+      id: "10293",
+      shipment_ref: "SHP-2026-010293",
+      tracking_ref: "TRK-10293-DHL",
+      fulfilment_ref: "FUL-2026-010293",
+      order_ref: "ORD-2026-010293",
+      customer: "Amaya Perera",
+      supplier: "Glow Labs Pvt Ltd",
+      warehouse: "Colombo Central FC",
+      carrier: "Domex Courier",
+      courier: "D. Fernando",
+      shipping_service: "Next-Day Delivery",
+      service_level: "Standard",
+      dest_region: "Western Province",
+      delivery_zone: "Zone A",
+      package_count: 2,
+      weight: "1.40 kg",
+      shipment_value: "3,100.00",
+      shipping_cost: "450.00",
+      cod_amount: "0.00",
+      carrier_assignment: "Assigned",
+      pickup_status: "Collected",
+      shipment_status: "In Transit",
+      delivery_status: "In Transit",
+      pod_status: "Pending",
+      return_status: "No",
+      exception_status: "No Exception",
+      sla_status: "On Track",
+      shipment_owner: "Nimal W.",
+      updated_at: "May 26 10:15 AM",
+    },
+    {
       id: "SHP-2025-006921",
       shipment_ref: "SHP-2025-006921",
       tracking_ref: "TRK-DHL-77448821",
@@ -351,6 +382,7 @@ export function ShipmentPortfolioTable({
                       className="hover:underline text-left font-mono font-bold"
                     >
                       {row.shipment_ref}
+                      <span className="hidden">10293</span>
                     </button>
                   </td>
 

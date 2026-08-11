@@ -48,7 +48,7 @@ export function ShipmentPageHeader({ onCreateClick }: ShipmentPageHeaderProps) {
           <span className="text-ink font-bold">Shipments &amp; Tracking</span>
         </div>
         <h1 className="text-base sm:text-lg font-bold text-ink leading-tight truncate">
-          Shipment Management
+          Logistics &amp; Fulfilment Operations
         </h1>
         <p className="text-[10.5px] text-muted mt-0.5 truncate max-w-4xl">
           Manage shipment creation, carrier assignment, pickup, tracking, delivery execution, proof-of-delivery, failed delivery and shipment SLA across the beauty marketplace.
@@ -62,7 +62,7 @@ export function ShipmentPageHeader({ onCreateClick }: ShipmentPageHeaderProps) {
           className="px-2.5 py-1 bg-white border border-line text-ink text-[10px] font-semibold rounded-md hover:bg-canvas transition-colors shadow-xs flex items-center gap-1 whitespace-nowrap"
         >
           <Download size={12} className="text-muted" />
-          <span>Export Shipment Operations Report</span>
+          <span>Export Shipment Report</span>
         </button>
 
         <button
