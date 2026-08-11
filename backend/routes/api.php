@@ -325,7 +325,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('admin/verification-compliance')->group(function () {
             Route::get('/documents/dashboard', [AdminVerificationComplianceController::class, 'documentsDashboard']);
+            Route::get('/documents', [AdminVerificationComplianceController::class, 'documentsDashboard']);
+            Route::get('/documents/export-audit', [AdminVerificationComplianceController::class, 'exportDocumentAudit']);
+            Route::post('/documents/approve-batch', [AdminVerificationComplianceController::class, 'approveBatchDocuments']);
+            Route::get('/documents/{id}', [AdminVerificationComplianceController::class, 'documentDetail']);
+            Route::post('/documents/{id}/verify', [AdminVerificationComplianceController::class, 'verifyDocument']);
+            Route::post('/documents/{id}/verify-with-conditions', [AdminVerificationComplianceController::class, 'verifyDocumentWithConditions']);
+            Route::post('/documents/{id}/request-replacement', [AdminVerificationComplianceController::class, 'requestDocumentReplacement']);
+            Route::post('/documents/{id}/request-evidence', [AdminVerificationComplianceController::class, 'requestDocumentEvidence']);
+            Route::post('/documents/{id}/reject', [AdminVerificationComplianceController::class, 'rejectDocument']);
+            Route::post('/documents/{id}/revalidate', [AdminVerificationComplianceController::class, 'revalidateDocument']);
+            Route::get('/documents/{id}/audit', [AdminVerificationComplianceController::class, 'documentDetail']);
             Route::get('/product-safety/dashboard', [AdminVerificationComplianceController::class, 'productSafetyDashboard']);
+            Route::get('/product-safety/export-report', [AdminVerificationComplianceController::class, 'exportProductSafetyReport']);
+            Route::post('/product-safety/products/{id}/approve', [AdminVerificationComplianceController::class, 'approveProductSafety']);
+            Route::post('/product-safety/products/{id}/block-publication', [AdminVerificationComplianceController::class, 'blockProductPublication']);
             Route::get('/authenticity/dashboard', [AdminVerificationComplianceController::class, 'authenticityDashboard']);
             Route::get('/recalls/dashboard', [AdminVerificationComplianceController::class, 'recallsDashboard']);
             Route::get('/governance/dashboard', [AdminVerificationComplianceController::class, 'governanceDashboard']);
