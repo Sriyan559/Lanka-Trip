@@ -10,7 +10,7 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 import { RevenuePortfolioRow } from '@/types/finance';
-import { FN02_PORTFOLIO } from '@/data/mockRevenueData';
+import { revenueView, useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
 
 /* ─── Status badge helpers ─── */
 function RevStatusBadge({ status }: { status: string }) {
@@ -89,12 +89,14 @@ interface Props {
 }
 
 export function RevenuePortfolioTable({ selectedRef, onSelectRecord }: Props) {
+  const { data } = useRevenueReceivables();
+  const portfolio = revenueView(data).rows;
   const [sortKey, setSortKey] = useState('ref');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const PER_PAGE = 8;
 
-  const sorted = [...FN02_PORTFOLIO].sort((a, b) => {
+  const sorted = [...portfolio].sort((a, b) => {
     const aVal = a[sortKey as keyof RevenuePortfolioRow];
     const bVal = b[sortKey as keyof RevenuePortfolioRow];
     if (typeof aVal === 'number' && typeof bVal === 'number') {
@@ -126,7 +128,7 @@ export function RevenuePortfolioTable({ selectedRef, onSelectRecord }: Props) {
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-gray-700">Revenue &amp; Receivables Portfolio</span>
-          <span className="bg-[#8f002b] text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{FN02_PORTFOLIO.length}</span>
+          <span className="bg-[#8f002b] text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{data?.meta.total ?? portfolio.length}</span>
         </div>
         <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
           <span>Page {page} of {totalPages}</span>
@@ -269,7 +271,7 @@ export function RevenuePortfolioTable({ selectedRef, onSelectRecord }: Props) {
       {/* Footer */}
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-100 bg-gray-50">
         <span className="text-[10px] text-gray-500">
-          Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, FN02_PORTFOLIO.length)} of {FN02_PORTFOLIO.length} revenue records
+          Showing {portfolio.length ? (page - 1) * PER_PAGE + 1 : 0}–{Math.min(page * PER_PAGE, portfolio.length)} of {data?.meta.total ?? portfolio.length} revenue records
         </span>
         <div className="flex gap-1">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (

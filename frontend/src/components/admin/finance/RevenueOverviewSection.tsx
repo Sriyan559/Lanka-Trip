@@ -16,26 +16,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import {
-  FN02_COLLECTION_TREND,
-  FN02_REVENUE_STREAMS,
-  FN02_AGEING_BUCKETS,
-} from '@/data/mockRevenueData';
-
-const REVENUE_MIX_DATA = [
-  { name: 'Recognized', value: 312.6, color: '#16a34a' },
-  { name: 'Deferred', value: 55.8, color: '#7c3aed' },
-  { name: 'Outstanding', value: 34.7, color: '#dc2626' },
-];
-
-const MONTHLY_REVENUE = [
-  { month: 'Jan', recognized: 240, deferred: 52, outstanding: 28 },
-  { month: 'Feb', recognized: 258, deferred: 51, outstanding: 30 },
-  { month: 'Mar', recognized: 265, deferred: 54, outstanding: 33 },
-  { month: 'Apr', recognized: 272, deferred: 52, outstanding: 35 },
-  { month: 'May', recognized: 285, deferred: 53, outstanding: 36 },
-  { month: 'Jun', recognized: 312.6, deferred: 55.8, outstanding: 34.7 },
-];
+import { revenueView, useRevenueReceivables } from '@/contexts/FinanceRevenuePaymentsContext';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -54,6 +35,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function RevenueOverviewSection() {
+  const {data}=useRevenueReceivables(); const live=revenueView(data);
+  const monthly=Object.values(live.rows.reduce((a:any,r:any)=>{const month=r.dueDate?String(r.dueDate).slice(0,7):'Undated';a[month]??={month,recognized:0,deferred:0,outstanding:0};a[month].outstanding+=Number(r.outstandingAmount);return a},{})).map((r:any)=>({...r,outstanding:r.outstanding/1_000_000}));
+  const totalOutstanding=live.rows.reduce((s,r)=>s+r.outstandingAmount,0),totalCollected=live.rows.reduce((s,r)=>s+r.collectedAmount,0);
+  const revenueMix=[{name:'Recognized unavailable',value:0,color:'#16a34a'},{name:'Deferred unavailable',value:0,color:'#7c3aed'},{name:'Outstanding',value:totalOutstanding/1_000_000,color:'#dc2626'}];
+  const streamMap=live.rows.reduce((a:any,r:any)=>{const key=r.channel||'Not available';a[key]=(a[key]||0)+r.netSales;return a},{});const streamTotal=Object.values(streamMap).reduce((s:number,v:any)=>s+Number(v),0);const streams=Object.entries(streamMap).map(([stream,value])=>({stream,recognized:'Not available',deferred:'Not available',percentage:streamTotal?Math.round(Number(value)/streamTotal*100):0}));
+  const rate=totalCollected+totalOutstanding>0?Math.round(totalCollected/(totalCollected+totalOutstanding)*100):0;const collectionTrend=[{month:'Current',collected:rate,outstanding:100-rate}];
   return (
     <div className="flex flex-col gap-3">
       {/* Charts Row */}
@@ -72,7 +59,7 @@ export function RevenueOverviewSection() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={140}>
-            <AreaChart data={MONTHLY_REVENUE} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
+            <AreaChart data={monthly} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="recog" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#16a34a" stopOpacity={0.2} />
@@ -105,8 +92,8 @@ export function RevenueOverviewSection() {
           <div className="flex items-center gap-2">
             <ResponsiveContainer width={110} height={110}>
               <PieChart>
-                <Pie data={REVENUE_MIX_DATA} dataKey="value" cx="50%" cy="50%" innerRadius={32} outerRadius={52} strokeWidth={1}>
-                  {REVENUE_MIX_DATA.map((entry) => (
+                <Pie data={revenueMix} dataKey="value" cx="50%" cy="50%" innerRadius={32} outerRadius={52} strokeWidth={1}>
+                  {revenueMix.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
@@ -114,7 +101,7 @@ export function RevenueOverviewSection() {
               </PieChart>
             </ResponsiveContainer>
             <div className="flex flex-col gap-1.5">
-              {REVENUE_MIX_DATA.map((d) => (
+              {revenueMix.map((d) => (
                 <div key={d.name} className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-sm inline-block flex-shrink-0" style={{ background: d.color }} />
                   <div>
@@ -143,7 +130,7 @@ export function RevenueOverviewSection() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {FN02_REVENUE_STREAMS.map((s) => (
+              {streams.map((s) => (
                 <tr key={s.stream}>
                   <td className="py-1 text-gray-800 font-medium">{s.stream}</td>
                   <td className="py-1 text-right text-emerald-700 font-semibold">{s.recognized}</td>
@@ -170,12 +157,12 @@ export function RevenueOverviewSection() {
               <div className="text-[10px] text-gray-500">Monthly collected vs outstanding — %</div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-extrabold text-emerald-700">78%</div>
+              <div className="text-lg font-extrabold text-emerald-700">{rate}%</div>
               <div className="text-[10px] text-gray-500">Current month</div>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={120}>
-            <BarChart data={FN02_COLLECTION_TREND} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
+            <BarChart data={collectionTrend} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} domain={[0, 100]} />
