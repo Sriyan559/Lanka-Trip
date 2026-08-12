@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
-import { AnalyticsDashboard } from "@/components/admin/analytics/AnalyticsDashboard";
-import { AnalyticsLoadingState } from "@/components/admin/analytics/AnalyticsLoadingState";
+import { AN04SalesRevenueDashboard } from "@/components/admin/analytics/AN04SalesRevenueDashboard";
 
 export const metadata = {
   title: "Analytics & Business Intelligence | SL Beauty Enterprise Admin",
@@ -10,9 +9,8 @@ export const metadata = {
 
 export default function AnalyticsPage() {
   return (
-    <Suspense fallback={<AnalyticsLoadingState rows={6} message="Loading Analytics Dashboard..." />}>
-      <AnalyticsDashboard />
+    <Suspense fallback={<div className="p-8 text-center text-slate-500 animate-pulse">Loading Analytics Dashboard...</div>}>
+      <AN04SalesRevenueDashboard />
     </Suspense>
   );
 }
-
