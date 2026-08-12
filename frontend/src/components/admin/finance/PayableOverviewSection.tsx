@@ -15,13 +15,8 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import {
-  FN06_TREND_DATA,
-  FN06_DONUT_DATA,
-  FN06_STATUS_SUMMARY,
-} from '@/data/mockSupplierPayableData';
-
-export function PayableOverviewSection() {
+interface Props { trend:Array<{date:string;total:number;scheduled:number;paid:number;overdue:number;exceptions:number}>; distribution:Array<{name:string;amount:number;percentage:number;color:string}>; statuses:Array<{status:string;count:number;amount:string;color:string;percentage:number}>; currency:string }
+export function PayableOverviewSection({trend,distribution,statuses,currency}:Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
       {/* ── Left: Payable, Payment & Overdue Trend (6 cols) ── */}
@@ -30,12 +25,12 @@ export function PayableOverviewSection() {
           <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wide">
             Payable, Payment &amp; Overdue Trend (Last 30 Days)
           </p>
-          <span className="text-[10px] text-gray-400 font-medium">LKR Millions</span>
+          <span className="text-[10px] text-gray-400 font-medium">{currency}</span>
         </div>
 
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={FN06_TREND_DATA} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+            <ComposedChart data={trend} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#64748b' }} />
               <YAxis tick={{ fontSize: 9, fill: '#64748b' }} width={30} unit="M" />
@@ -63,7 +58,7 @@ export function PayableOverviewSection() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={FN06_DONUT_DATA}
+                  data={distribution}
                   cx="50%"
                   cy="50%"
                   innerRadius={30}
@@ -71,7 +66,7 @@ export function PayableOverviewSection() {
                   dataKey="amount"
                   paddingAngle={2}
                 >
-                  {FN06_DONUT_DATA.map((entry, index) => (
+                  {distribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -89,7 +84,7 @@ export function PayableOverviewSection() {
 
           {/* Donut Legend */}
           <div className="flex-1 flex flex-col gap-1 text-[10px]">
-            {FN06_DONUT_DATA.map((item) => (
+            {distribution.map((item) => (
               <div key={item.name} className="flex items-center justify-between gap-1">
                 <div className="flex items-center gap-1 min-w-0">
                   <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
@@ -115,7 +110,7 @@ export function PayableOverviewSection() {
         </div>
 
         <div className="flex flex-col gap-1 text-[10px] mt-1">
-          {FN06_STATUS_SUMMARY.map((row) => (
+          {statuses.map((row) => (
             <div key={row.status} className="flex items-center gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-0.5">
@@ -126,7 +121,7 @@ export function PayableOverviewSection() {
                   <div
                     className="h-full rounded-full"
                     style={{
-                      width: `${Math.min((row.count / 1026) * 100, 100)}%`,
+                      width: `${row.percentage}%`,
                       backgroundColor: row.color,
                     }}
                   />

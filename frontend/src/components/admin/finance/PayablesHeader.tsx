@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export function PayablesHeader() {
+export function PayablesHeader({onExport,onStatus}:{onExport?:()=>void;onStatus?:(status:string)=>void}) {
   const router = useRouter();
   const [exceptionsOpen, setExceptionsOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -46,7 +46,7 @@ export function PayablesHeader() {
         {/* Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           <button
-            onClick={() => toast.success('Exporting Supplier Payables Report...')}
+            onClick={onExport}
             className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <Download size={13} />
@@ -65,16 +65,11 @@ export function PayablesHeader() {
             </button>
             {exceptionsOpen && (
               <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs font-medium text-gray-700">
-                {[
-                  '96 Invoice Match Exceptions',
-                  '34 Active Payment Holds',
-                  '28 Open Supplier Disputes',
-                  '18 Reconciliation Exceptions',
-                ].map((item) => (
+                {['Invoice Match Exceptions','Active Payment Holds','Open Supplier Disputes','Reconciliation Exceptions'].map((item) => (
                   <button
                     key={item}
                     onClick={() => {
-                      toast(`Opening exception queue: ${item}`);
+                      toast.error(`${item} is unavailable because its backend domain is not configured.`);
                       setExceptionsOpen(false);
                     }}
                     className="w-full text-left px-3 py-1.5 hover:bg-gray-50 flex items-center gap-2"
@@ -108,10 +103,8 @@ export function PayablesHeader() {
                 ].map((a) => (
                   <button
                     key={a}
-                    onClick={() => {
-                      toast(`Triggered: ${a}`);
-                      setBulkOpen(false);
-                    }}
+                    disabled
+                    title="Bulk payable workflow is not present in the backend"
                     className="w-full text-left px-3 py-1.5 hover:bg-gray-50 transition-colors"
                   >
                     {a}
@@ -122,7 +115,7 @@ export function PayablesHeader() {
           </div>
 
           <button
-            onClick={() => toast('Opening Overdue Payables Queue...')}
+            onClick={() => onStatus?.('failed')}
             className="px-3 py-1.5 bg-white border border-red-300 text-red-700 hover:bg-red-50 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <FileCheck size={13} />
@@ -130,7 +123,8 @@ export function PayablesHeader() {
           </button>
 
           <button
-            onClick={() => toast.success('Initiating Create Payable Review modal...')}
+            disabled
+            title="Payable review workflow is not present in the database"
             className="px-3.5 py-1.5 bg-[#8f002b] text-white hover:bg-[#741d35] text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition-colors"
           >
             <Plus size={14} />
