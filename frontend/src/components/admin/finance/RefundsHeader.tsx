@@ -13,7 +13,13 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export function RefundsHeader() {
+interface RefundsHeaderProps {
+  filters?: any;
+  onExport?: () => void;
+  onNavigateExceptions?: () => void;
+}
+
+export function RefundsHeader({ onExport, onNavigateExceptions }: RefundsHeaderProps = {}) {
   const router = useRouter();
   const [exceptionsOpen, setExceptionsOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);

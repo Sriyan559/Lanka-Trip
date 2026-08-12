@@ -43,15 +43,15 @@ export function SupportQuickFilters({
   onSelectQuickFilter,
 }: SupportQuickFiltersProps) {
   return (
-    <div className="flex flex-col gap-3 mb-6 pb-6 border-b border-line">
-      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+    <div className="flex items-center gap-2 mb-3 pb-3 border-b border-line flex-wrap text-ink">
+      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1 shrink-0">
         QUICK FILTERS:
-      </div>
-      <div className="flex flex-wrap gap-2.5">
+      </span>
+      <div className="flex flex-wrap gap-1.5 flex-1">
         {CHIPS.map((chip) => {
           const isActive = activeQuickFilter === chip.id;
           
-          let baseClass = "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors border cursor-pointer select-none ";
+          let baseClass = "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-medium transition-colors border cursor-pointer select-none whitespace-nowrap ";
           
           if (isActive) {
             if (chip.specialTone === 'danger') {
@@ -79,7 +79,7 @@ export function SupportQuickFilters({
               className={baseClass}
             >
               <span>{chip.label}</span>
-              <span className={`font-bold ${isActive && !chip.specialTone ? 'text-white' : (chip.specialTone === 'danger' ? 'text-red-700' : (chip.specialTone === 'warning' ? 'text-amber-700' : 'text-slate-800'))}`}>
+              <span className={`font-extrabold text-[10.5px] ${isActive && !chip.specialTone ? 'text-white' : (chip.specialTone === 'danger' ? 'text-red-700' : (chip.specialTone === 'warning' ? 'text-amber-700' : 'text-slate-800'))}`}>
                 {chip.count}
               </span>
             </button>
