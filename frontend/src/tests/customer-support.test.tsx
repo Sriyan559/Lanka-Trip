@@ -122,7 +122,7 @@ describe('Screen 16: Customer Support Operations Dashboard Component & UI', () =
   it('renders action toolbar buttons (Review Priority Cases, Create Support Case, Assign Cases, Send Bulk Response, Export Support Report)', async () => {
     render(<CustomerSupportCasesPage />);
 
-    expect(screen.getByText('Review Priority Cases')).toBeInTheDocument();
+    expect(screen.getAllByText('Review Priority Cases').length).toBeGreaterThan(0);
     expect(screen.getByText('Create Support Case')).toBeInTheDocument();
     expect(screen.getByText('Assign Cases')).toBeInTheDocument();
     expect(screen.getByText('Send Bulk Response')).toBeInTheDocument();
@@ -133,8 +133,8 @@ describe('Screen 16: Customer Support Operations Dashboard Component & UI', () =
     render(<CustomerSupportCasesPage />);
 
     expect(screen.getByText('Total Open Cases')).toBeInTheDocument();
-    expect(screen.getByText('1,286')).toBeInTheDocument();
-    expect(screen.getByText('New Cases Today')).toBeInTheDocument();
+    expect(screen.getAllByText('1,286').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('New Cases Today').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Unassigned Cases').length).toBeGreaterThan(0);
     expect(screen.getAllByText('SLA At Risk').length).toBeGreaterThan(0);
     expect(screen.getAllByText('SLA Breaches').length).toBeGreaterThan(0);

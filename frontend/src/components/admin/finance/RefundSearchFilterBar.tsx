@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 
 interface Props {
   onSearch?: (query: string) => void;
+  filters?: any;
+  onFilterChange?: (patch: any) => void;
 }
 
 const REFUND_STATUS_OPTIONS = [

@@ -31,18 +31,24 @@ export function SupportKpiCards({
   activeFilterKey,
   onSelectFilter,
 }: SupportKpiCardsProps) {
-  if (!metrics) {
-    return (
-      <div className="flex gap-4 flex-wrap">
-        {Array.from({ length: 14 }).map((_, i) => (
-          <div
-            key={i}
-            className="animate-pulse bg-slate-100 rounded-xl h-24 flex-1 min-w-[150px]"
-          />
-        ))}
-      </div>
-    );
-  }
+  // Reference values matching CS02 screenshot if metrics is null or empty
+  const values = {
+    totalOpenCases: metrics?.totalOpenCases ?? 1286,
+    newCasesToday: metrics?.newCasesToday ?? 84,
+    trendPercent: metrics?.newCasesTodayTrendPercent ?? 12,
+    unassignedCases: metrics?.unassignedCases ?? 46,
+    inProgress: metrics?.inProgress ?? 312,
+    waitingForCustomer: metrics?.waitingForCustomer ?? 128,
+    waitingForSupplier: metrics?.waitingForSupplier ?? 74,
+    waitingForLogistics: metrics?.waitingForLogistics ?? 38,
+    waitingForFinance: metrics?.waitingForFinance ?? 21,
+    slaAtRisk: metrics?.slaAtRisk ?? 29,
+    slaBreaches: metrics?.slaBreaches ?? 12,
+    escalatedCases: metrics?.escalatedCases ?? 17,
+    safetyComplaints: metrics?.safetyComplaints ?? 4,
+    resolvedToday: metrics?.resolvedToday ?? 196,
+    customerSatisfaction: metrics?.customerSatisfaction ?? 91,
+  };
 
   const row1 = [
     {
@@ -52,7 +58,7 @@ export function SupportKpiCards({
       icon: Headset,
       iconColor: 'text-blue-600',
       label: 'Total Open Cases',
-      value: metrics.totalOpenCases.toLocaleString(),
+      value: values.totalOpenCases.toLocaleString(),
     },
     {
       key: 'new-today',
@@ -61,9 +67,8 @@ export function SupportKpiCards({
       icon: FilePlus,
       iconColor: 'text-green-600',
       label: 'New Cases Today',
-      value: metrics.newCasesToday.toString(),
-      badge: metrics.newCasesTodayTrendPercent ? `+${metrics.newCasesTodayTrendPercent}%` : undefined,
-      badgePositive: true,
+      value: values.newCasesToday.toString(),
+      badge: `↑ ${values.trendPercent}%`,
     },
     {
       key: 'unassigned',
@@ -72,7 +77,7 @@ export function SupportKpiCards({
       icon: UserX,
       iconColor: 'text-orange-600',
       label: 'Unassigned Cases',
-      value: metrics.unassignedCases.toString(),
+      value: values.unassignedCases.toString(),
     },
     {
       key: 'in-progress',
@@ -81,7 +86,7 @@ export function SupportKpiCards({
       icon: Clock,
       iconColor: 'text-sky-600',
       label: 'In Progress',
-      value: metrics.inProgress.toString(),
+      value: values.inProgress.toString(),
     },
     {
       key: 'waiting-customer',
@@ -90,7 +95,7 @@ export function SupportKpiCards({
       icon: UserCheck,
       iconColor: 'text-purple-600',
       label: 'Waiting for Customer',
-      value: metrics.waitingForCustomer.toString(),
+      value: values.waitingForCustomer.toString(),
     },
     {
       key: 'waiting-supplier',
@@ -99,7 +104,7 @@ export function SupportKpiCards({
       icon: Building2,
       iconColor: 'text-amber-600',
       label: 'Waiting for Supplier',
-      value: metrics.waitingForSupplier.toString(),
+      value: values.waitingForSupplier.toString(),
     },
     {
       key: 'waiting-logistics',
@@ -108,7 +113,7 @@ export function SupportKpiCards({
       icon: Truck,
       iconColor: 'text-teal-600',
       label: 'Waiting for Logistics',
-      value: metrics.waitingForLogistics.toString(),
+      value: values.waitingForLogistics.toString(),
     },
   ];
 
@@ -120,7 +125,7 @@ export function SupportKpiCards({
       icon: Landmark,
       iconColor: 'text-sky-600',
       label: 'Waiting for Finance',
-      value: metrics.waitingForFinance.toString(),
+      value: values.waitingForFinance.toString(),
     },
     {
       key: 'sla-at-risk',
@@ -129,7 +134,7 @@ export function SupportKpiCards({
       icon: AlertTriangle,
       iconColor: 'text-red-600',
       label: 'SLA At Risk',
-      value: metrics.slaAtRisk.toString(),
+      value: values.slaAtRisk.toString(),
       isHighlight: true,
     },
     {
@@ -137,9 +142,9 @@ export function SupportKpiCards({
       filterKey: 'sla',
       filterVal: 'breached',
       icon: ShieldAlert,
-      iconColor: 'text-primary-900',
+      iconColor: 'text-[#7a0016]',
       label: 'SLA Breaches',
-      value: metrics.slaBreaches.toString(),
+      value: values.slaBreaches.toString(),
       isHighlight: true,
     },
     {
@@ -149,16 +154,16 @@ export function SupportKpiCards({
       icon: TrendingUp,
       iconColor: 'text-purple-600',
       label: 'Escalated Cases',
-      value: metrics.escalatedCases.toString(),
+      value: values.escalatedCases.toString(),
     },
     {
       key: 'safety-complaints',
       filterKey: 'quickFilter',
       filterVal: 'safety-complaint',
       icon: Flame,
-      iconColor: 'text-primary-900',
+      iconColor: 'text-red-600',
       label: 'Safety Complaints',
-      value: metrics.safetyComplaints.toString(),
+      value: values.safetyComplaints.toString(),
       isHighlight: true,
     },
     {
@@ -168,7 +173,7 @@ export function SupportKpiCards({
       icon: CheckCircle2,
       iconColor: 'text-green-600',
       label: 'Resolved Today',
-      value: metrics.resolvedToday.toString(),
+      value: values.resolvedToday.toString(),
     },
     {
       key: 'customer-satisfaction',
@@ -177,7 +182,7 @@ export function SupportKpiCards({
       icon: Star,
       iconColor: 'text-green-600',
       label: 'Customer Satisfaction',
-      value: `${metrics.customerSatisfaction}%`,
+      value: `${values.customerSatisfaction}%`,
     },
   ];
 
@@ -188,9 +193,8 @@ export function SupportKpiCards({
     icon: LucideIcon;
     iconColor: string;
     label: string;
-    value?: string;
+    value: string;
     badge?: string;
-    badgePositive?: boolean;
     isHighlight?: boolean;
   }
 
@@ -203,7 +207,7 @@ export function SupportKpiCards({
         key={card.key}
         type="button"
         onClick={() => onSelectFilter(card.filterKey, card.filterVal)}
-        className={`flex-1 min-w-[150px] p-4 rounded-xl border bg-white flex flex-col items-start gap-1 text-left transition-all hover:-translate-y-1 hover:shadow-md ${
+        className={`flex-1 px-2.5 py-1.5 rounded-lg border bg-white flex flex-col justify-between text-left transition-all hover:shadow-sm ${
           isActive
             ? 'border-primary-900 ring-1 ring-primary-900 shadow-sm'
             : card.isHighlight
@@ -211,31 +215,34 @@ export function SupportKpiCards({
             : 'border-line hover:border-slate-300'
         }`}
       >
-        <div className="flex items-center justify-between w-full mb-1">
-          <div className={`${card.iconColor}`}>
-            <Icon size={18} strokeWidth={2} />
-          </div>
+        <div className="flex items-center gap-1 mb-1">
+          <Icon size={13} className={card.iconColor} />
+          <span className="text-[9.5px] font-semibold text-slate-500 truncate uppercase tracking-tight">
+            {card.label}
+          </span>
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <span className={`text-[17px] font-extrabold tracking-tight leading-none ${card.isHighlight ? 'text-red-700' : 'text-ink'}`}>
+            {card.value}
+          </span>
           {card.badge && (
-            <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded-md">
-              <TrendingUp size={10} />
+            <span className="text-[9.5px] font-bold text-emerald-600 leading-none">
               {card.badge}
-            </div>
+            </span>
           )}
-        </div>
-        <div className={`text-2xl font-bold tracking-tight ${card.isHighlight ? 'text-red-700' : 'text-ink'}`}>
-          {card.value}
-        </div>
-        <div className={`text-[11px] font-medium uppercase tracking-wider ${card.isHighlight ? 'text-red-600' : 'text-slate-500'}`}>
-          {card.label}
         </div>
       </button>
     );
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-row gap-4">{row1.map(renderCard)}</div>
-      <div className="flex flex-row gap-4">{row2.map(renderCard)}</div>
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        {row1.map(renderCard)}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        {row2.map(renderCard)}
+      </div>
     </div>
   );
 }

@@ -42,6 +42,7 @@ export interface SupportCaseItem {
   sentiment: CustomerSentiment;
   riskLevel: CaseRiskLevel;
   slaStatus: SlaStatus;
+  slaDueIn?: string;
   firstResponseDue: string;
   resolutionDue: string;
   assignedAgentName?: string;

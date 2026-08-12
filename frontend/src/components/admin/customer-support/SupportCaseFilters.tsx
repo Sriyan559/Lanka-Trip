@@ -26,13 +26,13 @@ export function SupportCaseFilters({
   };
 
   const renderSelect = (label: string, key: keyof SupportCaseFilterParams, options: { label: string; value: string }[]) => (
-    <div className="flex flex-col gap-1.5 min-w-[140px] flex-1">
-      <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{label}</label>
+    <div className="flex flex-col gap-0.5 min-w-[110px] flex-1">
+      <label className="text-[9.5px] font-bold text-slate-500 uppercase tracking-tight truncate">{label}</label>
       <select
         value={(filters[key] as string) || 'all'}
         onChange={(e) => handleChange(key, e.target.value)}
-        className="w-full h-[34px] px-2.5 text-[13px] bg-canvas border border-line rounded-lg text-ink focus:outline-none focus:ring-1 focus:ring-primary-900 focus:border-primary-900 transition-shadow appearance-none cursor-pointer"
-        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1em' }}
+        className="w-full h-7 px-2 text-[11.5px] bg-canvas border border-line rounded text-ink focus:outline-none focus:ring-1 focus:ring-primary-900 transition-shadow appearance-none cursor-pointer"
+        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.35rem center', backgroundSize: '0.85em' }}
       >
         <option value="all">All</option>
         {options.map(o => (
@@ -43,34 +43,34 @@ export function SupportCaseFilters({
   );
 
   return (
-    <div className="space-y-5 pb-6 border-b border-line mb-6">
+    <div className="space-y-3 pb-3 border-b border-line mb-3">
       {/* Top Search Bar Row */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="relative w-full max-w-3xl">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="relative w-full max-w-2xl">
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={filters.search || ''}
             onChange={(e) => handleChange('search', e.target.value)}
             placeholder="Search case ID, customer, email, phone, order, return, shipment, product, supplier or message..."
-            className="w-full h-10 pl-10 pr-4 bg-canvas border border-line rounded-lg text-[13px] text-ink focus:outline-none focus:ring-2 focus:ring-primary-900/20 focus:border-primary-900 transition-all placeholder:text-slate-400"
+            className="w-full h-8 pl-8 pr-3 bg-canvas border border-line rounded text-[12px] text-ink focus:outline-none focus:ring-1 focus:ring-primary-900 transition-all placeholder:text-slate-400"
           />
         </div>
         
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <button type="button" onClick={onClearAll} className="flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-slate-600 bg-white border border-line rounded-md hover:bg-canvas transition-colors whitespace-nowrap">
-            <RotateCcw size={14} />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button type="button" onClick={onClearAll} className="flex items-center gap-1.5 h-8 px-2.5 text-[11.5px] font-medium text-slate-600 bg-white border border-line rounded hover:bg-canvas transition-colors whitespace-nowrap">
+            <RotateCcw size={12} />
             Clear All
           </button>
-          <button type="button" onClick={onOpenSaveViewModal} className="flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-slate-600 bg-white border border-line rounded-md hover:bg-canvas transition-colors whitespace-nowrap">
-            <Bookmark size={14} />
+          <button type="button" onClick={onOpenSaveViewModal} className="flex items-center gap-1.5 h-8 px-2.5 text-[11.5px] font-medium text-slate-600 bg-white border border-line rounded hover:bg-canvas transition-colors whitespace-nowrap">
+            <Bookmark size={12} />
             Save View
           </button>
-          <button type="button" onClick={onOpenMoreFiltersDrawer} className="flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-slate-600 bg-white border border-line rounded-md hover:bg-canvas transition-colors whitespace-nowrap relative">
-            <SlidersHorizontal size={14} />
+          <button type="button" onClick={onOpenMoreFiltersDrawer} className="flex items-center gap-1.5 h-8 px-2.5 text-[11.5px] font-medium text-slate-600 bg-white border border-line rounded hover:bg-canvas transition-colors whitespace-nowrap relative">
+            <SlidersHorizontal size={12} />
             More Filters
             {activeMoreFiltersCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-900 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary-900 text-white text-[8.5px] font-bold rounded-full flex items-center justify-center">
                 {activeMoreFiltersCount}
               </span>
             )}
@@ -79,7 +79,7 @@ export function SupportCaseFilters({
       </div>
 
       {/* Filter Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-x-4 gap-y-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {renderSelect('Case Status', 'status', [
           { value: 'open', label: 'Open' },
           { value: 'in-progress', label: 'In Progress' },
