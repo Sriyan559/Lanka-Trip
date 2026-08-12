@@ -32,11 +32,14 @@ const COLORS = [
     "#fb923c",
 ];
 
-export function GovernanceActivityTrend() {
+export function GovernanceActivityTrend({ data = trendData }: { data?: any[] }) {
+    const isEmpty = !data || data.length === 0;
+    const chartData = isEmpty ? [{ date: 'No Data', active: 0, approvals: 0, conflicts: 0, escalations: 0, revalidations: 0 }] : data;
+
     return (
-        <div className="h-[225px] w-full">
+        <div className="relative h-[225px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
+                <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
 
                     <XAxis
@@ -106,12 +109,19 @@ export function GovernanceActivityTrend() {
                     />
                 </LineChart>
             </ResponsiveContainer>
+            {isEmpty && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-white/60">
+                    <span className="text-xs text-gray-500 font-medium">No governance activity for this period</span>
+                </div>
+            )}
         </div>
     );
 }
 
-export function RuleDomainDistribution() {
-    const total = ruleDomains.reduce((sum, item) => sum + item.value, 0);
+export function RuleDomainDistribution({ data = ruleDomains }: { data?: any[] }) {
+    const isEmpty = !data || data.length === 0;
+    const displayData = isEmpty ? [{ name: 'No Rules', value: 0 }] : data;
+    const total = isEmpty ? 0 : displayData.reduce((sum, item) => sum + (item.value || 0), 0);
 
     return (
         <div className="flex min-h-[225px] items-center">
@@ -119,17 +129,17 @@ export function RuleDomainDistribution() {
                 <ResponsiveContainer>
                     <PieChart>
                         <Pie
-                            data={ruleDomains}
+                            data={displayData}
                             dataKey="value"
                             nameKey="name"
                             innerRadius={48}
                             outerRadius={75}
-                            paddingAngle={1}
+                            paddingAngle={isEmpty ? 0 : 1}
                         >
-                            {ruleDomains.map((_, index) => (
+                            {displayData.map((_, index) => (
                                 <Cell
                                     key={index}
-                                    fill={COLORS[index % COLORS.length]}
+                                    fill={isEmpty ? "#e5e7eb" : COLORS[index % COLORS.length]}
                                 />
                             ))}
                         </Pie>
@@ -143,13 +153,13 @@ export function RuleDomainDistribution() {
                         {total}
                     </span>
                     <span className="text-[9px] text-gray-500">
-                        Total Rules
+                        {isEmpty ? 'No Data' : 'Total Rules'}
                     </span>
                 </div>
             </div>
 
             <div className="flex-1 space-y-2">
-                {ruleDomains.map((item, index) => (
+                {displayData.map((item, index) => (
                     <div
                         key={item.name}
                         className="grid grid-cols-[10px_1fr_35px_45px] items-center gap-2 text-[10px]"
@@ -157,7 +167,7 @@ export function RuleDomainDistribution() {
                         <span
                             className="h-2 w-2 rounded-full"
                             style={{
-                                background: COLORS[index % COLORS.length],
+                                background: isEmpty ? "#e5e7eb" : COLORS[index % COLORS.length],
                             }}
                         />
 
@@ -166,11 +176,11 @@ export function RuleDomainDistribution() {
                         </span>
 
                         <span className="text-right text-gray-700">
-                            {item.value}
+                            {item.value || 0}
                         </span>
 
                         <span className="text-right text-gray-500">
-                            {((item.value / total) * 100).toFixed(1)}%
+                            {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%
                         </span>
                     </div>
                 ))}
@@ -179,12 +189,20 @@ export function RuleDomainDistribution() {
     );
 }
 
-export function GovernanceStatusSummary() {
-    const max = Math.max(...governanceStatuses.map((x) => x.value));
+export function GovernanceStatusSummary({ data = governanceStatuses }: { data?: any[] }) {
+    const isEmpty = !data || data.length === 0;
+    const displayData = isEmpty ? [
+        { label: "Active", value: 0, percentage: 0, color: "#16a34a" },
+        { label: "Draft", value: 0, percentage: 0, color: "#6b7280" },
+        { label: "Pending Approval", value: 0, percentage: 0, color: "#2563eb" },
+    ] : data;
+
+    const max = Math.max(...displayData.map((x) => x.value), 1);
+    const totalCount = isEmpty ? 0 : displayData.reduce((a, b) => a + (b.value || 0), 0);
 
     return (
         <div className="space-y-3 py-3">
-            {governanceStatuses.map((status) => (
+            {displayData.map((status) => (
                 <div
                     key={status.label}
                     className="grid grid-cols-[110px_1fr_35px_45px] items-center gap-2 text-[10px]"
@@ -214,8 +232,8 @@ export function GovernanceStatusSummary() {
             <div className="grid grid-cols-[110px_1fr_35px_45px] border-t pt-2 text-[10px] font-semibold">
                 <span>Total</span>
                 <span />
-                <span className="text-right">428</span>
-                <span className="text-right">100%</span>
+                <span className="text-right">{totalCount}</span>
+                <span className="text-right">{totalCount > 0 ? "100%" : "0%"}</span>
             </div>
         </div>
     );

@@ -78,6 +78,15 @@ export const verificationComplianceApi = {
   getReportsDashboard: (params: VerificationFilterParams = {}) =>
     request(withQuery('/admin/verification-compliance/reports/dashboard', params)),
 
+  exportReports: (params: VerificationFilterParams = {}) =>
+    request(withQuery('/admin/verification-compliance/reports/export', params)),
+
+  createReportSchedule: (payload: any = {}) =>
+    request('/admin/verification-compliance/reports/schedules', { method: 'POST', body: JSON.stringify(payload) }),
+
+  createCustomReport: (payload: any = {}) =>
+    request('/admin/verification-compliance/reports/custom-reports', { method: 'POST', body: JSON.stringify(payload) }),
+
   getImportExportAuditDashboard: (params: VerificationFilterParams = {}) =>
     request(withQuery('/admin/verification-compliance/import-export-audit/dashboard', params)),
 };

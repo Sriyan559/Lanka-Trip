@@ -255,9 +255,9 @@ function ComplianceRuleTable({
                             </td>
                         </tr>
                     ) : (
-                        rows.map((rule) => (
+                        rows.filter(Boolean).map((rule) => (
                             <tr
-                                key={rule.id}
+                                key={rule?.id || Math.random()}
                                 onClick={() => onSelect(rule)}
                                 className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
                             >
@@ -269,42 +269,42 @@ function ComplianceRuleTable({
                                 </td>
 
                                 <td className="max-w-[180px] truncate px-2 py-1.5 font-medium">
-                                    {rule.name}
+                                    {rule?.name || 'Unnamed Rule'}
                                 </td>
 
                                 <td className="px-2 py-1.5 text-blue-600">
-                                    {rule.id}
+                                    {rule?.id || '—'}
                                 </td>
 
                                 <td className="px-2 py-1.5">
-                                    {rule.domain}
+                                    {rule?.domain || '—'}
                                 </td>
 
                                 <td className="px-2 py-1.5">
-                                    {rule.type}
+                                    {rule?.type || '—'}
                                 </td>
 
                                 <td className="px-2 py-1.5">
-                                    {rule.trigger}
+                                    {rule?.trigger || '—'}
                                 </td>
 
                                 <td className="max-w-[190px] truncate px-2 py-1.5">
-                                    {rule.conditionSummary}
+                                    {rule?.conditionSummary || '—'}
                                 </td>
 
                                 <td className="px-2 py-1.5">
-                                    {rule.outcome}
+                                    {rule?.outcome || '—'}
                                 </td>
 
                                 <td className="px-2 py-1.5">
-                                    {rule.entityScope}
+                                    {rule?.entityScope || '—'}
                                 </td>
 
                                 <td className="px-2 py-1.5">
                                     <StatusBadge
-                                        type={severityType(rule.severity)}
+                                        type={severityType(rule?.severity)}
                                     >
-                                        {rule.severity}
+                                        {rule?.severity || 'MEDIUM'}
                                     </StatusBadge>
                                 </td>
 
@@ -373,8 +373,16 @@ function ComplianceRuleTable({
 function SelectedRulePreview({
     rule,
 }: {
-    rule: ComplianceRule;
+    rule: ComplianceRule | null;
 }) {
+    if (!rule) {
+        return (
+            <Card className="h-full p-3 flex flex-col justify-center items-center text-center text-gray-400 text-xs">
+                <div>No rule selected for preview</div>
+            </Card>
+        );
+    }
+
     return (
         <Card className="h-full p-3">
             <div className="mb-3 flex items-start justify-between">
@@ -384,12 +392,12 @@ function SelectedRulePreview({
                     </div>
 
                     <h3 className="mt-1 text-[11px] font-semibold leading-tight">
-                        {rule.name}
+                        {rule?.name || 'Unnamed Rule'}
                     </h3>
                 </div>
 
                 <StatusBadge type="green">
-                    {rule.status}
+                    {rule?.status || 'Active'}
                 </StatusBadge>
             </div>
 
@@ -399,7 +407,7 @@ function SelectedRulePreview({
                         Rule ID
                     </span>
                     <span className="font-medium text-blue-600">
-                        {rule.id}
+                        {rule?.id || '—'}
                     </span>
                 </div>
 
@@ -407,7 +415,7 @@ function SelectedRulePreview({
                     <span className="block text-gray-400">
                         Domain
                     </span>
-                    <span>{rule.domain}</span>
+                    <span>{rule?.domain || '—'}</span>
                 </div>
 
                 <div>
@@ -415,7 +423,7 @@ function SelectedRulePreview({
                         Severity
                     </span>
                     <StatusBadge type="red">
-                        {rule.severity}
+                        {rule?.severity || 'MEDIUM'}
                     </StatusBadge>
                 </div>
             </div>
@@ -425,14 +433,14 @@ function SelectedRulePreview({
                     <div className="text-gray-400">
                         Trigger Summary
                     </div>
-                    <p>{rule.trigger}</p>
+                    <p>{rule?.trigger || '—'}</p>
                 </div>
 
                 <div>
                     <div className="text-gray-400">
                         Outcome / Control
                     </div>
-                    <p>{rule.outcome}</p>
+                    <p>{rule?.outcome || '—'}</p>
                 </div>
 
                 <div>
@@ -482,14 +490,14 @@ function SelectedRulePreview({
                         <span className="block text-gray-400">
                             Effective Date
                         </span>
-                        <span>{rule.effectiveDate}</span>
+                        <span>{rule?.effectiveDate || '—'}</span>
                     </div>
 
                     <div>
                         <span className="block text-gray-400">
                             Expiry Date
                         </span>
-                        <span>{rule.expiryDate}</span>
+                        <span>{rule?.expiryDate || '—'}</span>
                     </div>
                 </div>
 
@@ -806,16 +814,15 @@ function LifecycleWorkflow() {
 export default function ComplianceRulesCommandCenter() {
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState("Overview");
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [apiRules, setApiRules] = useState<ComplianceRule[]>([]);
+    const [governanceData, setGovernanceData] = useState<any>(null);
 
     const fetchGovernance = async () => {
         setLoading(true);
         try {
-            const res = await verificationComplianceApi.getGovernanceDashboard({ search, status: activeTab });
-            if (res?.rules?.data) {
-                setApiRules(res.rules.data);
-            }
+            const res = await verificationComplianceApi.getGovernanceDashboard({ search, status: activeTab, page, per_page: 15 });
+            setGovernanceData(res);
         } catch (err) {
             console.error("Governance API fetch error", err);
         } finally {
@@ -825,10 +832,18 @@ export default function ComplianceRulesCommandCenter() {
 
     useEffect(() => {
         fetchGovernance();
-    }, [search, activeTab]);
+    }, [search, activeTab, page]);
 
-    const displayRules = apiRules.length > 0 ? apiRules : complianceRules;
-    const [selectedRule, setSelectedRule] = useState<ComplianceRule>(displayRules[0] || complianceRules[0]);
+    const displayRules: ComplianceRule[] = governanceData?.rules?.data || [];
+    const [selectedRule, setSelectedRule] = useState<ComplianceRule | null>(displayRules[0] || null);
+
+    useEffect(() => {
+        if (displayRules.length > 0 && !selectedRule) {
+            setSelectedRule(displayRules[0]);
+        }
+    }, [displayRules]);
+
+    const kpis: GovernanceKpi[] = governanceData?.kpis || governanceKpis.map(k => ({ ...k, value: 0, trend: 0 }));
 
     const filteredRules = useMemo(() => {
         const query = search.toLowerCase().trim();
@@ -962,7 +977,7 @@ export default function ComplianceRulesCommandCenter() {
                         {/* KPI */}
 
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                            {governanceKpis.map((item) => (
+                            {kpis.map((item) => (
                                 <GovernanceKpiCard
                                     key={item.id}
                                     item={item}
@@ -973,14 +988,15 @@ export default function ComplianceRulesCommandCenter() {
                         {/* TABS */}
 
                         <Card className="overflow-x-auto">
-                            <div className="flex min-w-max">
+                            <div className="flex min-[#8b001b] max-w-full overflow-x-auto">
                                 {tabs.map((tab) => (
                                     <button
                                         key={tab}
-                                        onClick={() =>
-                                            setActiveTab(tab)
-                                        }
-                                        className={`relative px-4 py-2 text-[9px] ${activeTab === tab
+                                        onClick={() => {
+                                            setActiveTab(tab);
+                                            setPage(1);
+                                        }}
+                                        className={`relative px-4 py-2 text-[9px] whitespace-nowrap ${activeTab === tab
                                                 ? "font-medium text-[#8b001b]"
                                                 : "text-gray-600"
                                             }`}
@@ -1007,7 +1023,7 @@ export default function ComplianceRulesCommandCenter() {
                                     Last 30 Days
                                 </div>
 
-                                <GovernanceActivityTrend />
+                                <GovernanceActivityTrend data={governanceData?.trend || []} />
                             </Card>
 
                             <Card className="p-3">
@@ -1015,7 +1031,7 @@ export default function ComplianceRulesCommandCenter() {
                                     Rule Domain Distribution
                                 </SectionTitle>
 
-                                <RuleDomainDistribution />
+                                <RuleDomainDistribution data={governanceData?.ruleDomains || []} />
                             </Card>
 
                             <Card className="p-3">
@@ -1023,7 +1039,7 @@ export default function ComplianceRulesCommandCenter() {
                                     Governance Status Summary
                                 </SectionTitle>
 
-                                <GovernanceStatusSummary />
+                                <GovernanceStatusSummary data={governanceData?.governanceStatuses || []} />
                             </Card>
                         </div>
 

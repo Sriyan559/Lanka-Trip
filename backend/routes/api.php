@@ -408,6 +408,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/recalls/dashboard', [AdminVerificationComplianceController::class, 'recallsDashboard']);
             Route::get('/governance/dashboard', [AdminVerificationComplianceController::class, 'governanceDashboard']);
             Route::get('/reports/dashboard', [AdminVerificationComplianceController::class, 'reportsDashboard']);
+            Route::get('/reports/export', [AdminVerificationComplianceController::class, 'exportReports']);
+            Route::post('/reports/schedules', [AdminVerificationComplianceController::class, 'createReportSchedule']);
+            Route::post('/reports/custom-reports', [AdminVerificationComplianceController::class, 'createCustomReport']);
             Route::get('/import-export-audit/dashboard', [AdminVerificationComplianceController::class, 'importExportAuditDashboard']);
         });
     });

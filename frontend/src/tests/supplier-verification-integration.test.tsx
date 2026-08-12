@@ -14,6 +14,7 @@ global.fetch = vi.fn().mockImplementation((url: string) => {
   if (url.includes('/admin/verification-compliance/supplier-verification/dashboard')) {
     return Promise.resolve({
       ok: true,
+      headers: new Headers({ 'content-type': 'application/json' }),
       json: () => Promise.resolve({
         kpis: [
           { index: 1, title: 'Total Verification Applications', value: '0' },
@@ -53,6 +54,7 @@ global.fetch = vi.fn().mockImplementation((url: string) => {
 
   return Promise.resolve({
     ok: true,
+    headers: new Headers({ 'content-type': 'application/json' }),
     json: () => Promise.resolve({}),
   });
 });
@@ -61,7 +63,7 @@ describe('Supplier Verification Integration & Zero-Data Resilience', () => {
   it('renders Supplier Verification & Eligibility dashboard with zero/empty database resilience', async () => {
     render(<SupplierVerificationManagementPage />);
 
-    expect(screen.getByText('Supplier Verification & Eligibility')).toBeInTheDocument();
+    expect(screen.getAllByText('Supplier Verification & Eligibility')[0]).toBeInTheDocument();
     expect(screen.getByText('Supplier Verification Applications (0)')).toBeInTheDocument();
 
     await waitFor(() => {

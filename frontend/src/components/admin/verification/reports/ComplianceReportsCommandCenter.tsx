@@ -103,15 +103,20 @@ function StatusBadge({
 export default function ComplianceReportsCommandCenter() {
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState("Executive Overview");
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [reportsData, setReportsData] = useState<any>(null);
-    const [selectedDomain, setSelectedDomain] = useState<DomainPerformanceRow>(domainTableRows[2]);
+    const [selectedDomain, setSelectedDomain] = useState<DomainPerformanceRow | null>(null);
+    const [actionNotice, setActionNotice] = useState<string | null>(null);
 
     const fetchReports = async () => {
         setLoading(true);
         try {
-            const res = await verificationComplianceApi.getReportsDashboard({ search, category: activeTab });
+            const res = await verificationComplianceApi.getReportsDashboard({ search, category: activeTab, page, per_page: 15 });
             setReportsData(res);
+            if (res?.domains?.data?.length > 0 && !selectedDomain) {
+                setSelectedDomain(res.domains.data[0]);
+            }
         } catch (err) {
             console.error("Reports API fetch error", err);
         } finally {
@@ -121,15 +126,54 @@ export default function ComplianceReportsCommandCenter() {
 
     useEffect(() => {
         fetchReports();
-    }, [search, activeTab]);
+    }, [search, activeTab, page]);
+
+    const handleExport = async () => {
+        try {
+            const res = await verificationComplianceApi.exportReports({ category: activeTab, search });
+            setActionNotice(`Export initiated: ${res.filename || 'compliance_report.csv'}`);
+            setTimeout(() => setActionNotice(null), 4000);
+        } catch (err) {
+            console.error("Export error", err);
+        }
+    };
+
+    const handleSchedule = async () => {
+        try {
+            const res = await verificationComplianceApi.createReportSchedule({ name: `Schedule: ${activeTab}`, frequency: 'Weekly' });
+            setActionNotice(`Report Schedule Created: ${res.schedule?.name || 'Weekly Audit'}`);
+            setTimeout(() => setActionNotice(null), 4000);
+        } catch (err) {
+            console.error("Schedule error", err);
+        }
+    };
+
+    const handleCreateReport = async () => {
+        try {
+            const res = await verificationComplianceApi.createCustomReport({ name: `Custom Report: ${activeTab}`, domain: activeTab });
+            setActionNotice(`Custom Report Created: ${res.report?.name || 'Regulatory Dossier'}`);
+            setTimeout(() => setActionNotice(null), 4000);
+        } catch (err) {
+            console.error("Create Report error", err);
+        }
+    };
+
+    const kpiList = useMemo(() => {
+        if (reportsData?.kpis) return reportsData.kpis;
+        return analyticsKpis.map(k => ({ ...k, value: "0", trend: 0, trendDirection: "neutral" }));
+    }, [reportsData]);
+
+    const domainRows = useMemo(() => {
+        return reportsData?.domains?.data || [];
+    }, [reportsData]);
 
     const filteredDomains = useMemo(() => {
         const query = search.toLowerCase().trim();
-        if (!query) return domainTableRows;
-        return domainTableRows.filter(row =>
-            row.domain.toLowerCase().includes(query)
+        if (!query) return domainRows;
+        return domainRows.filter((row: any) =>
+            (row.domain || "").toLowerCase().includes(query)
         );
-    }, [search]);
+    }, [search, domainRows]);
 
     const tabs = [
         "Executive Overview",
@@ -172,18 +216,23 @@ export default function ComplianceReportsCommandCenter() {
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        <button className="flex h-8 items-center gap-2 rounded border bg-white px-3 text-[9px] hover:bg-gray-50">
+                    <div className="flex flex-wrap gap-2 items-center">
+                        {actionNotice && (
+                            <div className="rounded bg-green-50 border border-green-200 px-2.5 py-1 text-[9px] font-medium text-green-700 animate-fade-in">
+                                {actionNotice}
+                            </div>
+                        )}
+                        <button onClick={handleExport} className="flex h-8 items-center gap-2 rounded border bg-white px-3 text-[9px] hover:bg-gray-50">
                             <Download className="h-3.5 w-3.5 text-gray-600" />
                             Export
                         </button>
 
-                        <button className="flex h-8 items-center gap-2 rounded border bg-white px-3 text-[9px] hover:bg-gray-50">
+                        <button onClick={handleSchedule} className="flex h-8 items-center gap-2 rounded border bg-white px-3 text-[9px] hover:bg-gray-50">
                             <Calendar className="h-3.5 w-3.5 text-gray-600" />
                             Schedule
                         </button>
 
-                        <button className="flex h-8 items-center gap-2 rounded bg-[#850019] px-3 text-[9px] font-medium text-white hover:bg-[#6b0014]">
+                        <button onClick={handleCreateReport} className="flex h-8 items-center gap-2 rounded bg-[#850019] px-3 text-[9px] font-medium text-white hover:bg-[#6b0014]">
                             <Plus className="h-3.5 w-3.5" />
                             Create Custom Report
                         </button>
@@ -195,8 +244,8 @@ export default function ComplianceReportsCommandCenter() {
                     <main className="min-w-0 space-y-2">
                         {/* 2. ANALYTICS KPI STRIP */}
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 2xl:grid-cols-13">
-                            {analyticsKpis.map((kpi) => {
-                                const positive = kpi.positive;
+                            {kpiList.map((kpi: any) => {
+                                const positive = kpi.positive ?? true;
                                 return (
                                     <Card key={kpi.id} className="relative p-2 flex flex-col justify-between min-h-[70px]">
                                         <div>
@@ -214,7 +263,7 @@ export default function ComplianceReportsCommandCenter() {
                                             </div>
                                         </div>
                                         <div className="mt-2 flex justify-end">
-                                            <MiniSparkline data={kpi.sparklineData} color={positive ? "#16a34a" : "#dc2626"} width={45} height={14} />
+                                            <MiniSparkline data={kpi.sparklineData || [10, 20, 15, 25]} color={positive ? "#16a34a" : "#dc2626"} width={45} height={14} />
                                         </div>
                                     </Card>
                                 );
@@ -433,11 +482,11 @@ export default function ComplianceReportsCommandCenter() {
                                                 Selected Report / Custom Preview
                                             </div>
                                             <h3 className="mt-0.5 text-[11px] font-bold text-gray-900">
-                                                {selectedDomain.domain}
+                                                {selectedDomain?.domain || 'Select a Domain'}
                                             </h3>
                                         </div>
-                                        <StatusBadge type={selectedDomain.currentScore >= selectedDomain.targetScore ? "green" : "orange"}>
-                                            {selectedDomain.currentScore}% Score
+                                        <StatusBadge type={(selectedDomain?.currentScore || 0) >= (selectedDomain?.targetScore || 0) ? "green" : "orange"}>
+                                            {selectedDomain?.currentScore || 0}% Score
                                         </StatusBadge>
                                     </div>
 
@@ -464,7 +513,7 @@ export default function ComplianceReportsCommandCenter() {
                                         <div>
                                             <div className="text-[8px] text-gray-400 mb-1">90-Day Score Trend</div>
                                             <div className="rounded border border-gray-100 bg-white p-2 flex items-center justify-between">
-                                                <MiniSparkline data={selectedDomain.sparklineData} color="#16a34a" width={140} height={28} />
+                                                <MiniSparkline data={selectedDomain?.sparklineData || [50, 50, 50, 50, 50]} color="#16a34a" width={140} height={28} />
                                                 <span className="text-[10px] font-bold text-green-600">+2.4%</span>
                                             </div>
                                         </div>
