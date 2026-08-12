@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { verificationComplianceApi } from "@/lib/api/verificationCompliance";
 
 import {
     AlertTriangle,
@@ -804,20 +805,39 @@ function LifecycleWorkflow() {
 
 export default function ComplianceRulesCommandCenter() {
     const [search, setSearch] = useState("");
-    const [activeTab, setActiveTab] =
-        useState("Overview");
+    const [activeTab, setActiveTab] = useState("Overview");
+    const [loading, setLoading] = useState(false);
+    const [apiRules, setApiRules] = useState<ComplianceRule[]>([]);
 
-    const [selectedRule, setSelectedRule] =
-        useState<ComplianceRule>(complianceRules[0]);
+    const fetchGovernance = async () => {
+        setLoading(true);
+        try {
+            const res = await verificationComplianceApi.getGovernanceDashboard({ search, status: activeTab });
+            if (res?.rules?.data) {
+                setApiRules(res.rules.data);
+            }
+        } catch (err) {
+            console.error("Governance API fetch error", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchGovernance();
+    }, [search, activeTab]);
+
+    const displayRules = apiRules.length > 0 ? apiRules : complianceRules;
+    const [selectedRule, setSelectedRule] = useState<ComplianceRule>(displayRules[0] || complianceRules[0]);
 
     const filteredRules = useMemo(() => {
         const query = search.toLowerCase().trim();
 
         if (!query) {
-            return complianceRules;
+            return displayRules;
         }
 
-        return complianceRules.filter((rule) =>
+        return displayRules.filter((rule) =>
             [
                 rule.id,
                 rule.name,
@@ -828,7 +848,7 @@ export default function ComplianceRulesCommandCenter() {
                 value.toLowerCase().includes(query),
             ),
         );
-    }, [search]);
+    }, [search, displayRules]);
 
     const tabs = [
         "Overview",

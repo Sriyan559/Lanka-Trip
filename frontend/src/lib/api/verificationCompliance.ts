@@ -21,6 +21,9 @@ export interface VerificationFilterParams {
 }
 
 export const verificationComplianceApi = {
+  getSupplierVerificationDashboard: (params: VerificationFilterParams = {}) =>
+    request(withQuery('/admin/verification-compliance/supplier-verification/dashboard', params)),
+
   getDocumentsDashboard: (params: VerificationFilterParams = {}) =>
     request(withQuery('/admin/verification-compliance/documents/dashboard', params)),
 

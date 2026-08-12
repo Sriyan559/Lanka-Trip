@@ -5,6 +5,8 @@ export interface DashboardFilterParams {
   status?: string;
   page?: number;
   per_page?: number;
+  business_type?: string;
+  risk_level?: string;
 }
 
 export const brandsSuppliersApi = {

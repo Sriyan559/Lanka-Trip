@@ -214,10 +214,10 @@ export default function BrandsSuppliersCommandCenter() {
               <Users size={14} className="text-gray-400" />
             </div>
             <div className="space-y-1.5 text-xs text-gray-600">
-              <div className="flex justify-between"><span>Total Registered:</span> <span className="font-bold text-gray-900">0</span></div>
-              <div className="flex justify-between"><span>Active Verified:</span> <span className="font-bold text-green-700">0</span></div>
-              <div className="flex justify-between"><span>Active Countries:</span> <span className="font-bold text-gray-900">0</span></div>
-              <div className="flex justify-between"><span>Avg Onboarding Time:</span> <span className="font-bold text-gray-900">N/A</span></div>
+              <div className="flex justify-between"><span>Total Registered:</span> <span className="font-bold text-gray-900">{dashboardData?.masterOverview?.totalRegistered ?? 0}</span></div>
+              <div className="flex justify-between"><span>Active Verified:</span> <span className="font-bold text-green-700">{dashboardData?.masterOverview?.activeVerified ?? 0}</span></div>
+              <div className="flex justify-between"><span>Active Countries:</span> <span className="font-bold text-gray-900">{dashboardData?.masterOverview?.activeCountries ?? 0}</span></div>
+              <div className="flex justify-between"><span>Avg Onboarding Time:</span> <span className="font-bold text-gray-900">{dashboardData?.masterOverview?.avgOnboardingTime || 'N/A'}</span></div>
             </div>
             <Link href="/admin/brands-suppliers/suppliers" className="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1 pt-1">
               <span>Manage Suppliers</span> <ArrowUpRight size={12} />
@@ -231,10 +231,10 @@ export default function BrandsSuppliersCommandCenter() {
               <Award size={14} className="text-gray-400" />
             </div>
             <div className="space-y-1.5 text-xs text-gray-600">
-              <div className="flex justify-between"><span>Total Brands:</span> <span className="font-bold text-gray-900">0</span></div>
-              <div className="flex justify-between"><span>Authorized Resellers:</span> <span className="font-bold text-green-700">0</span></div>
-              <div className="flex justify-between"><span>Exclusive Rights:</span> <span className="font-bold text-blue-700">0</span></div>
-              <div className="flex justify-between"><span>Pending Legal Audit:</span> <span className="font-bold text-amber-700">0</span></div>
+              <div className="flex justify-between"><span>Total Brands:</span> <span className="font-bold text-gray-900">{dashboardData?.relationshipMatrix?.totalBrands ?? 0}</span></div>
+              <div className="flex justify-between"><span>Authorized Resellers:</span> <span className="font-bold text-green-700">{dashboardData?.relationshipMatrix?.authorizedResellers ?? 0}</span></div>
+              <div className="flex justify-between"><span>Exclusive Rights:</span> <span className="font-bold text-blue-700">{dashboardData?.relationshipMatrix?.exclusiveRights ?? 0}</span></div>
+              <div className="flex justify-between"><span>Pending Legal Audit:</span> <span className="font-bold text-amber-700">{dashboardData?.relationshipMatrix?.pendingLegalAudit ?? 0}</span></div>
             </div>
             <Link href="/admin/brands-suppliers/authorizations" className="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1 pt-1">
               <span>View Authorizations</span> <ArrowUpRight size={12} />
@@ -248,10 +248,10 @@ export default function BrandsSuppliersCommandCenter() {
               <Layers size={14} className="text-gray-400" />
             </div>
             <div className="space-y-1.5 text-xs text-gray-600">
-              <div className="flex justify-between"><span>Total SKUs Supplied:</span> <span className="font-bold text-gray-900">0</span></div>
-              <div className="flex justify-between"><span>Categories Covered:</span> <span className="font-bold text-gray-900">0</span></div>
-              <div className="flex justify-between"><span>Coverage Gap SKUs:</span> <span className="font-bold text-rose-700">0</span></div>
-              <div className="flex justify-between"><span>Readiness Score:</span> <span className="font-bold text-gray-900">0%</span></div>
+              <div className="flex justify-between"><span>Total SKUs Supplied:</span> <span className="font-bold text-gray-900">{dashboardData?.catalogueCoverage?.totalSkusSupplied ?? 0}</span></div>
+              <div className="flex justify-between"><span>Categories Covered:</span> <span className="font-bold text-gray-900">{dashboardData?.catalogueCoverage?.categoriesCovered ?? 0}</span></div>
+              <div className="flex justify-between"><span>Coverage Gap SKUs:</span> <span className="font-bold text-rose-700">{dashboardData?.catalogueCoverage?.coverageGapSkus ?? 0}</span></div>
+              <div className="flex justify-between"><span>Readiness Score:</span> <span className="font-bold text-gray-900">{dashboardData?.catalogueCoverage?.readinessScore || '0%'}</span></div>
             </div>
             <Link href="/admin/brands-suppliers/catalogue-coverage" className="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1 pt-1">
               <span>Catalogue Analytics</span> <ArrowUpRight size={12} />
@@ -265,10 +265,10 @@ export default function BrandsSuppliersCommandCenter() {
               <FileSpreadsheet size={14} className="text-gray-400" />
             </div>
             <div className="space-y-1.5 text-xs text-gray-600">
-              <div className="flex justify-between"><span>Active Contracts:</span> <span className="font-bold text-green-700">0</span></div>
-              <div className="flex justify-between"><span>Renewals Due (30D):</span> <span className="font-bold text-amber-700">0</span></div>
-              <div className="flex justify-between"><span>Expired Contracts:</span> <span className="font-bold text-rose-700">0</span></div>
-              <div className="flex justify-between"><span>Avg Tenure:</span> <span className="font-bold text-gray-900">N/A</span></div>
+              <div className="flex justify-between"><span>Active Contracts:</span> <span className="font-bold text-green-700">{dashboardData?.contractsSummary?.activeContracts ?? 0}</span></div>
+              <div className="flex justify-between"><span>Renewals Due (30D):</span> <span className="font-bold text-amber-700">{dashboardData?.contractsSummary?.renewalsDue ?? 0}</span></div>
+              <div className="flex justify-between"><span>Expired Contracts:</span> <span className="font-bold text-rose-700">{dashboardData?.contractsSummary?.expiredContracts ?? 0}</span></div>
+              <div className="flex justify-between"><span>Avg Tenure:</span> <span className="font-bold text-gray-900">{dashboardData?.contractsSummary?.avgTenure || 'N/A'}</span></div>
             </div>
             <Link href="/admin/brands-suppliers/contracts" className="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1 pt-1">
               <span>View Contracts</span> <ArrowUpRight size={12} />
@@ -343,10 +343,10 @@ export default function BrandsSuppliersCommandCenter() {
 
         <RailSection title="Verification Status Summary">
           <div className="space-y-1.5 text-xs">
-            <div className="flex justify-between text-gray-600"><span>Verified</span> <span className="font-bold text-green-700">0 (0%)</span></div>
-            <div className="flex justify-between text-gray-600"><span>Pending Review</span> <span className="font-bold text-amber-700">0 (0%)</span></div>
-            <div className="flex justify-between text-gray-600"><span>Under Review</span> <span className="font-bold text-blue-700">0 (0%)</span></div>
-            <div className="flex justify-between text-gray-600"><span>Rejected</span> <span className="font-bold text-rose-700">0 (0%)</span></div>
+            <div className="flex justify-between text-gray-600"><span>Verified</span> <span className="font-bold text-green-700">{dashboardData?.masterOverview?.activeVerified ?? 0}</span></div>
+            <div className="flex justify-between text-gray-600"><span>Pending Review</span> <span className="font-bold text-amber-700">{dashboardData?.quickQueues?.pendingVerification ?? 0}</span></div>
+            <div className="flex justify-between text-gray-600"><span>Under Review</span> <span className="font-bold text-blue-700">0</span></div>
+            <div className="flex justify-between text-gray-600"><span>Rejected</span> <span className="font-bold text-rose-700">0</span></div>
           </div>
         </RailSection>
 
@@ -354,15 +354,15 @@ export default function BrandsSuppliersCommandCenter() {
           <div className="space-y-1 text-xs">
             <Link href="/admin/brands-suppliers/verification" className="flex justify-between p-1.5 hover:bg-gray-50 rounded text-gray-700 font-medium">
               <span>Pending Verification</span>
-              <span className="font-bold text-gray-900">0</span>
+              <span className="font-bold text-gray-900">{dashboardData?.quickQueues?.pendingVerification ?? 0}</span>
             </Link>
             <Link href="/admin/brands-suppliers/authorizations" className="flex justify-between p-1.5 hover:bg-gray-50 rounded text-gray-700 font-medium">
               <span>Expiring Authorizations</span>
-              <span className="font-bold text-gray-900">0</span>
+              <span className="font-bold text-gray-900">{dashboardData?.quickQueues?.expiringAuthorizations ?? 0}</span>
             </Link>
             <Link href="/admin/brands-suppliers/contracts" className="flex justify-between p-1.5 hover:bg-gray-50 rounded text-gray-700 font-medium">
               <span>Contract Renewals</span>
-              <span className="font-bold text-gray-900">0</span>
+              <span className="font-bold text-gray-900">{dashboardData?.quickQueues?.contractRenewals ?? 0}</span>
             </Link>
           </div>
         </RailSection>

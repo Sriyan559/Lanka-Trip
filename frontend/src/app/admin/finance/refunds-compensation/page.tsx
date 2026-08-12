@@ -131,11 +131,7 @@ export default function RefundsCompensationPage() {
 
           {/* ── Fixed/Sticky Header ── */}
           <div className="flex flex-col gap-2 px-4 pt-4 pb-2 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-            <RefundsHeader
-              filters={filters}
-              onExport={() => actions.exportReport(tabFilters)}
-              onNavigateExceptions={() => handleFilterChange({ status: 'Failed' })}
-            />
+            <RefundsHeader />
             {context ? (
               <FinanceContextBar context={{
                 tenant: context.tenant,
@@ -230,8 +226,7 @@ export default function RefundsCompensationPage() {
 
                 {/* Filter Toolbar (shown for Overview + status tabs) */}
                 <RefundSearchFilterBar
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
+                  onSearch={(search) => handleFilterChange({ search })}
                 />
 
                 {/* Portfolio Table — always visible, server-side */}

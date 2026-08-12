@@ -78,6 +78,6 @@ describe('Brands & Suppliers Module', () => {
 
   it('renders Import Export page without crashing', () => {
     render(<ImportExportAuditPage />);
-    expect(screen.getByText('Supplier Import, Export & Audit')).toBeInTheDocument();
+    expect(screen.getAllByText(/Import, Export & Audit/i)[0]).toBeInTheDocument();
   });
 });

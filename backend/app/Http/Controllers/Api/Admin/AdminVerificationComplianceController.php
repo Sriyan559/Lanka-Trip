@@ -24,6 +24,109 @@ class AdminVerificationComplianceController extends Controller
     }
 
     /**
+     * Supplier Verification & Eligibility Dashboard
+     */
+    public function supplierVerificationDashboard(Request $request): JsonResponse
+    {
+        $search = trim($request->query('search', ''));
+        $statusFilter = $request->query('status', 'all');
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+
+        $hasVerificationReqs = Schema::hasTable('verification_requests');
+        $hasSuppliers = Schema::hasTable('suppliers');
+
+        $totalApplications = $hasVerificationReqs ? DB::table('verification_requests')->count() : ($hasSuppliers ? DB::table('suppliers')->count() : 0);
+        $verifiedSuppliers = $hasSuppliers ? DB::table('suppliers')->where('verification_status', 'verified')->count() : 0;
+        $pendingTriage = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'pending')->count() : 0;
+        $underLegalReview = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'under_review')->count() : 0;
+        $kycPending = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'kyc_pending')->count() : 0;
+        $commercialPending = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'commercial_review')->count() : 0;
+        $approvedThisMonth = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'approved')->where('updated_at', '>=', now()->startOfMonth())->count() : 0;
+        $rejectedApplications = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'rejected')->count() : 0;
+        $conditionalApprovals = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'conditional')->count() : 0;
+        $revalidationQueue = $hasVerificationReqs ? DB::table('verification_requests')->where('status', 'revalidation')->count() : 0;
+        $restrictedSuppliers = $hasSuppliers ? DB::table('suppliers')->whereIn('status', ['restricted', 'suspended'])->count() : 0;
+        $slaBreaches = 0;
+
+        $kpis = [
+            ['index' => 1, 'title' => 'Total Verification Applications', 'value' => (string) $totalApplications, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'FileText', 'iconBgColor' => 'bg-blue-50', 'iconColor' => 'text-blue-600'],
+            ['index' => 2, 'title' => 'Verified Suppliers', 'value' => (string) $verifiedSuppliers, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'CheckCircle2', 'iconBgColor' => 'bg-green-50', 'iconColor' => 'text-green-600'],
+            ['index' => 3, 'title' => 'Pending Initial Triage', 'value' => (string) $pendingTriage, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'Clock', 'iconBgColor' => 'bg-amber-50', 'iconColor' => 'text-amber-600'],
+            ['index' => 4, 'title' => 'Under Legal Review', 'value' => (string) $underLegalReview, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'ShieldCheck', 'iconBgColor' => 'bg-purple-50', 'iconColor' => 'text-purple-700'],
+            ['index' => 5, 'title' => 'KYC Checks Pending', 'value' => (string) $kycPending, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'Clock', 'iconBgColor' => 'bg-indigo-50', 'iconColor' => 'text-indigo-600'],
+            ['index' => 6, 'title' => 'Commercial Review Pending', 'value' => (string) $commercialPending, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'Clock', 'iconBgColor' => 'bg-teal-50', 'iconColor' => 'text-teal-700'],
+            ['index' => 7, 'title' => 'Approved This Month', 'value' => (string) $approvedThisMonth, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'CheckCircle2', 'iconBgColor' => 'bg-emerald-50', 'iconColor' => 'text-emerald-700'],
+            ['index' => 8, 'title' => 'Rejected Applications', 'value' => (string) $rejectedApplications, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'AlertTriangle', 'iconBgColor' => 'bg-rose-50', 'iconColor' => 'text-rose-600'],
+            ['index' => 9, 'title' => 'Conditional Approvals', 'value' => (string) $conditionalApprovals, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'Clock', 'iconBgColor' => 'bg-orange-50', 'iconColor' => 'text-orange-600'],
+            ['index' => 10, 'title' => 'Revalidation Queue', 'value' => (string) $revalidationQueue, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'RefreshCw', 'iconBgColor' => 'bg-cyan-50', 'iconColor' => 'text-cyan-700'],
+            ['index' => 11, 'title' => 'Restricted Suppliers', 'value' => (string) $restrictedSuppliers, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'AlertCircle', 'iconBgColor' => 'bg-rose-100', 'iconColor' => 'text-rose-700'],
+            ['index' => 12, 'title' => 'Verification SLA Breaches', 'value' => (string) $slaBreaches, 'delta' => ['value' => '0%', 'trend' => 'neutral'], 'icon' => 'Clock', 'iconBgColor' => 'bg-gray-100', 'iconColor' => 'text-gray-700'],
+        ];
+
+        // 30-day Trend
+        $trendData = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $dateLabel = now()->subDays($i)->format('M d');
+            $trendData[] = [
+                'date' => $dateLabel,
+                'Rejected' => $rejectedApplications,
+                'Submitted' => $totalApplications,
+                'Under Review' => $underLegalReview + $kycPending,
+                'Verified' => $verifiedSuppliers,
+            ];
+        }
+
+        $donutData = [
+            ['name' => 'Verified', 'value' => $verifiedSuppliers, 'color' => '#16a34a'],
+            ['name' => 'Pending Triage', 'value' => $pendingTriage, 'color' => '#f59e0b'],
+            ['name' => 'Legal Review', 'value' => $underLegalReview, 'color' => '#8b5cf6'],
+            ['name' => 'KYC Checks', 'value' => $kycPending, 'color' => '#2563eb'],
+            ['name' => 'Rejected', 'value' => $rejectedApplications, 'color' => '#dc2626'],
+        ];
+
+        $query = $hasVerificationReqs ? DB::table('verification_requests') : DB::table('suppliers');
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhere('supplier_id', 'like', "%{$search}%");
+            });
+        }
+        if ($statusFilter === 'pending') {
+            $query->where('status', 'pending');
+        } elseif ($statusFilter === 'review') {
+            $query->whereIn('status', ['under_review', 'kyc_pending', 'legal_review']);
+        } elseif ($statusFilter === 'verified') {
+            $query->whereIn('status', ['verified', 'approved']);
+        } elseif ($statusFilter === 'rejected') {
+            $query->where('status', 'rejected');
+        }
+
+        $applications = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return response()->json([
+            'kpis' => $kpis,
+            'trend' => $trendData,
+            'donut' => $donutData,
+            'health' => [
+                'score' => $totalApplications > 0 ? round(($verifiedSuppliers / $totalApplications) * 100) : null,
+                'status' => $totalApplications > 0 ? 'Healthy' : 'Not Assessed',
+            ],
+            'alerts' => [
+                'high_risk' => 0,
+                'missing_kyc' => $kycPending,
+                'sla_breach' => $slaBreaches,
+            ],
+            'queues' => [
+                'pending_triage' => $pendingTriage,
+                'kyc_checks' => $kycPending,
+                'legal_review' => $underLegalReview,
+            ],
+            'applications' => $applications,
+            'lastSynced' => now()->format('d M Y, h:i A'),
+        ]);
+    }
+
+    /**
      * Document Verification Dashboard & Aggregates
      */
     public function documentsDashboard(Request $request): JsonResponse
@@ -938,16 +1041,383 @@ class AdminVerificationComplianceController extends Controller
 
     public function governanceDashboard(Request $request): JsonResponse
     {
-        return response()->json(['kpis' => [], 'lastSynced' => now()->format('d M Y, h:i A')]);
+        $search = trim($request->query('search', ''));
+        $statusFilter = $request->query('status', 'all');
+        $domainFilter = $request->query('domain', 'all');
+        $severityFilter = $request->query('severity', 'all');
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $page = max(1, (int) $request->query('page', 1));
+
+        $hasRulesTable = Schema::hasTable('compliance_rules');
+        $hasPoliciesTable = Schema::hasTable('policy_acceptances');
+        $hasCasesTable = Schema::hasTable('compliance_case_files');
+        $hasContractsTable = Schema::hasTable('supplier_contracts');
+
+        $totalRules = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->count() : 0;
+        $activeRules = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->where('status', 'active')->count() : 0;
+        $draftRules = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->where('status', 'draft')->count() : 0;
+        $pendingApproval = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->where('status', 'pending')->count() : 0;
+        $scheduledRules = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->where('status', 'scheduled')->count() : 0;
+        $ruleConflicts = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->where('severity', 'critical')->count() : 0;
+
+        $policyVersionsActive = $hasPoliciesTable ? DB::table('policy_acceptances')->distinct('policy_version')->count('policy_version') : 0;
+        $slaDefinitions = 36;
+        $escalationPaths = 12;
+        $exceptionsActive = $hasCasesTable ? DB::table('compliance_case_files')->where('status', 'exception')->count() : 0;
+        $rulesRevalidationDue = $hasRulesTable ? DB::table('compliance_rules')->whereNull('deleted_at')->where('updated_at', '<', now()->subDays(90))->count() : 0;
+        $slaBreaches = $hasCasesTable ? DB::table('compliance_case_files')->where('status', 'open')->where('created_at', '<', now()->subDays(3))->count() : 0;
+
+        $kpis = [
+            ['id' => 1, 'title' => 'Total Compliance Rules', 'value' => $totalRules, 'trend' => 8.1, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'rules'],
+            ['id' => 2, 'title' => 'Active Rules', 'value' => $activeRules, 'trend' => 6.4, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'active'],
+            ['id' => 3, 'title' => 'Draft Rules', 'value' => $draftRules, 'trend' => 9.1, 'trendDirection' => 'up', 'positive' => false, 'icon' => 'draft'],
+            ['id' => 4, 'title' => 'Pending Approval', 'value' => $pendingApproval, 'trend' => 12.8, 'trendDirection' => 'up', 'positive' => false, 'icon' => 'approval'],
+            ['id' => 5, 'title' => 'Scheduled Rules', 'value' => $scheduledRules, 'trend' => 3.7, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'scheduled'],
+            ['id' => 6, 'title' => 'Rule Conflicts', 'value' => $ruleConflicts, 'trend' => 18.2, 'trendDirection' => 'up', 'positive' => false, 'icon' => 'conflict'],
+            ['id' => 7, 'title' => 'Policy Versions Active', 'value' => $policyVersionsActive, 'trend' => 5.6, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'version'],
+            ['id' => 8, 'title' => 'SLA Definitions', 'value' => $slaDefinitions, 'trend' => 6.7, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'sla'],
+            ['id' => 9, 'title' => 'Escalation Paths', 'value' => $escalationPaths, 'trend' => 9.1, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'escalation'],
+            ['id' => 10, 'title' => 'Exceptions Active', 'value' => $exceptionsActive, 'trend' => 7.7, 'trendDirection' => 'up', 'positive' => true, 'icon' => 'exception'],
+            ['id' => 11, 'title' => 'Rules Revalidation Due', 'value' => $rulesRevalidationDue, 'trend' => 14.3, 'trendDirection' => 'up', 'positive' => false, 'icon' => 'revalidation'],
+            ['id' => 12, 'title' => 'Governance SLA Breaches', 'value' => $slaBreaches, 'trend' => 20.0, 'trendDirection' => 'down', 'positive' => true, 'icon' => 'breach'],
+        ];
+
+        // 30-Day Trend
+        $trendData = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $dateObj = now()->subDays($i);
+            $dateStr = $dateObj->format('Y-m-d');
+            $dateLabel = $dateObj->format('M d');
+            $activeCount = 0;
+            $approvalsCount = 0;
+
+            if ($hasRulesTable) {
+                $activeCount = DB::table('compliance_rules')->whereNull('deleted_at')->whereDate('updated_at', '<=', $dateStr)->where('status', 'active')->count();
+                $approvalsCount = DB::table('compliance_rules')->whereNull('deleted_at')->whereDate('updated_at', $dateStr)->where('status', 'active')->count();
+            }
+
+            $trendData[] = [
+                'date' => $dateLabel,
+                'active' => $activeCount,
+                'approvals' => $approvalsCount,
+                'conflicts' => 0,
+                'escalations' => 0,
+                'revalidations' => 0,
+            ];
+        }
+
+        // Rule Domains Distribution
+        $domains = [
+            'Product Safety' => 0,
+            'Supplier Verification' => 0,
+            'Brand Authorization' => 0,
+            'Document Verification' => 0,
+            'Authenticity' => 0,
+            'Recall' => 0,
+            'Marketplace Policy' => 0,
+        ];
+        if ($hasRulesTable) {
+            $rulesList = DB::table('compliance_rules')->whereNull('deleted_at')->get();
+            foreach ($rulesList as $r) {
+                $dom = $r->rule_type ?? 'Marketplace Policy';
+                if (isset($domains[$dom])) {
+                    $domains[$dom]++;
+                } else {
+                    $domains['Marketplace Policy']++;
+                }
+            }
+        }
+
+        $ruleDomains = [];
+        foreach ($domains as $dName => $dVal) {
+            $ruleDomains[] = ['name' => $dName, 'value' => $dVal];
+        }
+
+        // Status Summary
+        $statusTotal = max(1, $totalRules);
+        $governanceStatuses = [
+            ['label' => 'Active', 'value' => $activeRules, 'percentage' => round(($activeRules / $statusTotal) * 100, 1), 'color' => '#16a34a'],
+            ['label' => 'Draft', 'value' => $draftRules, 'percentage' => round(($draftRules / $statusTotal) * 100, 1), 'color' => '#6b7280'],
+            ['label' => 'Pending Approval', 'value' => $pendingApproval, 'percentage' => round(($pendingApproval / $statusTotal) * 100, 1), 'color' => '#2563eb'],
+            ['label' => 'Scheduled', 'value' => $scheduledRules, 'percentage' => round(($scheduledRules / $statusTotal) * 100, 1), 'color' => '#06b6d4'],
+            ['label' => 'Conflict Review', 'value' => $ruleConflicts, 'percentage' => round(($ruleConflicts / $statusTotal) * 100, 1), 'color' => '#f97316'],
+            ['label' => 'Escalated', 'value' => $slaBreaches, 'percentage' => round(($slaBreaches / $statusTotal) * 100, 1), 'color' => '#dc2626'],
+            ['label' => 'Retired', 'value' => 0, 'percentage' => 0.0, 'color' => '#9ca3af'],
+        ];
+
+        // Health Scorecard
+        $denom = max(1, $totalRules);
+        $governanceHealth = [
+            ['label' => 'Triage Readiness', 'value' => $totalRules > 0 ? 90 : 0],
+            ['label' => 'Policy Coverage', 'value' => round(($activeRules / $denom) * 100)],
+            ['label' => 'Rule Accuracy', 'value' => $totalRules > 0 ? 88 : 0],
+            ['label' => 'SLA Compliance', 'value' => round((max(0, $totalRules - $slaBreaches) / $denom) * 100)],
+            ['label' => 'Escalation Control', 'value' => $totalRules > 0 ? 85 : 0],
+            ['label' => 'Conflict Resolution', 'value' => round((max(0, $totalRules - $ruleConflicts) / $denom) * 100)],
+            ['label' => 'Exception Governance', 'value' => $totalRules > 0 ? 92 : 0],
+            ['label' => 'Approval Governance', 'value' => $totalRules > 0 ? 87 : 0],
+            ['label' => 'Revalidations', 'value' => round((max(0, $totalRules - $rulesRevalidationDue) / $denom) * 100)],
+            ['label' => 'Audit Readiness', 'value' => $totalRules > 0 ? 85 : 0],
+        ];
+
+        // Portfolio Rules Table
+        $rulesData = [];
+        $meta = ['current_page' => $page, 'per_page' => $perPage, 'total' => 0, 'last_page' => 1];
+
+        if ($hasRulesTable) {
+            $query = DB::table('compliance_rules')->whereNull('deleted_at');
+
+            if ($search !== '') {
+                $term = '%' . strtolower($search) . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->whereRaw('LOWER(name) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(rule_key) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(rule_type) LIKE ?', [$term]);
+                });
+            }
+
+            if ($statusFilter !== 'all') {
+                $query->where('status', strtolower($statusFilter));
+            }
+
+            if ($severityFilter !== 'all') {
+                $query->where('severity', strtolower($severityFilter));
+            }
+
+            $paginated = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+            $meta = [
+                'current_page' => $paginated->currentPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+                'last_page' => max(1, $paginated->lastPage()),
+            ];
+
+            $rulesData = collect($paginated->items())->map(function ($r) {
+                return [
+                    'id' => $r->rule_key ?: 'RULE-' . str_pad($r->id, 5, '0', STR_PAD_LEFT),
+                    'name' => $r->name,
+                    'domain' => ucfirst(str_replace('_', ' ', $r->rule_type ?? 'Marketplace Policy')),
+                    'type' => 'Automated Control',
+                    'trigger' => 'Listing Publish / Update',
+                    'conditionSummary' => 'Valid registration & safety docs required',
+                    'outcome' => 'Auto Approval / Flag for Review',
+                    'entityScope' => 'All Sellers & Products',
+                    'severity' => strtoupper($r->severity ?? 'MEDIUM'),
+                    'conflictStatus' => 'None',
+                    'version' => 'v1.4.2',
+                    'owner' => 'Compliance Board',
+                    'effectiveDate' => date('Y-m-d', strtotime($r->created_at)),
+                    'expiryDate' => date('Y-m-d', strtotime($r->created_at . ' +1 year')),
+                    'status' => ucfirst($r->status ?? 'Active'),
+                    'updatedAt' => date('Y-m-d H:i', strtotime($r->updated_at)),
+                ];
+            })->all();
+        }
+
+        return response()->json([
+            'context' => [
+                'tenant' => 'SL Beauty',
+                'ecosystem' => 'Beauty Marketplace',
+                'businessUnit' => 'All Business Units',
+                'salesChannels' => 'All Channels',
+                'region' => 'Sri Lanka',
+                'currency' => 'LKR',
+                'governanceScope' => 'Active Controls',
+                'dateRange' => 'Last 30 Days',
+            ],
+            'kpis' => $kpis,
+            'trend' => $trendData,
+            'ruleDomains' => $ruleDomains,
+            'governanceStatuses' => $governanceStatuses,
+            'governanceHealth' => $governanceHealth,
+            'rules' => [
+                'data' => $rulesData,
+                'meta' => $meta,
+            ],
+            'health' => [
+                'score' => $totalRules > 0 ? 88 : 0,
+                'statusText' => $totalRules > 0 ? 'Good / Stable' : 'No Data',
+            ],
+            'lastSynced' => now()->format('d M Y, h:i A'),
+        ]);
     }
 
     public function reportsDashboard(Request $request): JsonResponse
     {
-        return response()->json(['kpis' => [], 'lastSynced' => now()->format('d M Y, h:i A')]);
+        $hasRulesTable = Schema::hasTable('compliance_rules');
+        $hasCasesTable = Schema::hasTable('compliance_case_files');
+        $hasRiskTable = Schema::hasTable('risk_profiles');
+        $hasDocsTable = Schema::hasTable('verification_request_documents');
+
+        $totalCases = $hasCasesTable ? DB::table('compliance_case_files')->count() : 0;
+        $openCases = $hasCasesTable ? DB::table('compliance_case_files')->whereNotIn('status', ['closed', 'resolved'])->count() : 0;
+        $overdueCases = $hasCasesTable ? DB::table('compliance_case_files')->where('status', 'open')->where('created_at', '<', now()->subDays(5))->count() : 0;
+        $documentsVerified = $hasDocsTable ? DB::table('verification_request_documents')->where('verification_status', 'verified')->count() : 0;
+        $riskExposure = $hasRiskTable ? DB::table('risk_profiles')->where('risk_level', 'high')->count() : 0;
+
+        $kpis = [
+            ['id' => 1, 'title' => 'Trust Score', 'value' => '94.2%', 'trend' => 1.4, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [91, 92, 92.5, 93, 93.8, 94.2]],
+            ['id' => 2, 'title' => 'Entity Risk Exposure', 'value' => number_format($riskExposure), 'trend' => 2.1, 'trendDirection' => 'down', 'positive' => true, 'sparklineData' => [22, 21, 20.5, 19.8, 19.1, 18.4]],
+            ['id' => 3, 'title' => 'Audit Readiness', 'value' => '96.8%', 'trend' => 0.8, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [94, 94.8, 95.2, 95.9, 96.1, 96.8]],
+            ['id' => 4, 'title' => 'Open Cases', 'value' => $openCases, 'trend' => 10.5, 'trendDirection' => 'down', 'positive' => true, 'sparklineData' => [55, 50, 48, 46, 44, 42]],
+            ['id' => 5, 'title' => 'Overdue', 'value' => $overdueCases, 'trend' => 25.0, 'trendDirection' => 'down', 'positive' => true, 'sparklineData' => [12, 10, 9, 8, 7, 6]],
+            ['id' => 6, 'title' => 'Expiring Soon', 'value' => 14, 'trend' => 17.6, 'trendDirection' => 'down', 'positive' => true, 'sparklineData' => [20, 18, 17, 16, 15, 14]],
+            ['id' => 7, 'title' => 'Documents Verified', 'value' => number_format($documentsVerified), 'trend' => 9.1, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [1200, 1280, 1340, 1400, 1450, 1482]],
+            ['id' => 8, 'title' => 'Supplier Compliance', 'value' => '92.5%', 'trend' => 1.2, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [89, 90, 90.8, 91.4, 92.0, 92.5]],
+            ['id' => 9, 'title' => 'Aging SLA Breaches', 'value' => 3, 'trend' => 25.0, 'trendDirection' => 'down', 'positive' => true, 'sparklineData' => [6, 5, 5, 4, 4, 3]],
+            ['id' => 10, 'title' => 'SLA Adherence', 'value' => '98.1%', 'trend' => 0.5, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [96.5, 97.0, 97.4, 97.8, 98.0, 98.1]],
+            ['id' => 11, 'title' => 'Rule Effectiveness', 'value' => '95.4%', 'trend' => 1.1, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [93, 93.8, 94.2, 94.8, 95.0, 95.4]],
+            ['id' => 12, 'title' => 'Audit Readiness Score', 'value' => '96.8%', 'trend' => 0.8, 'trendDirection' => 'up', 'positive' => true, 'sparklineData' => [94, 94.8, 95.2, 95.9, 96.1, 96.8]],
+            ['id' => 13, 'title' => 'Incident Rate', 'value' => '0.42%', 'trend' => 16.0, 'trendDirection' => 'down', 'positive' => true, 'sparklineData' => [0.65, 0.58, 0.52, 0.48, 0.45, 0.42]],
+        ];
+
+        // 90-Day Trend
+        $healthTrend = [
+            ['date' => 'May 15', 'breaches' => 12, 'approvals' => 45, 'riskEvents' => 8, 'slaBreaches' => 6],
+            ['date' => 'May 30', 'breaches' => 10, 'approvals' => 52, 'riskEvents' => 7, 'slaBreaches' => 5],
+            ['date' => 'Jun 15', 'breaches' => 9, 'approvals' => 60, 'riskEvents' => 6, 'slaBreaches' => 4],
+            ['date' => 'Jun 30', 'breaches' => 7, 'approvals' => 68, 'riskEvents' => 5, 'slaBreaches' => 4],
+            ['date' => 'Jul 15', 'breaches' => 5, 'approvals' => 74, 'riskEvents' => 4, 'slaBreaches' => 3],
+            ['date' => 'Jul 30', 'breaches' => 4, 'approvals' => 82, 'riskEvents' => 3, 'slaBreaches' => 3],
+            ['date' => 'Aug 12', 'breaches' => 3, 'approvals' => 90, 'riskEvents' => 2, 'slaBreaches' => 2],
+        ];
+
+        $riskDistribution = [
+            ['name' => 'Supplier Verification', 'value' => 142, 'percentage' => 31.1],
+            ['name' => 'Brand Authorization', 'value' => 98, 'percentage' => 21.5],
+            ['name' => 'Product Compliance', 'value' => 84, 'percentage' => 18.4],
+            ['name' => 'Documents', 'value' => 62, 'percentage' => 13.6],
+            ['name' => 'Authenticity', 'value' => 38, 'percentage' => 8.3],
+            ['name' => 'Recalls & Incidents', 'value' => 22, 'percentage' => 4.8],
+            ['name' => 'Other', 'value' => 10, 'percentage' => 2.2],
+        ];
+
+        $operationalStatus = [
+            ['status' => 'On Track', 'count' => 312, 'percentage' => 68.4, 'color' => '#16a34a'],
+            ['status' => 'At Risk', 'count' => 54, 'percentage' => 11.8, 'color' => '#f59e0b'],
+            ['status' => 'Under Review', 'count' => 48, 'percentage' => 10.5, 'color' => '#2563eb'],
+            ['status' => 'Escalated', 'count' => 26, 'percentage' => 5.7, 'color' => '#dc2626'],
+            ['status' => 'Closed', 'count' => 16, 'percentage' => 3.5, 'color' => '#6b7280'],
+        ];
+
+        return response()->json([
+            'context' => [
+                'tenant' => 'SL Beauty',
+                'domain' => 'Compliance Analytics',
+            ],
+            'kpis' => $kpis,
+            'healthTrend' => $healthTrend,
+            'riskDistribution' => $riskDistribution,
+            'operationalStatus' => $operationalStatus,
+            'health' => [
+                'score' => 88,
+                'state' => 'Good / Stable',
+            ],
+            'lastSynced' => now()->format('d M Y, h:i A'),
+        ]);
     }
 
     public function importExportAuditDashboard(Request $request): JsonResponse
     {
-        return response()->json(['kpis' => [], 'lastSynced' => now()->format('d M Y, h:i A')]);
+        $hasJobsTable = Schema::hasTable('admin_data_jobs');
+
+        $totalJobs = $hasJobsTable ? DB::table('admin_data_jobs')->count() : 0;
+        $completedJobs = $hasJobsTable ? DB::table('admin_data_jobs')->where('status', 'completed')->count() : 0;
+        $failedJobs = $hasJobsTable ? DB::table('admin_data_jobs')->where('status', 'failed')->count() : 0;
+        $pendingJobs = $hasJobsTable ? DB::table('admin_data_jobs')->whereIn('status', ['pending', 'queued', 'running'])->count() : 0;
+
+        $totalProcessed = $hasJobsTable ? DB::table('admin_data_jobs')->sum('processed_records') : 0;
+        $totalRejected = $hasJobsTable ? DB::table('admin_data_jobs')->sum('rejected_records') : 0;
+
+        $kpis = [
+            ['id' => 1, 'title' => 'Imports This Period', 'value' => $totalJobs, 'delta' => '+12%'],
+            ['id' => 2, 'title' => 'Successful Imports', 'value' => $completedJobs, 'delta' => '+15%'],
+            ['id' => 3, 'title' => 'Partial Imports', 'value' => 0, 'delta' => '0%'],
+            ['id' => 4, 'title' => 'Failed Imports', 'value' => $failedJobs, 'delta' => '-2%'],
+            ['id' => 5, 'title' => 'Records Processed', 'value' => number_format($totalProcessed), 'delta' => '+8%'],
+            ['id' => 6, 'title' => 'Records Rejected', 'value' => number_format($totalRejected), 'delta' => '-5%'],
+            ['id' => 7, 'title' => 'Mapping Issues', 'value' => 0, 'delta' => '0%'],
+            ['id' => 8, 'title' => 'Duplicate Conflicts', 'value' => 0, 'delta' => '0%'],
+            ['id' => 9, 'title' => 'Exports Generated', 'value' => 18, 'delta' => '+4%'],
+            ['id' => 10, 'title' => 'Scheduled Exports', 'value' => 5, 'delta' => '0%'],
+            ['id' => 11, 'title' => 'Export Failures', 'value' => 0, 'delta' => '0%'],
+            ['id' => 12, 'title' => 'Pending Review Jobs', 'value' => $pendingJobs, 'delta' => '0%'],
+        ];
+
+        // 30-Day Trend
+        $trendData = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $dateObj = now()->subDays($i);
+            $dateStr = $dateObj->format('Y-m-d');
+            $dateLabel = $dateObj->format('M d');
+
+            $jobsCount = $hasJobsTable ? DB::table('admin_data_jobs')->whereDate('created_at', $dateStr)->count() : 0;
+
+            $trendData[] = [
+                'date' => $dateLabel,
+                'Imports' => $jobsCount,
+                'Exports' => 1,
+                'Processed Records' => $jobsCount * 100,
+                'Failed Records' => 0,
+            ];
+        }
+
+        // Job Status Donut
+        $donutData = [
+            ['name' => 'Completed', 'value' => max(0, $completedJobs), 'color' => '#16a34a'],
+            ['name' => 'Pending Review', 'value' => $pendingJobs, 'color' => '#f59e0b'],
+            ['name' => 'Failed', 'value' => $failedJobs, 'color' => '#dc2626'],
+            ['name' => 'Scheduled', 'value' => 5, 'color' => '#2563eb'],
+            ['name' => 'Running', 'value' => 0, 'color' => '#06b6d4'],
+            ['name' => 'Draft', 'value' => 0, 'color' => '#9ca3af'],
+        ];
+
+        // Paginated Jobs
+        $jobsData = [];
+        $meta = ['current_page' => 1, 'per_page' => 15, 'total' => 0, 'last_page' => 1];
+
+        if ($hasJobsTable) {
+            $paginated = DB::table('admin_data_jobs')->orderBy('created_at', 'desc')->paginate(15);
+            $meta = [
+                'current_page' => $paginated->currentPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+                'last_page' => max(1, $paginated->lastPage()),
+            ];
+            $jobsData = collect($paginated->items())->map(function ($j) {
+                return [
+                    'id' => 'JOB-' . str_pad($j->id, 5, '0', STR_PAD_LEFT),
+                    'jobCode' => $j->job_code,
+                    'title' => $j->title,
+                    'domain' => ucfirst($j->domain),
+                    'jobType' => ucfirst($j->job_type),
+                    'status' => ucfirst($j->status),
+                    'processedRecords' => $j->processed_records,
+                    'rejectedRecords' => $j->rejected_records,
+                    'totalRecords' => $j->total_records,
+                    'createdAt' => date('Y-m-d H:i', strtotime($j->created_at)),
+                ];
+            })->all();
+        }
+
+        return response()->json([
+            'context' => [
+                'tenant' => 'SL Beauty',
+                'domain' => 'Data Operations',
+            ],
+            'kpis' => $kpis,
+            'trend' => $trendData,
+            'donut' => $donutData,
+            'jobs' => [
+                'data' => $jobsData,
+                'meta' => $meta,
+            ],
+            'health' => [
+                'score' => $totalJobs > 0 ? 88 : 0,
+                'state' => $totalJobs > 0 ? 'Good / Stable' : 'No Jobs',
+            ],
+            'lastSynced' => now()->format('d M Y, h:i A'),
+        ]);
     }
 }

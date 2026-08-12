@@ -387,6 +387,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         Route::prefix('admin/verification-compliance')->group(function () {
+            Route::get('/supplier-verification/dashboard', [AdminVerificationComplianceController::class, 'supplierVerificationDashboard']);
             Route::get('/documents/dashboard', [AdminVerificationComplianceController::class, 'documentsDashboard']);
             Route::get('/documents', [AdminVerificationComplianceController::class, 'documentsDashboard']);
             Route::get('/documents/export-audit', [AdminVerificationComplianceController::class, 'exportDocumentAudit']);
