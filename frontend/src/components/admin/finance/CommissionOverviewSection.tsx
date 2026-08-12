@@ -15,11 +15,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import {
-  FN08_TREND_DATA,
-  FN08_DONUT_DATA,
-  FN08_STATUS_SUMMARY,
-} from '@/data/mockCommissionData';
+interface CommissionOverviewProps { trend:Array<{date:string;commission:number;platformFees:number;processingFees:number;reversals:number;waivers:number}>;distribution:Array<{name:string;amount:number;percentage:number;color:string}>;statuses:Array<{status:string;count:number;amount:string;percentage:number;color:string}> }
 
 /* ── Custom Tooltip ── */
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) => {
@@ -37,8 +33,8 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
   );
 };
 
-export function CommissionOverviewSection() {
-  const totalDonut = FN08_DONUT_DATA.reduce((s, d) => s + d.amount, 0);
+export function CommissionOverviewSection({trend,distribution,statuses}:CommissionOverviewProps) {
+  const totalDonut = distribution.reduce((s, d) => s + d.amount, 0);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -48,7 +44,7 @@ export function CommissionOverviewSection() {
           Commission, Fee &amp; Reversal Trend (Last 30 Days)
         </p>
         <ResponsiveContainer width="100%" height={160}>
-          <ComposedChart data={FN08_TREND_DATA} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <ComposedChart data={trend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
             <XAxis dataKey="date" tick={{ fontSize: 8 }} />
             <YAxis tick={{ fontSize: 8 }} />
@@ -72,7 +68,7 @@ export function CommissionOverviewSection() {
           <div className="shrink-0 relative">
             <PieChart width={110} height={110}>
               <Pie
-                data={FN08_DONUT_DATA}
+                data={distribution}
                 cx={50}
                 cy={50}
                 innerRadius={32}
@@ -80,19 +76,19 @@ export function CommissionOverviewSection() {
                 paddingAngle={2}
                 dataKey="amount"
               >
-                {FN08_DONUT_DATA.map((entry, index) => (
+                {distribution.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
             </PieChart>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span className="text-[9px] text-gray-400 font-semibold leading-none">LKR</span>
-              <span className="text-sm font-extrabold text-gray-900 font-mono leading-tight">24.2M</span>
+              <span className="text-sm font-extrabold text-gray-900 font-mono leading-tight">{totalDonut.toLocaleString()}</span>
               <span className="text-[8px] text-gray-400 font-medium leading-none">Total Amount</span>
             </div>
           </div>
           <div className="flex flex-col gap-1 text-[10px] flex-1 min-w-0">
-            {FN08_DONUT_DATA.map((seg) => (
+            {distribution.map((seg) => (
               <div key={seg.name} className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: seg.color }} />
                 <span className="text-gray-600 truncate flex-1">{seg.name}</span>
@@ -112,7 +108,7 @@ export function CommissionOverviewSection() {
           Commission Status Summary
         </p>
         <div className="flex flex-col gap-1.5 text-[10px] overflow-y-auto max-h-[160px]">
-          {FN08_STATUS_SUMMARY.map((s) => (
+          {statuses.map((s) => (
             <div key={s.status} className="flex flex-col gap-0.5">
               <div className="flex justify-between items-center text-gray-700">
                 <span className="font-semibold">{s.status}</span>
@@ -126,7 +122,7 @@ export function CommissionOverviewSection() {
                   className="h-full rounded-full transition-all"
                   style={{
                     backgroundColor: s.color,
-                    width: `${Math.min(100, (s.count / 17866) * 100)}%`,
+                    width: `${Math.min(100, s.percentage)}%`,
                   }}
                 />
               </div>
