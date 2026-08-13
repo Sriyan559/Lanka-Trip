@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { CustomerDirectoryHeader } from "./CustomerDirectoryHeader";
 import { CustomerDirectoryTabs } from "./CustomerDirectoryTabs";
 import { CustomerDirectoryFilters } from "./CustomerDirectoryFilters";
@@ -18,141 +18,40 @@ import { CustomerLifecycleJourney } from "../CustomerLifecycleJourney";
 import { AddCustomerDrawer } from "../AddCustomerDrawer";
 import { SaveCustomerViewModal } from "../SaveCustomerViewModal";
 import { MoreCustomerFiltersDrawer } from "../MoreCustomerFiltersDrawer";
-import { MOCK_DIRECTORY_KPIS, MOCK_CUSTOMER_RECORDS } from "@/data/customer.mock";
-import { CustomerFilterState } from "@/types/customer";
-import { exportCustomerReportCSV } from "@/utils/exportCustomerReport";
+import { useCustomerDirectory } from "@/hooks/useCustomerDirectory";
 
 export function CustomerDirectoryDashboard() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("CUST-100001");
-  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
-  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
-
-  const [filters, setFilters] = useState<CustomerFilterState>({
-    searchQuery: "",
-    segment: "All",
-    customerType: "All",
-    region: "All",
-    salesChannel: "All",
-    loyaltyTier: "All",
-    verificationStatus: "All",
-    consentStatus: "All",
-    riskLevel: "All",
-    owner: "All",
-    updatedDate: "30D",
-    activeTab: "all",
-    quickChips: [],
-  });
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  const handleFilterChange = (key: keyof CustomerFilterState, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleClearAll = () => {
-    setFilters({
-      searchQuery: "",
-      segment: "All",
-      customerType: "All",
-      region: "All",
-      salesChannel: "All",
-      loyaltyTier: "All",
-      verificationStatus: "All",
-      consentStatus: "All",
-      riskLevel: "All",
-      owner: "All",
-      updatedDate: "30D",
-      activeTab: "all",
-      quickChips: [],
-    });
-    showToast("Filters reset to default.");
-  };
-
-  const handleToggleQuickChip = (chip: string) => {
-    setFilters((prev) => {
-      const exists = prev.quickChips.includes(chip);
-      const nextChips = exists
-        ? prev.quickChips.filter((c) => c !== chip)
-        : [...prev.quickChips, chip];
-      return { ...prev, quickChips: nextChips };
-    });
-  };
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    showToast("Syncing customer directory data...");
-    setTimeout(() => {
-      setIsRefreshing(false);
-      showToast("Directory data successfully synced.");
-    }, 600);
-  };
-
-  // Filter Customer Records
-  const filteredRecords = MOCK_CUSTOMER_RECORDS.filter((c) => {
-    if (filters.searchQuery) {
-      const q = filters.searchQuery.toLowerCase();
-      const matchName = c.name.toLowerCase().includes(q);
-      const matchEmail = c.email.toLowerCase().includes(q);
-      const matchId = c.id.toLowerCase().includes(q);
-      const matchPhone = c.phone.includes(q);
-      if (!matchName && !matchEmail && !matchId && !matchPhone) return false;
-    }
-
-    if (filters.customerType !== "All" && c.customerType !== filters.customerType) {
-      return false;
-    }
-    if (filters.segment !== "All" && c.lifecycleSegment !== filters.segment) {
-      return false;
-    }
-    if (filters.verificationStatus !== "All" && c.verificationStatus !== filters.verificationStatus) {
-      return false;
-    }
-    if (filters.loyaltyTier !== "All" && c.loyaltyTier !== filters.loyaltyTier) {
-      return false;
-    }
-    if (filters.consentStatus !== "All" && c.consentStatus !== filters.consentStatus) {
-      return false;
-    }
-    if (filters.riskLevel !== "All" && c.riskLevel !== filters.riskLevel) {
-      return false;
-    }
-    if (filters.region !== "All" && c.region !== filters.region) {
-      return false;
-    }
-    if (filters.salesChannel !== "All" && c.preferredChannel !== filters.salesChannel) {
-      return false;
-    }
-    if (filters.owner !== "All" && c.owner !== filters.owner) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const selectedCustomer =
-    MOCK_CUSTOMER_RECORDS.find((c) => c.id === selectedCustomerId) || MOCK_CUSTOMER_RECORDS[0];
-
-  const handleToggleSelectRow = (id: string) => {
-    setSelectedRowIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleToggleSelectAll = () => {
-    if (selectedRowIds.length === filteredRecords.length) {
-      setSelectedRowIds([]);
-    } else {
-      setSelectedRowIds(filteredRecords.map((r) => r.id));
-    }
-  };
+  const {
+    customers,
+    selectedCustomer,
+    selectedCustomerId,
+    setSelectedCustomerId,
+    selectedRowIds,
+    kpis,
+    statusSummary,
+    healthScorecard,
+    pagination,
+    isLoading,
+    isRefreshing,
+    lastSynced,
+    filters,
+    setFilters,
+    handleFilterChange,
+    handleClearAll,
+    handleToggleQuickChip,
+    handleRefresh,
+    handleToggleSelectRow,
+    handleToggleSelectAll,
+    handleExport,
+    toastMessage,
+    showToast,
+    isAddDrawerOpen,
+    setIsAddDrawerOpen,
+    isSaveModalOpen,
+    setIsSaveModalOpen,
+    isMoreFiltersOpen,
+    setIsMoreFiltersOpen,
+  } = useCustomerDirectory();
 
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#faf8f8] pb-12">
@@ -165,7 +64,7 @@ export function CustomerDirectoryDashboard() {
 
       {/* 1. Header */}
       <CustomerDirectoryHeader
-        onExportReport={() => exportCustomerReportCSV(filteredRecords)}
+        onExportReport={handleExport}
         onOpenAddCustomer={() => setIsAddDrawerOpen(true)}
         selectedCount={selectedRowIds.length}
         showToast={showToast}
@@ -175,16 +74,19 @@ export function CustomerDirectoryDashboard() {
       <CustomerContextFilters
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
-        lastSynced="May 26, 2025 10:15 AM"
+        lastSynced={lastSynced || "Not available"}
       />
 
       {/* 3. Main Body */}
       <div className="px-6 pt-4 flex flex-col gap-4">
         {/* KPI Grid (12 Cards - CU02 variants) */}
-        <CustomerKpiGrid kpis={MOCK_DIRECTORY_KPIS} showToast={showToast} />
+        <CustomerKpiGrid kpis={kpis} showToast={showToast} />
 
         {/* 14 Directory Tabs */}
-        <CustomerDirectoryTabs activeTab={activeTab} onSelectTab={(t) => setActiveTab(t)} />
+        <CustomerDirectoryTabs
+          activeTab={filters.activeTab}
+          onSelectTab={(t) => handleFilterChange("activeTab", t)}
+        />
 
         {/* Workspace + Right Intelligence Sidebar */}
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_280px] gap-5 items-start">
@@ -192,13 +94,21 @@ export function CustomerDirectoryDashboard() {
           <div className="flex flex-col gap-4 min-w-0">
             {/* 3 Analytics Charts Panel */}
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] gap-4 items-stretch">
-              <CustomerGrowthChart />
-              <CustomerSegmentChart />
-              <CustomerStatusSummary />
+              <CustomerGrowthChart data={customers} />
+              <CustomerSegmentChart totalCount={pagination.total} />
+              <CustomerStatusSummary
+                statusSummary={statusSummary}
+                isLoading={isLoading}
+                onRetry={handleRefresh}
+              />
             </div>
 
             {/* Customer Health Scorecard */}
-            <CustomerHealthScorecard />
+            <CustomerHealthScorecard
+              items={healthScorecard}
+              isLoading={isLoading}
+              onRetry={handleRefresh}
+            />
 
             {/* Filters + Quick Chips */}
             <CustomerDirectoryFilters
@@ -215,8 +125,8 @@ export function CustomerDirectoryDashboard() {
             {/* Table + Selected Customer Preview */}
             <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_320px] gap-4 items-start">
               <CustomerDirectoryTable
-                records={filteredRecords}
-                selectedCustomerId={selectedCustomerId}
+                records={customers}
+                selectedCustomerId={selectedCustomerId || ""}
                 onSelectCustomer={(c) => setSelectedCustomerId(c.id)}
                 selectedRowIds={selectedRowIds}
                 onToggleSelectRow={handleToggleSelectRow}
@@ -226,6 +136,7 @@ export function CustomerDirectoryDashboard() {
 
               <SelectedCustomerPreview
                 customer={selectedCustomer}
+                hasCustomers={customers.length > 0}
                 showToast={showToast}
               />
             </div>
@@ -240,7 +151,7 @@ export function CustomerDirectoryDashboard() {
           {/* Right Customer Operations Intelligence Sidebar */}
           <CustomerOperationsSidebar
             onOpenAddCustomer={() => setIsAddDrawerOpen(true)}
-            onExportReport={() => exportCustomerReportCSV(filteredRecords)}
+            onExportReport={handleExport}
             showToast={showToast}
           />
         </div>
@@ -250,7 +161,10 @@ export function CustomerDirectoryDashboard() {
       <AddCustomerDrawer
         isOpen={isAddDrawerOpen}
         onClose={() => setIsAddDrawerOpen(false)}
-        onSuccess={(name) => showToast(`Created customer record for "${name}".`)}
+        onSuccess={(name) => {
+          showToast(`Created customer record for "${name}".`);
+          handleRefresh();
+        }}
       />
 
       <SaveCustomerViewModal

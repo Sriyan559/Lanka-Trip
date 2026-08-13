@@ -29,7 +29,7 @@ import {
   CustomerRecentActivityTable,
 } from "./CustomerSectionCards";
 import { CustomerLifecycleJourney } from "../CustomerLifecycleJourney";
-import { getCustomerDetailById } from "@/data/customer-detail.mock";
+import { customerApi } from "@/lib/api/customers";
 import { CustomerDetailFullData } from "@/types/customer-detail";
 import { AlertTriangle, ArrowLeft, RefreshCw } from "lucide-react";
 
@@ -51,13 +51,14 @@ export function CustomerDetailDashboard({ customerId }: CustomerDetailDashboardP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const loadData = () => {
+  const loadData = async () => {
     setIsLoading(true);
     setIsError(false);
     try {
-      const res = getCustomerDetailById(customerId);
+      const res = await customerApi.getCustomerDetail(customerId);
       setData(res);
     } catch (err) {
+      console.error(err);
       setIsError(true);
     } finally {
       setIsLoading(false);
@@ -68,14 +69,12 @@ export function CustomerDetailDashboard({ customerId }: CustomerDetailDashboardP
     loadData();
   }, [customerId]);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
     showToast("Refreshing customer detail data...");
-    setTimeout(() => {
-      loadData();
-      setIsRefreshing(false);
-      showToast("Customer detail data updated.");
-    }, 500);
+    await loadData();
+    setIsRefreshing(false);
+    showToast("Customer detail data updated.");
   };
 
   // Loading state

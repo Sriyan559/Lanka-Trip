@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { CustomerSegment } from "@/types/customer-segments";
 import { ChevronLeft, ChevronRight, Eye, Edit2, AlertCircle } from "lucide-react";
 
@@ -9,6 +9,12 @@ interface SegmentPortfolioTableProps {
   selectedSegmentId: string;
   onSelectSegment: (segment: CustomerSegment) => void;
   onActionClick: (action: string, segment: CustomerSegment) => void;
+  selectedRowIds?: string[];
+  onToggleSelectRow?: (id: string) => void;
+  onToggleSelectAll?: () => void;
+  totalCount?: number;
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export function SegmentPortfolioTable({
@@ -16,26 +22,14 @@ export function SegmentPortfolioTable({
   selectedSegmentId,
   onSelectSegment,
   onActionClick,
+  selectedRowIds = [],
+  onToggleSelectRow,
+  onToggleSelectAll,
+  totalCount = 0,
+  currentPage = 1,
+  onPageChange,
 }: SegmentPortfolioTableProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 25;
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === segments.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(segments.map((s) => s.id));
-    }
-  };
-
-  const toggleSelectRow = (id: string) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((i) => i !== id));
-    } else {
-      setSelectedIds([...selectedIds, id]);
-    }
-  };
+  const isAllSelected = segments.length > 0 && selectedRowIds.length === segments.length;
 
   return (
     <div className="bg-white border border-line rounded-lg shadow-2xs mb-4 overflow-hidden">
@@ -46,7 +40,7 @@ export function SegmentPortfolioTable({
             Customer Segment Portfolio
           </h3>
           <span className="text-[10px] text-slate-500 font-mono">
-            Showing 1 to {segments.length} of 128 segments
+            Showing {segments.length > 0 ? 1 : 0} to {segments.length} of {totalCount || segments.length} segments
           </span>
         </div>
       </div>
@@ -59,8 +53,8 @@ export function SegmentPortfolioTable({
               <th className="p-2 w-8 text-center">
                 <input
                   type="checkbox"
-                  checked={selectedIds.length === segments.length && segments.length > 0}
-                  onChange={toggleSelectAll}
+                  checked={isAllSelected}
+                  onChange={onToggleSelectAll}
                   className="rounded border-slate-300"
                 />
               </th>
@@ -90,199 +84,148 @@ export function SegmentPortfolioTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-line/60">
-            {segments.map((seg) => {
-              const isSelectedRow = selectedSegmentId === seg.id;
-              const isChecked = selectedIds.includes(seg.id);
+            {segments.length === 0 ? (
+              <tr>
+                <td colSpan={24} className="py-12 text-center text-slate-400 font-mono text-[12px]">
+                  No segment records found
+                </td>
+              </tr>
+            ) : (
+              segments.map((seg) => {
+                const isSelectedRow = selectedSegmentId === seg.id;
+                const isChecked = selectedRowIds.includes(seg.id);
 
-              return (
-                <tr
-                  key={seg.id}
-                  onClick={() => onSelectSegment(seg)}
-                  className={`hover:bg-slate-50 transition-colors cursor-pointer ${
-                    isSelectedRow ? "bg-rose-50/40" : ""
-                  }`}
-                >
-                  <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleSelectRow(seg.id)}
-                      className="rounded border-slate-300"
-                    />
-                  </td>
-
-                  {/* Name */}
-                  <td className="p-2 font-bold text-slate-800 underline decoration-dotted underline-offset-2">
-                    {seg.name}
-                  </td>
-
-                  {/* ID */}
-                  <td className="p-2 font-mono text-[9.5px] text-slate-500">{seg.code}</td>
-
-                  {/* Type */}
-                  <td className="p-2 font-medium">{seg.type}</td>
-
-                  {/* Membership */}
-                  <td className="p-2 text-slate-600">{seg.membershipType}</td>
-
-                  {/* Scope */}
-                  <td className="p-2 text-slate-600">{seg.customerScope}</td>
-
-                  {/* Entry Rule */}
-                  <td className="p-2 font-mono text-[9.5px] text-slate-600 truncate max-w-[160px]" title={seg.entryRuleSummary}>
-                    {seg.entryRuleSummary}
-                  </td>
-
-                  {/* Exit Rule */}
-                  <td className="p-2 font-mono text-[9.5px] text-slate-600 truncate max-w-[160px]" title={seg.exitRuleSummary}>
-                    {seg.exitRuleSummary}
-                  </td>
-
-                  {/* Customers */}
-                  <td className="p-2 text-right font-bold font-mono text-ink">
-                    {seg.customerCount.toLocaleString()}
-                  </td>
-
-                  {/* New */}
-                  <td className="p-2 text-right font-mono text-emerald-700 font-bold">
-                    {seg.newMembersCount.toLocaleString()}
-                  </td>
-
-                  {/* Removed */}
-                  <td className="p-2 text-right font-mono text-rose-700 font-bold">
-                    {seg.removedMembersCount.toLocaleString()}
-                  </td>
-
-                  {/* Avg LTV */}
-                  <td className="p-2 text-right font-mono text-slate-800 font-bold">
-                    {seg.avgLtvFormatted}
-                  </td>
-
-                  {/* Order Freq */}
-                  <td className="p-2 text-right font-mono">{seg.orderFrequency}</td>
-
-                  {/* Retention */}
-                  <td className="p-2 text-right font-mono font-bold text-slate-800">
-                    {seg.retentionRatePct}%
-                  </td>
-
-                  {/* Consent */}
-                  <td className="p-2 font-semibold text-emerald-700">{seg.consentEligibility}</td>
-
-                  {/* Risk */}
-                  <td className="p-2">
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                        seg.riskLevel === "Low"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : seg.riskLevel === "Medium"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-rose-50 text-rose-700 border border-rose-200"
-                      }`}
-                    >
-                      {seg.riskLevel}
-                    </span>
-                  </td>
-
-                  {/* Overlap */}
-                  <td className="p-2 text-center font-mono font-bold text-slate-700">{seg.overlapCount}</td>
-
-                  {/* Conflict */}
-                  <td className="p-2">
-                    <span
-                      className={`text-[9.5px] font-bold ${
-                        seg.conflictStatus === "None"
-                          ? "text-slate-500"
-                          : seg.conflictStatus === "Warning"
-                          ? "text-amber-600"
-                          : "text-rose-600"
-                      }`}
-                    >
-                      {seg.conflictStatus}
-                    </span>
-                  </td>
-
-                  {/* Schedule */}
-                  <td className="p-2 text-slate-600 font-mono text-[9.5px]">{seg.recalculationSchedule}</td>
-
-                  {/* Last Recalculated */}
-                  <td className="p-2 text-slate-500 font-mono text-[9px]">{seg.lastRecalculated}</td>
-
-                  {/* Owner */}
-                  <td className="p-2 font-medium text-slate-700">{seg.owner}</td>
-
-                  {/* Version */}
-                  <td className="p-2 font-mono text-[9.5px] text-slate-500">{seg.version}</td>
-
-                  {/* Status */}
-                  <td className="p-2">
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[9.5px]">
-                      {seg.status}
-                    </span>
-                  </td>
-
-                  {/* Action */}
-                  <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      type="button"
-                      onClick={() => onActionClick("edit", seg)}
-                      className="p-1 hover:bg-slate-100 rounded text-slate-600 hover:text-[#671021] cursor-pointer"
-                      title="Edit Segment"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr
+                    key={seg.id}
+                    onClick={() => onSelectSegment(seg)}
+                    className={`cursor-pointer transition-colors ${
+                      isSelectedRow
+                        ? "bg-amber-50/80 font-medium"
+                        : isChecked
+                        ? "bg-slate-50 font-medium"
+                        : "hover:bg-slate-50/60"
+                    }`}
+                  >
+                    <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => onToggleSelectRow?.(seg.id)}
+                        className="rounded border-slate-300 text-[#671021] focus:ring-[#671021]"
+                      />
+                    </td>
+                    <td className="p-2 font-bold text-ink hover:underline">{seg.name}</td>
+                    <td className="p-2 font-mono text-slate-500">{seg.code || seg.id}</td>
+                    <td className="p-2">
+                      <span className="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-700">
+                        {seg.type}
+                      </span>
+                    </td>
+                    <td className="p-2 text-slate-600">{seg.membershipType}</td>
+                    <td className="p-2 text-slate-600">{seg.customerScope}</td>
+                    <td className="p-2 text-slate-600 truncate max-w-[180px]" title={seg.entryRuleSummary || ''}>
+                      {seg.entryRuleSummary !== null ? seg.entryRuleSummary : "—"}
+                    </td>
+                    <td className="p-2 text-slate-600 truncate max-w-[180px]" title={seg.exitRuleSummary || ''}>
+                      {seg.exitRuleSummary !== null ? seg.exitRuleSummary : "—"}
+                    </td>
+                    <td className="p-2 text-right font-mono font-bold">{seg.customerCount.toLocaleString()}</td>
+                    <td className="p-2 text-right font-mono text-emerald-700">+{seg.newMembersCount}</td>
+                    <td className="p-2 text-right font-mono text-rose-700">-{seg.removedMembersCount}</td>
+                    <td className="p-2 text-right font-mono font-semibold">{seg.avgLtvFormatted}</td>
+                    <td className="p-2 text-right font-mono">{seg.orderFrequency !== null ? `${seg.orderFrequency}x` : "—"}</td>
+                    <td className="p-2 text-right font-mono font-bold text-emerald-700">{seg.retentionRatePct !== null ? `${seg.retentionRatePct}%` : "—"}</td>
+                    <td className="p-2">
+                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                        seg.consentEligibility === 'Eligible'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}>
+                        {seg.consentEligibility !== null ? seg.consentEligibility : "Not configured"}
+                      </span>
+                    </td>
+                    <td className="p-2">
+                      <span className={`px-1 py-0.2 rounded text-[9px] font-bold ${
+                        seg.riskLevel === 'High' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {seg.riskLevel !== null ? seg.riskLevel : "Unassigned"}
+                      </span>
+                    </td>
+                    <td className="p-2 text-center font-mono font-semibold">{seg.overlapCount}</td>
+                    <td className="p-2">
+                      <span className={`px-1 py-0.2 rounded text-[9px] font-bold ${
+                        seg.conflictStatus === 'Conflict'
+                          ? 'bg-rose-100 text-rose-700'
+                          : seg.conflictStatus === 'Warning'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-emerald-50 text-emerald-700'
+                      }`}>
+                        {seg.conflictStatus}
+                      </span>
+                    </td>
+                    <td className="p-2 text-slate-500 font-mono text-[9.5px]">{seg.recalculationSchedule !== null ? seg.recalculationSchedule : "Not scheduled"}</td>
+                    <td className="p-2 text-slate-500 font-mono text-[9.5px]">{seg.lastRecalculated !== null ? seg.lastRecalculated : "—"}</td>
+                    <td className="p-2 text-slate-600">{seg.owner !== null ? seg.owner : "Unassigned"}</td>
+                    <td className="p-2 font-mono text-slate-500">{seg.version !== null ? seg.version : "—"}</td>
+                    <td className="p-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[9.5px] font-bold ${
+                        seg.status === 'Active'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : seg.status === 'Draft'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}>
+                        {seg.status}
+                      </span>
+                    </td>
+                    <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onActionClick("View", seg)}
+                          className="p-1 text-slate-500 hover:text-ink hover:bg-slate-100 rounded"
+                          title="View Details"
+                        >
+                          <Eye size={13} />
+                        </button>
+                        <button
+                          onClick={() => onActionClick("Edit", seg)}
+                          className="p-1 text-slate-500 hover:text-[#671021] hover:bg-slate-100 rounded"
+                          title="Edit Rules"
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pagination Footer */}
-      <div className="px-3.5 py-2 border-t border-line flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-slate-600 bg-slate-50/50">
-        <div>
-          Showing 1 to {segments.length} of 128 items
-        </div>
-
-        <div className="flex items-center gap-1.5 font-mono">
+      <div className="px-3.5 py-2 border-t border-line bg-slate-50/50 flex items-center justify-between text-[10.5px]">
+        <span className="text-slate-500 font-mono">
+          Showing {segments.length > 0 ? 1 : 0} to {segments.length} of {totalCount || segments.length} entries
+        </span>
+        <div className="flex items-center gap-1.5">
           <button
-            type="button"
+            onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-            className="p-1 border border-line rounded bg-white disabled:opacity-40 cursor-pointer"
+            className="p-1 border border-line rounded bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft size={14} />
           </button>
-          <span className="px-2 py-0.5 bg-[#671021] text-white rounded font-bold text-[10px]">
-            1
-          </span>
-          <button type="button" className="px-2 py-0.5 hover:bg-slate-100 rounded font-bold text-[10px]">
-            2
-          </button>
-          <button type="button" className="px-2 py-0.5 hover:bg-slate-100 rounded font-bold text-[10px]">
-            3
-          </button>
-          <span>...</span>
-          <button type="button" className="px-2 py-0.5 hover:bg-slate-100 rounded font-bold text-[10px]">
-            22
-          </button>
+          <span className="px-2 font-mono font-bold text-ink">{currentPage}</span>
           <button
-            type="button"
-            onClick={() => setCurrentPage(currentPage + 1)}
-            className="p-1 border border-line rounded bg-white cursor-pointer"
+            onClick={() => onPageChange?.(currentPage + 1)}
+            disabled={segments.length < 25}
+            className="p-1 border border-line rounded bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight size={14} />
           </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span>Rows per page:</span>
-          <select className="px-2 py-0.5 bg-white border border-line rounded text-[10px] font-bold">
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
         </div>
       </div>
     </div>

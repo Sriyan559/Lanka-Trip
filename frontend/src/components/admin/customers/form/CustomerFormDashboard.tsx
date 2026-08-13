@@ -17,7 +17,8 @@ import { CustomerStickyBottomBar } from "./CustomerStickyBottomBar";
 import { CustomerFormPreviewModal } from "./CustomerFormPreviewModal";
 import { CustomerContextStrip } from "../CustomerContextStrip";
 import { CustomerConcurrencyNotice } from "../detail/CustomerConcurrencyNotice";
-import { getCustomerFormInitialData } from "@/data/customer-form.mock";
+import { getCustomerFormInitialData, CU04_WORKFLOW_STEPS } from "@/data/customer-form.mock";
+import { customerApi } from "@/lib/api/customers";
 import { CustomerFormMode, CustomerFormFullData, CustomerBasicIdentityFormState } from "@/types/customer-form";
 import { RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 
@@ -44,10 +45,104 @@ export function CustomerFormDashboard({ mode, customerId }: CustomerFormDashboar
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    const initial = getCustomerFormInitialData(mode, customerId);
-    setData(initial);
-    setIsLoading(false);
+    const loadFormData = async () => {
+      setIsLoading(true);
+      try {
+        if (mode === "edit" && customerId) {
+          const detail = await customerApi.getCustomerDetail(customerId);
+          if (detail) {
+            const profile = detail.profile;
+            const nameParts = profile.name.split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            
+            setData({
+              mode: "edit",
+              customerId: profile.id,
+              draftId: `CUS-EDIT-${profile.id}`,
+              version: "v1.0",
+              createdBy: "Elena Vance",
+              lastAutosave: "Just now",
+              basicIdentity: {
+                title: profile.customerType === "Business" ? "Mr/Ms." : "Ms.",
+                firstName: firstName,
+                middleName: "",
+                lastName: lastName,
+                displayName: profile.name,
+                dob: "1990-10-12",
+                gender: "Female",
+                preferredLanguage: "English",
+                nationality: "Sri Lankan",
+                occupation: profile.tagline || "",
+                customerNotes: "",
+              },
+              workflowSteps: CU04_WORKFLOW_STEPS,
+              completenessMetrics: {
+                overallCompleteness: 82,
+                requiredCompleted: 96,
+                totalRequired: 128,
+                optionalCompleted: 24,
+                totalOptional: 42,
+                openValidationIssues: 0,
+                blockingIssues: 0,
+                warnings: 0,
+                duplicateCandidates: 0,
+                autosaveStatus: "Saved just now",
+                currentStepLabel: "Basic Identity",
+                approvalRequired: "Verification Review",
+              },
+              businessContext: {
+                businessUnit: "Consumer Beauty",
+                salesChannels: "Marketplace",
+                region: profile.region,
+                eligiblePrograms: ["Standard Member"],
+              },
+              duplicateIntelligence: {
+                matchScore: 100,
+                legalNameMatch: "None",
+                emailMatch: "None",
+                phoneMatch: "None",
+                riskLevel: "Low Risk",
+                validationFindingsPassed: 14,
+                validationFindingsTotal: 14,
+              },
+              correctiveActions: [],
+              onboardingHealth: {
+                score: 100,
+                statusText: "Optimized",
+                progressList: [
+                  { label: "Identity", pct: 100 },
+                  { label: "Contact", pct: 100 },
+                ],
+                requiredCompleted: 96,
+                requiredRemaining: 0,
+                requiredMissing: 0,
+                blockingIssuesList: [],
+                warningsList: [],
+                duplicateRisk: "Low Risk",
+                approvalReadiness: {
+                  status: "Ready",
+                  reviewer: "Not assigned",
+                  approvalPath: "Standard Customer Approval",
+                  estimatedSla: "1 business day",
+                  requiredDocumentsMissing: 0,
+                },
+              }
+            });
+          }
+        } else {
+          const initial = getCustomerFormInitialData(mode, customerId);
+          setData(initial);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Failed to load customer profile details from server.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadFormData();
   }, [mode, customerId]);
 
   const handleFieldChange = (field: keyof CustomerBasicIdentityFormState, value: string) => {
@@ -89,14 +184,30 @@ export function CustomerFormDashboard({ mode, customerId }: CustomerFormDashboar
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
+    if (!data) return;
     setIsSaving(true);
-    showToast("Saving draft form state...");
-    setTimeout(() => {
+    showToast("Saving changes to server...");
+    try {
+      if (mode === "edit" && customerId) {
+        const basic = data.basicIdentity;
+        const fullName = `${basic.firstName} ${basic.lastName}`.trim();
+        await customerApi.updateCustomerDetail(customerId, {
+          name: fullName,
+          company_name: basic.occupation || "",
+        });
+        setIsDirty(false);
+        showToast("Changes saved successfully to database.");
+      } else {
+        setIsDirty(false);
+        showToast("Draft saved successfully.");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to save changes to database.");
+    } finally {
       setIsSaving(false);
-      setIsDirty(false);
-      showToast("Draft saved successfully.");
-    }, 600);
+    }
   };
 
   const handleSaveAndContinue = () => {

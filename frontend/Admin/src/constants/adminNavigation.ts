@@ -102,9 +102,25 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     id: "customers",
     label: "Customers",
     icon: Users,
-    disabled: true,
-    badge: "Coming Soon",
+    children: [
+      { id: "command-center", label: "Command Center", href: "/admin/customers" },
+      { id: "directory", label: "Customer Directory", href: "/admin/customers/directory" },
+      { id: "segments", label: "Customer Segments", href: "/admin/customers/segments" },
+      { id: "verification", label: "Identity & Verification", href: "/admin/customers/verification" },
+      { id: "addresses-contacts", label: "Addresses & Contacts", href: "/admin/customers/addresses-contacts" },
+      { id: "orders", label: "Orders & Purchase History", href: "/admin/customers/orders" },
+      { id: "returns-refunds-disputes", label: "Returns, Refunds & Disputes", href: "/admin/customers/returns-refunds-disputes" },
+      { id: "loyalty", label: "Loyalty, Rewards & Membership", href: "/admin/customers/loyalty" },
+      { id: "consent-privacy", label: "Consent, Privacy & Preferences", href: "/admin/customers/consent-privacy" },
+      { id: "risk-restrictions", label: "Risk, Restrictions & Fraud Signals", href: "/admin/customers/risk-restrictions" },
+      { id: "support-communications", label: "Support & Communications", href: "/admin/customers/support-communications" },
+      { id: "import-export-audit", label: "Import, Export & Audit", href: "/admin/customers/import-export-audit" },
+      { id: "create", label: "Create Customer", href: "/admin/customers/create" },
+      { id: "detail", label: "Customer Detail", href: "/admin/customers/[customerId]" },
+      { id: "edit", label: "Edit Customer", href: "/admin/customers/[customerId]/edit" }
+    ]
   },
+
   {
     id: "marketing",
     label: "Marketing",

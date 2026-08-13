@@ -64,7 +64,8 @@ function handleUnauthorized(endpoint, hadToken) {
 }
 
 export async function request(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
+  const formattedEndpoint = options?.params ? withQuery(endpoint, options.params) : endpoint;
+  const url = `${API_BASE}${formattedEndpoint}`;
   const token = typeof window !== 'undefined' ? Cookies.get(COOKIE_NAME) : null;
 
   const headers = {

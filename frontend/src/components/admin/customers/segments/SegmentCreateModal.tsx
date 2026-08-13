@@ -6,7 +6,7 @@ import { X, Sparkles, Plus, Check } from "lucide-react";
 interface SegmentCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (name: string, type: string) => void;
+  onSave: (data: { name: string; type: string; membershipType: string }) => void;
 }
 
 export function SegmentCreateModal({ isOpen, onClose, onSave }: SegmentCreateModalProps) {
@@ -20,7 +20,7 @@ export function SegmentCreateModal({ isOpen, onClose, onSave }: SegmentCreateMod
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onSave(name, type);
+    onSave({ name, type, membershipType });
     setName("");
     onClose();
   };

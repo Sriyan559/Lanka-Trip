@@ -2,8 +2,22 @@
 
 import React from "react";
 import { Check, AlertTriangle, ShieldAlert } from "lucide-react";
-import { MOCK_LIFECYCLE_NODES } from "@/data/customer.mock";
 import { LifecycleNode } from "@/types/customer";
+
+const DEFAULT_LIFECYCLE_NODES: LifecycleNode[] = [
+  { id: "registered", stepNumber: 1, label: "Registered", status: "Upcoming", count: "0" },
+  { id: "profile_started", stepNumber: 2, label: "Profile Started", status: "Upcoming", count: "0" },
+  { id: "contact_verified", stepNumber: 3, label: "Contact Verified", status: "Upcoming", count: "0" },
+  { id: "identity_verified", stepNumber: 4, label: "Identity Verified", status: "Upcoming", count: "0" },
+  { id: "first_purchase", stepNumber: 5, label: "First Purchase", status: "Upcoming", count: "0" },
+  { id: "active_customer", stepNumber: 6, label: "Active Customer", status: "Upcoming", count: "0" },
+  { id: "repeat_customer", stepNumber: 7, label: "Repeat Customer", status: "Upcoming", count: "0" },
+  { id: "loyalty_member", stepNumber: 8, label: "Loyalty Member", status: "Upcoming", count: "0" },
+  { id: "high_value", stepNumber: 9, label: "High-Value Member", status: "Upcoming", count: "0" },
+  { id: "at_risk", stepNumber: 10, label: "At Risk", status: "Upcoming", count: "0" },
+  { id: "dormant", stepNumber: 11, label: "Dormant", status: "Upcoming", count: "0" },
+  { id: "restricted", stepNumber: 12, label: "Restricted", status: "Upcoming", count: "0" },
+];
 
 interface CustomerLifecycleJourneyProps {
   nodes?: LifecycleNode[];
@@ -12,10 +26,11 @@ interface CustomerLifecycleJourneyProps {
 }
 
 export function CustomerLifecycleJourney({
-  nodes = MOCK_LIFECYCLE_NODES,
+  nodes,
   title = "Customer Lifecycle Journey",
   subtitle = "End-to-end lifecycle progression nodes from onboarding to retention",
 }: CustomerLifecycleJourneyProps) {
+  const displayNodes = nodes && nodes.length > 0 ? nodes : DEFAULT_LIFECYCLE_NODES;
   return (
     <div className="bg-white border border-line rounded-lg p-3.5 sm:p-4 shadow-2xs w-full overflow-hidden">
       <div className="flex items-center justify-between mb-4">
@@ -32,7 +47,7 @@ export function CustomerLifecycleJourney({
           {/* Centered Horizontal Connector Line */}
           <div className="absolute top-[22px] left-10 right-10 h-0.5 bg-slate-200 z-0" />
 
-          {nodes.map((node) => {
+          {displayNodes.map((node) => {
             const isCompleted = node.status === "Completed";
             const isCurrent = node.status === "Current";
             const isWarning = node.status === "Warning";
