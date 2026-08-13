@@ -2225,9 +2225,50 @@
     text-align: left !important;
     padding-left: 16px !important;
   }
+}/* ==========================================================================
+   AN02 EXECUTIVE PERFORMANCE & ENTERPRISE KPI ANALYTICS STYLES
+   ========================================================================== */
+
+.bg-burgundy {
+  background-color: #800020 !important;
 }
 
+.bg-burgundy-dark {
+  background-color: #600018 !important;
+}
 
+.hover\:bg-burgundy-dark:hover {
+  background-color: #600018 !important;
+}
 
+.text-burgundy {
+  color: #800020 !important;
+}
 
+.border-burgundy {
+  border-color: #800020 !important;
+}
+
+.an02-context-strip::-webkit-scrollbar {
+  height: 3px;
+}
+.an02-context-strip::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.an02-kpi-card {
+  min-height: 124px;
+}
+
+.an02-health-rail {
+  position: sticky;
+  top: 16px;
+}
+
+@media (max-width: 1024px) {
+  .an02-health-rail {
+    position: static;
+  }
+}
 

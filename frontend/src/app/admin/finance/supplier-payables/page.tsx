@@ -1,153 +1,29 @@
 'use client';
+import React,{useEffect,useMemo,useState} from 'react';
+import {Toaster,toast} from 'react-hot-toast';
+import {PayablesHeader} from '@/components/admin/finance/PayablesHeader';
+import {FinanceContextBar} from '@/components/admin/finance/FinanceContextBar';
+import {FinanceKpiGrid} from '@/components/admin/finance/FinanceKpiGrid';
+import {FinanceSectionTabs} from '@/components/admin/finance/FinanceSectionTabs';
+import {PayableOverviewSection} from '@/components/admin/finance/PayableOverviewSection';
+import {FinanceHealthScorecard} from '@/components/admin/finance/FinanceHealthScorecard';
+import {PayableSearchFilterBar} from '@/components/admin/finance/PayableSearchFilterBar';
+import {SupplierPayablesPortfolioTable} from '@/components/admin/finance/SupplierPayablesPortfolioTable';
+import {SelectedPayablePreview} from '@/components/admin/finance/SelectedPayablePreview';
+import {PayableOperationsBottomGrid} from '@/components/admin/finance/PayableOperationsBottomGrid';
+import {RightPayableSidebar} from '@/components/admin/finance/RightPayableSidebar';
+import {useSupplierPayables} from '@/hooks/useSupplierPayables';
+import {exportSupplierPayables,type SupplierPayableFilters} from '@/services/api/supplierPayablesService';
+import type{FinanceContext,FinanceKpi,SupplierPayableDetail,SupplierPayableRow}from'@/types/finance';
 
-import React, { useState } from 'react';
-import { Toaster } from 'react-hot-toast';
-import { PayablesHeader } from '@/components/admin/finance/PayablesHeader';
-import { FinanceContextBar } from '@/components/admin/finance/FinanceContextBar';
-import { FinanceKpiGrid } from '@/components/admin/finance/FinanceKpiGrid';
-import { FinanceSectionTabs } from '@/components/admin/finance/FinanceSectionTabs';
-import { PayableOverviewSection } from '@/components/admin/finance/PayableOverviewSection';
-import { FinanceHealthScorecard } from '@/components/admin/finance/FinanceHealthScorecard';
-import { PayableSearchFilterBar } from '@/components/admin/finance/PayableSearchFilterBar';
-import { SupplierPayablesPortfolioTable } from '@/components/admin/finance/SupplierPayablesPortfolioTable';
-import { SelectedPayablePreview } from '@/components/admin/finance/SelectedPayablePreview';
-import { PayableOperationsBottomGrid } from '@/components/admin/finance/PayableOperationsBottomGrid';
-import { RightPayableSidebar } from '@/components/admin/finance/RightPayableSidebar';
-
-import {
-  FN06_CONTEXT,
-  FN06_KPIS,
-  FN06_TABS,
-  FN06_HEALTH_METRICS,
-  FN06_PORTFOLIO_ROWS,
-  FN06_SELECTED_PREVIEW,
-} from '@/data/mockSupplierPayableData';
-import { SupplierPayableRow, SupplierPayableDetail } from '@/types/finance';
-
-export default function SupplierPayablesPage() {
-  const [activeTab, setActiveTab] = useState('Overview');
-  const [selectedRecord, setSelectedRecord] = useState<SupplierPayableDetail>(FN06_SELECTED_PREVIEW);
-
-  const handleSelectRow = (row: SupplierPayableRow) => {
-    setSelectedRecord({
-      ...FN06_SELECTED_PREVIEW,
-      id: row.id,
-      payableType: row.payableType,
-      supplierName: row.supplierName,
-      supplierId: row.supplierId,
-      supplierTier: row.supplierTier,
-      invoiceRef: row.invoiceRef,
-      poRef: row.poRef,
-      grRef: row.grRef,
-      businessUnit: row.businessUnit,
-      channel: row.channel,
-      currency: row.currency,
-      grossAmount: row.grossAmount,
-      discounts: row.discounts,
-      credits: row.credits,
-      returnsDeduction: row.returnsDeduction,
-      commissionOffset: row.commissionOffset,
-      marketplaceFees: row.marketplaceFees,
-      taxAmount: row.taxAmount,
-      withholdingTax: row.withholdingTax,
-      netPayable: row.netPayable,
-      paidAmount: row.paidAmount,
-      outstandingAmount: row.outstandingAmount,
-      matchStatus: row.matchStatus,
-      approvalStatus: row.approvalStatus,
-      dueStatus: row.dueStatus,
-      dueDate: row.dueDate,
-      paymentSchedule: row.paymentSchedule,
-      payoutStatus: row.payoutStatus,
-      hold: row.hold,
-      dispute: row.dispute,
-      reconciliationStatus: row.reconciliationStatus,
-      exceptionReason: row.exceptionReason,
-      owner: row.owner,
-    });
-  };
-
-  return (
-    <>
-      <Toaster position="top-right" toastOptions={{ duration: 2800, style: { fontSize: 12 } }} />
-      <div className="min-h-screen bg-[#f8f9fb] font-sans text-gray-900">
-        <div className="flex flex-col min-h-screen">
-          
-          {/* ── Fixed/Sticky Header Area ── */}
-          <div className="flex flex-col gap-2 px-4 pt-4 pb-2 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-            <PayablesHeader />
-            <FinanceContextBar context={FN06_CONTEXT} />
-          </div>
-
-          {/* ── Scrollable Body Area ── */}
-          <div className="flex-1 p-4">
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-3">
-              
-              {/* ── Main Left Column ── */}
-              <div className="flex flex-col gap-3 min-w-0">
-                {/* 12 KPI Grid */}
-                <FinanceKpiGrid kpis={FN06_KPIS} />
-
-                {/* 17 Section Tabs */}
-                <FinanceSectionTabs
-                  tabs={FN06_TABS}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                />
-
-                {/* Tab-driven Content: Overview Tab */}
-                {activeTab === 'Overview' && (
-                  <>
-                    {/* Charts & Summary Row */}
-                    <PayableOverviewSection />
-
-                    {/* 10-Metric Health Scorecard */}
-                    <FinanceHealthScorecard metrics={FN06_HEALTH_METRICS} />
-
-                    {/* Filter & Search Matrix */}
-                    <PayableSearchFilterBar />
-
-                    {/* Dense Portfolio Table */}
-                    <SupplierPayablesPortfolioTable
-                      rows={FN06_PORTFOLIO_ROWS}
-                      selectedRowId={selectedRecord.id}
-                      onSelectRow={handleSelectRow}
-                    />
-
-                    {/* Selected Payable Preview */}
-                    <SelectedPayablePreview record={selectedRecord} />
-
-                    {/* 12 Operational Cards */}
-                    <PayableOperationsBottomGrid />
-                  </>
-                )}
-
-                {/* Fallback for other tabs */}
-                {activeTab !== 'Overview' && (
-                  <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500">
-                    <p className="text-sm font-semibold">Viewing filtered category: <strong className="text-gray-800">{activeTab}</strong></p>
-                    <p className="text-xs text-gray-400 mt-1">Filtered portfolio table view for {activeTab}</p>
-                    <div className="mt-4">
-                      <SupplierPayablesPortfolioTable
-                        rows={FN06_PORTFOLIO_ROWS}
-                        selectedRowId={selectedRecord.id}
-                        onSelectRow={handleSelectRow}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ── Right Payables Rail ── */}
-              <div className="flex flex-col gap-3">
-                <RightPayableSidebar />
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </>
-  );
-}
+const TABS=['Overview','All Payables','New','Pending Review','Pending Approval','Approved','Due Soon','Overdue','Scheduled','Partially Paid','Paid','On Hold','Disputed','Match Exceptions','Reconciliation','Exceptions','Audit History'];
+const iso=(d:Date)=>d.toISOString().slice(0,10);
+export default function SupplierPayablesPage(){const now=new Date(),from=new Date(now);from.setDate(now.getDate()-29);const[filters,setFilters]=useState<SupplierPayableFilters>({dateFrom:iso(from),dateTo:iso(now),currency:'LKR',search:'',status:'',page:1,perPage:10,sort:'updatedAt',direction:'desc'});const[activeTab,setActiveTab]=useState('Overview'),[selected,setSelected]=useState<SupplierPayableDetail|null>(null);const{overview,portfolio,error,loading,refreshing,refresh}=useSupplierPayables(filters);
+ const rows=useMemo(()=>(portfolio?.items??[]).map(x=>({...x,grossAmount:Number(x.grossAmount),discounts:Number(x.discounts),credits:Number(x.credits),returnsDeduction:Number(x.returnsDeduction),commissionOffset:Number(x.commissionOffset),marketplaceFees:Number(x.marketplaceFees),taxAmount:Number(x.taxAmount??0),withholdingTax:Number(x.withholdingTax??0),netPayable:Number(x.netPayable),paidAmount:Number(x.paidAmount),outstandingAmount:Number(x.outstandingAmount)}) as SupplierPayableRow),[portfolio]);useEffect(()=>{if(!selected&&rows[0])setSelected({...rows[0],riskLevel:'Not available',paymentTerms:'Not available',preferredCurrency:rows[0].currency,invoiceDate:'Not available',poDate:'Not available',grDate:'Not available',receiptStatus:'Not available',approvedBy:'Not available',approvedOn:'Not available',paymentBatch:'Not available',scheduledDate:'Not available',lastReconciled:'Not available',reconciledBy:'Not available'})},[rows,selected]);
+ const context:FinanceContext={tenant:overview?.context.tenant??'SL Beauty',ecosystem:'Beauty Marketplace',businessUnit:'All Business Units',salesChannel:'All Channels',region:'Sri Lanka',baseCurrency:filters.currency,scope:'Supplier settlements and payouts',accountingPeriod:'Not configured',dateRange:`${filters.dateFrom} – ${filters.dateTo}`,liveData:true,dataCompleteness:overview?100:0,lastSynced:overview?new Date(overview.updatedAt).toLocaleString():'Not yet synced',periodState:'Open',accessNotice:overview?.context.tenantScopeAvailable?'Tenant scoped':'Tenant ownership unavailable in schema'};
+ const kpis:FinanceKpi[]=(overview?.kpis??[]).map((k,i)=>({id:k.key,num:i+1,iconName:'FileText',title:k.label,subLabel:k.available?'Database aggregate':`Unavailable: ${k.reason}`,value:k.available?(k.currency?`${k.currency} ${Number(k.value).toLocaleString(undefined,{minimumFractionDigits:2})}`:k.value):'Unknown',delta:k.comparisonPercentage===null?'—':`${Math.abs(k.comparisonPercentage)}%`,isPositive:(k.comparisonPercentage??0)>=0,status:k.available?'neutral':'warning',sparkline:k.sparkline}));
+ const trend=(overview?.trend.items??[]).map(x=>({date:x.date,total:Number(x.payables),scheduled:Number(x.scheduled),paid:Number(x.payments),overdue:0,exceptions:0}));const dist=(overview?.typeDistribution.items??[]).map(x=>({name:x.type,amount:Number(x.amount),percentage:x.percentage,color:'#2563eb'}));const statuses=(overview?.statusSummary??[]).map(x=>({status:x.status,count:x.count,amount:`${filters.currency} ${Number(x.amount).toLocaleString()}`,percentage:x.percentage,color:'#8f002b'}));
+ const money=(value?:string)=>`${filters.currency} ${Number(value??0).toLocaleString()}`;const rail={healthScore:overview?.health.score??null,healthMetrics:[{label:'Liability Accuracy',pct:null},{label:'Invoice Match Quality',pct:null},{label:'Approval Readiness',pct:null},{label:'Reconciliation Health',pct:null}],priorityAlerts:overview?.alerts??[],statusSummary:statuses.map(x=>({label:x.status,value:String(x.count)})),liabilitySummary:[{label:'Gross Liability',value:money(overview?.financialSummary.gross)},{label:'Net Payable',value:money(overview?.financialSummary.net)},{label:'Paid',value:money(overview?.financialSummary.paid)},{label:'Outstanding',value:money(overview?.financialSummary.outstanding)}],matchSummary:[{label:'Matched',pct:null},{label:'Partial',pct:null},{label:'Exceptions',pct:null}],approvalSummary:[{label:'Pending',count:overview?.queues.pendingApproval??0},{label:'Scheduled',count:overview?.queues.scheduled??0},{label:'Failed',count:overview?.queues.failed??0}],quickQueues:[{label:'Pending',count:overview?.queues.pendingApproval??0,iconName:'FileCheck'},{label:'Scheduled',count:overview?.queues.scheduled??0,iconName:'FileText'},{label:'Failed',count:overview?.queues.failed??0,iconName:'AlertTriangle'}],actionButtons:['Review Payable Exceptions','Open Approval Queue','Review Overdue Payables','Open Supplier Disputes','Launch Payable Review','View Audit Trail']};
+ const cards=['Payable Lifecycle / Workflow','Payable Calculation','Invoice Matching & Validation','Invoice Operations','PO & GR Linkage','Deductions & Adjustments','Tax & Withholding','Approval Queue','Payment Scheduling','Payment Destination Validation','Holds & Release Control','Recent Payable Activity'].map((title,i)=>({num:i+1,title,metrics:[{label:'Status',val:i===1?`${portfolio?.meta.total??0} records`:'Not available'}],score:null}));
+ const tab=(name:string)=>{setActiveTab(name);const map:Record<string,string>={'Pending Approval':'pending',Approved:'approved',Scheduled:'processing',Paid:'paid',Exceptions:'failed'};setFilters(f=>({...f,status:map[name]??'',page:1}))};
+ return <><Toaster position="top-right"/><div className="min-h-screen bg-[#f8f9fb] text-gray-900"><div className="sticky top-0 z-30 bg-white border-b px-4 pt-4 pb-2"><PayablesHeader onExport={()=>exportSupplierPayables(filters).then(()=>toast.success('Export downloaded.')).catch(e=>toast.error(e.message))} onStatus={s=>setFilters(f=>({...f,status:s,page:1}))}/><FinanceContextBar context={context}/></div><div className="p-4 grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-3"><main className="flex flex-col gap-3 min-w-0">{error&&<div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg flex justify-between"><span>Unable to load supplier payables. {error.message}</span><button onClick={refresh}>Retry</button></div>}{refreshing&&<span className="text-xs text-gray-500">Updating supplier payables…</span>}<FinanceKpiGrid kpis={kpis}/><FinanceSectionTabs tabs={TABS} activeTab={activeTab} onTabChange={tab}/>{activeTab==='Overview'&&<><PayableOverviewSection trend={trend} distribution={dist} statuses={statuses} currency={filters.currency}/><FinanceHealthScorecard metrics={[]}/></>}<PayableSearchFilterBar onSearch={q=>setFilters(f=>({...f,search:q,page:1}))}/><SupplierPayablesPortfolioTable rows={rows} selectedRowId={selected?.id} onSelectRow={r=>setSelected({...r,riskLevel:'Not available',paymentTerms:'Not available',preferredCurrency:r.currency,invoiceDate:'Not available',poDate:'Not available',grDate:'Not available',receiptStatus:'Not available',approvedBy:'Not available',approvedOn:'Not available',paymentBatch:'Not available',scheduledDate:'Not available',lastReconciled:'Not available',reconciledBy:'Not available'})} meta={portfolio?.meta} onPageChange={page=>setFilters(f=>({...f,page}))} onPerPageChange={perPage=>setFilters(f=>({...f,perPage,page:1}))} loading={loading}/>{selected?<SelectedPayablePreview record={selected}/>:<div className="bg-white border rounded-xl p-8 text-center text-gray-500">Select a payable to view details.</div>}<PayableOperationsBottomGrid cards={cards}/></main><aside><RightPayableSidebar data={rail} onQueue={q=>setFilters(f=>({...f,status:q.toLowerCase(),page:1}))}/></aside></div></div></>}

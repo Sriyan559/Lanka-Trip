@@ -330,7 +330,7 @@ export interface SupplierPayableDetail extends SupplierPayableRow {
 export interface CommissionPortfolioRow {
   id: string;
   recordType: string;
-  orderId: string;
+  orderId?: string;
   partyName: string;
   partyId: string;
   category: string;
@@ -673,6 +673,4 @@ export interface FinanceDataOperationDetail extends FinanceDataOperationRow {
   encryptedFieldsCount: number;
   auditTrail: { event: string; user: string; timestamp: string }[];
 }
-
-
 

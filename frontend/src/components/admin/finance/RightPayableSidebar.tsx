@@ -11,7 +11,7 @@ import {
   MessageSquareWarning,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { FN06_RIGHT_RAIL } from '@/data/mockSupplierPayableData';
+interface RailData {healthScore:number|null;healthMetrics:Array<{label:string;pct:number|null}>;priorityAlerts:Array<{id:string;severity:string;message:string}>;statusSummary:Array<{label:string;value:string}>;liabilitySummary:Array<{label:string;value:string}>;matchSummary:Array<{label:string;pct:number|null}>;approvalSummary:Array<{label:string;count:number}>;quickQueues:Array<{label:string;count:number;iconName:string}>;actionButtons:string[]}
 
 const SEVERITY_BADGE_MAP: Record<string, string> = {
   Critical: 'bg-red-100 text-red-700 border-red-200',
@@ -30,7 +30,7 @@ const QUEUE_ICON_MAP: Record<string, React.ReactNode> = {
   MessageSquareWarning: <MessageSquareWarning size={12} className="text-purple-600" />,
 };
 
-export function RightPayableSidebar() {
+export function RightPayableSidebar({data,onQueue}:{data:RailData;onQueue?:(status:string)=>void}) {
   const [expandedAlerts, setExpandedAlerts] = useState(false);
 
   return (
@@ -62,7 +62,7 @@ export function RightPayableSidebar() {
               />
               <path
                 className="text-emerald-500"
-                strokeDasharray={`${FN06_RIGHT_RAIL.healthScore}, 100`}
+                strokeDasharray={`${data.healthScore??0}, 100`}
                 strokeWidth="3.5"
                 strokeLinecap="round"
                 stroke="currentColor"
@@ -72,7 +72,7 @@ export function RightPayableSidebar() {
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
               <span className="text-xl font-extrabold text-gray-900 leading-none">
-                {FN06_RIGHT_RAIL.healthScore}
+                {data.healthScore??'Unknown'}
               </span>
               <span className="text-[9px] text-gray-400 font-semibold">/100</span>
             </div>
@@ -81,10 +81,10 @@ export function RightPayableSidebar() {
 
         {/* 10 Health metrics */}
         <div className="flex flex-col gap-1 text-[10px]">
-          {FN06_RIGHT_RAIL.healthMetrics.map((m) => (
+          {data.healthMetrics.map((m) => (
             <div key={m.label} className="flex items-center justify-between gap-1">
               <span className="text-gray-600 truncate">{m.label}</span>
-              <span className="font-bold text-emerald-700 font-mono">{m.pct}%</span>
+              <span className="font-bold text-emerald-700 font-mono">{m.pct===null?'Unknown':`${m.pct}%`}</span>
             </div>
           ))}
         </div>
@@ -96,7 +96,7 @@ export function RightPayableSidebar() {
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">
-              Priority Payable Alerts ({FN06_RIGHT_RAIL.priorityAlerts.length})
+              Priority Payable Alerts ({data.priorityAlerts.length})
             </p>
           </div>
           <button
@@ -109,8 +109,8 @@ export function RightPayableSidebar() {
 
         <div className="flex flex-col gap-1.5 text-[10px]">
           {(expandedAlerts
-            ? FN06_RIGHT_RAIL.priorityAlerts
-            : FN06_RIGHT_RAIL.priorityAlerts.slice(0, 4)
+            ? data.priorityAlerts
+            : data.priorityAlerts.slice(0, 4)
           ).map((alert) => (
             <div
               key={alert.id}
@@ -134,7 +134,7 @@ export function RightPayableSidebar() {
           <button onClick={() => toast('Viewing status summary...')} className="text-[10px] text-blue-600 hover:underline font-semibold">View</button>
         </div>
         <div className="grid grid-cols-3 gap-1 text-center font-mono">
-          {FN06_RIGHT_RAIL.statusSummary.map((s) => (
+          {data.statusSummary.map((s) => (
             <div key={s.label} className="bg-gray-50 p-1 rounded border border-gray-100">
               <span className="text-[9px] text-gray-500 font-sans block truncate">{s.label}</span>
               <span className="font-bold text-gray-900 text-[10px]">{s.value}</span>
@@ -148,7 +148,7 @@ export function RightPayableSidebar() {
           </p>
         </div>
         <div className="divide-y divide-gray-100">
-          {FN06_RIGHT_RAIL.liabilitySummary.map((item) => (
+          {data.liabilitySummary.map((item) => (
             <div key={item.label} className="flex justify-between py-0.5">
               <span className="text-gray-500 text-[10px]">{item.label}</span>
               <span className="font-bold text-gray-900 font-mono">{item.value}</span>
@@ -165,10 +165,10 @@ export function RightPayableSidebar() {
           </p>
         </div>
         <div className="grid grid-cols-3 gap-1 text-center font-mono">
-          {FN06_RIGHT_RAIL.matchSummary.map((m) => (
+          {data.matchSummary.map((m) => (
             <div key={m.label} className="bg-gray-50 p-1 rounded border border-gray-100">
               <span className="text-[8px] text-gray-500 font-sans block truncate">{m.label}</span>
-              <span className="font-bold text-gray-900 text-[10px]">{m.pct}%</span>
+              <span className="font-bold text-gray-900 text-[10px]">{m.pct===null?'Unknown':`${m.pct}%`}</span>
             </div>
           ))}
         </div>
@@ -179,7 +179,7 @@ export function RightPayableSidebar() {
           </p>
         </div>
         <div className="grid grid-cols-3 gap-1 text-center font-mono">
-          {FN06_RIGHT_RAIL.approvalSummary.map((a) => (
+          {data.approvalSummary.map((a) => (
             <div key={a.label} className="bg-gray-50 p-1 rounded border border-gray-100">
               <span className="text-[8px] text-gray-500 font-sans block truncate">{a.label}</span>
               <span className="font-bold text-gray-900 text-[10px]">{a.count}</span>
@@ -195,10 +195,10 @@ export function RightPayableSidebar() {
         </p>
 
         <div className="grid grid-cols-3 gap-1.5 text-[10px]">
-          {FN06_RIGHT_RAIL.quickQueues.map((q) => (
+          {data.quickQueues.map((q) => (
             <button
               key={q.label}
-              onClick={() => toast(`Opening queue: ${q.label}`)}
+              onClick={() => onQueue?.(q.label)}
               className="flex flex-col items-center p-1.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-center"
             >
               {QUEUE_ICON_MAP[q.iconName] || <FileText size={12} />}
@@ -219,10 +219,11 @@ export function RightPayableSidebar() {
           Final Payable Actions
         </p>
 
-        {FN06_RIGHT_RAIL.actionButtons.map((btn) => (
+        {data.actionButtons.map((btn) => (
           <button
             key={btn}
-            onClick={() => toast(`Action: ${btn}`)}
+            disabled
+            title="This workflow is not present in the database schema"
             className="w-full py-1.5 px-2 bg-white border border-[#8f002b]/40 text-[#8f002b] hover:bg-red-50/50 rounded-lg text-xs font-bold transition-colors flex items-center justify-between"
           >
             <span>{btn}</span>

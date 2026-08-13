@@ -10,12 +10,16 @@ interface Props {
   rows: SupplierPayableRow[];
   selectedRowId?: string;
   onSelectRow?: (row: SupplierPayableRow) => void;
+  meta?: { page: number; perPage: number; total: number; lastPage: number };
+  onPageChange?: (page: number) => void;
+  onPerPageChange?: (size: number) => void;
+  loading?: boolean;
 }
 
-export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRow }: Props) {
+export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRow, meta, onPageChange, onPerPageChange, loading }: Props) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [currentPage, setCurrentPage] = useState(1);
+  const [localPage, setLocalPage] = useState(1); const currentPage=meta?.page??localPage; const setCurrentPage=(value:number|((p:number)=>number))=>{const next=typeof value==='function'?value(currentPage):value;(onPageChange??setLocalPage)(next)};
 
   const toggleSelectAll = () => {
     if (selectedIds.size === rows.length) {
@@ -158,6 +162,7 @@ export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRo
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
+            {!loading && rows.length === 0 && <tr><td colSpan={27} className="p-8 text-center text-gray-500">No supplier payable records found.</td></tr>}
             {rows.map((row) => {
               const isSelected = selectedRowId === row.id || selectedIds.has(row.id);
               return (
@@ -278,7 +283,7 @@ export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRo
       {/* Pagination Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between px-3 py-2 bg-gray-50 border-t border-gray-200 text-xs text-gray-600 gap-2">
         <div className="flex items-center gap-1 font-medium">
-          <span>Showing 1 to 10 of 5,842 records</span>
+          <span>{loading ? 'Loading supplier payables...' : `Showing ${meta?.total ? (currentPage-1)*(meta?.perPage??10)+1 : 0} to ${Math.min(currentPage*(meta?.perPage??rows.length),meta?.total??rows.length)} of ${meta?.total??rows.length} records`}</span>
         </div>
 
         <div className="flex items-center gap-1">
@@ -289,7 +294,7 @@ export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRo
           >
             <ChevronLeft size={14} />
           </button>
-          {[1, 2, 3, 4, 5].map((page) => (
+          {Array.from({length:Math.min(5,meta?.lastPage??1)},(_,i)=>i+1).map((page) => (
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
@@ -303,15 +308,9 @@ export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRo
               {page}
             </button>
           ))}
-          <span className="px-1 text-gray-400">...</span>
-          <button
-            onClick={() => setCurrentPage(125)}
-            className="px-2.5 py-1 text-xs font-semibold rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-          >
-            125
-          </button>
           <button
             onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currentPage >= (meta?.lastPage??1)}
             className="p-1 border border-gray-300 rounded hover:bg-white text-gray-600"
           >
             <ChevronRight size={14} />
@@ -320,10 +319,10 @@ export function SupplierPayablesPortfolioTable({ rows, selectedRowId, onSelectRo
 
         <div className="flex items-center gap-1">
           <span className="text-gray-500 font-medium">Rows per page:</span>
-          <select className="border border-gray-300 rounded px-1.5 py-0.5 bg-white text-xs text-gray-800 font-semibold">
-            <option>10 / page</option>
-            <option>25 / page</option>
-            <option>50 / page</option>
+          <select value={meta?.perPage??10} onChange={e=>onPerPageChange?.(Number(e.target.value))} className="border border-gray-300 rounded px-1.5 py-0.5 bg-white text-xs text-gray-800 font-semibold">
+            <option value={10}>10 / page</option>
+            <option value={25}>25 / page</option>
+            <option value={50}>50 / page</option>
           </select>
         </div>
       </div>
