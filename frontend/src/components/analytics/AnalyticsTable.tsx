@@ -57,21 +57,33 @@ export function AnalyticsTable<T extends Record<string, any>>({
   const pyClass = compact ? "py-1.5 px-2" : "py-2.5 px-3";
 
   return (
-    <div className={`w-full overflow-x-auto ${className}`}>
+    <div className={`w-full overflow-x-auto min-w-0 ${className}`}>
       <table className="w-full text-[11px] border-collapse text-left">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-            {columns.map((col, idx) => (
-              <th
-                key={idx}
-                style={{ width: col.width }}
-                className={`${pyClass} ${
-                  col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"
-                }`}
-              >
-                {col.header}
-              </th>
-            ))}
+            {columns.map((col, idx) => {
+              const effectiveAlign =
+                col.align ||
+                (col.cellType === "number" || col.cellType === "currency" || col.cellType === "percentage"
+                  ? "right"
+                  : "left");
+
+              return (
+                <th
+                  key={idx}
+                  style={{ width: col.width }}
+                  className={`${pyClass} ${
+                    effectiveAlign === "right"
+                      ? "text-right"
+                      : effectiveAlign === "center"
+                      ? "text-center"
+                      : "text-left"
+                  }`}
+                >
+                  {col.header}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-slate-800">
@@ -112,15 +124,21 @@ export function AnalyticsTable<T extends Record<string, any>>({
                     cellContent = <SparklineChart data={rawVal} width={50} height={18} />;
                   }
 
+                  const effectiveAlign =
+                    col.align ||
+                    (col.cellType === "number" || col.cellType === "currency" || col.cellType === "percentage"
+                      ? "right"
+                      : "left");
+
                   return (
                     <td
                       key={colIdx}
                       className={`${pyClass} ${
-                        col.align === "right"
+                        effectiveAlign === "right"
                           ? "text-right font-medium tabular-nums whitespace-nowrap"
-                          : col.align === "center"
+                          : effectiveAlign === "center"
                           ? "text-center font-medium whitespace-nowrap"
-                          : "text-left font-normal min-w-0 max-w-0 truncate"
+                          : "text-left font-normal truncate"
                       }`}
                     >
                       {cellContent}

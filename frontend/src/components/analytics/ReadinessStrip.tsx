@@ -19,7 +19,7 @@ export function ReadinessStrip({ items = [], className = "" }: ReadinessStripPro
 
   return (
     <div
-      className={`an02-context-strip bg-slate-50 border border-slate-200/80 rounded-lg p-2.5 overflow-x-auto flex items-center gap-4 text-xs whitespace-nowrap scrollbar-thin ${className}`}
+      className={`an02-context-strip bg-slate-50 border border-slate-200/80 rounded-lg p-2.5 overflow-x-auto min-w-0 flex items-center gap-4 text-xs whitespace-nowrap scrollbar-thin ${className}`}
     >
       {items.map((item, idx) => (
         <div key={idx} className="flex items-center gap-1.5 border-r border-slate-200/80 pr-4 last:border-0 last:pr-0">

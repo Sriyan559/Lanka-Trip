@@ -10,6 +10,7 @@ export interface KpiMetricData {
   trendSuffix?: string;
   comparisonLabel: string;
   sparklineData: number[];
+  sparklineColor?: string;
   secondaryMetric?: {
     label: string;
     value: string;
