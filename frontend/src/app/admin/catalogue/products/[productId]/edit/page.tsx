@@ -6,7 +6,7 @@ import { ProductMasterFormWorkspace } from "@/components/admin/catalogue/product
 
 function EditProductFormContent() {
   const params = useParams();
-  const productId = (params.productId as string) || "PROD-2024-00421";
+  const productId = (params?.productId as string) || "PROD-2024-00421";
 
   return <ProductMasterFormWorkspace mode="edit" productId={productId} />;
 }

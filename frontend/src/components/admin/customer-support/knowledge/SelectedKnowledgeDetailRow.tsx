@@ -89,7 +89,7 @@ export function SelectedKnowledgeDetailRow({
               <span>Suggested Reply <span className="text-emerald-600 font-normal">(Confidence: {item.suggestedReplyConfidence || 96}%)</span></span>
             </div>
             <p className="text-slate-700 italic leading-relaxed whitespace-normal break-words">
-              "{item.suggestedReply || "Thanks for reaching out! Your order is delayed due to carrier disruptions. It's now expected to arrive by [date]. You'll receive tracking updates via email. Let us know if you need anything else!"}"
+              &quot;{item.suggestedReply || "Thanks for reaching out! Your order is delayed due to carrier disruptions. It's now expected to arrive by [date]. You'll receive tracking updates via email. Let us know if you need anything else!"}&quot;
             </p>
             <div className="pt-1 flex justify-end">
               <button

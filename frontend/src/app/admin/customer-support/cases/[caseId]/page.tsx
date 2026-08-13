@@ -58,16 +58,16 @@ function CustomerSupportCaseDetailContent() {
 
   // 1. Safe returnTo URL validation
   const returnToUrl = sanitizeInternalRedirect(
-    searchParams.get('returnTo'),
+    searchParams?.get('returnTo') ?? null,
     '/admin/customer-support/cases',
   );
 
   // 2. Tab state with URL persistence (?tab=conversation etc.)
-  const rawTab = searchParams.get('tab') as CaseTabType;
+  const rawTab = searchParams?.get('tab') as CaseTabType;
   const activeTab: CaseTabType = rawTab || 'overview';
 
   const handleSelectTab = (tab: CaseTabType) => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    const current = new URLSearchParams(Array.from(searchParams?.entries() ?? []));
     if (tab === 'overview') {
       current.delete('tab');
     } else {

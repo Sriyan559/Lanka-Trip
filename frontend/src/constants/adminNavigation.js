@@ -157,7 +157,14 @@ export const ADMIN_NAVIGATION = [
     {id:"EM13",label:"Governance, Access, Security & Policy Control",href:"/admin/ecosystem-modules/governance-access"},
     {id:"EM14",label:"Reports, Audit, Export & Ecosystem Change History",href:"/admin/ecosystem-modules/reports-audit"},
   ]},
-  {id:"administration",label:"Administration",icon:Settings,disabled:true,badge:"Coming Soon"},
+  {id:"administration",label:"Administration",href:"/admin/administration",icon:Settings,disabled:false,children:[
+    {id:"command-center",label:"Command Center",href:"/admin/administration",exact:true},
+    {id:"users-identity",label:"Users & Identity",href:"/admin/administration/users"},
+    {id:"roles-permissions",label:"Roles & Permissions",href:"/admin/administration/roles-permissions"},
+    {id:"tenant-organization",label:"Tenant & Organization",href:"/admin/administration/tenant-organization"},
+    {id:"system-configuration",label:"System Configuration",href:"/admin/administration/system-configuration"},
+    {id:"logs",label:"Logs",href:"/admin/administration/logs"},
+  ]},
 ];
 
 export const navigationItemMatchesPath = (item, pathname) => {
