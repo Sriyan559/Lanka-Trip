@@ -122,7 +122,7 @@ export const ADMIN_NAVIGATION = [
     {id:"knowledge-agent-assistance",label:"Knowledge & Agent Assistance",href:"/admin/customer-support/knowledge"},
     {id:"teams-performance",label:"Teams & Performance",href:"/admin/customer-support/teams-performance"},
     {id:"satisfaction-qa",label:"Satisfaction & QA",href:"/admin/customer-support/satisfaction-qa"},
-    {id:"reports-audit",label:"Reports / Audit",href:"/admin/customer-support/reports"},
+    {id:"reports-audit",label:"Reports / Audit",href:"/admin/customer-support/reports-audit"},
   ]},
   {id:"analytics",label:"Analytics",icon:BarChart3,href:"/admin/analytics",children:[
     {id:"analytics-overview",label:"Command Center",href:"/admin/analytics",exact:true},
