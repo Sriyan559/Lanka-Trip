@@ -18,19 +18,21 @@ export function SegmentHealthMetricsRow({ healthMetrics }: SegmentHealthMetricsR
             </span>
 
             <span className="text-[14px] font-black font-mono text-ink my-1">
-              {m.valuePct}%
+              {m.valuePct !== null ? `${m.valuePct}%` : "—"}
             </span>
 
             <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  m.valuePct >= 85
+                  m.valuePct === null
+                    ? "bg-slate-200"
+                    : m.valuePct >= 85
                     ? "bg-emerald-600"
                     : m.valuePct >= 75
                     ? "bg-amber-500"
                     : "bg-rose-600"
                 }`}
-                style={{ width: `${m.valuePct}%` }}
+                style={{ width: m.valuePct !== null ? `${m.valuePct}%` : "0%" }}
               />
             </div>
           </div>

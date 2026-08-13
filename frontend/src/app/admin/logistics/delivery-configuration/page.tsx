@@ -75,8 +75,10 @@ export default function DeliveryConfigurationPage() {
   };
 
   const handleCreateRule = (formData: Partial<ConfigurationRecord>) => {
-    void deliveryConfigurationService.createDeliveryRule(formData).then((res) => {
-      alert(`Delivery rule created successfully: ${res.rule.configName}`);
+    const mutation = selectedConfig ? deliveryConfigurationService.updateDeliveryRule(selectedConfig.id, formData) : deliveryConfigurationService.createDeliveryRule(formData);
+    void mutation.then((res) => {
+      alert(`Delivery rule saved successfully: ${res.rule.configName}`);
+      setSelectedConfig(null);
       void loadData();
     });
   };
@@ -105,14 +107,11 @@ export default function DeliveryConfigurationPage() {
           onReviewConflicts={() => alert("Opening configuration conflicts review queue...")}
           onReviewCapacityRisks={() => alert("Opening capacity risks review queue...")}
           onCreateReview={() => alert("Creating configuration review...")}
-          onCreateRule={() => setIsRuleFormOpen(true)}
+          onCreateRule={() => { setSelectedConfig(null); setIsRuleFormOpen(true); }}
         />
 
         {/* Live Warning Alert Banner */}
-        <AlertBanner
-          message="Notice: 12 zones are currently operating above 90% capacity limit. 8 configuration conflicts require immediate resolution before the next scheduled dispatch cut-off."
-          type="warning"
-        />
+        {intelligence && intelligence.alerts.length > 0 && <AlertBanner message={intelligence.alerts.map(a => `${a.count} ${a.message}`).join(" · ")} type="warning" />}
 
         {/* Business Scope Context Strip & 8 Health Badges */}
         <DeliveryConfigurationContextBar
@@ -131,7 +130,7 @@ export default function DeliveryConfigurationPage() {
             <DeliveryConfigurationTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
             {/* 3 Equal-Height Analytics Charts Row */}
-            <DeliveryConfigurationAnalytics />
+            <DeliveryConfigurationAnalytics configurations={configurations} />
 
             {/* 10 Circular Health Scorecards & Filters Toolbar */}
             <DeliveryConfigurationHealthScorecard

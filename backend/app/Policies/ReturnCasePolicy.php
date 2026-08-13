@@ -17,6 +17,11 @@ class ReturnCasePolicy
         return $user->hasPermission('returns.view');
     }
 
+    public function create(User $user): bool
+    {
+        return $user->hasPermission('returns.review');
+    }
+
     public function review(User $user, ReturnCase $case): bool
     {
         return $user->hasPermission('returns.review');

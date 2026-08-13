@@ -50,7 +50,15 @@ function ShipmentManagementContent() {
     per_page: currentFilters.per_page,
   };
 
-  const { dashboard, shipmentsData, loading, error, refresh } = useLogisticsDashboard(apiFilters);
+  const { dashboard, shipmentsData, loading, error, lastUpdated, refresh } = useLogisticsDashboard(apiFilters);
+
+  React.useEffect(() => {
+    if (searchParams.get("open") !== "first" || !shipmentsData?.data) return;
+    const firstShipment = shipmentsData.data[0];
+    if (firstShipment?.shipment_number) {
+      router.replace(`/admin/logistics/shipments/${encodeURIComponent(firstShipment.shipment_number)}`);
+    }
+  }, [router, searchParams, shipmentsData]);
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -92,7 +100,7 @@ function ShipmentManagementContent() {
 
           {/* 2. BUSINESS CONTEXT STRIP */}
           <ShipmentContextBar
-            lastSynced={dashboard?.lastSynced || "May 26 2025 10:15 AM"}
+            lastSynced={lastUpdated ? new Date(lastUpdated).toLocaleString() : "—"}
             onRefresh={refresh}
           />
 
@@ -133,7 +141,7 @@ function ShipmentManagementContent() {
             onFilterChange={updateUrlFilters}
             onClearFilters={handleClearAllFilters}
             onRefresh={refresh}
-            recordCount={shipmentsData?.total || 1426}
+            recordCount={shipmentsData?.total ?? 0}
           />
 
           {/* 9. SHIPMENT MANAGEMENT PORTFOLIO TABLE & PAGINATION */}
@@ -148,8 +156,8 @@ function ShipmentManagementContent() {
               meta={{
                 current_page: shipmentsData?.current_page || 1,
                 per_page: shipmentsData?.per_page || 15,
-                total: shipmentsData?.total || 1426,
-                last_page: shipmentsData?.last_page || 50,
+                total: shipmentsData?.total ?? 0,
+                last_page: shipmentsData?.last_page ?? 1,
               }}
               selectedRef={selectedOperation?.shipment_ref}
               onSelectOperation={(op) => setSelectedOperation(op)}

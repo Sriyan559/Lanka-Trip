@@ -6,6 +6,7 @@ import { Eye } from "lucide-react";
 
 export interface WarehousePortfolioTableProps {
   facilities?: any[];
+  meta?: any;
   selectedRef?: string | null;
   onSelectFacility?: (facility: any) => void;
 }
@@ -135,7 +136,16 @@ export function WarehousePortfolioTable({
     },
   ];
 
-  const displayRows = facilities && facilities.length > 0 ? facilities : defaultFacilities;
+  const displayRows = facilities.map((facility) => ({
+    ...facility,
+    ref: facility.reference,
+    operator: "—",
+    facility_status: facility.status,
+    capacity_used: facility.capacity_used_percent == null ? "—" : `${facility.capacity_used_percent}%`,
+    capacity_available: facility.capacity_used_percent == null ? "—" : `${Math.max(0, 100 - Number(facility.capacity_used_percent))}%`,
+    active_skus: "—", orders_assigned: "—", pick_queue: "—", pack_queue: "—", dispatch_queue: "—",
+    overall_sla: "—", holds: "—", maintenance: facility.status === "maintenance" ? "Scheduled" : "—",
+  }));
 
   const getCapacityBadge = (status: string) => {
     if (status === "Critical") return "text-rose-800 bg-rose-50 border-rose-200 font-bold";

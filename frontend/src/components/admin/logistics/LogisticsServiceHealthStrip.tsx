@@ -9,13 +9,13 @@ interface LogisticsServiceHealthStripProps {
 
 export function LogisticsServiceHealthStrip({ onRefresh }: LogisticsServiceHealthStripProps) {
   const healthServices = [
-    { label: "Warehouse Service Health", status: "Healthy", isGreen: true },
-    { label: "Allocation Service Health", status: "Stable", isGreen: false },
-    { label: "Shipment Service Health", status: "Healthy", isGreen: true },
-    { label: "Carrier Tracking Health", status: "Healthy", isGreen: true },
-    { label: "Delivery Notification Health", status: "Healthy", isGreen: true },
-    { label: "Return Logistics Health", status: "Healthy", isGreen: true },
-    { label: "Reconciliation Service Health", status: "Healthy", isGreen: true },
+    { label: "Warehouse Service Health", status: "No health data", isGreen: false },
+    { label: "Allocation Service Health", status: "No health data", isGreen: false },
+    { label: "Shipment Service Health", status: "No health data", isGreen: false },
+    { label: "Carrier Tracking Health", status: "Not configured", isGreen: false },
+    { label: "Delivery Notification Health", status: "Not configured", isGreen: false },
+    { label: "Return Logistics Health", status: "No health data", isGreen: false },
+    { label: "Reconciliation Service Health", status: "No health data", isGreen: false },
   ];
 
   return (

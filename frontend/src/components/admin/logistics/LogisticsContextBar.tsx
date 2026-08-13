@@ -9,7 +9,7 @@ interface LogisticsContextBarProps {
 }
 
 export function LogisticsContextBar({
-  lastSynced = "May 26 2025 10:15 AM",
+  lastSynced = "—",
   onRefresh,
 }: LogisticsContextBarProps) {
   const contextItems = [
@@ -43,13 +43,6 @@ export function LogisticsContextBar({
           <span className="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded text-[9px]">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             On
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span className="text-muted">Completeness:</span>
-          <span className="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded text-[9px]">
-            96%
           </span>
         </div>
 

@@ -2,18 +2,36 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { CustomerRecord, CustomerFilterState } from "@/types/customer";
-import { MOCK_CUSTOMER_RECORDS } from "@/data/customer.mock";
+import {
+  CustomerRecord,
+  CustomerFilterState,
+  CustomerKpiCard,
+  CustomerRightRailSectionData,
+  CustomerStatusSummaryData,
+  CustomerHealthMetricItem,
+} from "@/types/customer";
 import { exportCustomerReportCSV } from "@/utils/exportCustomerReport";
+import { customerApi } from "@/lib/api/customers";
 
 export function useCustomerCommandCenter() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  const [customers, setCustomers] = useState<CustomerRecord[]>(MOCK_CUSTOMER_RECORDS);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>("CUST-100001");
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [kpis, setKpis] = useState<CustomerKpiCard[]>([]);
+  const [statusSummary, setStatusSummary] = useState<CustomerStatusSummaryData | null>(null);
+  const [healthScorecard, setHealthScorecard] = useState<CustomerHealthMetricItem[] | null>(null);
+  const [rightRail, setRightRail] = useState<CustomerRightRailSectionData | null>(null);
+  const [pagination, setPagination] = useState<{ total: number; currentPage: number; perPage: number; lastPage: number }>({
+    total: 0,
+    currentPage: 1,
+    perPage: 25,
+    lastPage: 1,
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Modals & Drawers
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
@@ -98,19 +116,53 @@ export function useCustomerCommandCenter() {
     showToast("Cleared all customer filters.", "info");
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
+    try {
+      const data = await customerApi.getCommandCenterDashboard();
+      setKpis(data.kpis);
+      if (data.statusSummary) setStatusSummary(data.statusSummary);
+      if (data.healthScorecard) setHealthScorecard(data.healthScorecard);
+      setCustomers(data.customers);
+      setPagination(data.pagination);
+      setRightRail(data.rightRail);
       setLastSynced(new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }));
-      showToast("Synced customer network intelligence live data.", "success");
-    }, 600);
+      showToast("Synced customer data from server.", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to sync data.", "warning");
+    } finally {
+      setIsRefreshing(false);
+    }
   };
+
+  // Initial data load
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await customerApi.getCommandCenterDashboard();
+        setKpis(data.kpis);
+        if (data.statusSummary) setStatusSummary(data.statusSummary);
+        if (data.healthScorecard) setHealthScorecard(data.healthScorecard);
+        setCustomers(data.customers);
+        setPagination(data.pagination);
+        setRightRail(data.rightRail);
+        setLastSynced(new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }));
+        showToast('Loaded customer data.', 'success');
+      } catch (error) {
+        console.error(error);
+        showToast('Failed to load data.', 'warning');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Filtered dataset
   const filteredCustomers = useMemo(() => {
     return customers.filter((item) => {
-      // Tab filter
       if (filters.activeTab === "Active" && item.lifecycleSegment !== "Active") return false;
       if (filters.activeTab === "New" && item.lifecycleSegment !== "New") return false;
       if (filters.activeTab === "Verified" && item.verificationStatus !== "Verified") return false;
@@ -121,7 +173,6 @@ export function useCustomerCommandCenter() {
       if (filters.activeTab === "Service Cases" && item.openCasesCount === 0) return false;
       if (filters.activeTab === "Returns & Disputes" && item.returnsCount === 0) return false;
 
-      // Search Query
       if (filters.searchQuery) {
         const q = filters.searchQuery.toLowerCase();
         const match =
@@ -133,7 +184,6 @@ export function useCustomerCommandCenter() {
         if (!match) return false;
       }
 
-      // Dropdown filters
       if (filters.segment !== "All" && item.lifecycleSegment !== filters.segment) return false;
       if (filters.customerType !== "All" && item.customerType !== filters.customerType) return false;
       if (filters.region !== "All" && !item.region.includes(filters.region)) return false;
@@ -144,7 +194,6 @@ export function useCustomerCommandCenter() {
       if (filters.riskLevel !== "All" && item.riskLevel !== filters.riskLevel) return false;
       if (filters.owner !== "Any" && item.owner !== filters.owner) return false;
 
-      // Quick Chips
       if (filters.quickChips.includes("Assigned to Me") && item.owner !== "Rachel Dias") return false;
       if (filters.quickChips.includes("Verification Pending") && item.verificationStatus !== "Verification Pending") return false;
       if (filters.quickChips.includes("High-Value") && item.lifecycleSegment !== "High-Value") return false;
@@ -204,7 +253,8 @@ export function useCustomerCommandCenter() {
   };
 
   const selectedCustomer = useMemo(() => {
-    return customers.find((c) => c.id === selectedCustomerId) || customers[0] || null;
+    if (!selectedCustomerId) return null;
+    return customers.find((c) => c.id === selectedCustomerId) || null;
   }, [customers, selectedCustomerId]);
 
   const handleExportCSV = () => {
@@ -219,6 +269,8 @@ export function useCustomerCommandCenter() {
     setSelectedCustomerId,
     selectedCustomer,
     selectedRowIds,
+    statusSummary,
+    healthScorecard,
 
     filters,
     setFilters,
@@ -246,6 +298,12 @@ export function useCustomerCommandCenter() {
     lastSynced,
     isRefreshing,
     handleRefresh,
+
+    // New data
+    kpis,
+    rightRail,
+    pagination,
+    isLoading,
 
     // Modals
     isAddCustomerOpen,

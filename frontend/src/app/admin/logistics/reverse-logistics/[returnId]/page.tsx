@@ -13,12 +13,13 @@ import {
 
 export default function ReturnDetailPage() {
   const params = useParams();
-  const returnId = typeof params?.returnId === "string" ? params.returnId : "RET-2026-004281";
+  const returnId = typeof params?.returnId === "string" ? params.returnId : "";
 
   const [returnCase, setReturnCase] = useState<ReturnCase | null>(null);
   const [portfolioCases, setPortfolioCases] = useState<ReturnCase[]>([]);
   const [intelligence, setIntelligence] = useState<ReverseLogisticsIntelligenceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -36,6 +37,7 @@ export default function ReturnDetailPage() {
 
   const loadData = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const [rRes, pRes, iRes] = await Promise.all([
         reverseLogisticsService.getReturnCaseById(returnId),
@@ -47,6 +49,8 @@ export default function ReturnDetailPage() {
       setIntelligence(iRes);
     } catch (err) {
       console.error("Failed to load return detail data", err);
+      setReturnCase(null);
+      setLoadError(err instanceof Error ? err.message : "Return case could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -80,7 +84,7 @@ export default function ReturnDetailPage() {
     });
   };
 
-  if (loading || !returnCase) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#faf8f8] p-6 flex items-center justify-center">
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-center space-y-2">
@@ -90,6 +94,8 @@ export default function ReturnDetailPage() {
       </div>
     );
   }
+
+  if (loadError || !returnCase) return <div className="min-h-screen bg-[#faf8f8] p-6 flex items-center justify-center"><div className="bg-white p-6 rounded-lg border text-center"><h1 className="font-bold">Return not found</h1><p className="mt-2 text-sm text-gray-600">{loadError || `No return exists for ${returnId}.`}</p><a href="/admin/logistics/returns-reverse-logistics" className="inline-block mt-4 rounded bg-black px-4 py-2 text-sm text-white">Back to returns</a></div></div>;
 
   return (
     <>

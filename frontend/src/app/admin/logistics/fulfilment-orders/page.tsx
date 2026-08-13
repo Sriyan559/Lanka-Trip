@@ -24,7 +24,7 @@ import { EditShipmentModal } from "@/components/admin/logistics/EditShipmentModa
 import { DeleteShipmentModal } from "@/components/admin/logistics/DeleteShipmentModal";
 
 // Data Hook
-import { useLogisticsDashboard } from "@/hooks/admin/useLogisticsDashboard";
+import { useFulfilmentOrders } from "@/hooks/admin/useFulfilmentWarehouse";
 
 function FulfilmentOrdersContent() {
   const router = useRouter();
@@ -51,7 +51,9 @@ function FulfilmentOrdersContent() {
     per_page: currentFilters.per_page,
   };
 
-  const { dashboard, shipmentsData, loading, error, refresh } = useLogisticsDashboard(apiFilters);
+  const { data, loading, error, refresh } = useFulfilmentOrders(apiFilters);
+  const dashboard = data ? { ...data.kpis, trend: data.trend, by_status: data.status_distribution, updated_at: data.updated_at } : null;
+  const shipmentsData = data?.orders;
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -93,7 +95,7 @@ function FulfilmentOrdersContent() {
 
           {/* 2. BUSINESS CONTEXT STRIP */}
           <FulfilmentContextBar
-            lastSynced={dashboard?.lastSynced || "May 26 2025 10:15 AM"}
+            lastSynced={dashboard?.updated_at ? new Date(dashboard.updated_at).toLocaleString() : "—"}
             onRefresh={refresh}
           />
 
@@ -137,7 +139,7 @@ function FulfilmentOrdersContent() {
             onFilterChange={updateUrlFilters}
             onClearFilters={handleClearAllFilters}
             onRefresh={refresh}
-            recordCount={shipmentsData?.total || 1248}
+            recordCount={shipmentsData?.total ?? 0}
           />
 
           {/* 10. FULFILMENT ORDER PORTFOLIO TABLE & PAGINATION */}
@@ -152,8 +154,8 @@ function FulfilmentOrdersContent() {
               meta={{
                 current_page: shipmentsData?.current_page || 1,
                 per_page: shipmentsData?.per_page || 15,
-                total: shipmentsData?.total || 1248,
-                last_page: shipmentsData?.last_page || 50,
+                total: shipmentsData?.total ?? 0,
+                last_page: shipmentsData?.last_page ?? 1,
               }}
               selectedRef={selectedOperation?.fulfilment_ref}
               onSelectOperation={(op) => setSelectedOperation(op)}

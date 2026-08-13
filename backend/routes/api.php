@@ -4,6 +4,12 @@ use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\AdminSupplierDashboardController;
 use App\Http\Controllers\Api\Admin\AdminVerificationComplianceController;
+use App\Http\Controllers\Api\Admin\AdminCustomerDashboardController;
+use App\Http\Controllers\Api\Admin\AdminCustomerDirectoryController;
+use App\Http\Controllers\Api\Admin\AdminCustomerSegmentController;
+use App\Http\Controllers\Api\Admin\AdminCustomerVerificationController;
+use App\Http\Controllers\Api\Admin\AdminCustomerAddressController;
+use App\Http\Controllers\Api\Admin\AdminCustomerCreateController;
 use App\Http\Controllers\Api\Admin\AttributeManagementController;
 use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
 use App\Http\Controllers\Api\Admin\BrandManagementController;
@@ -14,6 +20,12 @@ use App\Http\Controllers\Api\Admin\CategoryManagementController;
 use App\Http\Controllers\Api\Admin\EcosystemModuleController;
 use App\Http\Controllers\Api\Admin\InventoryOperationsController;
 use App\Http\Controllers\Api\Admin\LogisticsController;
+use App\Http\Controllers\Api\Admin\FulfilmentWarehouseController;
+use App\Http\Controllers\Api\Admin\InventoryAllocationController;
+use App\Http\Controllers\Api\Admin\CarrierController;
+use App\Http\Controllers\Api\Admin\DeliveryConfigurationController;
+use App\Http\Controllers\Api\Admin\LogisticsExceptionController;
+use App\Http\Controllers\Api\Admin\LogisticsReportController;
 use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
 use App\Http\Controllers\Api\Admin\MarketplaceCommissionsController;
 use App\Http\Controllers\Api\Admin\FinanceDocumentsConfigurationController;
@@ -329,9 +341,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/support/cases/{case}/history', [SupportCaseController::class, 'history'])->whereNumber('case');
 
         Route::get('/admin/returns', [ReturnCaseController::class, 'index']);
-        Route::get('/admin/returns/{returnCase}', [ReturnCaseController::class, 'show'])->whereNumber('returnCase');
-        Route::patch('/admin/returns/{returnCase}/status', [ReturnCaseController::class, 'transition'])->whereNumber('returnCase');
-        Route::post('/admin/returns/{returnCase}/inspections', [ReturnCaseController::class, 'inspect'])->whereNumber('returnCase');
+        Route::post('/admin/returns', [ReturnCaseController::class, 'store']);
+        Route::get('/admin/returns-dashboard', [ReturnCaseController::class, 'dashboard']);
+        Route::get('/admin/returns/{returnCase}', [ReturnCaseController::class, 'show']);
+        Route::patch('/admin/returns/{returnCase}/status', [ReturnCaseController::class, 'transition']);
+        Route::post('/admin/returns/{returnCase}/inspections', [ReturnCaseController::class, 'inspect']);
 
         Route::get('/admin/ecosystem/dashboard', [EcosystemModuleController::class, 'dashboard']);
         Route::get('/admin/ecosystem/modules', [EcosystemModuleController::class, 'index']);
@@ -348,10 +362,40 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/logistics/reference-data', [LogisticsController::class, 'referenceData']);
         Route::get('/admin/logistics/shipments', [LogisticsController::class, 'index']);
         Route::post('/admin/logistics/shipments', [LogisticsController::class, 'store']);
-        Route::get('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'show'])->whereNumber('shipment');
+        Route::get('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'show']);
         Route::put('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'update'])->whereNumber('shipment');
         Route::patch('/admin/logistics/shipments/{shipment}/status', [LogisticsController::class, 'updateStatus'])->whereNumber('shipment');
+        Route::post('/admin/logistics/shipments/{shipment}/tracking-events', [LogisticsController::class, 'addTrackingEvent'])->whereNumber('shipment');
+        Route::post('/admin/logistics/shipments/{shipment}/delivery-attempts', [LogisticsController::class, 'deliveryAttempt'])->whereNumber('shipment');
         Route::delete('/admin/logistics/shipments/{shipment}', [LogisticsController::class, 'destroy'])->whereNumber('shipment');
+        Route::get('/admin/logistics/fulfilment-orders', [FulfilmentWarehouseController::class, 'fulfilments']);
+        Route::get('/admin/logistics/fulfilment-orders/{order}', [FulfilmentWarehouseController::class, 'fulfilment'])->whereNumber('order');
+        Route::patch('/admin/logistics/fulfilment-orders/{order}/status', [FulfilmentWarehouseController::class, 'transition'])->whereNumber('order');
+        Route::get('/admin/logistics/warehouses', [FulfilmentWarehouseController::class, 'warehouses']);
+        Route::post('/admin/logistics/warehouses', [FulfilmentWarehouseController::class, 'storeWarehouse']);
+        Route::get('/admin/logistics/warehouses/{facility}', [FulfilmentWarehouseController::class, 'warehouse'])->whereNumber('facility');
+        Route::put('/admin/logistics/warehouses/{facility}', [FulfilmentWarehouseController::class, 'updateWarehouse'])->whereNumber('facility');
+        Route::get('/admin/logistics/inventory-allocations', [InventoryAllocationController::class, 'index']);
+        Route::get('/admin/logistics/inventory-allocations/{allocation}', [InventoryAllocationController::class, 'show'])->whereNumber('allocation');
+        Route::post('/admin/logistics/inventory-allocations/{allocation}/allocate', [InventoryAllocationController::class, 'allocate'])->whereNumber('allocation');
+        Route::post('/admin/logistics/inventory-reservations/{reservation}/release', [InventoryAllocationController::class, 'release'])->whereNumber('reservation');
+        Route::post('/admin/logistics/inventory-transfers', [InventoryAllocationController::class, 'transfer']);
+        Route::get('/admin/logistics/carriers', [CarrierController::class, 'index']);
+        Route::post('/admin/logistics/carriers', [CarrierController::class, 'store']);
+        Route::get('/admin/logistics/carriers/{carrier}', [CarrierController::class, 'show']);
+        Route::put('/admin/logistics/carriers/{carrier}', [CarrierController::class, 'update']);
+        Route::patch('/admin/logistics/carriers/{carrier}/status', [CarrierController::class, 'status']);
+        Route::get('/admin/logistics/delivery-configurations', [DeliveryConfigurationController::class, 'index']);
+        Route::post('/admin/logistics/delivery-configurations', [DeliveryConfigurationController::class, 'store']);
+        Route::get('/admin/logistics/delivery-configurations/{configuration}', [DeliveryConfigurationController::class, 'show']);
+        Route::put('/admin/logistics/delivery-configurations/{configuration}', [DeliveryConfigurationController::class, 'update']);
+        Route::patch('/admin/logistics/delivery-configurations/{configuration}/status', [DeliveryConfigurationController::class, 'status']);
+        Route::get('/admin/logistics/exceptions', [LogisticsExceptionController::class, 'index']);
+        Route::post('/admin/logistics/exceptions', [LogisticsExceptionController::class, 'store']);
+        Route::patch('/admin/logistics/exceptions/{exception}/status', [LogisticsExceptionController::class, 'status']);
+        Route::post('/admin/logistics/reconciliation-runs', [LogisticsExceptionController::class, 'reconcile']);
+        Route::get('/admin/logistics/data-operations', [LogisticsReportController::class, 'index']);
+        Route::post('/admin/logistics/data-operations', [LogisticsReportController::class, 'store']);
 
         Route::get('/admin/reports', [AdminReportController::class, 'index']);
         Route::get('/admin/reports/{report}', [AdminReportController::class, 'execute']);
@@ -426,8 +470,48 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/reports/dashboard', [AdminVerificationComplianceController::class, 'reportsDashboard']);
             Route::get('/reports/export', [AdminVerificationComplianceController::class, 'exportReports']);
             Route::post('/reports/schedules', [AdminVerificationComplianceController::class, 'createReportSchedule']);
-            Route::post('/reports/custom-reports', [AdminVerificationComplianceController::class, 'createCustomReport']);
+        Route::post('/reports/custom-reports', [AdminVerificationComplianceController::class, 'createCustomReport']);
             Route::get('/import-export-audit/dashboard', [AdminVerificationComplianceController::class, 'importExportAuditDashboard']);
+        });
+
+        Route::prefix('admin/customers')->middleware('admin')->group(function () {
+            Route::get('/dashboard', [AdminCustomerDashboardController::class, 'commandCenter']);
+            Route::get('/directory', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/segments', [AdminCustomerSegmentController::class, 'index']);
+            Route::post('/segments', [AdminCustomerSegmentController::class, 'store']);
+            Route::post('/segments/bulk-action', [AdminCustomerSegmentController::class, 'bulkAction']);
+            Route::post('/segments/{id}/recalculate', [AdminCustomerSegmentController::class, 'recalculate']);
+            Route::post('/segments/{id}/approve', [AdminCustomerSegmentController::class, 'approve']);
+            Route::get('/verification/dashboard', [AdminCustomerVerificationController::class, 'dashboard']);
+            Route::get('/verification', [AdminCustomerVerificationController::class, 'index']);
+            Route::post('/verification/{id}/verify', [AdminCustomerVerificationController::class, 'verify']);
+            Route::post('/verification/{id}/reject', [AdminCustomerVerificationController::class, 'reject']);
+            Route::post('/verification/{id}/evidence', [AdminCustomerVerificationController::class, 'requestEvidence']);
+            
+            // Sub-module Dashboards
+            Route::get('/addresses-contacts/dashboard', [AdminCustomerAddressController::class, 'dashboard']);
+            Route::get('/orders/dashboard', [AdminCustomerDashboardController::class, 'ordersDashboard']);
+            Route::get('/returns-refunds-disputes/dashboard', [AdminCustomerDashboardController::class, 'returnsDashboard']);
+            Route::get('/loyalty/dashboard', [AdminCustomerDashboardController::class, 'loyaltyDashboard']);
+            Route::get('/consent-privacy/dashboard', [AdminCustomerDashboardController::class, 'consentDashboard']);
+            Route::get('/risk-restrictions/dashboard', [AdminCustomerDashboardController::class, 'riskDashboard']);
+            Route::get('/support-communications/dashboard', [AdminCustomerDashboardController::class, 'supportDashboard']);
+            Route::get('/import-export-audit/dashboard', [AdminCustomerDashboardController::class, 'importExportDashboard']);
+
+            Route::get('/addresses-contacts', [AdminCustomerAddressController::class, 'index']);
+            Route::get('/orders', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/returns-refunds-disputes', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/loyalty', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/consent-privacy', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/risk-restrictions', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/support-communications', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/import-export-audit', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::post('/', [AdminCustomerCreateController::class, 'store']);
+            
+            // CRUD
+            Route::get('/{id}', [AdminCustomerDirectoryController::class, 'show']);
+            Route::put('/{id}', [AdminCustomerDirectoryController::class, 'update']);
+            Route::delete('/{id}', [AdminCustomerDirectoryController::class, 'destroy']);
         });
     });
 

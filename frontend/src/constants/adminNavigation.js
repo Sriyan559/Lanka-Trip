@@ -102,7 +102,7 @@ export const ADMIN_NAVIGATION = [
     {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses"},
     {id:"inventory-allocation",label:"Inventory Allocation",href:"/admin/logistics/inventory-allocation"},
     {id:"shipments-tracking",label:"Shipments & Tracking",href:"/admin/logistics/shipments"},
-    {id:"shipment-detail-carrier-tracking",label:"Shipment Detail & Carrier Tracking",href:"/admin/logistics/shipments/SHP-LK-00192"},
+    {id:"shipment-detail-carrier-tracking",label:"Shipment Detail & Carrier Tracking",href:"/admin/logistics/shipments?open=first"},
     {id:"carriers-delivery-partners",label:"Carriers & Delivery Partners",href:"/admin/logistics/carriers-delivery-partners"},
     {id:"delivery-configuration",label:"Delivery Configuration",href:"/admin/logistics/delivery-configuration"},
     {id:"returns-reverse-logistics",label:"Returns & Reverse Logistics",href:"/admin/logistics/returns-reverse-logistics"},
@@ -141,13 +141,40 @@ export const ADMIN_NAVIGATION = [
     {id:"forecasting-intelligence",label:"Forecasting & Intelligence",href:"/admin/analytics/forecasting-intelligence"},
     {id:"analytics-reports",label:"Reports / Sharing / Audit",href:"/admin/analytics/reports"},
   ]},
-  {id:"ecosystem-modules",label:"Ecosystem Modules",icon:LayoutGrid,href:"/admin/ecosystem-modules"},
+  {id:"ecosystem-modules",label:"Ecosystem Modules",icon:LayoutGrid,href:"/admin/ecosystem-modules",children:[
+    {id:"EM01",label:"Ecosystem Modules Command Center",href:"/admin/ecosystem-modules",exact:true},
+    {id:"EM02",label:"Module Registry & Catalogue",href:"/admin/ecosystem-modules/registry"},
+    {id:"EM03",label:"Module Detail, Configuration & Lifecycle",href:"/admin/ecosystem-modules/modules/crm-platform"},
+    {id:"EM04",label:"Tenant & Ecosystem Module Assignment",href:"/admin/ecosystem-modules/assignments"},
+    {id:"EM05",label:"Business Unit & Channel Capability Assignment",href:"/admin/ecosystem-modules/capabilities"},
+    {id:"EM06",label:"Sector Packs & Capability Bundles",href:"/admin/ecosystem-modules/sector-packs",exact:true},
+    {id:"EM07",label:"Sector Pack Detail & Capability Configuration",href:"/admin/ecosystem-modules/sector-packs/beauty-retail-pack"},
+    {id:"EM08",label:"Module Dependencies & Compatibility Map",href:"/admin/ecosystem-modules/dependencies"},
+    {id:"EM09",label:"Feature Flags, Rollouts & Controlled Enablement",href:"/admin/ecosystem-modules/feature-flags"},
+    {id:"EM10",label:"Versions, Releases & Environment Management",href:"/admin/ecosystem-modules/releases"},
+    {id:"EM11",label:"Module Health, Performance & Adoption",href:"/admin/ecosystem-modules/health-adoption"},
+    {id:"EM12",label:"Integrations, Services & External Providers",href:"/admin/ecosystem-modules/integrations"},
+    {id:"EM13",label:"Governance, Access, Security & Policy Control",href:"/admin/ecosystem-modules/governance-access"},
+    {id:"EM14",label:"Reports, Audit, Export & Ecosystem Change History",href:"/admin/ecosystem-modules/reports-audit"},
+  ]},
   {id:"administration",label:"Administration",icon:Settings,disabled:true,badge:"Coming Soon"},
 ];
 
 export const navigationItemMatchesPath = (item, pathname) => {
   if (!item?.href || item.disabled) return false;
   if (item.exact) return pathname === item.href;
+  if (item.id === "EM01" && (pathname === "/admin/ecosystem-modules" || pathname === "/admin/ecosystem-modules/")) {
+    return true;
+  }
+  if (item.id === "EM03" && pathname.startsWith("/admin/ecosystem-modules/modules")) {
+    return true;
+  }
+  if (item.id === "EM06" && (pathname === "/admin/ecosystem-modules/sector-packs" || pathname === "/admin/ecosystem-modules/sector-packs/")) {
+    return true;
+  }
+  if (item.id === "EM07" && pathname.startsWith("/admin/ecosystem-modules/sector-packs/") && pathname !== "/admin/ecosystem-modules/sector-packs") {
+    return true;
+  }
   if (item.id === "carriers-delivery-partners" && (pathname === "/admin/logistics/carriers" || pathname.startsWith("/admin/logistics/carriers/"))) {
     return true;
   }

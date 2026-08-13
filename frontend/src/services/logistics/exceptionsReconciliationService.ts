@@ -1,54 +1,5 @@
-import {
-  LogisticsExceptionRecord,
-  LogisticsControlIntelligence,
-} from "@/types/logistics/exceptionsReconciliation";
-import {
-  sampleExceptionRecord,
-  sampleExceptionsList,
-  sampleControlIntelligence,
-} from "@/data/logistics/exceptionsReconciliation/exceptionsReconciliationMockData";
-
-export const exceptionsReconciliationService = {
-  async getExceptions(): Promise<LogisticsExceptionRecord[]> {
-    return Promise.resolve(sampleExceptionsList);
-  },
-
-  async getExceptionById(id: string): Promise<LogisticsExceptionRecord> {
-    const found = sampleExceptionsList.find((item) => item.id === id || item.referenceId === id);
-    return Promise.resolve(found || sampleExceptionRecord);
-  },
-
-  async getIntelligence(): Promise<LogisticsControlIntelligence> {
-    return Promise.resolve(sampleControlIntelligence);
-  },
-
-  async updateExceptionStatus(id: string, status: string): Promise<{ success: boolean; message: string }> {
-    return Promise.resolve({
-      success: true,
-      message: `Exception record ${id} status updated to ${status}.`,
-    });
-  },
-
-  async createExceptionClaim(payload: Partial<LogisticsExceptionRecord>): Promise<{ success: boolean; record: LogisticsExceptionRecord }> {
-    const newRecord: LogisticsExceptionRecord = {
-      ...sampleExceptionRecord,
-      id: `LEX-2026-${Math.floor(100000 + Math.random() * 900000)}`,
-      referenceId: `LEX-2026-${Math.floor(100000 + Math.random() * 900000)}`,
-      createdDate: new Date().toLocaleString(),
-      updatedDate: new Date().toLocaleString(),
-      ...payload,
-    };
-    return Promise.resolve({
-      success: true,
-      record: newRecord,
-    });
-  },
-
-  async runReconciliation(): Promise<{ success: boolean; reconciledCount: number; message: string }> {
-    return Promise.resolve({
-      success: true,
-      reconciledCount: 42,
-      message: "Automated logistics cost reconciliation executed cleanly for 42 records.",
-    });
-  },
-};
+import {request,withQuery} from '@/lib/api/client'; import {LogisticsExceptionRecord,LogisticsControlIntelligence} from '@/types/logistics/exceptionsReconciliation';
+const title=(v:any)=>String(v??'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase()); const dash='—';
+const map=(r:any):LogisticsExceptionRecord=>({id:String(r.id),referenceId:r.reference,recordType:title(r.record_type) as any,exceptionType:title(r.exception_type) as any,severity:title(r.severity) as any,claimRef:dash,claimType:'Internal Liability',orderRef:dash,fulfilmentRef:dash,shipmentRef:r.shipment_number??dash,carrier:r.carrier_name??dash,warehouse:dash,supplierName:dash,customerName:dash,costType:dash,expectedAmount:Number(r.expected_amount??0),actualAmount:Number(r.actual_amount??0),varianceAmount:Number(r.actual_amount??0)-Number(r.expected_amount??0),claimValue:Number(r.claim_value??0),recoveryExpected:0,recoveryRecovered:0,liabilityParty:'Internal Ops',matchStatus:r.reconciliation_status==='reconciled'?'Matched':'Unmatched',reconciliationStatus:title(r.reconciliation_status) as any,evidenceStatus:'Pending',investigationStatus:r.status==='under_review'?'In Progress':'Pending',approvalStatus:'Pending Approval',recoveryStatus:'Pending',holdStatus:'No Hold',slaStatus:'On Track',owner:dash,createdDate:r.created_at,updatedDate:r.updated_at,evidenceList:[],workflowSteps:[]});let cache:any;
+async function load(filters:any={}){const r=await request(withQuery('/admin/logistics/exceptions',filters));cache=r.data;return cache;}
+export const exceptionsReconciliationService={async getExceptions(filters:any={}):Promise<LogisticsExceptionRecord[]>{return((await load(filters)).records?.data??[]).map(map);},async getExceptionById(id:string){const all=await this.getExceptions({search:id});return all.find(x=>x.id===id||x.referenceId===id)??null;},async getIntelligence():Promise<LogisticsControlIntelligence>{return(cache??await load()).intelligence;},async updateExceptionStatus(id:string,status:string){await request(`/admin/logistics/exceptions/${encodeURIComponent(id)}/status`,{method:'PATCH',body:JSON.stringify({status:status.toLowerCase().replaceAll(' ','_')})});return{success:true,message:`Exception ${id} updated.`};},async createExceptionClaim(payload:Partial<LogisticsExceptionRecord>){const r=await request('/admin/logistics/exceptions',{method:'POST',body:JSON.stringify({exception_type:payload.exceptionType,severity:payload.severity?.toLowerCase(),expected_amount:payload.expectedAmount??0,actual_amount:payload.actualAmount??0})});return{success:true,record:map(r.data.record)};},async runReconciliation(){const r=await request('/admin/logistics/reconciliation-runs',{method:'POST'});return{success:true,reconciledCount:r.data.reconciled_count,message:r.message??'Reconciliation completed.'};}};

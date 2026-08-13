@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerReturnsRefundsDisputesPage() {
   return (
     <CustomerModuleView
+      module="returns-refunds-disputes"
       config={{
         pageTitle: "Returns, Refunds & Disputes",
         pageSubtitle: "Manage return requests, refund processing, dispute resolution, evidence collection, and SLA compliance across all customer case types.",

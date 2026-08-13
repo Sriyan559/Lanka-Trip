@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerSupportCommunicationsPage() {
   return (
     <CustomerModuleView
+      module="support-communications"
       config={{
         pageTitle: "Support & Communication History",
         pageSubtitle: "Manage customer support cases, communication logs, CSAT scores, resolution timelines, escalation queues, and service quality across all channels.",

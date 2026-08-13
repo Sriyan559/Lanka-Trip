@@ -13,6 +13,7 @@ import { WarehouseAdvancedFilters } from "@/components/admin/logistics/warehouse
 import { WarehousePortfolioTable } from "@/components/admin/logistics/warehouse/WarehousePortfolioTable";
 import { SelectedWarehousePreview } from "@/components/admin/logistics/warehouse/SelectedWarehousePreview";
 import { WarehouseIntelligenceSidebar } from "@/components/admin/logistics/warehouse/WarehouseIntelligenceSidebar";
+import { useWarehouses } from "@/hooks/admin/useFulfilmentWarehouse";
 
 function WarehousesContent() {
   const router = useRouter();
@@ -27,6 +28,7 @@ function WarehousesContent() {
     type: searchParams.get("type") || "all",
     status: searchParams.get("status") || "all",
   };
+  const { data, loading, error, refresh } = useWarehouses(currentFilters);
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -66,7 +68,7 @@ function WarehousesContent() {
           />
 
           {/* 2. BUSINESS CONTEXT & SERVICE HEALTH STRIP */}
-          <WarehouseContextBar onRefresh={() => showToast("Refreshed health services.")} />
+          <WarehouseContextBar onRefresh={refresh} />
 
           {notification && (
             <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
@@ -76,7 +78,7 @@ function WarehousesContent() {
           )}
 
           {/* 3. PRIMARY FACILITY KPI ROW (11 CARDS IN 1 ROW) */}
-          <WarehouseKpiGrid />
+          <WarehouseKpiGrid metrics={data?.kpis} />
 
           {/* 4. CAPACITY & OPERATIONS UTILIZATION METRICS STRIP (6 METRICS IN 1 ROW) */}
           <WarehouseUtilizationStrip />
@@ -88,19 +90,21 @@ function WarehousesContent() {
           />
 
           {/* 6. MAIN ANALYTICS (4 PANELS IN 1 ROW AT DESKTOP) */}
-          <WarehouseAnalytics onRetry={() => showToast("Refreshed analytics charts.")} />
+          <WarehouseAnalytics loading={loading} error={error} onRetry={refresh} typeDistribution={data?.type_distribution} statusSummary={data?.status_summary} />
 
           {/* 7. ADVANCED FILTER SYSTEM */}
           <WarehouseAdvancedFilters
             filters={currentFilters}
             onFilterChange={updateFilters}
             onClearFilters={handleClearFilters}
-            onRefresh={() => showToast("Filters updated.")}
-            recordCount={24}
+            onRefresh={refresh}
+            recordCount={data?.facilities?.total ?? 0}
           />
 
           {/* 8. WAREHOUSE & FULFILMENT CENTRE PORTFOLIO TABLE */}
           <WarehousePortfolioTable
+            facilities={data?.facilities?.data ?? []}
+            meta={data?.facilities}
             selectedRef={selectedFacility?.ref}
             onSelectFacility={(fac) => setSelectedFacility(fac)}
           />

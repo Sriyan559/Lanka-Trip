@@ -82,68 +82,68 @@ export function CustomerDirectoryTable({
 
           {/* Table Body */}
           <tbody className="divide-y divide-line text-slate-700 bg-white">
-            {records.map((c) => {
-              const isRowSelected = selectedCustomerId === c.id;
-              const isChecked = selectedRowIds.includes(c.id);
+            {records.length === 0 ? (
+              <tr>
+                <td colSpan={24} className="py-12 text-center text-slate-400 font-mono text-[12px]">
+                  No customer records found
+                </td>
+              </tr>
+            ) : (
+              records.map((c) => {
+                const isRowSelected = selectedCustomerId === c.id;
+                const isChecked = selectedRowIds.includes(c.id);
 
-              return (
-                <tr
-                  key={c.id}
-                  onClick={() => onSelectCustomer(c)}
-                  className={`transition-colors cursor-pointer text-[11px] ${
-                    isRowSelected
-                      ? "bg-amber-50/70 hover:bg-amber-50"
-                      : isChecked
-                      ? "bg-slate-50/80 hover:bg-slate-100/80"
-                      : "hover:bg-slate-50/60"
-                  }`}
-                >
-                  {/* Checkbox */}
-                  <td
-                    className="p-2.5 w-10 min-w-[40px] text-center sticky left-0 bg-white z-10 border-r border-line/40"
-                    onClick={(e) => e.stopPropagation()}
+                return (
+                  <tr
+                    key={c.id}
+                    onClick={() => onSelectCustomer(c)}
+                    className={`transition-colors cursor-pointer text-[11px] ${
+                      isRowSelected
+                        ? "bg-amber-50/70 hover:bg-amber-50"
+                        : isChecked
+                        ? "bg-slate-50/80 hover:bg-slate-100/80"
+                        : "hover:bg-slate-50/60"
+                    }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => onToggleSelectRow(c.id)}
-                      className="rounded border-slate-300 text-[#671021] focus:ring-[#671021] cursor-pointer"
-                    />
-                  </td>
+                    {/* Checkbox */}
+                    <td
+                      className="p-2.5 w-10 min-w-[40px] text-center sticky left-0 bg-white z-10 border-r border-line/40"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => onToggleSelectRow(c.id)}
+                        className="rounded border-slate-300 text-[#671021] focus:ring-[#671021] cursor-pointer"
+                      />
+                    </td>
 
-                  {/* Customer Name + Avatar */}
-                  <td className="px-3 py-2 min-w-[170px] sticky left-[40px] bg-white z-10 shadow-xs border-r border-line/40">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-[#671021] text-white flex items-center justify-center font-bold text-[9.5px] flex-shrink-0">
-                        {c.avatarInitials}
+                    {/* Customer Name + Avatar */}
+                    <td className="px-3 py-2 min-w-[170px] sticky left-[40px] bg-white z-10 shadow-xs border-r border-line/40">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-[#671021] text-white flex items-center justify-center font-bold text-[9.5px] flex-shrink-0">
+                          {c.avatarInitials}
+                        </div>
+                        <Link
+                          href={`/admin/customers/${c.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-bold text-[#671021] hover:underline truncate max-w-[125px]"
+                          title={c.name}
+                        >
+                          {c.name}
+                        </Link>
                       </div>
+                    </td>
+
+                    {/* Customer ID */}
+                    <td className="px-2.5 py-2 min-w-[110px] font-mono text-slate-500 font-semibold">
                       <Link
                         href={`/admin/customers/${c.id}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="font-bold text-[#671021] hover:underline truncate max-w-[125px]"
-                        title={c.name}
+                        className="hover:text-[#671021] hover:underline"
                       >
-                        {c.name}
+                        {c.id}
                       </Link>
-                    </div>
-                  </td>
-
-                  {/* Customer ID */}
-                  <td className="px-2.5 py-2 min-w-[110px] font-mono text-slate-500 font-semibold">
-                    <Link
-                      href={`/admin/customers/${c.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="hover:text-[#671021] hover:underline"
-                    >
-                      {c.id}
-                    </Link>
-                  </td>
-
-                  {/* Type */}
-                  <td className="px-2.5 py-2 min-w-[90px]">
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">
-                      {c.customerType}
-                    </span>
                   </td>
 
                   {/* Email */}
@@ -376,7 +376,8 @@ export function CustomerDirectoryTable({
                   </td>
                 </tr>
               );
-            })}
+            })
+            )}
           </tbody>
         </table>
       </div>

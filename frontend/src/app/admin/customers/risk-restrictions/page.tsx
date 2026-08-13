@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerRiskRestrictionsPage() {
   return (
     <CustomerModuleView
+      module="risk-restrictions"
       config={{
         pageTitle: "Risk, Restrictions & Fraud Signals",
         pageSubtitle: "Monitor customer risk profiles, fraud detection signals, account restrictions, blacklist management, and suspicious activity across all customer segments.",

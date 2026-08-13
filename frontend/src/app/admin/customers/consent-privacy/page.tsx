@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerConsentPrivacyPage() {
   return (
     <CustomerModuleView
+      module="consent-privacy"
       config={{
         pageTitle: "Consent, Privacy & Preferences",
         pageSubtitle: "Manage customer consent records, privacy preferences, marketing opt-ins, data deletion requests, GDPR compliance, and privacy operations across all segments.",

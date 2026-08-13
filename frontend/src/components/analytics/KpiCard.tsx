@@ -33,6 +33,7 @@ export function KpiCard({ data, isLoading = false, className = "", onClick }: Kp
     trendSuffix = "%",
     comparisonLabel,
     sparklineData,
+    sparklineColor,
     secondaryMetric,
   } = data;
 
@@ -42,30 +43,30 @@ export function KpiCard({ data, isLoading = false, className = "", onClick }: Kp
   return (
     <div
       onClick={onClick}
-      className={`an02-kpi-card bg-white p-3.5 rounded-lg border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between ${
+      className={`an02-kpi-card bg-white p-2.5 sm:p-3 rounded-lg border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between overflow-hidden min-w-0 ${
         onClick ? "cursor-pointer" : ""
       } ${className}`}
     >
       {/* Primary Metric Section */}
-      <div>
+      <div className="min-w-0">
         {/* Header Row */}
-        <div className="flex items-center justify-between text-xs font-bold text-slate-800 mb-1">
-          <span className="truncate flex items-center gap-1">
-            {number && <span className="text-slate-400 font-semibold">{number}</span>}
-            <span>{title}</span>
+        <div className="flex items-center justify-between text-[11px] font-bold text-slate-800 mb-1 min-w-0">
+          <span className="truncate flex items-center gap-1 min-w-0">
+            {number && <span className="text-slate-400 font-semibold shrink-0">{number}</span>}
+            <span className="truncate">{title}</span>
           </span>
         </div>
 
         {/* Main Metric + Sparkline Row */}
-        <div className="flex items-center justify-between gap-2 my-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-extrabold text-slate-900 tracking-tight leading-none">
+        <div className="flex items-center justify-between gap-1.5 my-1 min-w-0">
+          <div className="flex items-baseline gap-1.5 min-w-0 shrink-0">
+            <span className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-none whitespace-nowrap">
               {mainValue}
             </span>
 
             {/* Trend Badge */}
             <span
-              className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-bold ${trendBgColor}`}
+              className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-bold shrink-0 whitespace-nowrap ${trendBgColor}`}
             >
               {isTrendUp ? <ArrowUp size={10} className="stroke-[3]" /> : <ArrowDown size={10} className="stroke-[3]" />}
               <span>
@@ -77,13 +78,14 @@ export function KpiCard({ data, isLoading = false, className = "", onClick }: Kp
 
           {/* Sparkline Graph */}
           {sparklineData && sparklineData.length > 0 && (
-            <div className="sparkline-wrapper shrink-0">
+            <div className="sparkline-wrapper shrink-0 overflow-hidden">
               <SparklineChart
                 data={sparklineData}
-                color={isPositive ? "#059669" : "#dc2626"}
-                width={70}
-                height={24}
+                color={sparklineColor || (isPositive ? "#059669" : "#dc2626")}
+                width={55}
+                height={22}
                 strokeWidth={1.8}
+                showDots={true}
               />
             </div>
           )}
