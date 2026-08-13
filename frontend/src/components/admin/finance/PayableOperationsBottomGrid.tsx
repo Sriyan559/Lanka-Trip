@@ -1,12 +1,11 @@
 'use client';
 
 import React from 'react';
-import { FN06_OPERATIONS_CARDS } from '@/data/mockSupplierPayableData';
-
-export function PayableOperationsBottomGrid() {
+interface Card {num:number;title:string;metrics?:Array<{label:string;val:string}>;events?:Array<{time:string;status:string;ref:string}>;score?:number|null}
+export function PayableOperationsBottomGrid({cards}:{cards:Card[]}) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 text-xs">
-      {FN06_OPERATIONS_CARDS.map((card) => (
+      {cards.map((card) => (
         <div
           key={card.num}
           className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col justify-between hover:border-gray-300 transition-colors"
@@ -49,10 +48,10 @@ export function PayableOperationsBottomGrid() {
           </div>
 
           {/* Score / Indicator if present */}
-          {card.score && (
+          {card.score !== undefined && (
             <div className="mt-2 pt-1 border-t border-gray-100 flex items-center justify-between text-[10px]">
               <span className="text-gray-400 font-medium">Validation Score</span>
-              <span className="font-bold text-emerald-700 font-mono">{card.score}%</span>
+              <span className="font-bold text-emerald-700 font-mono">{card.score===null?'Unknown':`${card.score}%`}</span>
             </div>
           )}
         </div>

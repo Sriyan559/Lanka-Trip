@@ -16,6 +16,8 @@ class MarketplaceCommissionsController extends Controller
         return ['success' => true, 'data' => $this->commissions->index($request->filters(), ['can_export' => $request->user()->hasPermission('analytics.export')])];
     }
 
+    public function show(MarketplaceCommissionsIndexRequest $request,string $id): array { $data=$this->commissions->show($id,['canExport'=>$request->user()->hasPermission('analytics.export')]); abort_if(!$data,404); return ['success'=>true,'data'=>$data]; }
+
     public function export(MarketplaceCommissionsIndexRequest $request): StreamedResponse
     {
         abort_unless($request->user()->hasPermission('analytics.export'), 403);

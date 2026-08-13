@@ -5,6 +5,7 @@ namespace App\Repositories\Admin;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class MarketplaceCommissionRepository
 {
@@ -58,6 +59,23 @@ class MarketplaceCommissionRepository
                 'settlementImpact' => $this->decimal($row->settlement_impact),
             ])->all();
     }
+
+    public function portfolio(array $f,string $currency): LengthAwarePaginator
+    {
+        $sort=['reference'=>'ss.settlement_number','supplier'=>'s.company_name','gross'=>'ss.gross_amount','commission'=>'ss.commission_amount','net'=>'ss.net_amount','status'=>'ss.status','period'=>'ss.period_end'][$f['sort']];
+        return DB::table('supplier_settlements as ss')->join('suppliers as s','s.id','=','ss.supplier_id')->whereNull('ss.deleted_at')->where('ss.currency',$currency)
+            ->whereBetween('ss.period_end',[$f['from']->toDateString(),$f['to']->toDateString()])->when($f['status'],fn($q,$v)=>$q->where('ss.status',$v))
+            ->when($f['search'],fn($q,$v)=>$q->where(fn($x)=>$x->where('ss.settlement_number','like','%'.$v.'%')->orWhere('s.company_name','like','%'.$v.'%')))
+            ->selectRaw('ss.id,ss.settlement_number reference,ss.supplier_id,s.company_name supplier,ss.currency,ss.gross_amount,ss.commission_amount,ss.refund_adjustment,ss.other_adjustments,ss.net_amount,ss.status,ss.period_start,ss.period_end,ss.updated_at')
+            ->orderBy($sort,$f['direction'])->paginate($f['perPage'],['*'],'page',$f['page']);
+    }
+
+    public function statuses(array $f,string $currency): array
+    {
+        return DB::table('supplier_settlements')->whereNull('deleted_at')->where('currency',$currency)->whereBetween('period_end',[$f['from']->toDateString(),$f['to']->toDateString()])->groupBy('status')->selectRaw('status,COUNT(*) count,SUM(commission_amount) amount')->get()->map(fn($r)=>(array)$r)->all();
+    }
+
+    public function find(string $id): ?object { return DB::table('supplier_settlements as ss')->join('suppliers as s','s.id','=','ss.supplier_id')->whereNull('ss.deleted_at')->where(fn($q)=>$q->where('ss.id',$id)->orWhere('ss.uuid',$id)->orWhere('ss.settlement_number',$id))->selectRaw('ss.*,ss.settlement_number reference,s.company_name supplier')->first(); }
 
     private function decimal(mixed $value): string
     {
