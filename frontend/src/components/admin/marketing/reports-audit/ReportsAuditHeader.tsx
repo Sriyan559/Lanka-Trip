@@ -131,7 +131,7 @@ export function ReportsAuditHeader({ onCreateScheduledReport }: ReportsAuditHead
       {/* Title & Subtitle */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
-          MK14 — Marketing Reports, Import, Export & Audit
+          Marketing Reports, Import, Export & Audit
         </h1>
         <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
           Generate governed marketing reports, manage data exports and imports, monitor transfer jobs, and review complete compliance audit and evidence history.

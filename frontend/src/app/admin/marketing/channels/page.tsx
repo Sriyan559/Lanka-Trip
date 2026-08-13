@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  MARKETING_CHANNELS_MOCK_DATA,
-  ChannelRecord,
-} from "@/data/marketingChannels.mock";
+import React, { useState, useEffect, useCallback } from "react";
+import { marketingDeliveryService } from "@/services/marketingDeliveryService";
 
 import { ChannelHeader } from "@/components/admin/marketing/channels/ChannelHeader";
 import { ChannelContextStrip } from "@/components/admin/marketing/channels/ChannelContextStrip";
@@ -22,63 +19,18 @@ import { SelectedChannelWorkspace } from "@/components/admin/marketing/channels/
 import { ChannelOperationsRail } from "@/components/admin/marketing/channels/rail/ChannelOperationsRail";
 
 export default function MarketingChannelsPage() {
-  const [data, setData] = useState(MARKETING_CHANNELS_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("channels");
   const [filters, setFilters] = useState<ChannelFilterState>(INITIAL_CHANNEL_FILTERS);
-  const [selectedChannelId, setSelectedChannelId] = useState<string>("CRM-EMS-0001");
+  const [selectedChannelId, setSelectedChannelId] = useState<string>("");
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Attempt backend API fetch if available
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchChannelsFromApi() {
-      try {
-        const res = await fetch("/api/admin/marketing/channels");
-        if (res.ok) {
-          const json = await res.json();
-          if (isMounted && json && Array.isArray(json.data)) {
-            setData((prev) => ({
-              ...prev,
-              channels: json.data,
-            }));
-          }
-        }
-      } catch (err) {
-        // Fallback to mock data structure
-        console.warn("Marketing channels API not available, using default data structure.", err);
-      }
-    }
-    fetchChannelsFromApi();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      setData((prev: typeof MARKETING_CHANNELS_MOCK_DATA) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          lastSynced: new Date().toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-      }));
-      setLoading(false);
-    }, 300);
-  };
+  const handleRefresh=useCallback(async()=>{setLoading(true);try{const next=await marketingDeliveryService.channels({...filters,search:filters.search,type:filters.type,provider:filters.provider,business_unit:filters.businessUnit,market:filters.market,provider_sync:filters.providerSync,status:filters.status,page:currentPage,per_page:pageSize});setData(next);setSelectedChannelId(id=>next.channels.some((x:any)=>x.id===id)?id:(next.channels[0]?.id??''));setError(null);}catch(e:any){setError(e?.message??'Unable to load channels.');}finally{setLoading(false);}},[filters,currentPage,pageSize]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
 
   const handleFilterChange = (key: keyof ChannelFilterState, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -91,7 +43,7 @@ export default function MarketingChannelsPage() {
   };
 
   // Filter channels based on search and selected filter values
-  const filteredChannels = data.channels.filter((ch) => {
+  const filteredChannels = (data?.channels??[]).filter((ch:any) => {
     if (filters.search.trim()) {
       const q = filters.search.toLowerCase();
       const matchesSearch =
@@ -113,17 +65,14 @@ export default function MarketingChannelsPage() {
   });
 
   // Pagination calculation
-  const totalItems = filteredChannels.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
-  const paginatedChannels = filteredChannels.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const totalItems = data?.pagination?.total??0;
+  const totalPages = data?.pagination?.last_page??1;
+  const paginatedChannels = filteredChannels;
 
   const selectedChannel =
-    data.selectedChannelDetails[selectedChannelId] ||
+    data?.selectedChannelDetails?.[selectedChannelId] ||
     (filteredChannels.length > 0
-      ? data.selectedChannelDetails[filteredChannels[0].id] || null
+      ? data?.selectedChannelDetails?.[filteredChannels[0].id] || null
       : null);
 
   const handleToggleCheckbox = (id: string) => {
@@ -136,7 +85,7 @@ export default function MarketingChannelsPage() {
     if (selectedCheckboxes.length === paginatedChannels.length) {
       setSelectedCheckboxes([]);
     } else {
-      setSelectedCheckboxes(paginatedChannels.map((c) => c.id));
+      setSelectedCheckboxes(paginatedChannels.map((c:any) => c.id));
     }
   };
 
@@ -146,13 +95,13 @@ export default function MarketingChannelsPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. PAGE HEADER */}
-          <ChannelHeader onAddChannel={() => {}} />
+          <ChannelHeader onAddChannel={async()=>{const name=window.prompt('Channel name');if(!name)return;await marketingDeliveryService.create('channels',{name,type:'other'});await handleRefresh();}} />
 
           {/* 2. CONTEXT STRIP */}
-          <ChannelContextStrip context={data.context} onRefresh={handleRefresh} />
+          {data && <ChannelContextStrip context={data.context} onRefresh={handleRefresh} />}
 
           {/* 3. KPI STRIP (8 CARDS) */}
-          <ChannelKpiStrip kpis={data.kpis} />
+          {data && <ChannelKpiStrip kpis={data.kpis} />}
 
           {/* 4. NAVIGATION TABS (10 TABS) */}
           <ChannelTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -162,10 +111,10 @@ export default function MarketingChannelsPage() {
 
           {/* 6. READINESS OVERVIEW */}
           <ChannelReadinessOverview
-            counters={data.readiness}
+            counters={data?.readiness??{healthy:0,warning:0,degraded:0,disconnected:0,senderVerificationIssue:0,providerWarning:0,queueDelay:0}}
             onClearAll={handleClearFilters}
             onRefresh={handleRefresh}
-            onApplyFilters={() => {}}
+            onApplyFilters={handleRefresh}
           />
 
           {/* Inline Error State */}
@@ -217,7 +166,7 @@ export default function MarketingChannelsPage() {
         </main>
 
         {/* 10. RIGHT OPERATIONAL RAIL */}
-        <ChannelOperationsRail railData={data.rail} onAddChannel={() => {}} />
+        {data && <ChannelOperationsRail railData={data.rail} onAddChannel={async()=>{const name=window.prompt('Channel name');if(name){await marketingDeliveryService.create('channels',{name,type:'other'});await handleRefresh();}}} />}
       </div>
     </div>
   );

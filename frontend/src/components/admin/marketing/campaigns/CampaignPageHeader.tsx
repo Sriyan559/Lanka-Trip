@@ -51,13 +51,13 @@ export function CampaignPageHeader({
           )}
 
           {/* 1. Export Report */}
-          <button
-            onClick={() => alert("Exporting Campaign Report...")}
+          <Link
+            href="/admin/marketing/reports-audit"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-gray-500" />
             <span>Export Report</span>
-          </button>
+          </Link>
 
           {/* 2. Bulk Actions Dropdown */}
           <div className="relative">

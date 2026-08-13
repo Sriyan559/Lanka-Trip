@@ -26,6 +26,10 @@ use App\Http\Controllers\Api\Admin\CarrierController;
 use App\Http\Controllers\Api\Admin\DeliveryConfigurationController;
 use App\Http\Controllers\Api\Admin\LogisticsExceptionController;
 use App\Http\Controllers\Api\Admin\LogisticsReportController;
+use App\Http\Controllers\Api\Admin\MarketingController;
+use App\Http\Controllers\Api\Admin\MarketingOperationsController;
+use App\Http\Controllers\Api\Admin\MarketingDeliveryController;
+use App\Http\Controllers\Api\Admin\MarketingControlController;
 use App\Http\Controllers\Api\Admin\MarketplaceCancellationsController;
 use App\Http\Controllers\Api\Admin\MarketplaceCommissionsController;
 use App\Http\Controllers\Api\Admin\FinanceDocumentsConfigurationController;
@@ -396,6 +400,33 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/logistics/reconciliation-runs', [LogisticsExceptionController::class, 'reconcile']);
         Route::get('/admin/logistics/data-operations', [LogisticsReportController::class, 'index']);
         Route::post('/admin/logistics/data-operations', [LogisticsReportController::class, 'store']);
+        Route::get('/admin/marketing/command-center', [MarketingController::class, 'dashboard']);
+        Route::get('/admin/marketing/campaigns', [MarketingController::class, 'index']);
+        Route::post('/admin/marketing/campaigns', [MarketingController::class, 'store']);
+        Route::post('/admin/marketing/campaigns/bulk-action', [MarketingController::class, 'bulk']);
+        Route::get('/admin/marketing/campaigns/{campaign}', [MarketingController::class, 'show']);
+        Route::patch('/admin/marketing/campaigns/{campaign}', [MarketingController::class, 'update']);
+        Route::post('/admin/marketing/campaigns/{campaign}/transition', [MarketingController::class, 'transition']);
+        Route::get('/admin/marketing/{resource}', [MarketingOperationsController::class, 'index'])->whereIn('resource', ['audiences', 'journeys', 'content']);
+        Route::post('/admin/marketing/{resource}', [MarketingOperationsController::class, 'store'])->whereIn('resource', ['audiences', 'journeys', 'content']);
+        Route::get('/admin/marketing/{resource}/{id}', [MarketingOperationsController::class, 'show'])->whereIn('resource', ['audiences', 'journeys', 'content']);
+        Route::patch('/admin/marketing/{resource}/{id}', [MarketingOperationsController::class, 'update'])->whereIn('resource', ['audiences', 'journeys', 'content']);
+        Route::post('/admin/marketing/{resource}/{id}/transition', [MarketingOperationsController::class, 'transition'])->whereIn('resource', ['audiences', 'journeys', 'content']);
+        foreach (['channels', 'web-app-campaigns', 'paid-media'] as $marketingResource) {
+            Route::get("/admin/marketing/{$marketingResource}", [MarketingDeliveryController::class, 'index'])->defaults('resource', $marketingResource);
+            Route::post("/admin/marketing/{$marketingResource}", [MarketingDeliveryController::class, 'store'])->defaults('resource', $marketingResource);
+            Route::get("/admin/marketing/{$marketingResource}/{id}", [MarketingDeliveryController::class, 'show'])->defaults('resource', $marketingResource);
+            Route::patch("/admin/marketing/{$marketingResource}/{id}", [MarketingDeliveryController::class, 'update'])->defaults('resource', $marketingResource);
+            Route::post("/admin/marketing/{$marketingResource}/{id}/transition", [MarketingDeliveryController::class, 'transition'])->defaults('resource', $marketingResource);
+        }
+        foreach (['budgets', 'governance', 'reports-audit'] as $marketingResource) {
+            Route::get("/admin/marketing/{$marketingResource}", [MarketingControlController::class, 'index'])->defaults('resource', $marketingResource);
+            Route::post("/admin/marketing/{$marketingResource}", [MarketingControlController::class, 'store'])->defaults('resource', $marketingResource);
+            Route::get("/admin/marketing/{$marketingResource}/{id}", [MarketingControlController::class, 'show'])->defaults('resource', $marketingResource);
+            Route::patch("/admin/marketing/{$marketingResource}/{id}", [MarketingControlController::class, 'update'])->defaults('resource', $marketingResource);
+            Route::post("/admin/marketing/{$marketingResource}/{id}/transition", [MarketingControlController::class, 'transition'])->defaults('resource', $marketingResource);
+        }
+        Route::get('/admin/marketing/attribution-analytics', [MarketingControlController::class, 'index'])->defaults('resource', 'attribution-analytics');
 
         Route::get('/admin/reports', [AdminReportController::class, 'index']);
         Route::get('/admin/reports/{report}', [AdminReportController::class, 'execute']);

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { MARKETING_GOVERNANCE_MOCK_DATA, GovernancePortfolioItem } from "@/data/marketingGovernance.mock";
+import React, { useState, useEffect, useCallback } from "react";
+import type { GovernancePortfolioItem } from "@/data/marketingGovernance.mock";
+import { createGovernancePolicy, getGovernanceDetail, getMarketingGovernance } from "@/services/marketingGovernanceService";
 
 import { GovernanceHeader } from "@/components/admin/marketing/governance/GovernanceHeader";
 import { GovernanceContextStrip } from "@/components/admin/marketing/governance/GovernanceContextStrip";
@@ -21,67 +22,17 @@ import { SelectedGovernanceWorkspace } from "@/components/admin/marketing/govern
 import { GovernanceOperationsRail } from "@/components/admin/marketing/governance/rail/GovernanceOperationsRail";
 
 export default function MarketingGovernancePage() {
-  const [data, setData] = useState(MARKETING_GOVERNANCE_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [filters, setFilters] = useState<GovernanceFilterState>(INITIAL_GOVERNANCE_FILTERS);
-  const [selectedRecordId, setSelectedRecordId] = useState<string>("gov-[#800020]");
+  const [selectedRecordId, setSelectedRecordId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Set initial selected item ID
-  useEffect(() => {
-    if (data.portfolio && data.portfolio.length > 0 && !selectedRecordId) {
-      setSelectedRecordId(data.portfolio[0].id);
-    }
-  }, [data.portfolio, selectedRecordId]);
-
-  // Fetch API data with fallback
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchGovernanceFromApi() {
-      try {
-        const res = await fetch("/api/admin/marketing/governance");
-        if (res.ok) {
-          const json = await res.json();
-          if (isMounted && json && json.data) {
-            setData((prev) => ({
-              ...prev,
-              ...json.data,
-            }));
-          }
-        }
-      } catch (err) {
-        console.warn("Marketing Governance API not available, using default data structure.", err);
-      }
-    }
-    fetchGovernanceFromApi();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      setData((prev) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          lastSynced: new Date().toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-      }));
-      setLoading(false);
-    }, 300);
-  };
+  const handleRefresh=useCallback(async()=>{setLoading(true);try{const next=await getMarketingGovernance({...filters,search:filters.search,page:currentPage,per_page:20});setData(next);setSelectedRecordId(id=>next.portfolio.some((x:any)=>x.id===id)?id:(next.portfolio[0]?.id??''));setError(null);}catch(e:any){setError(e?.message??'Unable to load marketing governance.');}finally{setLoading(false);}},[filters,currentPage]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
+  if(!data)return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error||'Loading governance…'}</div>;
 
   const handleFilterChange = (key: keyof GovernanceFilterState, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -93,6 +44,7 @@ export default function MarketingGovernancePage() {
 
   const handleSelectRecord = (record: GovernancePortfolioItem) => {
     setSelectedRecordId(record.id);
+    void getGovernanceDetail(record.id).then(selectedRecord=>setData((current:any)=>({...current,selectedRecord}))).catch((e:any)=>setError(e?.message??'Unable to load the selected policy.'));
   };
 
   const handleFilterQueue = (queueKey: string) => {
@@ -106,7 +58,7 @@ export default function MarketingGovernancePage() {
   };
 
   // Filtered portfolio records
-  const filteredPortfolio = data.portfolio.filter((item) => {
+  const filteredPortfolio = data.portfolio.filter((item: GovernancePortfolioItem) => {
     if (filters.search) {
       const q = filters.search.toLowerCase();
       const matchSearch =
@@ -137,7 +89,7 @@ export default function MarketingGovernancePage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. PAGE HEADER */}
-          <GovernanceHeader onCreatePolicy={() => {}} />
+          <GovernanceHeader onCreatePolicy={async()=>{const name=window.prompt('Policy name');if(name){await createGovernancePolicy({name,type:'policy'});await handleRefresh();}}} />
 
           {/* 2. CONTEXT STRIP */}
           <GovernanceContextStrip context={data.context} onRefresh={handleRefresh} />
@@ -190,8 +142,8 @@ export default function MarketingGovernancePage() {
               {/* PAGINATION */}
               <GovernancePagination
                 currentPage={currentPage}
-                totalPages={1}
-                totalRecords={filteredPortfolio.length}
+                totalPages={data.pagination?.last_page??1}
+                totalRecords={data.pagination?.total??0}
                 onPageChange={setCurrentPage}
               />
 
@@ -204,7 +156,7 @@ export default function MarketingGovernancePage() {
         {/* 9. RIGHT OPERATIONAL RAIL */}
         <GovernanceOperationsRail
           railData={data.rail}
-          onCreatePolicy={() => {}}
+          onCreatePolicy={async()=>{const name=window.prompt('Policy name');if(name){await createGovernancePolicy({name,type:'policy'});await handleRefresh();}}}
           onFilterQueue={handleFilterQueue}
         />
       </div>

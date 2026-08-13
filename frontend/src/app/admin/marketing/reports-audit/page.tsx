@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  MARKETING_REPORTS_AUDIT_MOCK_DATA,
-  MarketingReportItem,
-} from "@/data/marketingReportsAudit.mock";
+import React, { useState, useEffect, useCallback } from "react";
+import type { MarketingReportItem } from "@/data/marketingReportsAudit.mock";
+import { createMarketingReport, getMarketingReportDetail, getMarketingReports } from "@/services/marketingReportsService";
 
 import { ReportsAuditHeader } from "@/components/admin/marketing/reports-audit/ReportsAuditHeader";
 import { ReportsAuditContextStrip } from "@/components/admin/marketing/reports-audit/ReportsAuditContextStrip";
@@ -23,59 +21,17 @@ import { SelectedReportWorkspace } from "@/components/admin/marketing/reports-au
 import { ReportingOperationsRail } from "@/components/admin/marketing/reports-audit/rail/ReportingOperationsRail";
 
 export default function MarketingReportsAuditPage() {
-  const [data, setData] = useState(MARKETING_REPORTS_AUDIT_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("reports");
   const [filters, setFilters] = useState<ReportFilterState>(INITIAL_REPORT_FILTERS);
-  const [selectedReportId, setSelectedReportId] = useState<string>("rpt-1");
+  const [selectedReportId, setSelectedReportId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchReportsFromApi() {
-      try {
-        const res = await fetch("/api/admin/marketing/reports-audit");
-        if (res.ok) {
-          const json = await res.json();
-          if (isMounted && json && json.data) {
-            setData((prev) => ({
-              ...prev,
-              ...json.data,
-            }));
-          }
-        }
-      } catch (err) {
-        console.warn("Marketing Reports/Audit API not available, using default data structure.", err);
-      }
-    }
-    fetchReportsFromApi();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      setData((prev) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          lastSync: new Date().toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-      }));
-      setLoading(false);
-    }, 300);
-  };
+  const handleRefresh=useCallback(async()=>{setLoading(true);try{const next=await getMarketingReports({...filters,search:filters.search,page:currentPage,per_page:20});setData(next);setSelectedReportId(id=>next.reports.some((x:any)=>x.id===id)?id:(next.reports[0]?.id??''));setError(null);}catch(e:any){setError(e?.message??'Unable to load marketing reports.');}finally{setLoading(false);}},[filters,currentPage]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
+  if(!data)return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error||'Loading reports…'}</div>;
 
   const handleFilterChange = (key: keyof ReportFilterState, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -87,6 +43,7 @@ export default function MarketingReportsAuditPage() {
 
   const handleSelectReport = (report: MarketingReportItem) => {
     setSelectedReportId(report.id);
+    void getMarketingReportDetail(report.id).then(selectedReport=>setData((current:any)=>({...current,selectedReport}))).catch((e:any)=>setError(e?.message??'Unable to load the selected report.'));
   };
 
   const handleFilterQueue = (queueKey: string) => {
@@ -106,7 +63,7 @@ export default function MarketingReportsAuditPage() {
   };
 
   // Filter report list
-  const filteredReports = data.reports.filter((item) => {
+  const filteredReports = data.reports.filter((item: MarketingReportItem) => {
     if (filters.search) {
       const q = filters.search.toLowerCase();
       const matchSearch =
@@ -140,7 +97,7 @@ export default function MarketingReportsAuditPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. PAGE HEADER */}
-          <ReportsAuditHeader onCreateScheduledReport={() => {}} />
+          <ReportsAuditHeader onCreateScheduledReport={async()=>{const name=window.prompt('Report name');if(name){await createMarketingReport({name,type:'detail',domain:'marketing',format:'csv'});await handleRefresh();}}} />
 
           {/* 2. CONTEXT STRIP */}
           <ReportsAuditContextStrip context={data.context} onRefresh={handleRefresh} />
@@ -198,8 +155,8 @@ export default function MarketingReportsAuditPage() {
               {/* PAGINATION */}
               <ReportsPagination
                 currentPage={currentPage}
-                totalPages={1}
-                totalRecords={filteredReports.length}
+                totalPages={data.pagination?.last_page??1}
+                totalRecords={data.pagination?.total??0}
                 onPageChange={setCurrentPage}
               />
 
@@ -212,7 +169,7 @@ export default function MarketingReportsAuditPage() {
         {/* 9. RIGHT OPERATIONAL RAIL */}
         <ReportingOperationsRail
           railData={data.rail}
-          onCreateScheduledReport={() => {}}
+          onCreateScheduledReport={async()=>{const name=window.prompt('Report name');if(name){await createMarketingReport({name,type:'detail',domain:'marketing',format:'csv'});await handleRefresh();}}}
           onFilterQueue={handleFilterQueue}
         />
       </div>

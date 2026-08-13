@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  mockCustomerJourneysData,
-  JourneyRecord,
-} from "@/data/customerJourneys.mock";
+import React, { useCallback, useEffect, useState } from "react";
+import type { FullCustomerJourneysData, JourneyRecord } from "@/data/customerJourneys.mock";
+import { marketingOperationsService } from "@/services/marketingOperationsService";
 import { JourneyHeader } from "@/components/admin/marketing/journeys/JourneyHeader";
 import {
   JourneyContextStrip,
@@ -49,16 +47,16 @@ import {
 import { JourneyRightRail } from "@/components/admin/marketing/journeys/JourneyRightRail";
 
 export default function CustomerJourneysPage() {
-  const [data, setData] = useState(mockCustomerJourneysData);
+  const [data, setData] = useState<FullCustomerJourneysData | null>(null);
   const [activeTab, setActiveTab] = useState<JourneyTabId>("journeys");
-  const [selectedRecord, setSelectedRecord] = useState<JourneyRecord>(
-    mockCustomerJourneysData.portfolio[1] // Default selected: Abandoned Cart Recovery
-  );
+  const [selectedRecord, setSelectedRecord] = useState<JourneyRecord | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
 
-  const handleRefresh = () => {
-    setData({ ...mockCustomerJourneysData });
-  };
+  const [error,setError]=useState('');
+  const handleCreate=async()=>{const name=window.prompt('Journey name');if(!name)return;try{await marketingOperationsService.create('journeys',{name,type:'automation'});await handleRefresh();}catch(e:any){setError(e?.message??'Unable to create journey.');}};
+  const handleRefresh=useCallback(async()=>{try{const next=await marketingOperationsService.journeys({search:searchFilter});setData(next);setSelectedRecord(current=>next.portfolio.find(x=>x.id===current?.id)??next.portfolio[0]??null);setError('');}catch(e:any){setError(e?.message??'Unable to load journeys.');}},[searchFilter]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
+  if(!data)return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error||'Loading journeys…'}</div>;
 
   const filteredPortfolio = data.portfolio.filter(
     (p) =>
@@ -73,7 +71,7 @@ export default function CustomerJourneysPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. HEADER */}
-          <JourneyHeader onCreateJourney={() => {}} />
+          <JourneyHeader onCreateJourney={handleCreate} />
 
           {/* 2. CONTEXT STRIP */}
           <JourneyContextStrip context={data.context} onRefresh={handleRefresh} />
@@ -97,8 +95,8 @@ export default function CustomerJourneysPage() {
           {/* 7. JOURNEY PORTFOLIO TABLE */}
           <JourneyPortfolioTable
             journeys={filteredPortfolio}
-            selectedJourneyId={selectedRecord.id}
-            onSelectJourney={(rec) => setSelectedRecord(rec)}
+            selectedJourneyId={selectedRecord?.id ?? ""}
+            onSelectJourney={(rec) => {setSelectedRecord(rec);void marketingOperationsService.journeyDetail(rec.id).then(details=>setData(current=>current?{...current,selectedJourney:details}:current)).catch(()=>setError('Unable to load the selected journey.'));}}
           />
 
           {/* 8. SELECTED JOURNEY SUMMARY WORKSPACE */}
