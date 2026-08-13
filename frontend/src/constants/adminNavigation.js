@@ -120,7 +120,7 @@ export const ADMIN_NAVIGATION = [
     {id:"product-supplier-support",label:"Product & Supplier Support",href:"/admin/customer-support/product-supplier"},
     {id:"sla-routing",label:"SLA & Routing",href:"/admin/customer-support/sla-routing"},
     {id:"knowledge-agent-assistance",label:"Knowledge & Agent Assistance",href:"/admin/customer-support/knowledge"},
-    {id:"teams-performance",label:"Teams & Performance",href:"/admin/customer-support/teams"},
+    {id:"teams-performance",label:"Teams & Performance",href:"/admin/customer-support/teams-performance"},
     {id:"satisfaction-qa",label:"Satisfaction & QA",href:"/admin/customer-support/qa"},
     {id:"reports-audit",label:"Reports / Audit",href:"/admin/customer-support/reports"},
   ]},
