@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 export default function CustomerImportExportAuditPage() {
   return (
     <CustomerModuleView
+      module="import-export-audit"
       config={{
         pageTitle: "Import, Export & Audit",
         pageSubtitle: "Manage customer data import and export operations, batch job tracking, audit trail review, data quality validation, and compliance reporting.",

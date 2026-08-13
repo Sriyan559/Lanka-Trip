@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerAddressesContactsPage() {
   return (
     <CustomerModuleView
+      module="addresses-contacts"
       config={{
         pageTitle: "Customer Addresses & Contacts",
         pageSubtitle: "Manage customer contact records, email and phone verification, address validation, revalidation queues, and data quality across all customer segments.",

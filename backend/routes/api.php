@@ -4,6 +4,12 @@ use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\AdminSupplierDashboardController;
 use App\Http\Controllers\Api\Admin\AdminVerificationComplianceController;
+use App\Http\Controllers\Api\Admin\AdminCustomerDashboardController;
+use App\Http\Controllers\Api\Admin\AdminCustomerDirectoryController;
+use App\Http\Controllers\Api\Admin\AdminCustomerSegmentController;
+use App\Http\Controllers\Api\Admin\AdminCustomerVerificationController;
+use App\Http\Controllers\Api\Admin\AdminCustomerAddressController;
+use App\Http\Controllers\Api\Admin\AdminCustomerCreateController;
 use App\Http\Controllers\Api\Admin\AttributeManagementController;
 use App\Http\Controllers\Api\Admin\BrandAuthorizationDecisionController;
 use App\Http\Controllers\Api\Admin\BrandManagementController;
@@ -464,8 +470,48 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/reports/dashboard', [AdminVerificationComplianceController::class, 'reportsDashboard']);
             Route::get('/reports/export', [AdminVerificationComplianceController::class, 'exportReports']);
             Route::post('/reports/schedules', [AdminVerificationComplianceController::class, 'createReportSchedule']);
-            Route::post('/reports/custom-reports', [AdminVerificationComplianceController::class, 'createCustomReport']);
+        Route::post('/reports/custom-reports', [AdminVerificationComplianceController::class, 'createCustomReport']);
             Route::get('/import-export-audit/dashboard', [AdminVerificationComplianceController::class, 'importExportAuditDashboard']);
+        });
+
+        Route::prefix('admin/customers')->middleware('admin')->group(function () {
+            Route::get('/dashboard', [AdminCustomerDashboardController::class, 'commandCenter']);
+            Route::get('/directory', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/segments', [AdminCustomerSegmentController::class, 'index']);
+            Route::post('/segments', [AdminCustomerSegmentController::class, 'store']);
+            Route::post('/segments/bulk-action', [AdminCustomerSegmentController::class, 'bulkAction']);
+            Route::post('/segments/{id}/recalculate', [AdminCustomerSegmentController::class, 'recalculate']);
+            Route::post('/segments/{id}/approve', [AdminCustomerSegmentController::class, 'approve']);
+            Route::get('/verification/dashboard', [AdminCustomerVerificationController::class, 'dashboard']);
+            Route::get('/verification', [AdminCustomerVerificationController::class, 'index']);
+            Route::post('/verification/{id}/verify', [AdminCustomerVerificationController::class, 'verify']);
+            Route::post('/verification/{id}/reject', [AdminCustomerVerificationController::class, 'reject']);
+            Route::post('/verification/{id}/evidence', [AdminCustomerVerificationController::class, 'requestEvidence']);
+            
+            // Sub-module Dashboards
+            Route::get('/addresses-contacts/dashboard', [AdminCustomerAddressController::class, 'dashboard']);
+            Route::get('/orders/dashboard', [AdminCustomerDashboardController::class, 'ordersDashboard']);
+            Route::get('/returns-refunds-disputes/dashboard', [AdminCustomerDashboardController::class, 'returnsDashboard']);
+            Route::get('/loyalty/dashboard', [AdminCustomerDashboardController::class, 'loyaltyDashboard']);
+            Route::get('/consent-privacy/dashboard', [AdminCustomerDashboardController::class, 'consentDashboard']);
+            Route::get('/risk-restrictions/dashboard', [AdminCustomerDashboardController::class, 'riskDashboard']);
+            Route::get('/support-communications/dashboard', [AdminCustomerDashboardController::class, 'supportDashboard']);
+            Route::get('/import-export-audit/dashboard', [AdminCustomerDashboardController::class, 'importExportDashboard']);
+
+            Route::get('/addresses-contacts', [AdminCustomerAddressController::class, 'index']);
+            Route::get('/orders', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/returns-refunds-disputes', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/loyalty', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/consent-privacy', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/risk-restrictions', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/support-communications', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::get('/import-export-audit', [AdminCustomerDirectoryController::class, 'directory']);
+            Route::post('/', [AdminCustomerCreateController::class, 'store']);
+            
+            // CRUD
+            Route::get('/{id}', [AdminCustomerDirectoryController::class, 'show']);
+            Route::put('/{id}', [AdminCustomerDirectoryController::class, 'update']);
+            Route::delete('/{id}', [AdminCustomerDirectoryController::class, 'destroy']);
         });
     });
 

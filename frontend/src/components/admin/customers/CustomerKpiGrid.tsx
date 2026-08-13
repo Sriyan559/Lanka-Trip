@@ -19,7 +19,21 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import { CustomerKpiCard } from "@/types/customer";
-import { MOCK_CUSTOMER_KPIS } from "@/data/customer.mock";
+
+const EMPTY_KPIS: CustomerKpiCard[] = [
+  { seq: 1, id: "total-customers", label: "Total Customers", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "Users" },
+  { seq: 2, id: "active-customers", label: "Active Customers", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "UserCheck" },
+  { seq: 3, id: "new-customers", label: "New Customers (30D)", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "UserPlus" },
+  { seq: 4, id: "verified-customers", label: "Verified Customers", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "ShieldCheck" },
+  { seq: 5, id: "verification-pending", label: "Verification Pending", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "Clock" },
+  { seq: 6, id: "high-value-customers", label: "High-Value Customers", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "Crown" },
+  { seq: 7, id: "loyalty-members", label: "Loyalty Members", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "Award" },
+  { seq: 8, id: "dormant-customers", label: "Dormant Customers", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "UserX" },
+  { seq: 9, id: "restricted-customers", label: "Restricted Customers", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "ShieldAlert" },
+  { seq: 10, id: "open-cases", label: "Open Service Cases", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "Headphones" },
+  { seq: 11, id: "returns-disputes", label: "Returns / Disputes", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "RefreshCw" },
+  { seq: 12, id: "privacy-requests", label: "Privacy Requests Pending", value: "0", change: "—", changeDirection: "neutral", statusState: "info", iconName: "Lock" },
+];
 
 const iconMap: Record<string, React.ElementType> = {
   Users,
@@ -43,10 +57,11 @@ interface CustomerKpiGridProps {
   showToast?: (msg: string) => void;
 }
 
-export function CustomerKpiGrid({ kpis = MOCK_CUSTOMER_KPIS, onFilterClick, showToast }: CustomerKpiGridProps) {
+export function CustomerKpiGrid({ kpis, onFilterClick, showToast }: CustomerKpiGridProps) {
+  const displayKpis = kpis && kpis.length > 0 ? kpis : EMPTY_KPIS;
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-      {kpis.map((card) => {
+      {displayKpis.map((card) => {
         const Icon = iconMap[card.iconName] || Users;
 
         const isPositive = card.statusState === "positive";

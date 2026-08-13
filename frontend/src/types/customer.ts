@@ -92,9 +92,18 @@ export interface LifecycleNode {
   count?: string | number;
 }
 
+export interface CustomerStatusSummaryData {
+  active: number;
+  verificationPending: number;
+  dormant: number;
+  restricted: number;
+  cases: number;
+  returns: number;
+}
+
 export interface CustomerHealthMetricItem {
   label: string;
-  val: number;
+  val: number | null;
   color?: string;
   target?: string;
 }
@@ -115,7 +124,7 @@ export interface CustomerRightRailSectionData {
   alerts: { id: string; text: string; count?: number; severity: "High" | "Medium" | "Low" }[];
   summaries?: { title: string; items: { label: string; count: string; pct: string; color?: string }[] }[];
   quickQueues: { label: string; count: string | number }[];
-  actions: { label: string; primary?: boolean; variant?: "primary" | "secondary" | "outline" | "danger"; actionKey?: string }[];
+  actions?: { label: string; primary?: boolean; variant?: "primary" | "secondary" | "outline" | "danger"; actionKey?: string }[];
 }
 
 export interface CustomerOperationCard {

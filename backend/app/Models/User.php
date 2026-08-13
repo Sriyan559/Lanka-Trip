@@ -163,6 +163,36 @@ class User extends Authenticatable
         return $this->hasMany(SupplierReview::class);
     }
 
+    public function customerVerification(): HasOne
+    {
+        return $this->hasOne(CustomerVerification::class);
+    }
+
+    public function customerLoyaltyAccount(): HasOne
+    {
+        return $this->hasOne(CustomerLoyaltyAccount::class);
+    }
+
+    public function customerRisk(): HasOne
+    {
+        return $this->hasOne(CustomerRisk::class);
+    }
+
+    public function customerConsents(): HasMany
+    {
+        return $this->hasMany(CustomerConsent::class);
+    }
+
+    public function customerAddresses(): HasMany
+    {
+        return $this->hasMany(CustomerAddress::class);
+    }
+
+    public function customerSegments(): BelongsToMany
+    {
+        return $this->belongsToMany(CustomerSegment::class, 'customer_segment_members');
+    }
+
     public function notifyUser(
         string $type,
         string $title,

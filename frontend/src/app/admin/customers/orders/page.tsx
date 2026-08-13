@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerOrdersPage() {
   return (
     <CustomerModuleView
+      module="orders"
       config={{
         pageTitle: "Customer Orders & Purchase History",
         pageSubtitle: "Monitor order activity, purchase frequency, payment reliability, fulfilment status, and lifetime value analytics across all customer segments.",

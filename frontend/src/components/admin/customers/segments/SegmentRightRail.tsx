@@ -2,10 +2,26 @@
 
 import React from "react";
 import { AlertCircle, CheckCircle2, ShieldAlert, ArrowRight, RefreshCw, Download } from "lucide-react";
-import { PriorityAlertItem } from "@/types/customer-segments";
+import {
+  PriorityAlertItem,
+  SegmentMembershipSummary,
+  SegmentConflictSummary,
+  SegmentRecalculationSummary,
+  SegmentQuickQueues,
+} from "@/types/customer-segments";
 
 interface SegmentRightRailProps {
   priorityAlerts: PriorityAlertItem[];
+  membershipSummary?: SegmentMembershipSummary | null;
+  conflictSummary?: SegmentConflictSummary | null;
+  recalculationSummary?: SegmentRecalculationSummary | null;
+  quickQueues?: SegmentQuickQueues | null;
+  typeDistribution?: { name: string; value: number }[];
+  segmentationHealth?: number | null;
+  totalSegments?: number;
+  activeSegments?: number;
+  pendingApproval?: number;
+  draftSegments?: number;
   showToast: (msg: string) => void;
   onReviewConflicts: () => void;
   onRecalculateSegments: () => void;
@@ -15,23 +31,40 @@ interface SegmentRightRailProps {
 
 export function SegmentRightRail({
   priorityAlerts,
+  membershipSummary,
+  conflictSummary,
+  recalculationSummary,
+  quickQueues,
+  typeDistribution = [],
+  segmentationHealth = null,
+  totalSegments = 0,
+  activeSegments = 0,
+  pendingApproval = 0,
+  draftSegments = 0,
   showToast,
   onReviewConflicts,
   onRecalculateSegments,
   onApproveDrafts,
   onExportReport,
 }: SegmentRightRailProps) {
-  const healthMetrics = [
-    { label: "Rule Accuracy", val: 92 },
-    { label: "Data Quality", val: 88 },
-    { label: "Consent Coverage", val: 84 },
-    { label: "Overlap Control", val: 78 },
-    { label: "Schedule Reliability", val: 91 },
-    { label: "Approval Governance", val: 90 },
-    { label: "Revalidation Readiness", val: 72 },
-    { label: "Conflict Resolution", val: 76 },
-    { label: "Audit Readiness", val: 85 },
-  ];
+  const healthScoreStr = segmentationHealth !== null ? `${segmentationHealth}` : "—";
+
+  const totalInSegments = membershipSummary?.totalInSegments ?? 0;
+  const newMembers = membershipSummary?.newMembers ?? 0;
+  const removedMembers = membershipSummary?.removedMembers ?? 0;
+
+  const noConflict = conflictSummary?.noConflict ?? max(0, totalSegments - (quickQueues?.conflictsToResolve ?? 0));
+  const conflictWarning = conflictSummary?.warning ?? 0;
+  const conflictCount = conflictSummary?.conflict ?? (quickQueues?.conflictsToResolve ?? 0);
+
+  const recalScheduled = recalculationSummary?.scheduled ?? (quickQueues?.scheduledRecals ?? 0);
+  const recalInProgress = recalculationSummary?.inProgress ?? 0;
+  const recalFailed = recalculationSummary?.failed ?? 0;
+
+  const qPending = quickQueues?.pendingApprovals ?? pendingApproval;
+  const qReval = quickQueues?.revalidationDue ?? 0;
+  const qConflicts = quickQueues?.conflictsToResolve ?? conflictCount;
+  const qRecals = quickQueues?.scheduledRecals ?? recalScheduled;
 
   return (
     <div className="flex flex-col gap-3.5 min-w-0">
@@ -42,7 +75,7 @@ export function SegmentRightRail({
             A. Segmentation Health
           </h4>
           <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[9.5px] border border-emerald-200">
-            Good / Stable
+            {segmentationHealth !== null ? "Good / Stable" : "Unmeasured"}
           </span>
         </div>
 
@@ -55,35 +88,24 @@ export function SegmentRightRail({
                 cx="24"
                 cy="24"
                 r="18"
-                stroke="#059669"
+                stroke={segmentationHealth !== null ? "#059669" : "#cbd5e1"}
                 strokeWidth="4"
                 strokeDasharray="113"
-                strokeDashoffset="12"
+                strokeDashoffset={segmentationHealth !== null ? 113 - (113 * segmentationHealth) / 100 : 113}
                 strokeLinecap="round"
                 fill="transparent"
               />
             </svg>
-            <span className="absolute text-[13px] font-black text-ink font-mono">89</span>
+            <span className="absolute text-[13px] font-black text-ink font-mono">{healthScoreStr}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-800 text-[12px] block">89 / 100 Health</span>
-            <span className="text-[10px] text-slate-500 block">Segmentation governance optimal</span>
+            <span className="font-bold text-slate-800 text-[12px] block">
+              {segmentationHealth !== null ? `${segmentationHealth} / 100 Health` : "— / 100 Health"}
+            </span>
+            <span className="text-[10px] text-slate-500 block">
+              {segmentationHealth !== null ? "Segmentation governance optimal" : "Health score unavailable"}
+            </span>
           </div>
-        </div>
-
-        {/* Health Bars */}
-        <div className="space-y-1.5">
-          {healthMetrics.map((item) => (
-            <div key={item.label}>
-              <div className="flex justify-between text-[9.5px] mb-0.5">
-                <span className="text-slate-600 font-medium">{item.label}</span>
-                <span className="font-bold text-slate-800 font-mono">{item.val}%</span>
-              </div>
-              <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${item.val}%` }} />
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -93,34 +115,40 @@ export function SegmentRightRail({
           B. Priority Segment Alerts
         </h4>
         <div className="space-y-1.5">
-          {priorityAlerts.map((alt) => (
-            <div
-              key={alt.id}
-              className={`p-2 rounded border flex items-center justify-between gap-2 text-[10px] ${
-                alt.severity === "critical"
-                  ? "bg-rose-50 border-rose-200 text-rose-800"
-                  : "bg-amber-50 border-amber-200 text-amber-900"
-              }`}
-            >
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={`w-4 h-4 rounded-full font-bold flex items-center justify-center text-[9px] ${
-                    alt.severity === "critical" ? "bg-rose-600 text-white" : "bg-amber-500 text-white"
-                  }`}
-                >
-                  {alt.count}
-                </span>
-                <span className="font-bold">{alt.message}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => showToast(`Executing alert action: ${alt.message}`)}
-                className="text-[9px] font-bold underline cursor-pointer flex-shrink-0"
-              >
-                {alt.actionText}
-              </button>
+          {priorityAlerts.length === 0 ? (
+            <div className="p-3 text-center text-slate-400 font-mono text-[10.5px]">
+              No priority segment alerts
             </div>
-          ))}
+          ) : (
+            priorityAlerts.map((alt) => (
+              <div
+                key={alt.id}
+                className={`p-2 rounded border flex items-center justify-between gap-2 text-[10px] ${
+                  alt.severity === "critical"
+                    ? "bg-rose-50 border-rose-200 text-rose-800"
+                    : "bg-amber-50 border-amber-200 text-amber-900"
+                }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`w-4 h-4 rounded-full font-bold flex items-center justify-center text-[9px] ${
+                      alt.severity === "critical" ? "bg-rose-600 text-white" : "bg-amber-500 text-white"
+                    }`}
+                  >
+                    {alt.count}
+                  </span>
+                  <span className="font-bold">{alt.message}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => showToast(`Executing alert action: ${alt.message}`)}
+                  className="text-[9px] font-bold underline cursor-pointer flex-shrink-0"
+                >
+                  {alt.actionText}
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -132,27 +160,19 @@ export function SegmentRightRail({
         <div className="space-y-1 text-[10px]">
           <div className="flex justify-between">
             <span className="text-slate-600">Active</span>
-            <span className="font-bold font-mono text-emerald-600">104 (81.3%)</span>
+            <span className="font-bold font-mono text-emerald-600">{activeSegments}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Draft</span>
-            <span className="font-bold font-mono text-blue-600">14 (10.9%)</span>
+            <span className="font-bold font-mono text-blue-600">{draftSegments}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Pending Approval</span>
-            <span className="font-bold font-mono text-amber-600">8 (6.3%)</span>
+            <span className="font-bold font-mono text-amber-600">{pendingApproval}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Scheduled</span>
-            <span className="font-bold font-mono text-purple-600">32 (25.0%)</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Retired</span>
-            <span className="font-bold font-mono text-slate-500">7 (5.5%)</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Error / Failed</span>
-            <span className="font-bold font-mono text-rose-600">3 (2.3%)</span>
+            <span className="font-bold font-mono text-purple-600">{recalScheduled}</span>
           </div>
         </div>
       </div>
@@ -163,14 +183,16 @@ export function SegmentRightRail({
           D. Segment Type Summary
         </h4>
         <div className="space-y-1 text-[10px]">
-          <div className="flex justify-between">
-            <span className="text-slate-600">Dynamic</span>
-            <span className="font-bold font-mono text-slate-800">82 (64.1%)</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Static Group</span>
-            <span className="font-bold font-mono text-slate-800">46 (35.9%)</span>
-          </div>
+          {typeDistribution.length === 0 ? (
+            <span className="text-slate-400 font-mono text-[9.5px]">No segment types configured</span>
+          ) : (
+            typeDistribution.map((item) => (
+              <div key={item.name} className="flex justify-between">
+                <span className="text-slate-600">{item.name}</span>
+                <span className="font-bold font-mono text-slate-800">{item.value}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -182,15 +204,15 @@ export function SegmentRightRail({
         <div className="space-y-1 text-[10px]">
           <div className="flex justify-between">
             <span className="text-slate-600">Total in Segments</span>
-            <span className="font-bold font-mono text-slate-800">186,420</span>
+            <span className="font-bold font-mono text-slate-800">{totalInSegments.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">New Members</span>
-            <span className="font-bold font-mono text-emerald-600">9,185</span>
+            <span className="font-bold font-mono text-emerald-600">+{newMembers.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Removed Members</span>
-            <span className="font-bold font-mono text-rose-600">4,722</span>
+            <span className="font-bold font-mono text-rose-600">-{removedMembers.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -203,15 +225,15 @@ export function SegmentRightRail({
         <div className="space-y-1 text-[10px]">
           <div className="flex justify-between">
             <span className="text-slate-600">No Conflict</span>
-            <span className="font-bold font-mono text-emerald-600">117 (91.4%)</span>
+            <span className="font-bold font-mono text-emerald-600">{noConflict}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Warning</span>
-            <span className="font-bold font-mono text-amber-600">6 (4.7%)</span>
+            <span className="font-bold font-mono text-amber-600">{conflictWarning}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Conflict</span>
-            <span className="font-bold font-mono text-rose-600">5 (3.9%)</span>
+            <span className="font-bold font-mono text-rose-600">{conflictCount}</span>
           </div>
         </div>
       </div>
@@ -224,15 +246,15 @@ export function SegmentRightRail({
         <div className="space-y-1 text-[10px]">
           <div className="flex justify-between">
             <span className="text-slate-600">Scheduled</span>
-            <span className="font-bold font-mono text-purple-600">32 (25.0%)</span>
+            <span className="font-bold font-mono text-purple-600">{recalScheduled}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">In Progress</span>
-            <span className="font-bold font-mono text-amber-600">6 (4.7%)</span>
+            <span className="font-bold font-mono text-amber-600">{recalInProgress}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Failed</span>
-            <span className="font-bold font-mono text-rose-600">3 (2.3%)</span>
+            <span className="font-bold font-mono text-rose-600">{recalFailed}</span>
           </div>
         </div>
       </div>
@@ -245,19 +267,19 @@ export function SegmentRightRail({
         <div className="space-y-1.5 text-[10px]">
           <div className="flex justify-between items-center p-1 bg-slate-50 rounded">
             <span className="font-bold text-slate-700">Pending Approvals</span>
-            <span className="font-mono font-bold text-amber-700 bg-amber-100 px-1.5 rounded">8</span>
+            <span className="font-mono font-bold text-amber-700 bg-amber-100 px-1.5 rounded">{qPending}</span>
           </div>
           <div className="flex justify-between items-center p-1 bg-slate-50 rounded">
             <span className="font-bold text-slate-700">Revalidation Due</span>
-            <span className="font-mono font-bold text-rose-700 bg-rose-100 px-1.5 rounded">22</span>
+            <span className="font-mono font-bold text-rose-700 bg-rose-100 px-1.5 rounded">{qReval}</span>
           </div>
           <div className="flex justify-between items-center p-1 bg-slate-50 rounded">
             <span className="font-bold text-slate-700">Conflicts to Resolve</span>
-            <span className="font-mono font-bold text-rose-700 bg-rose-100 px-1.5 rounded">11</span>
+            <span className="font-mono font-bold text-rose-700 bg-rose-100 px-1.5 rounded">{qConflicts}</span>
           </div>
           <div className="flex justify-between items-center p-1 bg-slate-50 rounded">
             <span className="font-bold text-slate-700">Scheduled Recalcs</span>
-            <span className="font-mono font-bold text-purple-700 bg-purple-100 px-1.5 rounded">32</span>
+            <span className="font-mono font-bold text-purple-700 bg-purple-100 px-1.5 rounded">{qRecals}</span>
           </div>
         </div>
       </div>
@@ -287,9 +309,14 @@ export function SegmentRightRail({
         <button
           type="button"
           onClick={onApproveDrafts}
-          className="w-full py-2 bg-white border border-line rounded text-slate-700 font-bold hover:bg-slate-50 transition-colors cursor-pointer text-center block"
+          className={`w-full py-2 border rounded font-bold transition-colors text-center block ${
+            pendingApproval > 0
+              ? "bg-white border-line text-slate-700 hover:bg-slate-50 cursor-pointer"
+              : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+          }`}
+          disabled={pendingApproval === 0}
         >
-          Approve Drafts
+          Approve Drafts {pendingApproval > 0 ? `(${pendingApproval})` : ""}
         </button>
 
         <button
@@ -302,4 +329,8 @@ export function SegmentRightRail({
       </div>
     </div>
   );
+}
+
+function max(a: number, b: number) {
+  return a > b ? a : b;
 }

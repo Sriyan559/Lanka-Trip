@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { CheckCircle2, Info, AlertTriangle } from "lucide-react";
+import { customerApi } from "@/lib/api/customers";
+import { MOCK_CUSTOMER_RECORDS } from "@/data/customer.mock";
 
 // Shared Components
 import { CustomerCommandHeader } from "./CustomerCommandHeader";
@@ -21,6 +24,7 @@ import { CustomerOperationsSidebar } from "./CustomerOperationsSidebar";
 
 // Types
 import {
+  CustomerRecord,
   CustomerKpiCard,
   CustomerTabItem,
   CustomerHealthMetricItem,
@@ -45,7 +49,7 @@ interface StatusBarItem {
 }
 
 interface PortfolioRow {
-  [key: string]: string | number | undefined;
+  [key: string]: any;
   id: string;
 }
 
@@ -99,10 +103,8 @@ export interface CustomerModuleViewConfig {
 
 interface CustomerModuleViewProps {
   config: CustomerModuleViewConfig;
+  module?: string;
 }
-
-import { CheckCircle2, Info, AlertTriangle } from "lucide-react";
-import { MOCK_CUSTOMER_RECORDS } from "@/data/customer.mock";
 
 // Default filter state
 const DEFAULT_FILTERS: CustomerFilterState = {
@@ -121,7 +123,7 @@ const DEFAULT_FILTERS: CustomerFilterState = {
   quickChips: [],
 };
 
-export function CustomerModuleView({ config }: CustomerModuleViewProps) {
+export function CustomerModuleView({ config, module }: CustomerModuleViewProps) {
   const [activeTab, setActiveTab] = useState(config.tabs[0]?.id || "overview");
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<ToastMessage | null>(null);
@@ -130,15 +132,105 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
     activeTab: config.tabs[0]?.id || "overview",
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Table state
+  const [sortColumn, setSortColumn] = useState<any>("updatedAt");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+
+  const [dataState, setDataState] = useState<{
+    kpis: CustomerKpiCard[];
+    tabs: CustomerTabItem[];
+    healthItems: CustomerHealthMetricItem[];
+    operationCards: CustomerOperationCard[];
+    lifecycleNodes: LifecycleNode[];
+    rightRail: CustomerRightRailSectionData;
+    customers: any[];
+    pagination: {
+      total: number;
+      currentPage: number;
+      perPage: number;
+      lastPage: number;
+    };
+  }>({
+    kpis: config.kpis,
+    tabs: config.tabs,
+    healthItems: config.healthItems ?? [],
+    operationCards: config.operationCards,
+    lifecycleNodes: config.lifecycleNodes ?? [],
+    rightRail: config.rightRail,
+    customers: [],
+    pagination: { total: 0, currentPage: 1, perPage: 25, lastPage: 1 }
+  });
 
   const showToast = (msg: string, type: ToastType = "info") => {
     setToastMessage({ text: msg, type });
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleRefresh = () => {
+  const fetchDashboardData = async () => {
+    if (!module) return;
+    setIsLoading(true);
+    try {
+      const response = await customerApi.getModuleDashboard(module, {
+        page: currentPage,
+        perPage: rowsPerPage,
+        search: filters.searchQuery,
+        sort: sortColumn,
+        direction: sortDirection,
+        segment: filters.segment,
+        loyaltyTier: filters.loyaltyTier,
+        verificationStatus: filters.verificationStatus,
+        riskLevel: filters.riskLevel,
+        region: filters.region,
+        activeTab: activeTab
+      });
+      if (response) {
+        setDataState({
+          kpis: response.kpis ?? config.kpis,
+          tabs: response.tabs ?? config.tabs,
+          healthItems: response.healthScorecard ?? config.healthItems ?? [],
+          operationCards: response.operationCards ?? config.operationCards,
+          lifecycleNodes: response.lifecycleNodes ?? config.lifecycleNodes ?? [],
+          rightRail: response.rightRail ?? config.rightRail,
+          customers: response.customers ?? [],
+          pagination: response.pagination ?? { total: 0, currentPage: 1, perPage: 25, lastPage: 1 }
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to fetch dashboard data from backend.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (module) {
+      fetchDashboardData();
+    } else {
+      setDataState({
+        kpis: config.kpis,
+        tabs: config.tabs,
+        healthItems: config.healthItems ?? [],
+        operationCards: config.operationCards,
+        lifecycleNodes: config.lifecycleNodes ?? [],
+        rightRail: config.rightRail,
+        customers: MOCK_CUSTOMER_RECORDS,
+        pagination: { total: MOCK_CUSTOMER_RECORDS.length, currentPage: 1, perPage: 25, lastPage: 1 }
+      });
+    }
+  }, [module, currentPage, rowsPerPage, filters.searchQuery, sortColumn, sortDirection, filters.segment, filters.loyaltyTier, filters.verificationStatus, filters.riskLevel, filters.region, activeTab]);
+
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1200);
+    if (module) {
+      await fetchDashboardData();
+    }
+    setIsRefreshing(false);
+    showToast("Data updated successfully.", "success");
   };
 
   const handleTabChange = (tabId: string) => {
@@ -157,7 +249,7 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
   };
 
   const selectedCustomer = selectedCustomerId
-    ? MOCK_CUSTOMER_RECORDS.find((c) => c.id === selectedCustomerId) ?? null
+    ? dataState.customers.find((c) => c.id === selectedCustomerId) ?? null
     : null;
 
   return (
@@ -194,7 +286,7 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
 
         {/* KPI Cards Grid */}
         <CustomerKpiGrid
-          kpis={config.kpis}
+          kpis={dataState.kpis}
           onFilterClick={(type, value) => {
             if (type === "tab") handleTabChange(value);
             else handleToggleQuickChip(value);
@@ -206,7 +298,7 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
         <CustomerCommandTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          items={config.tabs}
+          items={dataState.tabs}
         />
 
         {/* Middle Analytics: Trend Chart + Donut + Status Bars */}
@@ -223,7 +315,7 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
         {/* Health Scorecard */}
         <CustomerHealthScorecard
           title={config.healthTitle}
-          items={config.healthItems}
+          items={dataState.healthItems}
         />
 
         {/* Main Workspace: Left Content + Right Rail */}
@@ -234,7 +326,7 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
             <CustomerPortfolioFilters
               filters={filters}
               onChange={(updated) => setFilters((prev) => ({ ...prev, ...updated }))}
-              onClearAll={() => setFilters({ ...DEFAULT_FILTERS, activeTab: config.tabs[0]?.id || "overview" })}
+              onClearAll={() => setFilters({ ...DEFAULT_FILTERS, activeTab: dataState.tabs[0]?.id || "overview" })}
               onOpenSaveView={() => showToast("Save view opened...")}
               onOpenMoreFilters={() => showToast("More filters opened...")}
               onRefresh={handleRefresh}
@@ -250,20 +342,24 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
             {/* Table + Preview Side-by-side */}
             <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_320px] gap-4 my-4 items-start">
               <CustomerPortfolioTable
-                customers={MOCK_CUSTOMER_RECORDS}
-                totalCount={MOCK_CUSTOMER_RECORDS.length}
+                customers={dataState.customers}
+                totalCount={dataState.pagination.total}
                 selectedCustomerId={selectedCustomerId}
                 onSelectCustomer={setSelectedCustomerId}
                 selectedRowIds={[]}
                 onSelectRow={() => {}}
                 onSelectAllOnPage={() => {}}
-                sortColumn={"name"}
-                sortDirection="asc"
-                onSort={() => {}}
-                currentPage={1}
-                rowsPerPage={10}
-                onPageChange={() => {}}
-                onRowsPerPageChange={() => {}}
+                sortColumn={sortColumn}
+                sortDirection={sortDirection}
+                onSort={(column) => {
+                  const isAsc = sortColumn === column && sortDirection === "asc";
+                  setSortDirection(isAsc ? "desc" : "asc");
+                  setSortColumn(column);
+                }}
+                currentPage={currentPage}
+                rowsPerPage={rowsPerPage}
+                onPageChange={(page) => setCurrentPage(page)}
+                onRowsPerPageChange={(rows) => setRowsPerPage(rows)}
                 showToast={showToast}
               />
               <SelectedCustomerPreview
@@ -274,14 +370,14 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
 
             {/* 12–17 Bottom Operation Summary Cards */}
             <CustomerSummaryCards
-              cards={config.operationCards}
+              cards={dataState.operationCards}
               showToast={showToast}
             />
 
             {/* Lifecycle Journey Bar */}
-            {config.lifecycleNodes && config.lifecycleNodes.length > 0 && (
+            {dataState.lifecycleNodes && dataState.lifecycleNodes.length > 0 && (
               <CustomerLifecycleJourney
-                nodes={config.lifecycleNodes}
+                nodes={dataState.lifecycleNodes}
                 title={config.lifecycleTitle}
               />
             )}
@@ -290,7 +386,7 @@ export function CustomerModuleView({ config }: CustomerModuleViewProps) {
           {/* Right Intelligence Rail Sidebar */}
           <div className="w-full">
             <CustomerOperationsSidebar
-              data={config.rightRail}
+              data={dataState.rightRail}
               onFilterClick={(type, value) => {
                 if (type === "tab") handleTabChange(value);
                 else handleToggleQuickChip(value);
