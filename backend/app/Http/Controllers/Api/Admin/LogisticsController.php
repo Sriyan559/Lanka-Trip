@@ -26,24 +26,35 @@ class LogisticsController extends Controller
     {
         $this->view($request);
 
-        $totalShipments = DB::table('shipments')->whereNull('deleted_at')->count();
-        $dispatchedToday = DB::table('shipments')->whereNull('deleted_at')->whereDate('shipped_at', today())->count();
-        $outForDelivery = DB::table('shipments')->whereNull('deleted_at')->where('status', 'out_for_delivery')->count();
-        $deliveredCount = DB::table('shipments')->whereNull('deleted_at')->where('status', 'delivered')->count();
-        $delayedCount = DB::table('shipments')->whereNull('deleted_at')
-            ->whereNotIn('status', ['delivered', 'cancelled'])
-            ->whereDate('estimated_delivery_date', '<', today())
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:150'],
+            'status' => ['nullable', Rule::in(array_keys(self::TRANSITIONS))],
+            'logistics_partner_id' => ['nullable', 'integer', 'exists:logistics_partners,id'],
+            'delayed' => ['nullable', 'boolean'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        ]);
+
+        $base = $this->filteredShipments($validated);
+
+        $totalShipments = (clone $base)->count();
+        $dispatchedToday = (clone $base)->whereDate('shipments.shipped_at', today())->count();
+        $outForDelivery = (clone $base)->where('shipments.status', 'out_for_delivery')->count();
+        $deliveredCount = (clone $base)->where('shipments.status', 'delivered')->count();
+        $delayedCount = (clone $base)
+            ->whereNotIn('shipments.status', ['delivered', 'cancelled'])
+            ->whereDate('shipments.estimated_delivery_date', '<', today())
             ->count();
-        $failedCount = DB::table('shipments')->whereNull('deleted_at')->where('status', 'failed')->count();
+        $failedCount = (clone $base)->where('shipments.status', 'failed')->count();
 
         // 30-Day Volume Trend
         $trendData = [];
         for ($i = 29; $i >= 0; $i--) {
             $dateStr = now()->subDays($i)->format('Y-m-d');
             $dateLabel = now()->subDays($i)->format('M d');
-            $created = DB::table('shipments')->whereNull('deleted_at')->whereDate('created_at', $dateStr)->count();
-            $shipped = DB::table('shipments')->whereNull('deleted_at')->whereDate('shipped_at', $dateStr)->count();
-            $delivered = DB::table('shipments')->whereNull('deleted_at')->whereDate('delivered_at', $dateStr)->count();
+            $created = (clone $base)->whereDate('shipments.created_at', $dateStr)->count();
+            $shipped = (clone $base)->whereDate('shipments.shipped_at', $dateStr)->count();
+            $delivered = (clone $base)->whereDate('shipments.delivered_at', $dateStr)->count();
             $trendData[] = [
                 'date' => $dateLabel,
                 'Booked' => $created,
@@ -53,9 +64,8 @@ class LogisticsController extends Controller
         }
 
         // Carrier Distribution
-        $carrierDistribution = DB::table('shipments')
+        $carrierDistribution = $this->filteredShipments($validated)
             ->leftJoin('logistics_partners', 'logistics_partners.id', '=', 'shipments.logistics_partner_id')
-            ->whereNull('shipments.deleted_at')
             ->groupBy('logistics_partners.name')
             ->selectRaw("COALESCE(logistics_partners.name, 'Unassigned') AS carrier, COUNT(*) AS count")
             ->get()
@@ -68,10 +78,9 @@ class LogisticsController extends Controller
             });
 
         // Priority Alerts (Delayed / Failed)
-        $priorityAlerts = DB::table('shipments')
+        $priorityAlerts = $this->filteredShipments($validated)
             ->leftJoin('orders', 'orders.id', '=', 'shipments.order_id')
             ->leftJoin('logistics_partners', 'logistics_partners.id', '=', 'shipments.logistics_partner_id')
-            ->whereNull('shipments.deleted_at')
             ->where(function ($q) {
                 $q->where('shipments.status', 'failed')
                   ->orWhere('shipments.status', 'delayed')
@@ -89,13 +98,19 @@ class LogisticsController extends Controller
             ->get();
 
         return $this->successResponse(['dashboard' => [
+            'updated_at' => now()->toIso8601String(),
             'total_shipments' => $totalShipments,
             'dispatched_today' => $dispatchedToday,
             'out_for_delivery' => $outForDelivery,
             'delivered_count' => $deliveredCount,
             'delayed_count' => $delayedCount,
             'failed_count' => $failedCount,
-            'by_status' => DB::table('shipments')->whereNull('deleted_at')->groupBy('status')->selectRaw('status, COUNT(*) AS count')->get(),
+            'by_status' => (clone $base)->groupBy('shipments.status')->selectRaw('shipments.status, COUNT(*) AS count')->get(),
+            'operational_summary' => collect([
+                ['label' => 'On Track', 'count' => max(0, $totalShipments - $delayedCount - $failedCount), 'color' => '#10b981'],
+                ['label' => 'Delayed', 'count' => $delayedCount, 'color' => '#f97316'],
+                ['label' => 'Exception', 'count' => $failedCount, 'color' => '#e11d48'],
+            ])->map(fn ($item) => [...$item, 'percentage' => $totalShipments ? round($item['count'] / $totalShipments * 100, 1) : 0]),
             'carrier_distribution' => $carrierDistribution,
             'trend' => $trendData,
             'priority_alerts' => $priorityAlerts,
@@ -104,8 +119,8 @@ class LogisticsController extends Controller
                 'delivery_success_rate' => $totalShipments > 0 ? round(($deliveredCount / $totalShipments) * 100, 1) : null,
             ],
             'quick_queue' => [
-                'unassigned_carrier' => DB::table('shipments')->whereNull('deleted_at')->whereNull('logistics_partner_id')->count(),
-                'pending_dispatch' => DB::table('shipments')->whereNull('deleted_at')->where('status', 'booked')->count(),
+                'unassigned_carrier' => (clone $base)->whereNull('shipments.logistics_partner_id')->count(),
+                'pending_dispatch' => (clone $base)->where('shipments.status', 'booked')->count(),
                 'delivery_failed' => $failedCount,
             ],
         ]]);
@@ -115,15 +130,19 @@ class LogisticsController extends Controller
     {
         $this->view($request);
         $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:150'],
             'status' => ['nullable', 'string', 'max:30'],
             'logistics_partner_id' => ['nullable', 'integer'],
             'delayed' => ['nullable', 'boolean'],
             'per_page' => ['nullable', 'integer', 'between:1,100'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'sort' => ['nullable', Rule::in(['created_at', 'updated_at', 'shipment_number', 'status', 'estimated_delivery_date'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
         ]);
-        $query = DB::table('shipments')
+        $query = $this->filteredShipments($validated)
             ->leftJoin('orders', 'orders.id', '=', 'shipments.order_id')
             ->leftJoin('logistics_partners', 'logistics_partners.id', '=', 'shipments.logistics_partner_id')
-            ->whereNull('shipments.deleted_at')
             ->select([
                 'shipments.id', 'shipments.uuid', 'shipments.order_id', 'shipments.supplier_id',
                 'shipments.logistics_partner_id', 'shipments.shipment_number', 'shipments.tracking_number',
@@ -132,34 +151,42 @@ class LogisticsController extends Controller
                 'shipments.status', 'shipments.created_at', 'shipments.updated_at',
                 'orders.order_number', 'logistics_partners.name as carrier_name',
             ])
-            ->orderByDesc('shipments.created_at');
-        if (isset($validated['status'])) {
-            $query->where('shipments.status', $validated['status']);
-        }
-        if (isset($validated['logistics_partner_id'])) {
-            $query->where('shipments.logistics_partner_id', $validated['logistics_partner_id']);
-        }
-        if ($validated['delayed'] ?? false) {
-            $query->whereNotIn('shipments.status', ['delivered', 'cancelled'])->whereDate('shipments.estimated_delivery_date', '<', today());
-        }
+            ->orderBy('shipments.'.($validated['sort'] ?? 'created_at'), $validated['direction'] ?? 'desc');
 
         return $this->successResponse(['shipments' => $query->paginate($validated['per_page'] ?? 25)]);
     }
 
-    public function show(Request $request, int $shipment): JsonResponse
+    public function show(Request $request, string $shipment): JsonResponse
     {
         $this->view($request);
-        $record = DB::table('shipments')->where('id', $shipment)->whereNull('deleted_at')->first();
+        $record = DB::table('shipments')->whereNull('deleted_at')->where(function($q)use($shipment){$q->where('shipment_number',$shipment)->orWhere('uuid',$shipment);if(ctype_digit($shipment))$q->orWhere('id',(int)$shipment);})->first();
         abort_unless($record, 404);
+        $shipmentId=$record->id;
         unset($record->metadata);
 
         return $this->successResponse([
             'shipment' => $record,
-            'tracking_events' => DB::table('shipment_tracking_events')->where('shipment_id', $shipment)
+            'order' => DB::table('orders')->where('id',$record->order_id)->first(),
+            'carrier' => $record->logistics_partner_id ? DB::table('logistics_partners')->whereNull('deleted_at')->find($record->logistics_partner_id) : null,
+            'packages' => DB::table('shipment_items')->where('shipment_id',$shipmentId)->get(),
+            'tracking_events' => DB::table('shipment_tracking_events')->where('shipment_id', $shipmentId)
                 ->where('status', 'active')
                 ->select(['id', 'shipment_id', 'event_code', 'event_name', 'description', 'location', 'occurred_at', 'status'])
                 ->orderByDesc('occurred_at')->paginate(50),
+            'delivery_attempts' => DB::table('shipment_delivery_attempts')->where('shipment_id', $shipmentId)->orderByDesc('attempted_at')->get(),
         ]);
+    }
+
+    public function addTrackingEvent(Request $request, int $shipment): JsonResponse
+    {
+        abort_unless($request->user()->hasPermission('logistics.update'), 403);
+        $data=$request->validate(['event_code'=>['required','string','max:80'],'event_name'=>['required','string','max:150'],'description'=>['nullable','string','max:2000'],'location'=>['nullable','string','max:200'],'occurred_at'=>['required','date'],'idempotency_key'=>['nullable','string','max:100']]);
+        $record=DB::transaction(function()use($request,$shipment,$data){$ship=DB::table('shipments')->whereNull('deleted_at')->lockForUpdate()->find($shipment);abort_unless($ship,404);if(!empty($data['idempotency_key'])){$existing=DB::table('shipment_tracking_events')->where('shipment_id',$shipment)->where('event_code',$data['idempotency_key'])->first();if($existing)return$existing;}$id=DB::table('shipment_tracking_events')->insertGetId(['uuid'=>(string)\Illuminate\Support\Str::uuid(),'shipment_id'=>$shipment,'event_code'=>$data['idempotency_key']??$data['event_code'],'event_name'=>$data['event_name'],'description'=>$data['description']??null,'location'=>$data['location']??null,'occurred_at'=>$data['occurred_at'],'status'=>'active','tracking_payload'=>json_encode(['source_event_code'=>$data['event_code']]),'created_at'=>now(),'updated_at'=>now()]);activity('admin')->causedBy($request->user())->withProperties(['shipment_id'=>$shipment,'tracking_event_id'=>$id])->log('shipment.tracking_event_added');return DB::table('shipment_tracking_events')->find($id);});return $this->successResponse(['tracking_event'=>$record],'Tracking event recorded.',201);
+    }
+
+    public function deliveryAttempt(Request $request,int $shipment):JsonResponse
+    {
+        abort_unless($request->user()->hasPermission('logistics.update'),403);$data=$request->validate(['outcome'=>['required',Rule::in(['delivered','failed','customer_unavailable','refused','address_issue'])],'notes'=>['nullable','string','max:2000'],'attempted_at'=>['required','date']]);$attempt=DB::transaction(function()use($request,$shipment,$data){$ship=DB::table('shipments')->whereNull('deleted_at')->lockForUpdate()->find($shipment);abort_unless($ship,404);$number=DB::table('shipment_delivery_attempts')->where('shipment_id',$shipment)->max('attempt_number')+1;$id=DB::table('shipment_delivery_attempts')->insertGetId(['uuid'=>(string)\Illuminate\Support\Str::uuid(),'shipment_id'=>$shipment,'recorded_by'=>$request->user()->id,'attempt_number'=>$number,'outcome'=>$data['outcome'],'notes'=>$data['notes']??null,'attempted_at'=>$data['attempted_at'],'created_at'=>now(),'updated_at'=>now()]);$status=$data['outcome']==='delivered'?'delivered':'failed';DB::table('shipments')->where('id',$shipment)->update(['status'=>$status,'delivered_at'=>$status==='delivered'?now():$ship->delivered_at,'updated_at'=>now()]);activity('admin')->causedBy($request->user())->withProperties(['shipment_id'=>$shipment,'attempt_id'=>$id,'outcome'=>$data['outcome']])->log('shipment.delivery_attempt_recorded');return DB::table('shipment_delivery_attempts')->find($id);});return$this->successResponse(['delivery_attempt'=>$attempt],'Delivery attempt recorded.',201);
     }
 
     public function updateStatus(Request $request, int $shipment): JsonResponse
@@ -216,7 +243,6 @@ class LogisticsController extends Controller
             'carrier_reference' => ['nullable', 'string', 'max:100'],
             'estimated_ship_date' => ['nullable', 'date'],
             'estimated_delivery_date' => ['nullable', 'date'],
-            'status' => ['nullable', 'string', Rule::in(array_keys(self::TRANSITIONS))],
         ]);
 
         $shipment = DB::transaction(function () use ($request, $validated) {
@@ -278,7 +304,6 @@ class LogisticsController extends Controller
             'carrier_reference' => ['nullable', 'string', 'max:100'],
             'estimated_ship_date' => ['nullable', 'date'],
             'estimated_delivery_date' => ['nullable', 'date'],
-            'status' => ['nullable', 'string', Rule::in(array_keys(self::TRANSITIONS))],
         ]);
 
         $updated = DB::transaction(function () use ($request, $shipment, $validated) {
@@ -323,5 +348,25 @@ class LogisticsController extends Controller
     private function view(Request $request): void
     {
         abort_unless($request->user()->hasPermission('logistics.view'), 403);
+    }
+
+    private function filteredShipments(array $filters)
+    {
+        $query = DB::table('shipments')->whereNull('shipments.deleted_at');
+        if (! empty($filters['status'])) $query->where('shipments.status', $filters['status']);
+        if (! empty($filters['logistics_partner_id'])) $query->where('shipments.logistics_partner_id', $filters['logistics_partner_id']);
+        if (! empty($filters['date_from'])) $query->whereDate('shipments.created_at', '>=', $filters['date_from']);
+        if (! empty($filters['date_to'])) $query->whereDate('shipments.created_at', '<=', $filters['date_to']);
+        if ($filters['delayed'] ?? false) $query->whereNotIn('shipments.status', ['delivered', 'cancelled'])->whereDate('shipments.estimated_delivery_date', '<', today());
+        if (! empty($filters['search'])) {
+            $term = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $filters['search']).'%';
+            $query->where(function ($q) use ($term) {
+                $q->where('shipments.shipment_number', 'like', $term)
+                    ->orWhere('shipments.tracking_number', 'like', $term)
+                    ->orWhere('shipments.carrier_reference', 'like', $term)
+                    ->orWhereExists(fn ($orders) => $orders->selectRaw('1')->from('orders')->whereColumn('orders.id', 'shipments.order_id')->where('orders.order_number', 'like', $term));
+            });
+        }
+        return $query;
     }
 }

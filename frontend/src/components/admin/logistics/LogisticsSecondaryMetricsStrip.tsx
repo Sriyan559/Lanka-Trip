@@ -23,7 +23,7 @@ export function LogisticsSecondaryMetricsStrip({
   const items = [
     {
       label: "Logistics Cost This Period",
-      value: logisticsCostToday ? `LKR ${(logisticsCostToday / 1_000_000).toFixed(1)}M` : "LKR 18.6M",
+      value: logisticsCostToday != null ? `LKR ${logisticsCostToday.toLocaleString()}` : "—",
       trend: "+8.4%",
       trendUp: true,
       icon: <DollarSign size={12} className="text-blue-600" />,
@@ -31,7 +31,7 @@ export function LogisticsSecondaryMetricsStrip({
     },
     {
       label: "Carrier Charges Pending",
-      value: carrierChargesPending ? `LKR ${(carrierChargesPending / 1_000_000).toFixed(1)}M` : "LKR 2.1M",
+      value: carrierChargesPending != null ? `LKR ${carrierChargesPending.toLocaleString()}` : "—",
       trend: "-5.2%",
       trendUp: false,
       icon: <CreditCard size={12} className="text-amber-600" />,
@@ -39,7 +39,7 @@ export function LogisticsSecondaryMetricsStrip({
     },
     {
       label: "COD Collections Pending",
-      value: codPendingRemittance ? `LKR ${(codPendingRemittance / 1_000_000).toFixed(1)}M` : "LKR 1.8M",
+      value: codPendingRemittance != null ? `LKR ${codPendingRemittance.toLocaleString()}` : "—",
       trend: "+3.6%",
       trendUp: true,
       icon: <ShieldCheck size={12} className="text-emerald-600" />,
@@ -47,24 +47,24 @@ export function LogisticsSecondaryMetricsStrip({
     },
     {
       label: "Warehouse Capacity Used",
-      value: warehouseCapacityUsed !== undefined && warehouseCapacityUsed > 0 ? `${warehouseCapacityUsed}%` : "82%",
-      percentage: warehouseCapacityUsed !== undefined && warehouseCapacityUsed > 0 ? warehouseCapacityUsed : 82,
+      value: warehouseCapacityUsed != null ? `${warehouseCapacityUsed}%` : "—",
+      percentage: warehouseCapacityUsed ?? 0,
       color: "bg-purple-600",
       icon: <Warehouse size={12} className="text-purple-600" />,
       isProgress: true,
     },
     {
       label: "Carrier Capacity Used",
-      value: carrierCapacityUsed !== undefined && carrierCapacityUsed > 0 ? `${carrierCapacityUsed}%` : "76%",
-      percentage: carrierCapacityUsed !== undefined && carrierCapacityUsed > 0 ? carrierCapacityUsed : 76,
+      value: carrierCapacityUsed != null ? `${carrierCapacityUsed}%` : "—",
+      percentage: carrierCapacityUsed ?? 0,
       color: "bg-sky-600",
       icon: <Truck size={12} className="text-sky-600" />,
       isProgress: true,
     },
     {
       label: "Proof-of-Delivery Completeness",
-      value: podCompleteness !== undefined && podCompleteness > 0 ? `${podCompleteness}%` : "93%",
-      percentage: podCompleteness !== undefined && podCompleteness > 0 ? podCompleteness : 93,
+      value: podCompleteness != null ? `${podCompleteness}%` : "—",
+      percentage: podCompleteness ?? 0,
       color: "bg-emerald-600",
       icon: <CheckSquare size={12} className="text-emerald-600" />,
       isProgress: true,

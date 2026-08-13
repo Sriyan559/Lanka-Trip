@@ -5,12 +5,14 @@ import { Eye } from "lucide-react";
 
 export interface AllocationPortfolioTableProps {
   allocations?: any[];
+  total?: number;
   selectedRef?: string | null;
   onSelectAllocation?: (allocation: any) => void;
 }
 
 export function AllocationPortfolioTable({
   allocations = [],
+  total = 0,
   selectedRef,
   onSelectAllocation,
 }: AllocationPortfolioTableProps) {
@@ -197,7 +199,7 @@ export function AllocationPortfolioTable({
     },
   ];
 
-  const displayRows = allocations && allocations.length > 0 ? allocations : defaultAllocations;
+  const displayRows = allocations;
 
   const getAllocBadge = (status: string) => {
     if (status === "Fully Allocated") return "text-emerald-800 bg-emerald-50 border-emerald-200 font-bold";
@@ -225,7 +227,7 @@ export function AllocationPortfolioTable({
           </p>
         </div>
         <div className="text-[10px] text-muted font-mono font-medium">
-          Total Demands: <strong className="text-ink">1,248 Total</strong>
+          Total Demands: <strong className="text-ink">{total.toLocaleString()} Total</strong>
         </div>
       </div>
 
@@ -272,6 +274,7 @@ export function AllocationPortfolioTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-line bg-white">
+            {displayRows.length === 0 && <tr><td colSpan={33} className="px-4 py-10 text-center text-muted">No inventory allocations found for the selected filters.</td></tr>}
             {displayRows.map((row) => {
               const isSelected = selectedRef === row.ref || selectedRef === row.id;
               return (

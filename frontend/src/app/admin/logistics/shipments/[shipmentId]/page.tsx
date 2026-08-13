@@ -6,7 +6,6 @@ import { ShipmentDetail } from "@/types/logistics/shipment";
 import { shipmentService } from "@/services/logistics/shipmentService";
 
 // Shared Reusable UI Components
-import { AlertBanner } from "@/components/admin/logistics/shared/AlertBanner";
 import { ReusableTabs } from "@/components/admin/logistics/shared/ReusableTabs";
 import { ConfirmationModal } from "@/components/admin/logistics/shared/ConfirmationModal";
 
@@ -55,10 +54,11 @@ function LG08ShipmentDetailContent() {
   const params = useParams();
   const router = useRouter();
 
-  const shipmentIdParam = (params.shipmentId || params.id || "SHP-2025-006921") as string;
+  const shipmentIdParam = (params.shipmentId || params.id) as string;
 
   const [shipment, setShipment] = useState<ShipmentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Overview");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
@@ -85,11 +85,14 @@ function LG08ShipmentDetailContent() {
 
   const loadShipmentData = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const data = await shipmentService.getShipment(shipmentIdParam);
       setShipment(data);
     } catch (err) {
       console.error("Failed to load shipment", err);
+      setShipment(null);
+      setLoadError(err instanceof Error ? err.message : "Unable to load this shipment.");
     } finally {
       setLoading(false);
     }
@@ -99,7 +102,7 @@ function LG08ShipmentDetailContent() {
     loadShipmentData();
   }, [shipmentIdParam]);
 
-  if (loading || !shipment) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#faf8f8] p-4 font-sans space-y-4 max-w-[1920px] mx-auto animate-pulse">
         <div className="h-8 bg-gray-200 rounded w-1/3" />
@@ -111,15 +114,28 @@ function LG08ShipmentDetailContent() {
     );
   }
 
+  if (loadError || !shipment) {
+    return (
+      <div className="min-h-screen bg-[#faf8f8] p-6 flex items-start justify-center">
+        <div className="mt-20 w-full max-w-xl rounded-lg border border-red-200 bg-white p-6 text-center shadow-sm">
+          <h1 className="text-lg font-semibold text-gray-900">Shipment unavailable</h1>
+          <p className="mt-2 text-sm text-gray-600">{loadError || "The shipment could not be found."}</p>
+          <div className="mt-5 flex justify-center gap-2">
+            <button onClick={() => router.back()} className="rounded border px-4 py-2 text-sm">Go back</button>
+            <button onClick={loadShipmentData} className="rounded bg-black px-4 py-2 text-sm text-white">Retry</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Action handlers
   const handleRefreshTracking = async () => {
     setLoadingAction("refreshTracking");
     const res = await shipmentService.refreshTracking(shipment.shipmentRef);
     setLoadingAction(null);
-    if (res.success) {
-      showToast(res.message);
-      loadShipmentData();
-    }
+    showToast(res.message);
+    if (res.success) loadShipmentData();
   };
 
   const handleModalAction = async (reason?: string) => {
@@ -137,7 +153,7 @@ function LG08ShipmentDetailContent() {
       const res = await shipmentService.startDeliveryRetry(shipment.shipmentRef);
       showToast(res.message);
     } else if (modalConfig.actionType === "closeShipment") {
-      showToast(`Shipment ${shipment.shipmentRef} has been closed.`);
+      showToast("Closing shipments is not configured for this workflow.");
     }
     setLoadingAction(null);
     loadShipmentData();
@@ -245,14 +261,6 @@ function LG08ShipmentDetailContent() {
             router.push("/admin/logistics/exceptions-reconciliation")
           }
           onCloseShipment={openCloseShipmentModal}
-        />
-
-        {/* 3. WARNING / ALERT BANNER */}
-        <AlertBanner
-          type="warning"
-          message="This shipment was updated by another administrator. Please refresh tracking and review the latest state before taking action."
-          actionText="Refresh Tracking Now"
-          onAction={handleRefreshTracking}
         />
 
         {/* 4. BUSINESS CONTEXT & SERVICE HEALTH STRIP */}

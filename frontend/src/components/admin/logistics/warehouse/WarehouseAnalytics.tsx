@@ -7,35 +7,26 @@ interface WarehouseAnalyticsProps {
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;
+  typeDistribution?: Array<{ type: string; count: number }>;
+  statusSummary?: Array<{ status: string; count: number }>;
 }
 
 export function WarehouseAnalytics({
   loading = false,
   error = null,
   onRetry,
+  typeDistribution = [],
+  statusSummary = [],
 }: WarehouseAnalyticsProps) {
   // 30-day capacity & workload trend data
-  const trendData = [
-    { date: "01 May", Utilization: 70, Assigned: 950, Dispatches: 900 },
-    { date: "06 May", Utilization: 75, Assigned: 1100, Dispatches: 1050 },
-    { date: "11 May", Utilization: 72, Assigned: 1020, Dispatches: 980 },
-    { date: "16 May", Utilization: 78, Assigned: 1250, Dispatches: 1180 },
-    { date: "21 May", Utilization: 74, Assigned: 1120, Dispatches: 1080 },
-    { date: "26 May", Utilization: 80, Assigned: 1300, Dispatches: 1240 },
-    { date: "31 May", Utilization: 76, Assigned: 1248, Dispatches: 1200 },
-  ];
+  const trendData: any[] = [];
 
   // Facility Type Distribution donut data
-  const donutData = [
-    { name: "Warehouses", value: 13, percentage: "54.2%", color: "#2563eb" },
-    { name: "Fulfilment Centres", value: 6, percentage: "25.0%", color: "#9333ea" },
-    { name: "Regional Hubs", value: 3, percentage: "12.5%", color: "#0284c7" },
-    { name: "Supplier Operated", value: 1, percentage: "4.2%", color: "#f59e0b" },
-    { name: "3PL Facilities", value: 1, percentage: "4.2%", color: "#64748b" },
-  ];
+  const donutTotal = typeDistribution.reduce((sum, item) => sum + Number(item.count), 0);
+  const donutData = typeDistribution.map((item, index) => ({ name: item.type, value: Number(item.count), percentage: donutTotal ? `${(Number(item.count) / donutTotal * 100).toFixed(1)}%` : "0%", color: ["#2563eb", "#9333ea", "#0284c7", "#f59e0b", "#64748b"][index % 5] }));
 
   // Operational Status Summary horizontal bar data
-  const statusData = [
+  const statusData = statusSummary.length ? statusSummary.map(item => ({ label: item.status, count: Number(item.count), pct: donutTotal ? `${(Number(item.count) / donutTotal * 100).toFixed(1)}%` : "0%", width: donutTotal ? Number(item.count) / donutTotal * 100 : 0, dot: "bg-emerald-500" })) : [
     { label: "Healthy", count: 12, pct: "50.0%", width: 50, dot: "bg-emerald-500" },
     { label: "High Utilization", count: 5, pct: "20.8%", width: 21, dot: "bg-amber-500" },
     { label: "At Risk", count: 3, pct: "12.5%", width: 13, dot: "bg-orange-500" },
@@ -47,18 +38,7 @@ export function WarehouseAnalytics({
   ];
 
   // Health Scorecard 10 circular gauges
-  const scorecardMetrics = [
-    { name: "Facility Availability", score: 96 },
-    { name: "Capacity Health", score: 88 },
-    { name: "Inventory Coverage", score: 90 },
-    { name: "Allocation Readiness", score: 92 },
-    { name: "Picking Performance", score: 89 },
-    { name: "Packing Performance", score: 90 },
-    { name: "Dispatch Readiness", score: 91 },
-    { name: "Transfer Readiness", score: 89 },
-    { name: "Operational SLA", score: 91 },
-    { name: "Audit Completeness", score: 94 },
-  ];
+  const scorecardMetrics = ["Facility Availability","Capacity Health","Inventory Coverage","Allocation Readiness","Picking Performance","Packing Performance","Dispatch Readiness","Transfer Readiness","Operational SLA","Audit Completeness"].map(name=>({name,score:0}));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-2.5 text-[10px]">
@@ -125,7 +105,7 @@ export function WarehouseAnalytics({
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-sm font-bold text-ink leading-none">24</span>
+              <span className="text-sm font-bold text-ink leading-none">{donutTotal}</span>
               <span className="text-[7px] font-bold text-muted uppercase leading-tight">Total</span>
             </div>
           </div>
@@ -175,7 +155,7 @@ export function WarehouseAnalytics({
 
         <div className="pt-1 border-t border-line/50 flex justify-between text-[9px] font-bold text-ink">
           <span>Total Operations</span>
-          <span>24 (100%)</span>
+          <span>{donutTotal} ({donutTotal ? "100%" : "0%"})</span>
         </div>
       </div>
 

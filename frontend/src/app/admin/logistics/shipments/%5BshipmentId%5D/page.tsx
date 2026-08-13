@@ -6,7 +6,7 @@ import { ShipmentDetailCarrierTracking } from "@/components/logistics/ShipmentDe
 
 function LG08ShipmentDetailContent() {
   const params = useParams();
-  const shipmentIdParam = (params.shipmentId || params.id || "SHP-2025-006921") as string;
+  const shipmentIdParam = (params.shipmentId || params.id) as string;
 
   return <ShipmentDetailCarrierTracking shipmentId={shipmentIdParam} />;
 }

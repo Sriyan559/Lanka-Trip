@@ -5,13 +5,17 @@ export interface LogisticsFilterParams {
   status?: string;
   logistics_partner_id?: number;
   delayed?: boolean;
+  date_from?: string;
+  date_to?: string;
+  sort?: string;
+  direction?: 'asc' | 'desc';
   page?: number;
   per_page?: number;
 }
 
 export const logisticsApi = {
-  getDashboard: () =>
-    request('/admin/logistics/dashboard'),
+  getDashboard: (params: LogisticsFilterParams = {}) =>
+    request(withQuery('/admin/logistics/dashboard', params)),
 
   getReferenceData: () =>
     request('/admin/logistics/reference-data'),

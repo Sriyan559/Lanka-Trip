@@ -3,8 +3,8 @@
 import React from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from "recharts";
 
-export function AllocationAnalytics() {
-  const trendData = [
+export function AllocationAnalytics({trendData: apiTrend=[],donutData: apiDonut=[],statusRows: apiStatus=[],loading=false,error=null}:{trendData?:any[];donutData?:any[];statusRows?:any[];loading?:boolean;error?:string|null}) {
+  const trendDefaults = [
     { date: "Apr 27", Requests: 950, Allocated: 820, Partial: 60, Failed: 12, ResCreated: 980, ResExpired: 18, Transfers: 20 },
     { date: "May 1", Requests: 1100, Allocated: 940, Partial: 72, Failed: 15, ResCreated: 1120, ResExpired: 20, Transfers: 24 },
     { date: "May 5", Requests: 1020, Allocated: 880, Partial: 68, Failed: 14, ResCreated: 1050, ResExpired: 19, Transfers: 22 },
@@ -15,7 +15,7 @@ export function AllocationAnalytics() {
     { date: "May 25", Requests: 1248, Allocated: 1078, Partial: 84, Failed: 18, ResCreated: 1270, ResExpired: 24, Transfers: 28 },
   ];
 
-  const donutData = [
+  const donutDefaults = [
     { name: "Fully Allocated", value: 1078, pct: "86.4%", color: "#10b981" },
     { name: "Partially Allocated", value: 84, pct: "6.7%", color: "#f59e0b" },
     { name: "Allocation Pending", value: 42, pct: "3.4%", color: "#3b82f6" },
@@ -25,7 +25,7 @@ export function AllocationAnalytics() {
     { name: "Substitution Review", value: 6, pct: "0.5%", color: "#64748b" },
   ];
 
-  const statusRows = [
+  const statusDefaults = [
     { label: "Stock Shortage", count: 26, pct: "20.8%", width: 65, color: "#ef4444" },
     { label: "Reservation Expired", count: 19, pct: "15.2%", width: 48, color: "#f59e0b" },
     { label: "No Eligible Batch", count: 18, pct: "14.4%", width: 45, color: "#f97316" },
@@ -37,18 +37,11 @@ export function AllocationAnalytics() {
     { label: "Transfer Failed", count: 2, pct: "1.6%", width: 5, color: "#dc2626" },
   ];
 
-  const scorecardMetrics = [
-    { name: "Inventory Availability", score: 94 },
-    { name: "Reservation Integrity", score: 96 },
-    { name: "Allocation Accuracy", score: 98 },
-    { name: "Allocation Speed", score: 88 },
-    { name: "Batch / Expiry Compliance", score: 92 },
-    { name: "Transfer Readiness", score: 91 },
-    { name: "Warehouse Source Coverage", score: 87 },
-    { name: "Shortage Resolution", score: 89 },
-    { name: "Allocation SLA", score: 90 },
-    { name: "Audit Completeness", score: 94 },
-  ];
+  const trendData=apiTrend.map(x=>({...x,date:x.date,Requests:Number(x.requests),Allocated:Number(x.allocated),Partial:0,Failed:0}));
+  const total=apiDonut.reduce((s,x)=>s+Number(x.count),0);
+  const donutData=apiDonut.map((x,i)=>({name:String(x.status).replaceAll('_',' '),value:Number(x.count),pct:`${Number(x.percentage).toFixed(1)}%`,color:["#10b981","#f59e0b","#3b82f6","#ef4444","#0284c7"][i%5]}));
+  const statusRows=apiStatus.map((x,i)=>({label:String(x.status).replaceAll('_',' '),count:Number(x.count),pct:`${Number(x.percentage).toFixed(1)}%`,width:Number(x.percentage),color:["#10b981","#f59e0b","#3b82f6","#ef4444"][i%4]}));
+  const scorecardMetrics=["Inventory Availability","Reservation Integrity","Allocation Accuracy","Allocation Speed","Batch / Expiry Compliance","Transfer Readiness","Warehouse Source Coverage","Shortage Resolution","Allocation SLA","Audit Completeness"].map(name=>({name,score:0}));
 
   return (
     <div className="space-y-2.5 text-[10px]">
@@ -103,7 +96,7 @@ export function AllocationAnalytics() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-xs font-bold text-ink leading-none">1,248</span>
+                <span className="text-xs font-bold text-ink leading-none">{total}</span>
                 <span className="text-[7px] font-bold text-muted uppercase">Total</span>
               </div>
             </div>

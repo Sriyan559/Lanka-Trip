@@ -1,158 +1,30 @@
 "use client";
 
 import React, { useState } from "react";
-import { Package, ExternalLink } from "lucide-react";
-import { LogisticsLifecycle } from "./LogisticsLifecycle";
+import { Package } from "lucide-react";
 
-export interface OperationPreviewProps {
-  operation?: any | null;
-}
+export interface OperationPreviewProps { operation?: Record<string, any> | null; }
+const tabs = ["Overview", "Fulfilment", "Inventory Allocation", "Picking", "Packing", "Dispatch", "Shipment", "Tracking", "Carrier", "Delivery", "Proof of Delivery", "Returns", "Claims", "Costs", "Reconciliation", "Exceptions", "Linked Records", "Communications", "Activity", "Audit History"];
+const lifecycle = ["Shipment Created", "Carrier Booked", "In Transit", "Out for Delivery", "Delivered", "Returned", "Closed"];
 
 export function LogisticsOperationPreviewSection({ operation }: OperationPreviewProps) {
   const [activeTab, setActiveTab] = useState("Overview");
-
-  const previewTabs = [
-    "Overview", "Fulfilment", "Inventory Allocation", "Picking", "Packing",
-    "Dispatch", "Shipment", "Tracking", "Carrier", "Delivery",
-    "Proof of Delivery", "Returns", "Claims", "Costs", "Reconciliation",
-    "Exceptions", "Linked Records", "Communications", "Activity", "Audit History"
+  const status = operation?.status ?? null;
+  const currentIndex = status ? ({ pending:0, booked:1, in_transit:2, delayed:2, out_for_delivery:3, delivered:4, failed:3, returned:5, cancelled:6 } as Record<string, number>)[status] ?? 0 : -1;
+  const cards = [
+    ["Order Ref", operation?.order_number], ["Shipment Ref", operation?.shipment_number],
+    ["Tracking", operation?.tracking_number], ["Carrier", operation?.carrier_name],
+    ["Status", status], ["Estimated Ship", operation?.estimated_ship_date],
+    ["Estimated Delivery", operation?.estimated_delivery_date], ["Shipped At", operation?.shipped_at],
+    ["Delivered At", operation?.delivered_at], ["Last Updated", operation?.updated_at],
   ];
-
-  // Default rich preview data matching reference screenshot
-  const op = operation || {
-    id: "FUL-2025-000921",
-    fulfilment_ref: "FUL-2025-000921",
-    order_ref: "ORD-2025-008921",
-    order_date: "May 25, 2025 11:30 AM",
-    order_value: "LKR 18,600",
-    customer_name: "Araya Perera",
-    customer_id: "CUST-8821",
-    warehouse: "Colombo Main DC",
-    fulfilment_centre: "Kandy FC",
-    carrier_name: "DHL Express",
-    carrier_rating: "4.8",
-    promised_delivery: "May 27, 2025",
-    current_state: "In Transit",
-    sla_status: "On Track",
-    shipment_ref: "SHP-2025-077421",
-    delivery_ref: "DEL-2025-058721",
-    tracking_ref: "JD01460000725458769",
-    cod_amount: "LKR 3,250",
-  };
-
-  return (
-    <div className="bg-white rounded-xl border border-line shadow-xs overflow-hidden space-y-0 text-[10px]">
-      {/* HEADER */}
-      <div className="p-2.5 sm:p-3 border-b border-line bg-canvas flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <Package size={14} className="text-primary-900" />
-          <div>
-            <h3 className="text-[11px] font-bold text-ink uppercase tracking-wider">Selected Logistics Operation Preview</h3>
-            <p className="text-[9.5px] text-muted">Inline operation details, timeline progression, and linked system records</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-white border border-line rounded text-ink">
-            {op.fulfilment_ref || op.shipment_number || `FUL-2025-${op.id}`}
-          </span>
-          <span className="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase">
-            {op.current_state || "Active"}
-          </span>
-        </div>
-      </div>
-
-      {/* 20 PREVIEW TABS */}
-      <div className="border-b border-line bg-white px-2.5 overflow-x-auto scrollbar-thin">
-        <div className="flex gap-1 text-[9.5px] font-semibold text-muted py-1.5 whitespace-nowrap">
-          {previewTabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-2 py-1 rounded-md transition-colors ${
-                activeTab === tab
-                  ? "bg-primary-900 text-white font-bold"
-                  : "hover:bg-canvas hover:text-ink text-muted"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* OVERVIEW CONTENT */}
-      <div className="p-3 bg-white space-y-3">
-        {/* 10 DETAIL CARDS IN 1 DENSE ROW */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-1.5 text-[9px]">
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Customer</span>
-            <div className="font-bold text-ink truncate">{op.customer_name}</div>
-            <div className="text-[7.5px] text-muted">Araya Perera</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Order Ref</span>
-            <div className="font-bold text-ink truncate">{op.order_ref}</div>
-            <div className="text-[7.5px] text-muted">{op.order_date}</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Order Value / COD</span>
-            <div className="font-bold text-ink truncate">{op.order_value}</div>
-            <div className="text-[7.5px] text-muted">COD: {op.cod_amount}</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Warehouse / FC</span>
-            <div className="font-bold text-ink truncate">{op.warehouse}</div>
-            <div className="text-[7.5px] text-muted">{op.fulfilment_centre}</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Carrier / Rating</span>
-            <div className="font-bold text-ink truncate">{op.carrier_name}</div>
-            <div className="text-[7.5px] text-emerald-700 font-semibold">Rating: {op.carrier_rating} ★</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Promised Delivery</span>
-            <div className="font-bold text-ink truncate">{op.promised_delivery}</div>
-            <div className="text-[7.5px] text-muted">2 Days Remaining</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Current State</span>
-            <div className="font-bold text-blue-700 truncate">{op.current_state}</div>
-            <div className="text-[7.5px] text-muted">Hub Transit</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">SLA Status</span>
-            <div className="font-bold text-emerald-700 truncate">{op.sla_status}</div>
-            <div className="text-[7.5px] text-muted">Exception: None</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Shipment / Delivery</span>
-            <div className="font-mono text-ink font-semibold text-[8px] truncate">{op.shipment_ref}</div>
-            <div className="font-mono text-muted text-[7.5px] truncate">{op.delivery_ref}</div>
-          </div>
-
-          <div className="p-1.5 bg-canvas border border-line rounded space-y-0.5">
-            <span className="text-muted uppercase text-[7.5px] block">Tracking Ref</span>
-            <div className="font-mono font-bold text-ink text-[8px] truncate">{op.tracking_ref}</div>
-            <a href="#" onClick={(e) => { e.preventDefault(); alert("Tracking Details..."); }} className="text-primary-900 text-[7.5px] hover:underline flex items-center gap-0.5">
-              Live Track <ExternalLink size={8} />
-            </a>
-          </div>
-        </div>
-
-        {/* LIFECYCLE TIMELINE SECTION */}
-        <div className="pt-2 border-t border-line">
-          <LogisticsLifecycle />
-        </div>
-      </div>
+  return <section className="bg-white rounded-xl border border-line shadow-xs overflow-hidden text-[10px]">
+    <header className="p-3 border-b border-line bg-canvas flex justify-between"><div className="flex gap-2"><Package size={14}/><div><h3 className="text-[11px] font-bold uppercase">Selected Logistics Operation Preview</h3><p className="text-muted">Database record and lifecycle state</p></div></div><strong className="font-mono">{operation?.shipment_number ?? "No operation selected"}</strong></header>
+    <div className="border-b border-line overflow-x-auto"><div className="flex gap-1 p-2 whitespace-nowrap">{tabs.map(tab => <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2 py-1 rounded ${activeTab === tab ? "bg-primary-900 text-white" : "text-muted"}`}>{tab}</button>)}</div></div>
+    <div className="p-3 space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-1.5">{cards.map(([label,value]) => <div key={label} className="p-2 bg-canvas border border-line rounded"><span className="text-muted uppercase text-[8px] block">{label}</span><strong className="block truncate">{value == null || value === "" ? "—" : String(value)}</strong></div>)}</div>
+      {!operation && <p className="text-center text-muted py-3">Select a logistics operation to load its details. Lifecycle stages remain visible below.</p>}
+      <div><h4 className="font-bold uppercase mb-3">Current Fulfilment / Logistics Lifecycle</h4><div className="flex overflow-x-auto pb-2">{lifecycle.map((stage,i) => <div key={stage} className="min-w-[120px] flex-1 text-center relative"><div className={`mx-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${i < currentIndex ? "bg-emerald-600 border-emerald-600 text-white" : i === currentIndex ? "bg-blue-600 border-blue-600 text-white" : "bg-white border-gray-300 text-muted"}`}>{i+1}</div><div className="mt-1 font-semibold">{stage}</div><div className="text-muted">{i === 0 && operation?.created_at ? String(operation.created_at) : "—"}</div></div>)}</div></div>
     </div>
-  );
+  </section>;
 }

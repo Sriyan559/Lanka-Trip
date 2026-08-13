@@ -1,105 +1,26 @@
-import { mockCarriersList, mockCarrierDashboardMetrics, mockCarrierNetworkIntelligence } from "@/data/logistics/carriers/carrierMockData";
-import { Carrier, CarrierDashboardMetrics, CarrierNetworkIntelligenceData, CarrierService } from "@/types/logistics/carrier";
-
-/**
- * Service abstraction for LG09 Carriers, Couriers & Delivery Partners.
- * Resolves trusted server-side context and supports production API integrations.
- */
-export const carrierService = {
-  async getDashboardMetrics(): Promise<CarrierDashboardMetrics> {
-    await new Promise((res) => setTimeout(res, 120));
-    return mockCarrierDashboardMetrics;
-  },
-
-  async getNetworkIntelligence(): Promise<CarrierNetworkIntelligenceData> {
-    await new Promise((res) => setTimeout(res, 120));
-    return mockCarrierNetworkIntelligence;
-  },
-
-  async getCarriers(filters?: {
-    search?: string;
-    carrierType?: string;
-    operationalStatus?: string;
-    approvalStatus?: string;
-    tab?: string;
-  }): Promise<Carrier[]> {
-    await new Promise((res) => setTimeout(res, 150));
-    let list = [...mockCarriersList];
-
-    if (!filters) return list;
-
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      list = list.filter(
-        (c) =>
-          c.carrierName.toLowerCase().includes(q) ||
-          c.carrierRef.toLowerCase().includes(q) ||
-          c.operator.toLowerCase().includes(q) ||
-          c.carrierType.toLowerCase().includes(q)
-      );
-    }
-
-    if (filters.carrierType && filters.carrierType !== "all") {
-      list = list.filter((c) => c.carrierType.toLowerCase() === filters.carrierType?.toLowerCase());
-    }
-
-    if (filters.operationalStatus && filters.operationalStatus !== "all") {
-      list = list.filter(
-        (c) => c.operationalStatus.toLowerCase() === filters.operationalStatus?.toLowerCase()
-      );
-    }
-
-    if (filters.tab && filters.tab !== "Overview" && filters.tab !== "All Carriers") {
-      const tabLower = filters.tab.toLowerCase();
-      if (tabLower === "active") {
-        list = list.filter((c) => c.operationalStatus === "Active");
-      } else if (tabLower === "approved") {
-        list = list.filter((c) => c.approvalStatus === "Approved");
-      } else if (tabLower === "pending review") {
-        list = list.filter((c) => c.operationalStatus === "Pending Review" || c.approvalStatus === "Pending Review");
-      } else if (tabLower === "limited service") {
-        list = list.filter((c) => c.operationalStatus === "Limited Service");
-      } else if (tabLower === "suspended") {
-        list = list.filter((c) => c.operationalStatus === "Suspended");
-      } else if (tabLower === "on hold") {
-        list = list.filter((c) => c.operationalStatus === "On Hold");
-      }
-    }
-
-    return list;
-  },
-
-  async getCarrierById(carrierId: string): Promise<Carrier | null> {
-    await new Promise((res) => setTimeout(res, 120));
-    const found = mockCarriersList.find((c) => c.id === carrierId || c.carrierRef === carrierId);
-    return found || mockCarriersList[0];
-  },
-
-  async updateCarrierStatus(
-    carrierId: string,
-    status: string,
-    reason?: string
-  ): Promise<{ success: boolean; message: string }> {
-    await new Promise((res) => setTimeout(res, 250));
-    return {
-      success: true,
-      message: `Carrier ${carrierId} status updated to ${status}. ${reason ? `Reason: ${reason}` : ""}`,
-    };
-  },
-
-  async createCarrier(carrierData: Partial<Carrier>): Promise<{ success: boolean; carrier: Carrier }> {
-    await new Promise((res) => setTimeout(res, 300));
-    const newId = `CAR-2025-${Math.floor(100000 + Math.random() * 900000)}`;
-    const newCarrier: Carrier = {
-      ...mockCarriersList[0],
-      id: newId,
-      carrierRef: newId,
-      carrierName: carrierData.carrierName || "New Carrier Partner",
-      carrierType: carrierData.carrierType || "National Courier",
-      operator: carrierData.operator || "Operator Ltd",
-      operationalStatus: "Active",
-      approvalStatus: "Approved",
-    };
-    return { success: true, carrier: newCarrier };
-  },
+import { request,withQuery } from "@/lib/api/client";
+import { Carrier,CarrierDashboardMetrics,CarrierNetworkIntelligenceData } from "@/types/logistics/carrier";
+const carrier=(r:any):Carrier=>({id:String(r.id),carrierRef:r.slug,carrierName:r.name,carrierType:r.partner_type??"Specialist Carrier",operator:r.contact_name??"—",businessRegNo:"—",contactNumber:r.phone??"—",email:r.email??"—",contractStart:"—",contractEnd:"—",paymentTerms:"—",currency:"—",approvalStatus:r.status==='active'?"Approved":"Pending Review",operationalStatus:r.status==='active'?"Active":r.status==='suspended'?"Suspended":r.status==='limited_service'?"Limited Service":"Offline",regionCoverageText:"Not configured",coverage:{regionsCovered:0,totalRegions:0,districtsCovered:0,totalDistricts:0,deliveryZonesCovered:0,totalDeliveryZones:0,islandwidePercentage:0},capacity:{dailyCapacity:0,currentLoad:Number(r.assigned_shipments??0),remainingCapacity:0,peakCapacity:0,utilizationPercentage:0},performance:{assignedShipments:Number(r.assigned_shipments??0),deliveredShipments:Number(r.delivered_shipments??0),onTimePickupPercentage:0,onTimeDeliveryPercentage:0,firstAttemptDeliveryPercentage:0,trackingCompletenessPercentage:0,podCompletenessPercentage:0,failedDeliveryPercentage:Number(r.assigned_shipments)?Number(r.failed_shipments??0)/Number(r.assigned_shipments)*100:0,damageRatePercentage:0,openClaimsCount:0,claimsRatePercentage:0,codExceptionsCount:0,slaStatus:"On Track"},tracking:{type:"Manual",completenessPercentage:0,exceptionsCount:0,apiGatewayHealth:"Offline",lastSyncTimestamp:"—"},compliance:{insuranceActive:false,contractActive:false,identityVerified:false,legalReviewCompleted:false,auditScore:0,complianceReadyPercentage:0},services:[],statusBadges:[],updatedAt:r.updated_at??"—",lifecycleStage:r.status??"—",lifecycleTimeline:[]});
+let cache:any=null;
+async function load(filters:any={}){const res=await request(withQuery('/admin/logistics/carriers',filters));cache=res.data;return cache;}
+function network(value:any):CarrierNetworkIntelligenceData{
+ const source=value??{};
+ return {
+  healthScore:Number(source.healthScore??0),healthLabel:source.healthLabel??"Critical",healthDescription:source.healthDescription??"No carrier health telemetry configured",healthTrend:source.healthTrend??"—",alerts:Array.isArray(source.alerts)?source.alerts:[],
+  carrierSummary:{totalCarriers:Number(source.carrierSummary?.totalCarriers??0),active:Number(source.carrierSummary?.active??0),limited:Number(source.carrierSummary?.limited??0),suspended:Number(source.carrierSummary?.suspended??0)},
+  capacitySummary:{utilizationPercentage:Number(source.capacitySummary?.utilizationPercentage??0),totalCapacity:source.capacitySummary?.totalCapacity??"—",usedCapacity:source.capacitySummary?.usedCapacity??"—",remainingCapacity:source.capacitySummary?.remainingCapacity??"—"},
+  shipmentSummary:{assigned:Number(source.shipmentSummary?.assigned??0),delivered:Number(source.shipmentSummary?.delivered??0),inTransit:Number(source.shipmentSummary?.inTransit??0),failed:Number(source.shipmentSummary?.failed??0)},
+  performanceSummary:{onTimePickupPercentage:Number(source.performanceSummary?.onTimePickupPercentage??0),onTimeDeliveryPercentage:Number(source.performanceSummary?.onTimeDeliveryPercentage??0),firstAttemptPercentage:Number(source.performanceSummary?.firstAttemptPercentage??0),trackingCompletePercentage:Number(source.performanceSummary?.trackingCompletePercentage??0)},
+  claimsCodSummary:{claimsOpen:Number(source.claimsCodSummary?.claimsOpen??0),codExceptions:Number(source.claimsCodSummary?.codExceptions??0),reconciliation:Number(source.claimsCodSummary?.reconciliation??0),claimsRatePercentage:Number(source.claimsCodSummary?.claimsRatePercentage??0)},
+  complianceSummary:{complianceReadyPercentage:Number(source.complianceSummary?.complianceReadyPercentage??0),insuranceActiveRatio:source.complianceSummary?.insuranceActiveRatio??"—",contractActiveCount:Number(source.complianceSummary?.contractActiveCount??0),auditCompletePercentage:Number(source.complianceSummary?.auditCompletePercentage??0)},
+  quickQueues:{pickupQueue:Number(source.quickQueues?.pickupQueue??0),dispatchQueue:Number(source.quickQueues?.dispatchQueue??0),exceptionQueue:Number(source.quickQueues?.exceptionQueue??0),carrierReview:Number(source.quickQueues?.carrierReview??0)}
+ };
+}
+export const carrierService={
+ async getDashboardMetrics():Promise<CarrierDashboardMetrics>{return (await load()).metrics;},
+ async getNetworkIntelligence():Promise<CarrierNetworkIntelligenceData>{return network((cache??await load()).network);},
+ async getCarriers(filters:any={}):Promise<Carrier[]>{const data=await load({search:filters.search,type:filters.carrierType,status:filters.operationalStatus});return (data.carriers?.data??[]).map(carrier);},
+ async getCarrierById(id:string):Promise<Carrier|null>{try{const res=await request(`/admin/logistics/carriers/${encodeURIComponent(id)}`);return carrier(res.data.carrier);}catch{return null;}},
+ async updateCarrierStatus(id:string,status:string,reason?:string){const normalized=status.toLowerCase().replaceAll(' ','_');await request(`/admin/logistics/carriers/${encodeURIComponent(id)}/status`,{method:'PATCH',body:JSON.stringify({status:normalized,reason})});return{success:true,message:`Carrier ${id} status updated.`};},
+ async createCarrier(data:Partial<Carrier>){const res=await request('/admin/logistics/carriers',{method:'POST',body:JSON.stringify({name:data.carrierName,partner_type:data.carrierType,contact_name:data.operator,email:data.email,phone:data.contactNumber,status:'active'})});return{success:true,carrier:carrier(res.data.carrier)};}
 };
