@@ -15,6 +15,7 @@ import {
 import { AdminBrandLogo } from './AdminBrandLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { initials } from '@/lib/utils';
+import { EcosystemModulesSubNavigation } from './EcosystemModulesSubNavigation';
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
@@ -80,30 +81,35 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                   href={item.href}
                   className={`nav-link-rich ${isActive ? 'active' : ''}`}
                   aria-current={pathname === item.href ? 'page' : undefined}
+                  aria-expanded={item.children ? isActive : undefined}
                   onClick={onClose}
                 >
                   <Icon size={18} className="nav-icon" />
                   <span>{item.label}</span>
                 </Link>
                 {item.children && isActive && (
-                  <div className="sidebar-subnav">
-                    {item.children.map((child) => {
-                      const childActive = activeChildHref === child.href;
-                      return (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={`sidebar-subnav-link ${
-                            childActive ? 'active' : ''
-                          }`}
-                          aria-current={childActive ? 'page' : undefined}
-                          onClick={onClose}
-                        >
-                          {child.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  item.id === 'ecosystem-modules' ? (
+                    <EcosystemModulesSubNavigation onNavigate={onClose} />
+                  ) : (
+                    <div className="sidebar-subnav">
+                      {item.children.map((child) => {
+                        const childActive = activeChildHref === child.href;
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={`sidebar-subnav-link ${
+                              childActive ? 'active' : ''
+                            }`}
+                            aria-current={childActive ? 'page' : undefined}
+                            onClick={onClose}
+                          >
+                            {child.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )
                 )}
               </div>
             );
