@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { MARKETING_GOVERNANCE_MOCK_DATA } from "@/data/marketingGovernance.mock";
+import { getGovernanceDetail, getMarketingGovernance } from "@/services/marketingGovernanceService";
 
 import { GovernanceContextStrip } from "@/components/admin/marketing/governance/GovernanceContextStrip";
 import { SelectedGovernanceWorkspace } from "@/components/admin/marketing/governance/selected/SelectedGovernanceWorkspace";
@@ -13,7 +13,25 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 export default function GovernanceRecordDetailPage() {
   const params = useParams();
   const recordId = params?.recordId as string;
-  const [data] = useState(MARKETING_GOVERNANCE_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!recordId) return;
+    let active = true;
+    Promise.all([getMarketingGovernance({ per_page: 1 }), getGovernanceDetail(recordId)])
+      .then(([overview, selectedRecord]) => {
+        if (active) setData({ ...overview, selectedRecord });
+      })
+      .catch((reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason.message : "Unable to load governance policy.");
+      });
+    return () => { active = false; };
+  }, [recordId]);
+
+  if (!data) {
+    return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error ?? "Loading governance policy…"}</div>;
+  }
 
   const selectedRecord = data.selectedRecord;
 
@@ -49,13 +67,15 @@ export default function GovernanceRecordDetailPage() {
 
             <div className="flex items-center gap-2">
               <button
-                onClick={() => {}}
+                disabled
+                title="Policy evaluation workflow is not available for this record"
                 className="px-3 py-1.5 text-xs font-bold text-[#800020] bg-white hover:bg-rose-50 border border-[#800020] rounded-lg transition-colors cursor-pointer"
               >
                 Re-evaluate Policy
               </button>
               <button
-                onClick={() => {}}
+                disabled
+                title="Exception workflow is not available for this record"
                 className="px-3 py-1.5 text-xs font-bold text-white bg-[#800020] hover:bg-[#66001a] rounded-lg shadow-2xs transition-colors cursor-pointer"
               >
                 Grant Exception

@@ -110,7 +110,7 @@ export function GovernanceHeader({ onCreatePolicy }: GovernanceHeaderProps) {
       {/* Title & Subtitle */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
-          MK13 — Marketing Governance, Consent, Policy & Approval Control
+          Marketing Governance, Consent, Policy & Approval Control
         </h1>
         <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
           Monitor and enforce marketing policies, consent eligibility, approval workflows, communication limits, market restrictions and execution exceptions across the ecosystem.

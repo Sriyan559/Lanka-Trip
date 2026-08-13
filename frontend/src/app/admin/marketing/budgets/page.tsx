@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  MARKETING_BUDGETS_MOCK_DATA,
-  BudgetRecord,
-} from "@/data/marketingBudgets.mock";
+import React, { useState, useEffect, useCallback } from "react";
+import { marketingControlService } from "@/services/marketingControlService";
 
 import { BudgetHeader } from "@/components/admin/marketing/budgets/BudgetHeader";
 import { BudgetContextStrip } from "@/components/admin/marketing/budgets/BudgetContextStrip";
@@ -22,62 +19,18 @@ import { SelectedBudgetWorkspace } from "@/components/admin/marketing/budgets/se
 import { BudgetOperationsRail } from "@/components/admin/marketing/budgets/rail/BudgetOperationsRail";
 
 export default function MarketingBudgetsPage() {
-  const [data, setData] = useState(MARKETING_BUDGETS_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("budgets");
   const [filters, setFilters] = useState<BudgetFilterState>(INITIAL_BUDGET_FILTERS);
-  const [selectedBudgetId, setSelectedBudgetId] = useState<string>("BUD-2026-0001");
+  const [selectedBudgetId, setSelectedBudgetId] = useState<string>("");
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(20);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // API Fetch with fallback to mock data
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchBudgetsFromApi() {
-      try {
-        const res = await fetch("/api/admin/marketing/budgets");
-        if (res.ok) {
-          const json = await res.json();
-          if (isMounted && json && Array.isArray(json.data)) {
-            setData((prev) => ({
-              ...prev,
-              budgets: json.data,
-            }));
-          }
-        }
-      } catch (err) {
-        console.warn("Marketing Budgets API not available, using default data structure.", err);
-      }
-    }
-    fetchBudgetsFromApi();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      setData((prev) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          lastSynced: new Date().toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-      }));
-      setLoading(false);
-    }, 300);
-  };
+  const handleRefresh=useCallback(async()=>{setLoading(true);try{const next=await marketingControlService.budgets({...filters,search:filters.search,status:filters.status,type:filters.type,business_unit:filters.businessUnit,period:filters.period,page:currentPage,per_page:pageSize});setData(next);setSelectedBudgetId(id=>next.budgets.some((x:any)=>x.id===id)?id:(next.budgets[0]?.id??''));setError(null);}catch(e:any){setError(e?.message??'Unable to load marketing budgets.');}finally{setLoading(false);}},[filters,currentPage,pageSize]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
 
   const handleFilterChange = (key: keyof BudgetFilterState, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -90,7 +43,7 @@ export default function MarketingBudgetsPage() {
   };
 
   // Filter budgets based on search and selected options
-  const filteredBudgets = data.budgets.filter((bgt) => {
+  const filteredBudgets = (data?.budgets??[]).filter((bgt:any) => {
     if (filters.search.trim()) {
       const q = filters.search.toLowerCase();
       const matchesSearch =
@@ -115,17 +68,12 @@ export default function MarketingBudgetsPage() {
   });
 
   // Pagination calculations
-  const totalItems = filteredBudgets.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
-  const paginatedBudgets = filteredBudgets.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const totalItems=data?.pagination?.total??0;const totalPages=data?.pagination?.last_page??1;const paginatedBudgets=filteredBudgets;
 
   const selectedBudget =
-    data.selectedBudgetDetails[selectedBudgetId] ||
+    data?.selectedBudgetDetails?.[selectedBudgetId] ||
     (filteredBudgets.length > 0
-      ? data.selectedBudgetDetails[filteredBudgets[0].id] || null
+      ? data?.selectedBudgetDetails?.[filteredBudgets[0].id] || null
       : null);
 
   const handleToggleCheckbox = (id: string) => {
@@ -138,7 +86,7 @@ export default function MarketingBudgetsPage() {
     if (selectedCheckboxes.length === paginatedBudgets.length) {
       setSelectedCheckboxes([]);
     } else {
-      setSelectedCheckboxes(paginatedBudgets.map((b) => b.id));
+      setSelectedCheckboxes(paginatedBudgets.map((b:any) => b.id));
     }
   };
 
@@ -148,13 +96,13 @@ export default function MarketingBudgetsPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. PAGE HEADER */}
-          <BudgetHeader onCreateBudget={() => {}} />
+          <BudgetHeader onCreateBudget={async()=>{const name=window.prompt('Budget name');if(name){await marketingControlService.createBudget({name,type:'annual',period:String(new Date().getFullYear())});await handleRefresh();}}} />
 
           {/* 2. CONTEXT STRIP */}
-          <BudgetContextStrip context={data.context} onRefresh={handleRefresh} />
+          {data && <BudgetContextStrip context={data.context} onRefresh={handleRefresh} />}
 
           {/* 3. KPI STRIP (8 CARDS) */}
-          <BudgetKpiStrip kpis={data.kpis} />
+          {data && <BudgetKpiStrip kpis={data.kpis} />}
 
           {/* 4. NAVIGATION TABS (10 TABS) */}
           <BudgetTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -164,10 +112,10 @@ export default function MarketingBudgetsPage() {
 
           {/* 6. READINESS OVERVIEW */}
           <BudgetReadinessStrip
-            counters={data.readiness}
+            counters={data?.readiness??{healthy:0,needsAttention:0,overspendRisk:0,underspendRisk:0,approvalPending:0,reallocationPending:0,commitmentWarning:0,forecastVariance:0}}
             onClearAll={handleClearFilters}
             onRefresh={handleRefresh}
-            onApplyFilters={() => {}}
+            onApplyFilters={handleRefresh}
           />
 
           {/* Inline Error State */}
@@ -219,7 +167,7 @@ export default function MarketingBudgetsPage() {
         </main>
 
         {/* 10. RIGHT OPERATIONAL RAIL */}
-        <BudgetOperationsRail railData={data.rail} onCreateBudget={() => {}} />
+        {data && <BudgetOperationsRail railData={data.rail} onCreateBudget={async()=>{const name=window.prompt('Budget name');if(name){await marketingControlService.createBudget({name,type:'annual',period:String(new Date().getFullYear())});await handleRefresh();}}} />}
       </div>
     </div>
   );

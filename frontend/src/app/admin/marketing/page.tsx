@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { MARKETING_MOCK_DATA, CampaignPortfolioItem } from "@/data/marketingCommandCenter.mock";
+import type { MarketingCommandCenterMockData, CampaignPortfolioItem } from "@/data/marketingCommandCenter.mock";
+import { marketingService } from "@/services/marketingService";
 
 // Shared Components
 import { MarketingPageHeader } from "@/components/admin/marketing/shared/MarketingPageHeader";
@@ -45,28 +46,19 @@ const COMMAND_TABS = [
 ];
 
 export default function MarketingCommandCenterPage() {
-  const [data, setData] = useState(MARKETING_MOCK_DATA);
+  const [data, setData] = useState<MarketingCommandCenterMockData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCampaign, setSelectedCampaign] = useState<CampaignPortfolioItem | null>(
-    MARKETING_MOCK_DATA.campaignPortfolio[0] || null
+    null
   );
 
-  const handleRefresh = () => {
-    setData((prev) => ({
-      ...prev,
-      context: {
-        ...prev.context,
-        lastSynced: new Date().toLocaleString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }),
-      },
-    }));
-  };
+  const handleRefresh = async () => { setLoading(true); setError(null); try { const next=await marketingService.commandCenter(); setData(next); setSelectedCampaign(current=>current ? next.campaignPortfolio.find(x=>x.id===current.id)??null : next.campaignPortfolio[0]??null); } catch(e){setError(e instanceof Error?e.message:'Unable to load marketing data.');} finally{setLoading(false);} };
+  useEffect(()=>{void handleRefresh();const timer=window.setInterval(()=>void handleRefresh(),30000);return()=>window.clearInterval(timer);},[]);
+  if(loading&&!data)return <div className="min-h-screen bg-[#faf8f8] p-6 text-sm">Loading marketing operations…</div>;
+  if(error&&!data)return <div className="min-h-screen bg-[#faf8f8] p-6"><div className="rounded border bg-white p-6">{error}<button className="ml-3 underline" onClick={handleRefresh}>Retry</button></div></div>;
+  if(!data)return null;
 
   return (
     <div className="min-h-screen bg-[#faf8f8] p-2.5 sm:p-4 text-gray-900 font-sans">

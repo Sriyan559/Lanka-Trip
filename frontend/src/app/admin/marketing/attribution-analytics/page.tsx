@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { MARKETING_ATTRIBUTION_MOCK_DATA } from "@/data/marketingAttribution.mock";
+import React, { useState, useEffect, useCallback } from "react";
+import { getMarketingAttribution } from "@/services/marketingAttributionService";
 
 import { AttributionHeader } from "@/components/admin/marketing/attribution/AttributionHeader";
 import { AttributionContextStrip } from "@/components/admin/marketing/attribution/AttributionContextStrip";
@@ -48,58 +48,15 @@ import { AnalyticsExceptionsSummaryTable } from "@/components/admin/marketing/at
 import { AttributionOperationsRail } from "@/components/admin/marketing/attribution/rail/AttributionOperationsRail";
 
 export default function MarketingAttributionPage() {
-  const [data, setData] = useState(MARKETING_ATTRIBUTION_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [filters, setFilters] = useState<AttributionFilterState>(INITIAL_ATTRIBUTION_FILTERS);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // API Fetch with fallback to mock data
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchAttributionFromApi() {
-      try {
-        const res = await fetch("/api/admin/marketing/attribution-analytics");
-        if (res.ok) {
-          const json = await res.json();
-          if (isMounted && json && json.data) {
-            setData((prev) => ({
-              ...prev,
-              ...json.data,
-            }));
-          }
-        }
-      } catch (err) {
-        console.warn("Marketing Attribution API not available, using default data structure.", err);
-      }
-    }
-    fetchAttributionFromApi();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      setData((prev) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          lastSynced: new Date().toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-      }));
-      setLoading(false);
-    }, 300);
-  };
+  const handleRefresh=useCallback(async()=>{setLoading(true);try{setData(await getMarketingAttribution(filters));setError(null);}catch(e:any){setError(e?.message??'Unable to load attribution analytics.');}finally{setLoading(false);}},[filters]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
+  if(!data)return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error||'Loading attribution analytics…'}</div>;
 
   const handleFilterChange = (key: keyof AttributionFilterState, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -115,7 +72,7 @@ export default function MarketingAttributionPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. PAGE HEADER */}
-          <AttributionHeader onGenerateReport={() => {}} />
+          <AttributionHeader onGenerateReport={handleRefresh} />
 
           {/* 2. CONTEXT STRIP */}
           <AttributionContextStrip context={data.context} onRefresh={handleRefresh} />
@@ -134,7 +91,7 @@ export default function MarketingAttributionPage() {
             counters={data.readiness}
             onClearAll={handleClearFilters}
             onRefresh={handleRefresh}
-            onApplyFilters={() => {}}
+            onApplyFilters={handleRefresh}
           />
 
           {/* Inline Error State */}
@@ -223,7 +180,7 @@ export default function MarketingAttributionPage() {
         </main>
 
         {/* 10. RIGHT OPERATIONAL RAIL */}
-        <AttributionOperationsRail railData={data.rail} onGenerateReport={() => {}} />
+        <AttributionOperationsRail railData={data.rail} onGenerateReport={handleRefresh} />
       </div>
     </div>
   );

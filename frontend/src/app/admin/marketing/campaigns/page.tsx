@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  CAMPAIGN_MANAGEMENT_MOCK_DATA,
+  CampaignManagementMockData,
   CampaignPortfolioRecord,
 } from "@/data/campaignManagement.mock";
+import { marketingService } from "@/services/marketingService";
 
 // Shared Components
 import { MarketingContextStrip } from "@/components/admin/marketing/shared/MarketingContextStrip";
@@ -46,30 +47,18 @@ const INITIAL_FILTERS: CampaignFilterState = {
 };
 
 export default function CampaignManagementPage() {
-  const [data, setData] = useState(CAMPAIGN_MANAGEMENT_MOCK_DATA);
+  const [data, setData] = useState<CampaignManagementMockData | null>(null);
+  const [loading,setLoading]=useState(true); const [error,setError]=useState<string|null>(null);
   const [activeTab, setActiveTab] = useState("All Campaigns");
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<CampaignFilterState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] = useState<CampaignPortfolioRecord | null>(
-    CAMPAIGN_MANAGEMENT_MOCK_DATA.portfolioRecords[0] || null
+    null
   );
 
-  const handleRefresh = () => {
-    setData((prev) => ({
-      ...prev,
-      context: {
-        ...prev.context,
-        lastSynced: new Date().toLocaleString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }),
-      },
-    }));
-  };
+  const handleRefresh = async () => {setLoading(true);setError(null);try{const next=await marketingService.campaignManagement({search:searchQuery||undefined,status:activeTab==='All Campaigns'?undefined:activeTab.toLowerCase().replaceAll(' ','_'),campaign_type:filters.type==='All'?undefined:filters.type,channel:filters.channel==='All'?undefined:filters.channel,approval_status:filters.approvalStatus==='All'?undefined:filters.approvalStatus.toLowerCase().replaceAll(' ','_')});setData(next);setSelectedRecord(current=>current?next.portfolioRecords.find(x=>x.id===current.id)??null:next.portfolioRecords[0]??null);}catch(e){setError(e instanceof Error?e.message:'Unable to load campaigns.');}finally{setLoading(false);}};
+  useEffect(()=>{const timer=window.setTimeout(()=>void handleRefresh(),250);return()=>window.clearTimeout(timer);},[activeTab,searchQuery,filters]);
+  useEffect(()=>{const timer=window.setInterval(()=>void handleRefresh(),30000);return()=>window.clearInterval(timer);},[]);
 
   const handleFilterChange = (key: keyof CampaignFilterState, val: string) => {
     setFilters((prev) => ({ ...prev, [key]: val }));
@@ -82,7 +71,7 @@ export default function CampaignManagementPage() {
   };
 
   // Filter portfolio records based on search, activeTab, and dropdown filters
-  const filteredRecords = data.portfolioRecords.filter((rec) => {
+  const filteredRecords = (data?.portfolioRecords??[]).filter((rec) => {
     // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -132,6 +121,9 @@ export default function CampaignManagementPage() {
     return true;
   });
 
+  if(loading&&!data)return <div className="min-h-screen bg-[#faf8f8] p-6 text-sm">Loading campaigns…</div>;
+  if(error&&!data)return <div className="min-h-screen bg-[#faf8f8] p-6">{error}<button className="ml-3 underline" onClick={handleRefresh}>Retry</button></div>;
+  if(!data)return null;
   return (
     <div className="min-h-screen bg-[#faf8f8] p-2.5 sm:p-4 text-gray-900 font-sans">
       <div className="max-w-[1920px] mx-auto flex flex-col xl:flex-row gap-3.5 items-start">

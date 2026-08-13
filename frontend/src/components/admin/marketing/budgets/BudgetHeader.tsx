@@ -119,7 +119,7 @@ export function BudgetHeader({ onCreateBudget }: BudgetHeaderProps) {
       {/* Title & Subtitle */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
-          MK11 — Marketing Budgets, Planning & Spend Control
+          Marketing Budgets, Planning & Spend Control
         </h1>
         <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
           Plan, allocate, monitor and govern marketing budgets, commitments, pacing and spend across campaigns, channels and business units.

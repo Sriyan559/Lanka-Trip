@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  MARKETING_WEB_APP_MOCK_DATA,
-  PlacementRecord,
-} from "@/data/marketingWebApp.mock";
+import React, { useState, useEffect, useCallback } from "react";
+import { marketingDeliveryService } from "@/services/marketingDeliveryService";
 
 import { PlacementHeader } from "@/components/admin/marketing/web-app/PlacementHeader";
 import { PlacementContextStrip } from "@/components/admin/marketing/web-app/PlacementContextStrip";
@@ -22,62 +19,18 @@ import { SelectedPlacementWorkspace } from "@/components/admin/marketing/web-app
 import { ExperienceOperationsRail } from "@/components/admin/marketing/web-app/rail/ExperienceOperationsRail";
 
 export default function MarketingWebAppCampaignsPage() {
-  const [data, setData] = useState(MARKETING_WEB_APP_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("placements");
   const [filters, setFilters] = useState<PlacementFilterState>(INITIAL_PLACEMENT_FILTERS);
-  const [selectedPlacementId, setSelectedPlacementId] = useState<string>("PLC-2026-0011");
+  const [selectedPlacementId, setSelectedPlacementId] = useState<string>("");
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch backend API if available
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchPlacementsFromApi() {
-      try {
-        const res = await fetch("/api/admin/marketing/web-app-campaigns");
-        if (res.ok) {
-          const json = await res.json();
-          if (isMounted && json && Array.isArray(json.data)) {
-            setData((prev) => ({
-              ...prev,
-              placements: json.data,
-            }));
-          }
-        }
-      } catch (err) {
-        console.warn("Marketing web-app campaigns API not available, using default data structure.", err);
-      }
-    }
-    fetchPlacementsFromApi();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      setData((prev: typeof MARKETING_WEB_APP_MOCK_DATA) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          lastSynced: new Date().toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-      }));
-      setLoading(false);
-    }, 300);
-  };
+  const handleRefresh=useCallback(async()=>{setLoading(true);try{const next=await marketingDeliveryService.placements({...filters,search:filters.search,page:currentPage,per_page:pageSize});setData(next);setSelectedPlacementId(id=>next.placements.some((x:any)=>x.id===id)?id:(next.placements[0]?.id??''));setError(null);}catch(e:any){setError(e?.message??'Unable to load placements.');}finally{setLoading(false);}},[filters,currentPage,pageSize]);
+  useEffect(()=>{void handleRefresh();const timer=setInterval(()=>void handleRefresh(),30000);return()=>clearInterval(timer);},[handleRefresh]);
 
   const handleFilterChange = (key: keyof PlacementFilterState, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -90,7 +43,7 @@ export default function MarketingWebAppCampaignsPage() {
   };
 
   // Filter placements based on search and selected filter criteria
-  const filteredPlacements = data.placements.filter((plc) => {
+  const filteredPlacements = (data?.placements??[]).filter((plc:any) => {
     if (filters.search.trim()) {
       const q = filters.search.toLowerCase();
       const matchesSearch =
@@ -115,17 +68,12 @@ export default function MarketingWebAppCampaignsPage() {
   });
 
   // Pagination calculation
-  const totalItems = filteredPlacements.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
-  const paginatedPlacements = filteredPlacements.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const totalItems=data?.pagination?.total??0;const totalPages=data?.pagination?.last_page??1;const paginatedPlacements=filteredPlacements;
 
   const selectedPlacement =
-    data.selectedPlacementDetails[selectedPlacementId] ||
+    data?.selectedPlacementDetails?.[selectedPlacementId] ||
     (filteredPlacements.length > 0
-      ? data.selectedPlacementDetails[filteredPlacements[0].id] || null
+      ? data?.selectedPlacementDetails?.[filteredPlacements[0].id] || null
       : null);
 
   const handleToggleCheckbox = (id: string) => {
@@ -138,7 +86,7 @@ export default function MarketingWebAppCampaignsPage() {
     if (selectedCheckboxes.length === paginatedPlacements.length) {
       setSelectedCheckboxes([]);
     } else {
-      setSelectedCheckboxes(paginatedPlacements.map((c) => c.id));
+      setSelectedCheckboxes(paginatedPlacements.map((c:any) => c.id));
     }
   };
 
@@ -148,13 +96,13 @@ export default function MarketingWebAppCampaignsPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. PAGE HEADER */}
-          <PlacementHeader onCreateCampaign={() => {}} />
+          <PlacementHeader onCreateCampaign={async()=>{const name=window.prompt('Placement name');if(name){await marketingDeliveryService.create('web-app-campaigns',{name,surface:'website',type:'hero_banner'});await handleRefresh();}}} />
 
           {/* 2. CONTEXT STRIP */}
-          <PlacementContextStrip context={data.context} onRefresh={handleRefresh} />
+          {data && <PlacementContextStrip context={data.context} onRefresh={handleRefresh} />}
 
           {/* 3. KPI STRIP (8 CARDS) */}
-          <PlacementKpiStrip kpis={data.kpis} />
+          {data && <PlacementKpiStrip kpis={data.kpis} />}
 
           {/* 4. NAVIGATION TABS (10 TABS) */}
           <PlacementTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -164,10 +112,10 @@ export default function MarketingWebAppCampaignsPage() {
 
           {/* 6. READINESS OVERVIEW */}
           <PlacementReadinessStrip
-            counters={data.readiness}
+            counters={data?.readiness??{healthy:0,needsAttention:0,contentMissing:0,placementConflict:0,audienceWarning:0,governanceReview:0,renderingError:0}}
             onClearAll={handleClearFilters}
             onRefresh={handleRefresh}
-            onApplyFilters={() => {}}
+            onApplyFilters={handleRefresh}
           />
 
           {/* Inline Error State */}
@@ -219,7 +167,7 @@ export default function MarketingWebAppCampaignsPage() {
         </main>
 
         {/* 10. RIGHT OPERATIONAL RAIL */}
-        <ExperienceOperationsRail railData={data.rail} onCreateCampaign={() => {}} />
+        {data && <ExperienceOperationsRail railData={data.rail} onCreateCampaign={async()=>{const name=window.prompt('Placement name');if(name){await marketingDeliveryService.create('web-app-campaigns',{name,surface:'website',type:'hero_banner'});await handleRefresh();}}} />}
       </div>
     </div>
   );

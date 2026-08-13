@@ -119,7 +119,7 @@ export function PaidMediaHeader({ onCreateCampaign }: PaidMediaHeaderProps) {
       {/* Title & Subtitle */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
-          MK10 — Paid Media, Acquisition & Advertising
+          Paid Media, Acquisition & Advertising
         </h1>
         <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
           Monitor external advertising execution, acquisition efficiency, media spend, audiences, creative readiness and platform health across the ecosystem.

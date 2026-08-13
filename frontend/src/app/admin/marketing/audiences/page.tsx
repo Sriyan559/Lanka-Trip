@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  mockMarketingAudienceData,
-  AudienceRecord,
-} from "@/data/marketingAudience.mock";
+import React, { useCallback, useEffect, useState } from "react";
+import type { AudienceRecord, FullMarketingAudienceData } from "@/data/marketingAudience.mock";
+import { marketingOperationsService } from "@/services/marketingOperationsService";
 import { AudienceHeader } from "@/components/admin/marketing/audiences/AudienceHeader";
 import {
   AudienceContextStrip,
@@ -38,16 +36,17 @@ import {
 import { AudienceRightRail } from "@/components/admin/marketing/audiences/AudienceRightRail";
 
 export default function MarketingAudiencesPage() {
-  const [data, setData] = useState(mockMarketingAudienceData);
+  const [data, setData] = useState<FullMarketingAudienceData | null>(null);
   const [activeTab, setActiveTab] = useState<AudienceTabId>("audiences");
-  const [selectedRecord, setSelectedRecord] = useState<AudienceRecord>(
-    mockMarketingAudienceData.portfolio[0]
-  );
+  const [selectedRecord, setSelectedRecord] = useState<AudienceRecord | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
+  const [error, setError] = useState("");
+  const handleCreate=async()=>{const name=window.prompt('Audience name');if(!name)return;try{await marketingOperationsService.create('audiences',{name,type:'segment',refresh_mode:'manual'});await handleRefresh();}catch(e:any){setError(e?.message??'Unable to create audience.');}};
 
-  const handleRefresh = () => {
-    setData({ ...mockMarketingAudienceData });
-  };
+  const handleRefresh = useCallback(async () => { try { const next=await marketingOperationsService.audiences({search:searchFilter}); setData(next); setSelectedRecord(current=>next.portfolio.find(x=>x.id===current?.id)??next.portfolio[0]??null); setError(''); } catch(e:any){setError(e?.message??'Unable to load audiences.');} },[searchFilter]);
+  useEffect(()=>{void handleRefresh(); const timer=setInterval(()=>void handleRefresh(),30000); return()=>clearInterval(timer);},[handleRefresh]);
+
+  if (!data) return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error || 'Loading audiences…'}</div>;
 
   const filteredPortfolio = data.portfolio.filter(
     (p) =>
@@ -62,7 +61,7 @@ export default function MarketingAudiencesPage() {
         {/* MAIN WORKSPACE */}
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. HEADER */}
-          <AudienceHeader onCreateAudience={() => {}} />
+          <AudienceHeader onCreateAudience={handleCreate} />
 
           {/* 2. CONTEXT STRIP */}
           <AudienceContextStrip context={data.context} onRefresh={handleRefresh} />
@@ -85,8 +84,8 @@ export default function MarketingAudiencesPage() {
           {/* 7. AUDIENCE PORTFOLIO TABLE */}
           <AudiencePortfolioTable
             audiences={filteredPortfolio}
-            selectedAudienceId={selectedRecord.id}
-            onSelectAudience={(rec) => setSelectedRecord(rec)}
+            selectedAudienceId={selectedRecord?.id ?? ""}
+            onSelectAudience={(rec) => { setSelectedRecord(rec); void marketingOperationsService.audienceDetail(rec.id).then(details=>setData(current=>current?{...current,selectedAudience:details}:current)).catch(()=>setError('Unable to load the selected audience.')); }}
           />
 
           {/* 8. SELECTED AUDIENCE SUMMARY */}

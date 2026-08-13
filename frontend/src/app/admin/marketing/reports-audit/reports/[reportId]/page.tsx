@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { MARKETING_REPORTS_AUDIT_MOCK_DATA } from "@/data/marketingReportsAudit.mock";
+import { getMarketingReportDetail, getMarketingReports } from "@/services/marketingReportsService";
 
 import { ReportsAuditContextStrip } from "@/components/admin/marketing/reports-audit/ReportsAuditContextStrip";
 import { SelectedReportWorkspace } from "@/components/admin/marketing/reports-audit/selected/SelectedReportWorkspace";
@@ -13,7 +13,25 @@ import { ArrowLeft, FileText, Download } from "lucide-react";
 export default function ReportDetailPage() {
   const params = useParams();
   const reportId = params?.reportId as string;
-  const [data] = useState(MARKETING_REPORTS_AUDIT_MOCK_DATA);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!reportId) return;
+    let active = true;
+    Promise.all([getMarketingReports({ per_page: 1 }), getMarketingReportDetail(reportId)])
+      .then(([overview, selectedReport]) => {
+        if (active) setData({ ...overview, selectedReport });
+      })
+      .catch((reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason.message : "Unable to load marketing report.");
+      });
+    return () => { active = false; };
+  }, [reportId]);
+
+  if (!data) {
+    return <div className="min-h-screen bg-[#faf8f8] p-4 text-sm text-gray-600">{error ?? "Loading marketing report…"}</div>;
+  }
 
   const selectedReport = data.selectedReport;
 
@@ -49,13 +67,15 @@ export default function ReportDetailPage() {
 
             <div className="flex items-center gap-2">
               <button
-                onClick={() => {}}
+                disabled
+                title="Report generation is not configured for this definition"
                 className="px-3 py-1.5 text-xs font-bold text-[#800020] bg-white hover:bg-rose-50 border border-[#800020] rounded-lg transition-colors cursor-pointer"
               >
                 Re-generate Report
               </button>
               <button
-                onClick={() => {}}
+                disabled
+                title="No generated report artifact is available"
                 className="px-3 py-1.5 text-xs font-bold text-white bg-[#800020] hover:bg-[#66001a] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
