@@ -54,7 +54,7 @@ function LogisticsContent() {
     per_page: currentFilters.per_page,
   };
 
-  const { dashboard, shipmentsData, loading, error, refresh } = useLogisticsDashboard(apiFilters);
+  const { dashboard, shipmentsData, loading, error, lastUpdated, refresh } = useLogisticsDashboard(apiFilters);
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -118,7 +118,7 @@ function LogisticsContent() {
 
           {/* 2. BUSINESS CONTEXT FILTER STRIP */}
           <LogisticsContextBar
-            lastSynced={dashboard?.lastSynced || "May 26 2025 10:15 AM"}
+            lastSynced={lastUpdated ? new Date(lastUpdated).toLocaleString() : "—"}
             onRefresh={refresh}
           />
 
@@ -178,7 +178,7 @@ function LogisticsContent() {
               <DonutDistributionChart
                 data={realStatusData}
                 totalLabel="Total Operations"
-                totalValue="2,746"
+                totalValue={String(dashboard?.total_shipments ?? 0)}
               />
             </ChartCard>
 
@@ -191,17 +191,8 @@ function LogisticsContent() {
               className="min-h-[220px]"
             >
               <HorizontalStatusChart
-                data={[
-                  { label: "On Track", count: 2150, percentage: 78.3, color: "#10b981" },
-                  { label: "At Risk", count: 320, percentage: 11.6, color: "#f59e0b" },
-                  { label: "Delayed", count: 142, percentage: 5.2, color: "#f97316" },
-                  { label: "Blocked", count: 48, percentage: 1.7, color: "#ef4444" },
-                  { label: "On Hold", count: 34, percentage: 1.2, color: "#64748b" },
-                  { label: "Exception", count: 26, percentage: 0.9, color: "#e11d48" },
-                  { label: "Reconciliation Required", count: 16, percentage: 0.6, color: "#d97706" },
-                  { label: "Closed", count: 10, percentage: 0.4, color: "#475569" },
-                ]}
-                total={2746}
+                data={dashboard?.operational_summary ?? []}
+                total={dashboard?.total_shipments ?? 0}
               />
             </ChartCard>
           </div>
@@ -230,8 +221,8 @@ function LogisticsContent() {
               meta={{
                 current_page: shipmentsData?.current_page || 1,
                 per_page: shipmentsData?.per_page || 15,
-                total: shipmentsData?.total || 1248,
-                last_page: shipmentsData?.last_page || 50,
+                total: shipmentsData?.total ?? 0,
+                last_page: shipmentsData?.last_page ?? 1,
               }}
               selectedRef={selectedOperation?.fulfilment_ref}
               onSelectOperation={(op) => setSelectedOperation(op)}

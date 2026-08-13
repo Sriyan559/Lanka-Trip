@@ -11,18 +11,7 @@ export interface ScorecardItem {
 }
 
 export function LogisticsHealthScorecard({ items }: { items?: ScorecardItem[] }) {
-  const defaultItems: ScorecardItem[] = [
-    { name: "Fulfilment Readiness", score: 91, status: "Optimal", barColor: "bg-emerald-600" },
-    { name: "Inventory Allocation", score: 88, status: "Healthy", barColor: "bg-emerald-500" },
-    { name: "Pick-and-Pack Performance", score: 90, status: "Optimal", barColor: "bg-emerald-600" },
-    { name: "Logistics Readiness", score: 92, status: "Optimal", barColor: "bg-emerald-600" },
-    { name: "Carrier Pickup Performance", score: 87, status: "Healthy", barColor: "bg-emerald-500" },
-    { name: "Delivery SLA Compliance", score: 91, status: "Optimal", barColor: "bg-emerald-600" },
-    { name: "Proof-of-Delivery Completeness", score: 93, status: "Optimal", barColor: "bg-emerald-600" },
-    { name: "Reverse Logistics Performance", score: 88, status: "Healthy", barColor: "bg-emerald-500" },
-    { name: "Cost & Reconciliation Health", score: 86, status: "Healthy", barColor: "bg-emerald-500" },
-    { name: "Audit Completeness", score: 94, status: "Optimal", barColor: "bg-emerald-600" },
-  ];
+  const defaultItems: ScorecardItem[] = ["Fulfilment Readiness", "Inventory Allocation", "Pick-and-Pack Performance", "Logistics Readiness", "Carrier Pickup Performance", "Delivery SLA Compliance", "Proof-of-Delivery Completeness", "Reverse Logistics Performance", "Cost & Reconciliation Health", "Audit Completeness"].map(name => ({ name, score: 0, status: "Not Assessed", barColor: "bg-gray-300" }));
 
   const displayItems = items && items.length > 0
     ? items.map(item => ({

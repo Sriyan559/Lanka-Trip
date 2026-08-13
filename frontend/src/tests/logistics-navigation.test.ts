@@ -11,7 +11,7 @@ const expectedChildren = [
   ["Warehouses & Fulfilment Centres", "/admin/logistics/warehouses"],
   ["Inventory Allocation", "/admin/logistics/inventory-allocation"],
   ["Shipments & Tracking", "/admin/logistics/shipments"],
-  ["Shipment Detail & Carrier Tracking", "/admin/logistics/shipments/SHP-LK-00192"],
+  ["Shipment Detail & Carrier Tracking", "/admin/logistics/shipments?open=first"],
   ["Carriers & Delivery Partners", "/admin/logistics/carriers-delivery-partners"],
   ["Delivery Configuration", "/admin/logistics/delivery-configuration"],
   ["Returns & Reverse Logistics", "/admin/logistics/returns-reverse-logistics"],
@@ -38,8 +38,8 @@ describe("Logistics admin navigation", () => {
       .toBe("/admin/logistics/inventory-allocation");
     expect(getActiveChildHref(logistics, "/admin/logistics/shipments"))
       .toBe("/admin/logistics/shipments");
-    expect(getActiveChildHref(logistics, "/admin/logistics/shipments/SHP-LK-00192"))
-      .toBe("/admin/logistics/shipments/SHP-LK-00192");
+    expect(getActiveChildHref(logistics, "/admin/logistics/shipments?open=first"))
+      .toBe("/admin/logistics/shipments?open=first");
     expect(getActiveChildHref(logistics, "/admin/logistics/reverse-logistics"))
       .toBe("/admin/logistics/returns-reverse-logistics");
     expect(getActiveChildHref(logistics, "/admin/logistics/reverse-logistics/RET-2026-004281"))

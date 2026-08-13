@@ -275,7 +275,7 @@ export function FulfilmentPortfolioTable({
         updated_at: f.updated_at || "May 26 07:12",
         raw: f,
       }))
-    : defaultFulfilments;
+    : [];
 
   const getBadgeStyle = (val: string) => {
     const v = val?.toLowerCase() || "";
@@ -301,8 +301,8 @@ export function FulfilmentPortfolioTable({
   };
 
   const currentPage = meta?.current_page ?? 1;
-  const totalRecords = meta?.total ?? 1248;
-  const lastPage = meta?.last_page ?? 50;
+  const totalRecords = meta?.total ?? 0;
+  const lastPage = meta?.last_page ?? 1;
 
   return (
     <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden flex flex-col text-xs">

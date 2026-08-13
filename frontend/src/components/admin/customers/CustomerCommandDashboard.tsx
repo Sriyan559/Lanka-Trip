@@ -33,6 +33,8 @@ export function CustomerCommandDashboard() {
     setSelectedCustomerId,
     selectedCustomer,
     selectedRowIds,
+    statusSummary,
+    healthScorecard,
 
     filters,
     setFilters,
@@ -60,6 +62,12 @@ export function CustomerCommandDashboard() {
     lastSynced,
     isRefreshing,
     handleRefresh,
+
+    // New data
+    kpis,
+    rightRail,
+    pagination,
+    isLoading,
 
     // Modals
     isAddCustomerOpen,
@@ -137,12 +145,19 @@ export function CustomerCommandDashboard() {
             onSegmentClick={(segment) => handleKPIFilterClick("tab", segment)}
           />
           <CustomerStatusSummary
+            statusSummary={statusSummary}
+            isLoading={isLoading}
             onStatusClick={(status) => handleKPIFilterClick("tab", status)}
+            onRetry={handleRefresh}
           />
         </div>
 
         {/* Customer Health Scorecard */}
-        <CustomerHealthScorecard />
+        <CustomerHealthScorecard
+          items={healthScorecard}
+          isLoading={isLoading}
+          onRetry={handleRefresh}
+        />
 
         {/* Main Workspace Layout: Left Content + Right Intelligence Sidebar */}
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_280px] gap-5 items-start">
@@ -189,6 +204,7 @@ export function CustomerCommandDashboard() {
               {/* Right Selected Customer Preview */}
               <SelectedCustomerPreview
                 customer={selectedCustomer}
+                hasCustomers={customers.length > 0}
                 showToast={showToast}
               />
             </div>

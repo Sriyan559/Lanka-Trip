@@ -3,19 +3,14 @@
 import React from "react";
 import { Warehouse, Boxes, Layers, CheckSquare, Send, AlertTriangle } from "lucide-react";
 
-export function WarehouseKpiGrid() {
+export function WarehouseKpiGrid({ metrics = {} }: { metrics?: Record<string, number | null> }) {
   const cards = [
-    { index: 1, title: "Total Facilities", value: "24", subtitle: "All sites" },
-    { index: 2, title: "Active Warehouses", value: "18", subtitle: "75.0%" },
-    { index: 3, title: "Active FCs", value: "6", subtitle: "25.0%" },
-    { index: 4, title: "High Capacity", value: "5", subtitle: "20.8%", textClass: "text-amber-700" },
-    { index: 5, title: "Critical Capacity", value: "2", subtitle: "8.3%", textClass: "text-rose-700 font-bold" },
-    { index: 6, title: "Available Storage", value: "24%", subtitle: "1.82M / 7.61M cbft" },
-    { index: 7, title: "Orders Assigned", value: "1,248", subtitle: "This period" },
-    { index: 8, title: "Picking Queue", value: "126", subtitle: "Orders" },
-    { index: 9, title: "Packing Queue", value: "96", subtitle: "Orders" },
-    { index: 10, title: "Dispatch Queue", value: "142", subtitle: "Shipments" },
-    { index: 11, title: "SLA Breaches", value: "8", subtitle: "This period", textClass: "text-rose-600 font-bold" },
+    { index: 1, title: "Total Facilities", value: String(metrics.total ?? 0), subtitle: "All sites" },
+    { index: 2, title: "Active Facilities", value: String(metrics.active ?? 0), subtitle: "Database status" },
+    { index: 3, title: "Inactive Facilities", value: String(metrics.inactive ?? 0), subtitle: "Database status" },
+    { index: 4, title: "High Capacity", value: String(metrics.high ?? 0), subtitle: "Capacity state", textClass: "text-amber-700" },
+    { index: 5, title: "Critical Capacity", value: String(metrics.critical ?? 0), subtitle: "Capacity state", textClass: "text-rose-700 font-bold" },
+    ...["Available Storage","Orders Assigned","Picking Queue","Packing Queue","Dispatch Queue","SLA Breaches"].map((title,index)=>({index:index+6,title,value:"—",subtitle:"Not available"})),
   ];
 
   return (

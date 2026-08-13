@@ -107,10 +107,7 @@ export default function ReverseLogisticsPage() {
         />
 
         {/* Live Alert Banner */}
-        <AlertBanner
-          message="Attention: 12 reverse collection requests are overdue. 6 warehouse receipt SLA breaches require immediate investigation before dispatch reconciliation."
-          type="warning"
-        />
+        {intelligence && intelligence.alerts.length > 0 && <AlertBanner message={intelligence.alerts.map(a => `${a.count} ${a.message}`).join(" · ")} type="warning" />}
 
         {/* Business Scope Context Strip & 9 Health Badges */}
         <ReverseLogisticsContextBar
@@ -129,7 +126,7 @@ export default function ReverseLogisticsPage() {
             <ReverseLogisticsTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
             {/* 3 Equal-Height Analytics Charts Row */}
-            <ReverseLogisticsAnalytics />
+            <ReverseLogisticsAnalytics returns={returnCases} />
 
             {/* 10 Circular Scorecards */}
             <ReverseLogisticsHealthScorecard

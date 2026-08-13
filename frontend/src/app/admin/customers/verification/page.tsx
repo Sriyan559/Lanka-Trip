@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerVerificationPage() {
   return (
     <CustomerModuleView
+      module="verification"
       config={{
         pageTitle: "Customer Identity & Verification",
         pageSubtitle: "Manage customer identity verification workflows, document authentication, duplicate control, and evidence readiness across all customer segments.",

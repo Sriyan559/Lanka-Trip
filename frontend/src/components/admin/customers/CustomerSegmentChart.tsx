@@ -4,19 +4,25 @@ import React from "react";
 import { MoreVertical } from "lucide-react";
 
 interface CustomerSegmentChartProps {
+  data?: { label: string; count: number; pct: string; color: string; stroke: string }[];
+  totalCount?: number;
   onSegmentClick?: (segment: string) => void;
 }
 
-export function CustomerSegmentChart({ onSegmentClick }: CustomerSegmentChartProps) {
-  const segments = [
-    { label: "New", count: "8,420", pct: "4.5%", color: "bg-amber-500", stroke: "#f59e0b" },
-    { label: "Active", count: "142,680", pct: "76.5%", color: "bg-emerald-500", stroke: "#10b981" },
-    { label: "Repeat", count: "18,260", pct: "9.8%", color: "bg-sky-500", stroke: "#06b6d4" },
-    { label: "Loyalty", count: "84,260", pct: "45.2%", color: "bg-purple-600", stroke: "#9333ea" },
-    { label: "High-Value", count: "12,840", pct: "6.9%", color: "bg-amber-600", stroke: "#d97706" },
-    { label: "Dormant", count: "18,420", pct: "9.9%", color: "bg-[#671021]", stroke: "#671021" },
-    { label: "Restricted", count: "428", pct: "0.2%", color: "bg-rose-600", stroke: "#e11d48" },
+export function CustomerSegmentChart({ data, totalCount = 0, onSegmentClick }: CustomerSegmentChartProps) {
+  const hasData = totalCount > 0 && data && data.length > 0;
+
+  const defaultSegments = [
+    { label: "New", count: hasData ? "8,420" : "0", pct: hasData ? "4.5%" : "0%", color: "bg-amber-500", stroke: "#f59e0b" },
+    { label: "Active", count: hasData ? "142,680" : "0", pct: hasData ? "76.5%" : "0%", color: "bg-emerald-500", stroke: "#10b981" },
+    { label: "Repeat", count: hasData ? "18,260" : "0", pct: hasData ? "9.8%" : "0%", color: "bg-sky-500", stroke: "#06b6d4" },
+    { label: "Loyalty", count: hasData ? "84,260" : "0", pct: hasData ? "45.2%" : "0%", color: "bg-purple-600", stroke: "#9333ea" },
+    { label: "High-Value", count: hasData ? "12,840" : "0", pct: hasData ? "6.9%" : "0%", color: "bg-amber-600", stroke: "#d97706" },
+    { label: "Dormant", count: hasData ? "18,420" : "0", pct: hasData ? "9.9%" : "0%", color: "bg-[#671021]", stroke: "#671021" },
+    { label: "Restricted", count: hasData ? "428" : "0", pct: hasData ? "0.2%" : "0%", color: "bg-rose-600", stroke: "#e11d48" },
   ];
+
+  const segments = data && data.length > 0 ? data : defaultSegments;
 
   return (
     <div className="bg-white border border-line rounded-lg p-4 shadow-sm flex flex-col justify-between h-full min-w-0">
@@ -29,24 +35,35 @@ export function CustomerSegmentChart({ onSegmentClick }: CustomerSegmentChartPro
         </button>
       </div>
 
-      <div className="flex items-center gap-4 my-auto">
+      <div className="flex items-center gap-4 my-auto relative">
+        {!hasData && (
+          <div className="absolute inset-0 bg-white/40 z-20 pointer-events-none flex items-center justify-center">
+            <span className="text-[10px] font-bold font-mono text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-200 shadow-2xs">
+              No segment data available
+            </span>
+          </div>
+        )}
+
         {/* Centered Donut SVG */}
         <div className="relative w-36 h-36 flex items-center justify-center flex-shrink-0">
           <svg className="w-36 h-36 transform -rotate-90" viewBox="0 0 100 100">
-            {/* Active (Emerald) */}
-            <circle cx="50" cy="50" r="38" stroke="#10b981" strokeWidth="16" strokeDasharray="238" strokeDashoffset="55" fill="transparent" />
-            {/* Loyalty (Purple) */}
-            <circle cx="50" cy="50" r="38" stroke="#9333ea" strokeWidth="16" strokeDasharray="238" strokeDashoffset="130" fill="transparent" />
-            {/* Repeat (Sky) */}
-            <circle cx="50" cy="50" r="38" stroke="#06b6d4" strokeWidth="16" strokeDasharray="238" strokeDashoffset="190" fill="transparent" />
-            {/* Dormant (Burgundy) */}
-            <circle cx="50" cy="50" r="38" stroke="#671021" strokeWidth="16" strokeDasharray="238" strokeDashoffset="215" fill="transparent" />
-            {/* New (Amber) */}
-            <circle cx="50" cy="50" r="38" stroke="#f59e0b" strokeWidth="16" strokeDasharray="238" strokeDashoffset="230" fill="transparent" />
+            {hasData ? (
+              <>
+                <circle cx="50" cy="50" r="38" stroke="#10b981" strokeWidth="16" strokeDasharray="238" strokeDashoffset="55" fill="transparent" />
+                <circle cx="50" cy="50" r="38" stroke="#9333ea" strokeWidth="16" strokeDasharray="238" strokeDashoffset="130" fill="transparent" />
+                <circle cx="50" cy="50" r="38" stroke="#06b6d4" strokeWidth="16" strokeDasharray="238" strokeDashoffset="190" fill="transparent" />
+                <circle cx="50" cy="50" r="38" stroke="#671021" strokeWidth="16" strokeDasharray="238" strokeDashoffset="215" fill="transparent" />
+                <circle cx="50" cy="50" r="38" stroke="#f59e0b" strokeWidth="16" strokeDasharray="238" strokeDashoffset="230" fill="transparent" />
+              </>
+            ) : (
+              <circle cx="50" cy="50" r="38" stroke="#e2e8f0" strokeWidth="16" fill="transparent" />
+            )}
           </svg>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-base font-black text-ink font-mono leading-none">186,420</span>
+            <span className="text-base font-black text-ink font-mono leading-none">
+              {totalCount > 0 ? totalCount.toLocaleString() : "0"}
+            </span>
             <span className="text-[9px] text-muted uppercase font-bold mt-0.5">Total</span>
           </div>
         </div>

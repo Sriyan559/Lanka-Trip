@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function CustomerLoyaltyPage() {
   return (
     <CustomerModuleView
+      module="loyalty"
       config={{
         pageTitle: "Loyalty, Rewards & Membership",
         pageSubtitle: "Manage loyalty program tiers, point balances, redemptions, membership levels, rewards campaigns, and retention analytics across all customer segments.",

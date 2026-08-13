@@ -268,7 +268,7 @@ export function ShipmentPortfolioTable({
         updated_at: s.updated_at || "May 26 10:15 AM",
         raw: s,
       }))
-    : defaultShipments;
+    : [];
 
   const getBadgeStyle = (val: string) => {
     const v = val?.toLowerCase() || "";
@@ -288,8 +288,8 @@ export function ShipmentPortfolioTable({
   };
 
   const currentPage = meta?.current_page ?? 1;
-  const totalRecords = meta?.total ?? 1426;
-  const lastPage = meta?.last_page ?? 50;
+  const totalRecords = meta?.total ?? 0;
+  const lastPage = meta?.last_page ?? 1;
 
   return (
     <div className="bg-white rounded-xl border border-line shadow-xs overflow-hidden flex flex-col text-xs">
@@ -353,6 +353,7 @@ export function ShipmentPortfolioTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-line bg-white">
+            {displayRows.length === 0 && <tr><td colSpan={31} className="px-4 py-10 text-center text-muted">No shipments found for the selected filters.</td></tr>}
             {displayRows.map((row) => {
               const isSelected = selectedRef === row.shipment_ref || selectedRowIds[row.id];
               return (

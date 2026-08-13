@@ -102,7 +102,7 @@ export const ADMIN_NAVIGATION = [
     {id:"warehouses-fulfilment-centres",label:"Warehouses & Fulfilment Centres",href:"/admin/logistics/warehouses"},
     {id:"inventory-allocation",label:"Inventory Allocation",href:"/admin/logistics/inventory-allocation"},
     {id:"shipments-tracking",label:"Shipments & Tracking",href:"/admin/logistics/shipments"},
-    {id:"shipment-detail-carrier-tracking",label:"Shipment Detail & Carrier Tracking",href:"/admin/logistics/shipments/SHP-LK-00192"},
+    {id:"shipment-detail-carrier-tracking",label:"Shipment Detail & Carrier Tracking",href:"/admin/logistics/shipments?open=first"},
     {id:"carriers-delivery-partners",label:"Carriers & Delivery Partners",href:"/admin/logistics/carriers-delivery-partners"},
     {id:"delivery-configuration",label:"Delivery Configuration",href:"/admin/logistics/delivery-configuration"},
     {id:"returns-reverse-logistics",label:"Returns & Reverse Logistics",href:"/admin/logistics/returns-reverse-logistics"},

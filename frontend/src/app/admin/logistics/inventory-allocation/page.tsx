@@ -13,6 +13,7 @@ import { AllocationAdvancedFilters } from "@/components/admin/logistics/allocati
 import { AllocationPortfolioTable } from "@/components/admin/logistics/allocation/AllocationPortfolioTable";
 import { SelectedAllocationPreview } from "@/components/admin/logistics/allocation/SelectedAllocationPreview";
 import { AllocationOperationsHealthSidebar } from "@/components/admin/logistics/allocation/AllocationOperationsHealthSidebar";
+import { useInventoryAllocations } from "@/hooks/admin/useFulfilmentWarehouse";
 
 function InventoryAllocationContent() {
   const router = useRouter();
@@ -25,7 +26,12 @@ function InventoryAllocationContent() {
   const currentFilters = {
     search: searchParams.get("search") || "",
     allocation_status: searchParams.get("allocation_status") || "all",
+    page: Number(searchParams.get("page")) || 1,
+    per_page: Number(searchParams.get("per_page")) || 15,
   };
+  const apiFilters={...currentFilters,allocation_status:currentFilters.allocation_status === "all" ? undefined : currentFilters.allocation_status};
+  const {data,loading,error,refresh}=useInventoryAllocations(apiFilters);
+  const allocationRows=(data?.allocations?.data ?? []).map((a:any)=>({...a,ref:a.reference,order_ref:a.order_number,product:a.product_name,supplier:a.supplier_name,dest_wh:a.destination_facility,ordered_qty:a.requested_quantity,allocated_qty:a.allocated_quantity,short_qty:Math.max(0,Number(a.requested_quantity)-Number(a.allocated_quantity)),source_wh:a.source_facility,alloc_status:a.status,res_status:"—",customer:"—",bu:"—",channel:"—",avail_qty:"—",reserved_qty:"—",strategy:"—",source_loc:"—",batch:"—",expiry:"—",res_ref:"—",res_expiry:"—",transfer_req:a.status === "transfer_required" ? "Yes" : "No",transfer_ref:"—",transfer_status:"—",backorder:"—",sub_status:"—",hold_status:"—",exception_status:a.status === "failed" ? "Allocation failed" : "—",owner:"—"}));
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -61,12 +67,12 @@ function InventoryAllocationContent() {
         <main className="flex-1 min-w-0 w-full flex flex-col gap-3">
           {/* 1. BREADCRUMB, HEADING & TOP ACTION TOOLBAR */}
           <AllocationPageHeader
-            onRefresh={() => showToast("Allocation operations data refreshed.")}
+            onRefresh={refresh}
             onCreateTransferClick={() => alert("Opening Create Transfer Request Modal...")}
           />
 
           {/* 2. BUSINESS CONTEXT & SERVICE HEALTH STRIP */}
-          <AllocationContextBar onRefresh={() => showToast("Refreshed allocation service health.")} />
+          <AllocationContextBar onRefresh={refresh} />
 
           {notification && (
             <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
@@ -76,7 +82,7 @@ function InventoryAllocationContent() {
           )}
 
           {/* 3. PRIMARY KPI GRID (12 CARDS) & 6 PERFORMANCE METRIC METERS */}
-          <AllocationKpiGrid />
+          <AllocationKpiGrid metrics={data?.kpis} />
 
           {/* 4. WORKFLOW NAVIGATION TABS (20 TABS) */}
           <AllocationWorkflowTabs
@@ -85,18 +91,20 @@ function InventoryAllocationContent() {
           />
 
           {/* 5. MAIN ANALYTICS (3 PANELS + HEALTH SCORECARD STRIP) */}
-          <AllocationAnalytics />
+          <AllocationAnalytics trendData={data?.trend} donutData={data?.distribution} statusRows={data?.summary} loading={loading} error={error} />
 
           {/* 6. ADVANCED FILTER SYSTEM */}
           <AllocationAdvancedFilters
             filters={currentFilters}
             onFilterChange={updateFilters}
             onClearFilters={handleClearFilters}
-            onRefresh={() => showToast("Filters updated.")}
+            onRefresh={refresh}
           />
 
           {/* 7. INVENTORY ALLOCATION PORTFOLIO TABLE */}
           <AllocationPortfolioTable
+            allocations={allocationRows}
+            total={data?.allocations?.total ?? 0}
             selectedRef={selectedAllocation?.ref}
             onSelectAllocation={(alloc) => setSelectedAllocation(alloc)}
           />

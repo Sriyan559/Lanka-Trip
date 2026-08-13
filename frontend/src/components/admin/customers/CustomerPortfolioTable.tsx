@@ -131,7 +131,14 @@ export function CustomerPortfolioTable({
           </thead>
 
           <tbody className="divide-y divide-slate-100 font-sans">
-            {customers.map((c) => {
+            {customers.length === 0 ? (
+              <tr>
+                <td colSpan={24} className="py-12 text-center text-slate-400 font-mono text-[12px]">
+                  No customer records found
+                </td>
+              </tr>
+            ) : (
+              customers.map((c) => {
               const isSelectedRow = selectedCustomerId === c.id;
               const isChecked = selectedRowIds.includes(c.id);
 
@@ -396,7 +403,8 @@ export function CustomerPortfolioTable({
                   </td>
                 </tr>
               );
-            })}
+            })
+            )}
           </tbody>
         </table>
       </div>

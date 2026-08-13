@@ -33,7 +33,7 @@ export function FulfilmentAnalytics({
     { date: "May 26", Created: 240, Allocated: 230, Picked: 220, Packed: 210, Ready: 205, Blocked: 10, Completed: 195 },
   ];
 
-  const displayTrend = trendData && trendData.length > 0 ? trendData : defaultTrend;
+  const displayTrend = trendData ?? [];
 
   // Default status distribution data matching reference screenshot
   const defaultDonut = [
@@ -49,7 +49,7 @@ export function FulfilmentAnalytics({
     { name: "Cancelled", value: 92, color: "#64748b" },
   ];
 
-  const displayDonut = donutData && donutData.length > 0 ? donutData : defaultDonut;
+  const displayDonut = donutData ?? [];
 
   // Bottleneck categories matching screenshot
   const bottleneckData = [
