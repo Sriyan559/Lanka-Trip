@@ -233,12 +233,12 @@ function StandardDialog({ content, onClose }: { content: DialogContent; onClose:
 
 export function EcosystemModulesDashboard() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/admin/ecosystem-modules";
   const searchParams = useSearchParams();
-  const queryString = searchParams.toString();
+  const queryString = searchParams?.toString() ?? "";
   const filters = useMemo(() => toFilters(new URLSearchParams(queryString)), [queryString]);
-  const screenState = searchParams.get("state") ?? "ready";
-  const permissions = getModulePermissions(searchParams.get("access") === "read-only");
+  const screenState = searchParams?.get("state") ?? "ready";
+  const permissions = getModulePermissions(searchParams?.get("access") === "read-only");
   const [search, setSearch] = useState(filters.search ?? "");
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [registry, setRegistry] = useState<EcosystemModulePage | null>(null);
@@ -346,7 +346,7 @@ export function EcosystemModulesDashboard() {
         </div>
       </header>
 
-      {searchParams.get("access") === "read-only" && <div className="mb-6 px-4 py-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[13px] flex items-center gap-2"><ShieldCheck size={16} />Read-only access: registration, comparison, export and release actions are disabled for this session.</div>}
+      {searchParams?.get("access") === "read-only" && <div className="mb-6 px-4 py-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[13px] flex items-center gap-2"><ShieldCheck size={16} />Read-only access: registration, comparison, export and release actions are disabled for this session.</div>}
       {notice && <div className="mb-6 px-4 py-3 bg-green-50 text-green-800 border border-green-200 rounded-lg text-[13px] flex items-center justify-between" role="status"><div className="flex items-center gap-2"><CheckCircle2 size={16} /><span>{notice}</span></div><button className="text-green-800 hover:text-green-900" type="button" aria-label="Dismiss confirmation" onClick={() => setNotice("")}><X size={14} /></button></div>}
       {dashboard?.freshness === "stale" && <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2"><CircleAlert size={16} />Showing the most recently generated portfolio aggregate from {dashboard.generatedAt}. A refresh is pending.</div>}
       {dashboard?.freshness === "partial" && <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2"><CircleAlert size={16} />Partial registry data: availability and error-rate values may be temporarily unavailable for selected modules.</div>}
@@ -414,9 +414,11 @@ export function EcosystemModulesDashboard() {
 
           {!registry.data.length ? <div className="py-12 flex flex-col items-center gap-4 bg-white rounded-xl border border-line shadow-sm"><EmptyState title="No modules match this registry view" /><button className="px-4 py-2 rounded-lg border border-line text-[12px] font-bold bg-white hover:bg-gray-50 transition-colors" type="button" onClick={() => router.push(pathname)}>Clear registry filters</button></div> : <ModuleRegistryTable registry={registry} filters={filters} returnTo={returnTo} onSort={updateSort} onPageChange={(page) => updateQuery({ page: String(page) }, false)} />}
 
-          <PortfolioPanels onAction={(title, body) => setDialog({ title, body })} />
+          <PortfolioPanels dashboard={dashboard} onAction={(title, body) => setDialog({ title, body })} />
         </div>
         <OperationsPanel
+          dashboard={dashboard}
+          modules={registry.data}
           onFilter={(changes) => updateQuery(changes)}
           onDialog={(title, body) => setDialog({ title, body })}
           onRegister={() => setRegisterOpen(true)}
@@ -464,17 +466,17 @@ function ModuleRegistryTable({
     { key: "countriesEnabled", label: "Countries Enabled", render: (module) => module.countriesEnabled },
     { key: "activeUsers", label: "Active Users", render: (module) => module.activeUsers.toLocaleString() },
     { key: "monthlyTransactions", label: "Monthly Transactions", render: (module) => module.monthlyTransactions.toLocaleString() },
-    { key: "adoptionRate", label: "Adoption Rate", render: (module) => `${module.adoptionRate}%` },
+    { key: "adoptionRate", label: "Adoption Rate", render: (module) => formatMetric(module.adoptionRate, "%") },
     { key: "availability", label: "Availability", render: (module) => formatMetric(module.availability, "%") },
     { key: "errorRate", label: "Error Rate", render: (module) => formatMetric(module.errorRate, "%") },
-    { key: "healthScore", label: "Health Score", render: (module) => `${module.healthScore}/100` },
+    { key: "healthScore", label: "Health Score", render: (module) => formatMetric(module.healthScore, "/100") },
     { key: "riskLevel", label: "Risk Level", render: (module) => <StatusPill value={module.riskLevel} /> },
     { key: "riskTrend", label: "Risk Trend", render: (module) => module.riskTrend },
-    { key: "primaryOwner", label: "Primary Owner", render: (module) => module.primaryOwner },
-    { key: "technicalOwner", label: "Technical Owner", render: (module) => module.technicalOwner },
-    { key: "lastRelease", label: "Last Release", render: (module) => module.lastRelease },
-    { key: "nextUpdate", label: "Next Update", render: (module) => module.nextUpdate },
-    { key: "lastUpdated", label: "Last Updated", render: (module) => module.lastUpdated },
+    { key: "primaryOwner", label: "Primary Owner", render: (module) => module.primaryOwner ?? "—" },
+    { key: "technicalOwner", label: "Technical Owner", render: (module) => module.technicalOwner ?? "—" },
+    { key: "lastRelease", label: "Last Release", render: (module) => module.lastRelease ?? "—" },
+    { key: "nextUpdate", label: "Next Update", render: (module) => module.nextUpdate ?? "—" },
+    { key: "lastUpdated", label: "Last Updated", render: (module) => module.lastUpdated ?? "—" },
   ];
   const resultStart = registry.total ? (registry.page - 1) * registry.pageSize + 1 : 0;
   const resultEnd = Math.min(registry.page * registry.pageSize, registry.total);
@@ -526,14 +528,13 @@ function ModuleRegistryTable({
   </section>;
 }
 
-function PortfolioPanels({ onAction }: { onAction: (title: string, body: ReactNode) => void }) {
+function PortfolioPanels({ dashboard, onAction }: { dashboard: DashboardData; onAction: (title: string, body: ReactNode) => void }) {
   const panels = [
-    { title: "Adoption by Module", rows: [["B2C Marketplace", "92%"], ["Orders & Fulfilment", "89%"], ["Logistics", "81%"], ["Customer Support", "74%"], ["AI Beauty Advisor", "41%"]], action: "View full adoption report" },
-    { title: "Release Readiness", rows: [["AI Beauty Advisor", "86%"], ["B2B Wholesale", "58%"], ["Salon & Spas", "44%"], ["Clinics & Dermatologists", "36%"], ["Academy & Training", "29%"]], action: "View release timeline" },
-    { title: "Integration Health", rows: [["Payment Gateway", "Healthy"], ["Email Service", "Healthy"], ["SMS Service", "Healthy"], ["Logistics Providers", "Degraded"], ["Gemini Provider", "Attention Required"]], action: "View integration registry" },
-    { title: "Dependency Risks", rows: [["AI Beauty Advisor depends on Gemini API", "High"], ["B2B Wholesale waiting on ERP integration", "Medium"], ["Logistics module depends on 2 degraded providers", "Medium"], ["Beauty Issue Analyzer blocked by ML model validation", "High"]], action: "View dependency map" },
-    { title: "Country Availability", rows: [["Sri Lanka - LK", "11 enabled"], ["Canada - CA", "Planning"], ["United Kingdom - GB", "Not Configured"], ["Australia - AU", "Not Configured"], ["Maldives - MV", "Planning"]], action: "View country availability" },
-    { title: "Security & Compliance", rows: [["Approved", "8"], ["Conditionally Approved", "2"], ["Reviews Pending", "3"], ["Not Assessed", "3"], ["High-Risk Findings", "2"]], action: "View compliance center" },
+    { title: "Module Categories", rows: dashboard.distributions.category.map((item) => [item.name ?? "Unassigned", String(item.value)]), action: "View category distribution" },
+    { title: "Lifecycle Distribution", rows: dashboard.distributions.lifecycle.map((item) => [item.name ?? "Unknown", String(item.value)]), action: "View lifecycle distribution" },
+    { title: "Module Classification", rows: dashboard.distributions.moduleType.map((item) => [item.name ?? "Unclassified", String(item.value)]), action: "View module classification" },
+    { title: "Health Distribution", rows: dashboard.distributions.health.map((item) => [item.name ?? "Unknown", String(item.value)]), action: "View module health" },
+    { title: "Open Risk Summary", rows: dashboard.risks.map((item) => [item.severity, String(item.count)]), action: "View risk registry" },
   ];
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -541,17 +542,10 @@ function PortfolioPanels({ onAction }: { onAction: (title: string, body: ReactNo
         <article className="bg-white rounded-xl shadow-sm border border-line flex flex-col" key={panel.title}>
           <h2 className="p-4 border-b border-line text-[13px] font-bold text-ink">{panel.title}</h2>
           <div className="flex-1 p-4 flex flex-col gap-3">
-            {panel.rows.map(([label, value]) => (
+            {!panel.rows.length ? <p className="text-[12px] text-muted">No data available.</p> : panel.rows.map(([label, value]) => (
               <div className="flex items-center justify-between text-[12px]" key={label}>
                 <span className="text-muted line-clamp-1 mr-2">{label}</span>
-                {panel.title.includes("Adoption") || panel.title.includes("Readiness") ? (
-                  <span className="flex items-center gap-2 min-w-[100px]">
-                    <span className="flex-1 h-1.5 bg-canvas rounded-full overflow-hidden"><i className="block h-full bg-[#741d35] rounded-full" style={{ width: value }} /></span>
-                    <strong className="text-ink font-bold w-[32px] text-right">{value}</strong>
-                  </span>
-                ) : (
-                  <strong className={`font-bold whitespace-nowrap ${statusTone(value) === "danger" ? "text-danger" : statusTone(value) === "warning" ? "text-warning" : statusTone(value) === "success" ? "text-success" : "text-ink"}`}>{value}</strong>
-                )}
+                <strong className={`font-bold whitespace-nowrap ${statusTone(value) === "danger" ? "text-danger" : statusTone(value) === "warning" ? "text-warning" : statusTone(value) === "success" ? "text-success" : "text-ink"}`}>{value}</strong>
               </div>
             ))}
           </div>
@@ -565,20 +559,24 @@ function PortfolioPanels({ onAction }: { onAction: (title: string, body: ReactNo
 }
 
 function OperationsPanel({
+  dashboard,
+  modules,
   onFilter,
   onDialog,
   onRegister,
   onCalendar,
   canManageActions,
 }: {
+  dashboard: DashboardData;
+  modules: EcosystemModule[];
   onFilter: (changes: QueryUpdate) => void;
   onDialog: (title: string, body: ReactNode) => void;
   onRegister: () => void;
   onCalendar: () => void;
   canManageActions: boolean;
 }) {
-  const healthRows = [["Operational Availability", "99.4%", 99.4], ["Configuration Completeness", "88%", 88], ["Integration Readiness", "84%", 84], ["Dependency Health", "89%", 89], ["Compliance Readiness", "92%", 92], ["Release Readiness", "86%", 86], ["Adoption Growth", "+12.0%", 82]];
-  const alerts = ["AI Beauty Advisor security review pending", "B2B Wholesale integration readiness blocked", "Beauty Issue Analyzer validation not started", "Logistics provider health degraded", "Three modules have pending compliance reviews", "One release is currently blocked"];
+  const healthRows = dashboard.portfolioHealth.map((metric) => [metric.label, metric.value, metric.progress] as const);
+  const alerts = dashboard.alerts;
   
   return (
     <aside className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
@@ -598,10 +596,10 @@ function OperationsPanel({
       <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
         <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><TriangleAlert size={15} className="text-warning" />Priority Alerts</h2>
         <div className="flex flex-col divide-y divide-line">
-          {alerts.map((alert, index) => (
-            <button type="button" className="p-4 flex items-start gap-3 text-left hover:bg-gray-50 transition-colors" key={alert} onClick={() => onFilter({ quick: index === 5 ? "blocked" : "requires-attention", metric: null })}>
+          {!alerts.length ? <p className="p-4 text-[12px] text-muted">No open ecosystem alerts.</p> : alerts.map((alert) => (
+            <button type="button" className="p-4 flex items-start gap-3 text-left hover:bg-gray-50 transition-colors" key={alert.id} onClick={() => onFilter({ search: alert.module_name ?? "", page: null })}>
               <TriangleAlert size={14} className="text-warning shrink-0 mt-0.5" />
-              <span className="text-[12px] text-ink leading-snug font-medium">{alert}</span>
+              <span className="text-[12px] text-ink leading-snug font-medium">{alert.message}</span>
             </button>
           ))}
           <button className="px-5 py-3 text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" type="button" onClick={() => onFilter({ quick: "requires-attention", metric: null })}>View all alerts <ChevronRight size={13} /></button>
@@ -611,10 +609,10 @@ function OperationsPanel({
       <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
         <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><ListFilter size={15} className="text-info" />Quick Queue</h2>
         <div className="flex flex-col divide-y divide-line">
-          {[["Highest-Risk Module", "Beauty Issue Analyzer"], ["Next Scheduled Release", "B2C Marketplace (Jul 24)"], ["Oldest Pending Configuration", "B2B Wholesale (62%)"], ["Most-Adopted Module", "B2C Marketplace (92%)"], ["Lowest-Adoption Active Module", "AI Beauty Advisor (41%)"], ["Dependency Review Required", "AI Beauty Advisor"]].map(([label, value]) => (
-            <button className="p-4 flex flex-col gap-1 text-left hover:bg-gray-50 transition-colors" type="button" key={label} onClick={() => onFilter({ search: value.split(" (")[0], page: null })}>
-              <span className="text-[11px] text-muted font-bold">{label}</span>
-              <strong className="text-[12px] text-ink">{value}</strong>
+          {!modules.length ? <p className="p-4 text-[12px] text-muted">No module queue data available.</p> : modules.slice(0, 6).map((module) => (
+            <button className="p-4 flex flex-col gap-1 text-left hover:bg-gray-50 transition-colors" type="button" key={module.id} onClick={() => onFilter({ search: module.moduleName, page: null })}>
+              <span className="text-[11px] text-muted font-bold">{["High", "Critical"].includes(module.riskLevel) ? "Risk review required" : "Module review"}</span>
+              <strong className="text-[12px] text-ink">{module.moduleName}</strong>
             </button>
           ))}
           <button className="px-5 py-3 text-[11px] font-bold text-[#741d35] bg-[#f8fafc] hover:bg-gray-50 flex items-center justify-between transition-colors" type="button" onClick={() => onDialog("Priority queue", <p>Queue entries open their matching filtered registry views while preserving all current URL state.</p>)}>View full queue <ChevronRight size={13} /></button>
@@ -624,10 +622,10 @@ function OperationsPanel({
       <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
         <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><CloudCog size={15} className="text-muted" />Environment Health</h2>
         <div className="p-5 flex flex-col gap-3">
-          {[["Production", "Operational"], ["Staging", "Operational"], ["Development", "Operational"], ["Failed Deployments", "1"], ["Configuration Drift", "2 modules"], ["Pending Migrations", "1"]].map(([label, value]) => (
-            <div className="flex items-center justify-between text-[12px]" key={label}>
-              <span className="text-muted">{label}</span>
-              <strong className={`font-bold ${value === "Operational" ? "text-success" : value === "1" || value === "2 modules" ? "text-warning" : "text-ink"}`}>{value}</strong>
+          {!dashboard.distributions.environment.length ? <p className="text-[12px] text-muted">No environment data available.</p> : dashboard.distributions.environment.map(({ name, value }) => (
+            <div className="flex items-center justify-between text-[12px]" key={name ?? "unknown"}>
+              <span className="text-muted">{name ?? "Unknown"}</span>
+              <strong className="font-bold text-ink">{value}</strong>
             </div>
           ))}
         </div>
@@ -637,7 +635,7 @@ function OperationsPanel({
       <section className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
         <h2 className="px-5 py-4 border-b border-line text-[13px] font-bold text-ink flex items-center gap-2"><CalendarDays size={15} className="text-muted" />Release Summary</h2>
         <div className="p-5 flex flex-col gap-3">
-          {[["Released This Month", "3"], ["Release Candidates", "3"], ["Scheduled Releases", "2"], ["Blocked Releases", "1"], ["Rollback Events", "0"], ["Modules Connected", "8"]].map(([label, value]) => (
+          {dashboard.kpis.filter((item) => ["blocked", "active", "operational", "comingSoon", "planned"].includes(item.id)).map(({ label, value }) => (
             <div className="flex items-center justify-between text-[12px]" key={label}>
               <span className="text-muted">{label}</span>
               <strong className="text-ink font-bold">{value}</strong>
@@ -653,7 +651,7 @@ function OperationsPanel({
           <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={onRegister}>Register Module</button>
           <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={() => onDialog("Compare modules", <p>Select two registry records to compare their current health and release readiness.</p>)}>Compare Modules</button>
           <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Feature flags", <p>Feature flags are maintained in each module workspace and never reveal secret values.</p>)}>View Feature Flags</button>
-          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Dependency map", <p>Dependency map data will use the selected module registry filters when the backend integration is connected.</p>)}>View Dependency Map</button>
+          <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Dependency map", <p>Open a module record to review its persisted dependency relationships and current dependency health.</p>)}>View Dependency Map</button>
           <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Integration registry", <p>Integration registry supports operational review only; mutations require the detail workspace.</p>)}>View Integration Registry</button>
           <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors" type="button" onClick={() => onDialog("Country availability", <p>Country availability status is available for planning and readiness review.</p>)}>View Country Availability</button>
           <button className="px-5 py-3 border-b border-line text-[12px] font-medium text-ink text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button" disabled={!canManageActions} onClick={onCalendar}>View Release Calendar</button>

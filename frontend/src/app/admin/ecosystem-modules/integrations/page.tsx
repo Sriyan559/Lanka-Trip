@@ -1,4 +1,4 @@
-import { IntegrationWorkspace } from "@/components/admin/ecosystem-modules/integrations/IntegrationWorkspace";
+import { LiveIntegrationWorkspace } from "@/components/admin/ecosystem-modules/LiveControlCenterWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function IntegrationsPage() {
-  return <IntegrationWorkspace />;
+  return <LiveIntegrationWorkspace />;
 }

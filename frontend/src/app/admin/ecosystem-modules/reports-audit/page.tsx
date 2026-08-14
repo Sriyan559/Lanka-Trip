@@ -1,4 +1,4 @@
-import { ReportsAuditWorkspace } from "@/components/admin/ecosystem-modules/reports-audit/ReportsAuditWorkspace";
+import { LiveReportsAuditWorkspace } from "@/components/admin/ecosystem-modules/LiveControlCenterWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function ReportsAuditPage() {
-  return <ReportsAuditWorkspace />;
+  return <LiveReportsAuditWorkspace />;
 }

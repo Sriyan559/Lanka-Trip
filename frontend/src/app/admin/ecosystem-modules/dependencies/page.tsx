@@ -1,4 +1,4 @@
-import { DependencyMapPage } from "@/components/admin/ecosystem-modules/dependencies/DependencyMapPage";
+import { LiveDependencyWorkspace } from "@/components/admin/ecosystem-modules/LiveControlsWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function DependenciesPage() {
-  return <DependencyMapPage />;
+  return <LiveDependencyWorkspace />;
 }

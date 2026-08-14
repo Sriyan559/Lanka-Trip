@@ -110,8 +110,8 @@ export const ADMIN_NAVIGATION = [
     {id:"exceptions-reconciliation",label:"Exceptions, Claims & Reconciliation",href:"/admin/logistics/exceptions-reconciliation"},
     {id:"reports-import-export-audit",label:"Reports, Import, Export & Audit",href:"/admin/logistics/reports-import-export-audit"},
   ]},
-  {id:"customer-support",label:"Customer Support",icon:LifeBuoy,href:"/admin/customer-support/cases",children:[
-    {id:"command-center",label:"Command Center",href:"/admin/customer-support"},
+  {id:"customer-support",label:"Customer Support",icon:LifeBuoy,href:"/admin/customer-support",exact:true,children:[
+    {id:"command-center",label:"Command Center",href:"/admin/customer-support",exact:true},
     {id:"cases-queues",label:"Cases & Queues",href:"/admin/customer-support/cases"},
     {id:"conversations",label:"Conversations",href:"/admin/customer-support/conversations"},
     {id:"complaints-escalations",label:"Complaints & Escalations",href:"/admin/customer-support/complaints"},

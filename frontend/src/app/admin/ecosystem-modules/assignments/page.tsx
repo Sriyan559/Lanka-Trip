@@ -1,4 +1,4 @@
-import { TenantAssignmentWorkspace } from "@/components/admin/ecosystem-modules/assignment/TenantAssignmentWorkspace";
+import { AssignmentWorkspace } from "@/components/admin/ecosystem-modules/assignment/AssignmentWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function TenantAssignmentPage() {
-  return <TenantAssignmentWorkspace />;
+  return <AssignmentWorkspace kind="assignments" />;
 }

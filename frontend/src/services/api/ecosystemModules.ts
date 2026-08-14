@@ -1,8 +1,4 @@
-import {
-  createMockEcosystemModule,
-  mockEcosystemModuleDashboard,
-  mockEcosystemModules,
-} from "@/mocks/admin/ecosystemModules.mock";
+import { api } from '@/lib/api/client';
 import type {
   EcosystemModule,
   EcosystemModuleDashboard,
@@ -10,161 +6,152 @@ import type {
   EcosystemModulePage,
   ModulePermissions,
   ModuleRegistrationDraft,
-} from "@/components/admin/ecosystem-modules/types";
+} from '@/components/admin/ecosystem-modules/types';
 
-function includesValue(value: string | number | null, query: string) {
-  return String(value ?? "").toLowerCase().includes(query.toLowerCase());
-}
+type LaravelPage<T> = {
+  data: T[];
+  current_page: number;
+  per_page: number;
+  last_page: number;
+  total: number;
+};
 
-function matchesMetric(module: EcosystemModule, metric?: string) {
-  switch (metric) {
-    case "active": return module.operationalStatus === "Operational" && module.productionEnabled;
-    case "pilot": return module.lifecycle === "Pilot";
-    case "coming-soon": return module.lifecycle === "Coming Soon";
-    case "planned": return module.lifecycle === "Planned";
-    case "needs-attention": return module.riskLevel === "High" || module.dependencyHealth === "Attention Required";
-    case "operational": return module.operationalStatus === "Operational";
-    case "degraded": return module.operationalStatus === "Degraded";
-    case "blocked": return module.releaseStatus === "Blocked";
-    case "pending-config": return module.configurationStatus === "Pending Review";
-    case "integration-issues": return ["In Progress", "Attention Required", "Degraded"].includes(module.integrationReadiness);
-    case "dependency-risk": return module.dependencyHealth === "Attention Required" || module.dependencyHealth === "Blocked";
-    case "countries-enabled": return module.countriesEnabled > 0;
-    case "average-health": return module.healthScore < 85;
-    default: return true;
-  }
-}
+type ModulesResponse = { modules: LaravelPage<EcosystemModule> };
+type DashboardApiResponse = {
+  dashboard: {
+    summary: Record<string, number>;
+    health: Record<string, number | null>;
+    alerts: EcosystemModuleDashboard['alerts'];
+    risks: EcosystemModuleDashboard['risks'];
+    distributions: EcosystemModuleDashboard['distributions'];
+    permissions: { canRegister: boolean; canConfigure: boolean; canExport: boolean };
+    generatedAt: string;
+    source: string;
+  };
+};
 
-function matchesQuickFilter(module: EcosystemModule, quick?: string) {
-  switch (quick) {
-    case "operational": return module.operationalStatus === "Operational";
-    case "pilot": return module.lifecycle === "Pilot";
-    case "release-candidate": return module.releaseStatus === "Candidate";
-    case "requires-attention": return module.riskLevel === "High" || module.dependencyHealth === "Attention Required";
-    case "high-risk": return module.riskLevel === "High";
-    case "not-configured": return module.configurationStatus === "Not Configured";
-    case "blocked": return module.releaseStatus === "Blocked";
-    case "upcoming-releases": return module.releaseStatus === "Candidate" || module.nextUpdate !== "-";
-    default: return true;
-  }
-}
+const labels: Record<string, [string, string, 'success' | 'warning' | 'danger' | 'info' | 'neutral']> = {
+  total: ['Total Registered Modules', 'Portfolio records', 'info'],
+  active: ['Active Modules', 'Enabled modules', 'success'],
+  pilot: ['Pilot Modules', 'Controlled rollout', 'info'],
+  comingSoon: ['Coming Soon', 'Pre-release', 'neutral'],
+  planned: ['Planned Modules', 'Roadmap', 'info'],
+  needsAttention: ['Modules Requiring Attention', 'Action needed', 'danger'],
+  operational: ['Operational Modules', 'Available portfolio', 'success'],
+  degraded: ['Degraded Modules', 'Service health', 'warning'],
+  blocked: ['Blocked Releases', 'Release intervention', 'danger'],
+  pendingConfiguration: ['Pending Configurations', 'Configuration review', 'warning'],
+  integrationIssues: ['Integration Issues', 'Integration checks', 'warning'],
+  dependencyRisks: ['Dependency Risks', 'Dependency review', 'warning'],
+  countriesEnabled: ['Countries Enabled', 'Live territories', 'info'],
+};
 
-export async function fetchEcosystemModules(filters: EcosystemModuleFilters = {}): Promise<EcosystemModulePage> {
-  let rows = [...mockEcosystemModules];
-  const query = filters.search?.trim();
-
-  if (query) {
-    rows = rows.filter((module) => [
-      module.publicReference, module.databaseModuleId, module.moduleName, module.moduleKey,
-      module.primaryOwner, module.technicalOwner,
-    ].some((value) => includesValue(value, query)));
-  }
-  if (filters.lifecycle) rows = rows.filter((module) => module.lifecycle === filters.lifecycle);
-  if (filters.operationalStatus) rows = rows.filter((module) => module.operationalStatus === filters.operationalStatus);
-  if (filters.owner) rows = rows.filter((module) => module.primaryOwner === filters.owner);
-  if (filters.category) rows = rows.filter((module) => module.category === filters.category);
-  if (filters.region) rows = rows.filter((module) => module.region === filters.region);
-  if (filters.compliance) rows = rows.filter((module) => module.complianceStatus === filters.compliance);
-  if (filters.risk) rows = rows.filter((module) => module.riskLevel === filters.risk);
-  if (filters.release) rows = rows.filter((module) => module.releaseStatus === filters.release);
-  if (filters.environment) rows = rows.filter((module) => module.environment === filters.environment);
-  rows = rows.filter((module) => matchesMetric(module, filters.metric));
-  rows = rows.filter((module) => matchesQuickFilter(module, filters.quick));
-
-  const sortKey = filters.sort ?? "moduleName";
-  const direction = filters.direction ?? "asc";
-  rows.sort((left, right) => {
-    const leftValue = left[sortKey];
-    const rightValue = right[sortKey];
-    const result = typeof leftValue === "number" && typeof rightValue === "number"
-      ? leftValue - rightValue
-      : String(leftValue ?? "").localeCompare(String(rightValue ?? ""));
-    return direction === "asc" ? result : -result;
-  });
-
-  const pageSize = Math.min(25, Math.max(1, filters.pageSize ?? 5));
-  const total = rows.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const page = Math.min(Math.max(1, filters.page ?? 1), totalPages);
-  return { data: rows.slice((page - 1) * pageSize, page * pageSize), total, page, pageSize, totalPages };
-}
-
-export async function fetchEcosystemModuleDashboard(): Promise<EcosystemModuleDashboard> {
-  return mockEcosystemModuleDashboard;
-}
-
-export async function fetchEcosystemModuleByKey(moduleKey: string): Promise<EcosystemModule | null> {
-  return mockEcosystemModules.find((module) => module.moduleKey === moduleKey) ?? null;
-}
-
-export function getModulePermissions(readOnly = false): ModulePermissions {
+function toParams(filters: EcosystemModuleFilters) {
   return {
-    canRegister: !readOnly,
-    canCompare: !readOnly,
-    canExport: !readOnly,
-    canManageReleases: !readOnly,
+    search: filters.search,
+    lifecycle: filters.lifecycle?.toLowerCase().replaceAll(' ', '_'),
+    status: filters.operationalStatus?.toLowerCase().replaceAll(' ', '_'),
+    owner: filters.owner,
+    category: filters.category,
+    environment: filters.environment?.toLowerCase().replaceAll(' ', '_'),
+    risk: filters.risk?.toLowerCase(),
+    sort: filters.sort ? ({
+      moduleName: 'name', moduleKey: 'module_key', operationalStatus: 'status',
+      riskLevel: 'risk_level', lastUpdated: 'updated_at', healthScore: 'health_score',
+      adoptionRate: 'adoption_rate', currentVersion: 'current_version',
+      targetVersion: 'target_version', releaseStatus: 'release_status',
+      securityReview: 'security_status', complianceStatus: 'compliance_status',
+      integrationReadiness: 'integration_status', dependencyHealth: 'dependency_status',
+      primaryOwner: 'primary_owner',
+    } as Record<string, string>)[filters.sort] ?? filters.sort : undefined,
+    direction: filters.direction,
+    page: filters.page,
+    per_page: filters.pageSize,
   };
 }
 
-export async function registerEcosystemModule(draft: ModuleRegistrationDraft): Promise<EcosystemModule> {
-  const moduleName = draft.moduleName.trim();
-  const moduleKey = draft.moduleKey.trim().toLowerCase();
-  if (!moduleName || !moduleKey || !draft.primaryOwner || !draft.technicalOwner) {
-    throw new Error("Module name, module key, primary owner and technical owner are required.");
-  }
-  if (!/^[a-z0-9-]+$/.test(moduleKey)) {
-    throw new Error("Module key can use lowercase letters, numbers and hyphens only.");
-  }
-  if (mockEcosystemModules.some((module) => module.moduleKey === moduleKey)) {
-    throw new Error("That module key is already registered.");
-  }
+export async function fetchEcosystemModules(filters: EcosystemModuleFilters = {}): Promise<EcosystemModulePage> {
+  const response = await api.get('/admin/ecosystem/modules', { params: toParams(filters) }) as ModulesResponse;
+  return {
+    data: response.modules.data,
+    total: response.modules.total,
+    page: response.modules.current_page,
+    pageSize: response.modules.per_page,
+    totalPages: response.modules.last_page,
+  };
+}
 
-  const createdModule = createMockEcosystemModule({
-    id: `module-${Date.now()}`,
-    publicReference: `MOD-2036-${String(mockEcosystemModules.length + 1).padStart(5, "0")}`,
-    databaseModuleId: mockEcosystemModules.length + 1,
-    moduleName,
-    moduleKey,
-    category: draft.category || "Operations",
-    lifecycle: "Planned",
-    operationalStatus: "Unavailable",
-    releaseStatus: "Not Scheduled",
-    currentVersion: "-",
-    targetVersion: "v1.0.0",
-    productionEnabled: false,
-    configurationStatus: "Not Configured",
-    integrationReadiness: "Not Started",
-    dependencyHealth: "Not Assessed",
-    complianceStatus: "Not Assessed",
-    securityReview: "Not Started",
-    countriesEnabled: 0,
-    activeUsers: 0,
-    monthlyTransactions: 0,
-    adoptionRate: 0,
-    availability: null,
-    errorRate: null,
-    healthScore: 0,
-    riskLevel: "Low",
-    riskTrend: "-",
-    primaryOwner: draft.primaryOwner,
-    technicalOwner: draft.technicalOwner,
-    lastRelease: "-",
-    nextUpdate: "-",
-    lastUpdated: "Jul 27, 2026 10:32 AM",
-    environment: draft.environment || "Development",
-    region: "Sri Lanka",
+export async function fetchEcosystemModuleDashboard(): Promise<EcosystemModuleDashboard> {
+  const { dashboard } = await api.get('/admin/ecosystem/dashboard') as DashboardApiResponse;
+  const kpis = Object.entries(labels).map(([id, [label, detail, tone]]) => ({
+    id,
+    label,
+    detail,
+    tone,
+    value: String(dashboard.summary[id] ?? 0),
+  }));
+  kpis.push({
+    id: 'average-health',
+    label: 'Average Module Health',
+    detail: 'Evaluated portfolio average',
+    tone: 'success',
+    value: dashboard.health.overall === null ? '—' : `${dashboard.health.overall}%`,
   });
-  mockEcosystemModules.unshift(createdModule);
-  return createdModule;
+  const healthLabels: Record<string, string> = {
+    overall: 'Portfolio Health Score', availability: 'Operational Availability',
+    configuration: 'Configuration Completeness', integration: 'Integration Readiness',
+    dependency: 'Dependency Health', compliance: 'Compliance Readiness',
+    release: 'Release Readiness', adoption: 'Adoption Rate',
+  };
+  return {
+    kpis,
+    portfolioHealth: Object.entries(healthLabels).map(([key, label]) => ({
+      label,
+      value: dashboard.health[key] === null ? '—' : `${dashboard.health[key]}%`,
+      progress: dashboard.health[key] ?? 0,
+      tone: (dashboard.health[key] ?? 0) >= 85 ? 'success' : 'warning',
+    })),
+    alerts: dashboard.alerts,
+    risks: dashboard.risks,
+    distributions: dashboard.distributions,
+    permissions: dashboard.permissions,
+    generatedAt: dashboard.generatedAt,
+    source: dashboard.source,
+    freshness: 'fresh',
+  };
+}
+
+export async function fetchEcosystemModuleByKey(moduleKey: string): Promise<EcosystemModule | null> {
+  const page = await fetchEcosystemModules({ search: moduleKey, pageSize: 10 });
+  return page.data.find((module) => module.moduleKey === moduleKey) ?? null;
+}
+
+export function getModulePermissions(readOnly = false): ModulePermissions {
+  return { canRegister: !readOnly, canCompare: !readOnly, canExport: !readOnly, canManageReleases: !readOnly };
+}
+
+export async function registerEcosystemModule(draft: ModuleRegistrationDraft): Promise<EcosystemModule> {
+  const response = await api.post('/admin/ecosystem/modules', {
+    module_key: draft.moduleKey.trim().toLowerCase(),
+    name: draft.moduleName.trim(),
+    category: draft.category,
+    module_type: 'optional',
+    lifecycle: 'planned',
+    status: 'draft',
+    environment: draft.environment.toLowerCase(),
+    release_status: 'not_scheduled',
+    health_status: 'unknown',
+    risk_level: 'unknown',
+    primary_owner: draft.primaryOwner || null,
+    technical_owner: draft.technicalOwner || null,
+    is_enabled: false,
+  }) as { module: EcosystemModule };
+  return response.module;
 }
 
 export async function exportEcosystemModuleReport(filters: EcosystemModuleFilters = {}): Promise<string> {
-  const results = await fetchEcosystemModules({ ...filters, page: 1, pageSize: 25 });
-  const headers = ["Public reference", "Database module ID", "Module name", "Module key", "Lifecycle", "Operational status", "Health score", "Risk level"];
-  const rows = results.data.map((module) => [
-    module.publicReference, module.databaseModuleId, module.moduleName, module.moduleKey,
-    module.lifecycle, module.operationalStatus, module.healthScore, module.riskLevel,
-  ]);
-  return [headers.join(","), ...rows.map((row) => row.map((item) => `\"${String(item).replaceAll("\"", "\"\"")}\"`).join(","))].join("\n");
+  const results = await fetchEcosystemModules({ ...filters, page: 1, pageSize: 100 });
+  const headers = ['Public reference', 'Database module ID', 'Module name', 'Module key', 'Lifecycle', 'Operational status', 'Health score', 'Risk level'];
+  const rows = results.data.map((module) => [module.publicReference, module.databaseModuleId, module.moduleName, module.moduleKey, module.lifecycle, module.operationalStatus, module.healthScore ?? '', module.riskLevel]);
+  return [headers, ...rows].map((row) => row.map((item) => `"${String(item ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
 }
-

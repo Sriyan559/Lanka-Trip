@@ -21,19 +21,19 @@ export type EcosystemModule = {
   countriesEnabled: number;
   activeUsers: number;
   monthlyTransactions: number;
-  adoptionRate: number;
+  adoptionRate: number | null;
   availability: number | null;
   errorRate: number | null;
-  healthScore: number;
+  healthScore: number | null;
   riskLevel: string;
   riskTrend: string;
-  primaryOwner: string;
-  technicalOwner: string;
-  lastRelease: string;
-  nextUpdate: string;
-  lastUpdated: string;
+  primaryOwner: string | null;
+  technicalOwner: string | null;
+  lastRelease: string | null;
+  nextUpdate: string | null;
+  lastUpdated: string | null;
   environment: string;
-  region: string;
+  region: string | null;
 };
 
 export type EcosystemModuleFilters = {
@@ -76,6 +76,10 @@ export type EcosystemModuleDashboard = {
   generatedAt: string;
   source: string;
   freshness: "fresh" | "stale" | "partial";
+  alerts: Array<{ id: number; severity: string; type: string; message: string; status: string; created_at: string; module_key: string | null; module_name: string | null }>;
+  risks: Array<{ severity: string; count: number }>;
+  distributions: Record<string, Array<{ name: string | null; value: number }>>;
+  permissions: { canRegister: boolean; canConfigure: boolean; canExport: boolean };
 };
 
 export type EcosystemModulePage = {

@@ -21,4 +21,19 @@ class EcosystemModulePolicy
     {
         return $user->hasPermission('ecosystem.modules.configure');
     }
+
+    public function create(User $user): bool
+    {
+        return $user->hasPermission('ecosystem.modules.configure');
+    }
+
+    public function update(User $user, EcosystemModule $module): bool
+    {
+        return $this->configure($user, $module);
+    }
+
+    public function delete(User $user, EcosystemModule $module): bool
+    {
+        return $this->configure($user, $module);
+    }
 }

@@ -9,6 +9,35 @@ import {
 
 const push = vi.fn();
 
+const moduleRecord = vi.hoisted(() => ({
+  id: "1", publicReference: "MOD-2036-00001", databaseModuleId: 1,
+  moduleName: "B2C Marketplace", moduleKey: "b2c-marketplace", category: "Commerce",
+  moduleType: "Core", lifecycle: "Operational", operationalStatus: "Operational",
+  releaseStatus: "Blocked", currentVersion: "1.0.0", targetVersion: null,
+  productionEnabled: true, configurationStatus: "Configured", integrationReadiness: "Healthy",
+  dependencyHealth: "Healthy", complianceStatus: "Approved", securityReview: "Approved",
+  countriesEnabled: 1, activeUsers: 10, monthlyTransactions: 20, adoptionRate: 75,
+  availability: 99.9, errorRate: 0.1, healthScore: 95, riskLevel: "Low", riskTrend: "Stable",
+  primaryOwner: "Commerce", technicalOwner: "Platform", region: "Sri Lanka",
+  lastRelease: null, nextUpdate: null, lastUpdated: "2026-08-14T00:00:00Z",
+}));
+
+vi.mock("@/services/api/ecosystemModules", () => ({
+  fetchEcosystemModules: vi.fn(async () => ({ data: [moduleRecord], total: 1, page: 1, pageSize: 5, totalPages: 1 })),
+  fetchEcosystemModuleByKey: vi.fn(async () => moduleRecord),
+  fetchEcosystemModuleDashboard: vi.fn(async () => ({
+    kpis: [{ id: "total", label: "Total Registered Modules", detail: "Portfolio records", tone: "info", value: "1" }],
+    portfolioHealth: [{ label: "Portfolio Health Score", value: "95%", progress: 95, tone: "success" }],
+    alerts: [], risks: [],
+    distributions: { category: [{ name: "Commerce", value: 1 }], lifecycle: [{ name: "Operational", value: 1 }], moduleType: [{ name: "Core", value: 1 }], health: [{ name: "Healthy", value: 1 }], environment: [{ name: "Production", value: 1 }] },
+    permissions: { canRegister: true, canConfigure: true, canExport: true },
+    generatedAt: "2026-08-14T00:00:00Z", source: "ecosystem_modules", freshness: "fresh",
+  })),
+  getModulePermissions: () => ({ canRegister: true, canCompare: true, canExport: true, canManageReleases: true }),
+  exportEcosystemModuleReport: vi.fn(async () => "module"),
+  registerEcosystemModule: vi.fn(async () => moduleRecord),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, replace: vi.fn(), prefetch: vi.fn() }),
   usePathname: () => "/admin/ecosystem-modules",
