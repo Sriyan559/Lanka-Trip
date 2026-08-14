@@ -158,12 +158,20 @@ export const ADMIN_NAVIGATION = [
     {id:"EM14",label:"Reports, Audit, Export & Ecosystem Change History",href:"/admin/ecosystem-modules/reports-audit"},
   ]},
   {id:"administration",label:"Administration",href:"/admin/administration",icon:Settings,disabled:false,children:[
-    {id:"command-center",label:"Command Center",href:"/admin/administration",exact:true},
-    {id:"users-identity",label:"Users & Identity",href:"/admin/administration/users"},
-    {id:"roles-permissions",label:"Roles & Permissions",href:"/admin/administration/roles-permissions"},
-    {id:"tenant-organization",label:"Tenant & Organization",href:"/admin/administration/tenant-organization"},
-    {id:"system-configuration",label:"System Configuration",href:"/admin/administration/system-configuration"},
-    {id:"logs",label:"Logs",href:"/admin/administration/logs"},
+    {id:"admin-command-center",label:"Administration Command Center",href:"/admin/administration",exact:true},
+    {id:"users-accounts-identity",label:"Users, Accounts & Identity Management",href:"/admin/administration/users",exact:true},
+    {id:"user-detail-access-activity",label:"User Detail, Access & Activity",href:"/admin/administration/users/USR-2026-00842"},
+    {id:"roles-permissions-access",label:"Roles, Permissions & Access Profiles",href:"/admin/administration/roles-permissions"},
+    {id:"tenant-ecosystem-org",label:"Tenant, Ecosystem & Organizational Structure",href:"/admin/administration/tenant-organization"},
+    {id:"business-units-channels-scope",label:"Business Units, Channels & Operating Scope",href:"/admin/administration/business-units-channels"},
+    {id:"system-config-settings",label:"System Configuration & Global Settings",href:"/admin/administration/system-configuration"},
+    {id:"localization-languages-currency",label:"Localization, Languages, Currency & Regional Settings",href:"/admin/administration/localization-regional"},
+    {id:"communications-notifications-templates",label:"Communications, Notifications & Template Management",href:"/admin/administration/communications"},
+    {id:"security-auth-session-control",label:"Security, Authentication & Session Control",href:"/admin/administration/security-authentication"},
+    {id:"workflows-approvals-process",label:"Workflows, Approvals & Administrative Process Control",href:"/admin/administration/workflows"},
+    {id:"data-governance-retention-privacy",label:"Data Governance, Retention, Privacy & Administrative Data Controls",href:"/admin/administration/data-governance"},
+    {id:"maintenance-diagnostics-jobs",label:"Maintenance, Diagnostics, System Jobs & Operational Administration",href:"/admin/administration/maintenance-diagnostics"},
+    {id:"admin-reports-audit-history",label:"Reports & Audit",href:"/admin/administration/reports-audit"},
   ]},
 ];
 
@@ -180,6 +188,12 @@ export const navigationItemMatchesPath = (item, pathname) => {
     return true;
   }
   if (item.id === "EM07" && pathname.startsWith("/admin/ecosystem-modules/sector-packs/") && pathname !== "/admin/ecosystem-modules/sector-packs") {
+    return true;
+  }
+  if (item.id === "user-detail-access-activity" && pathname.startsWith("/admin/administration/users/") && pathname !== "/admin/administration/users") {
+    return true;
+  }
+  if (item.id === "users-accounts-identity" && pathname === "/admin/administration/users") {
     return true;
   }
   if (item.id === "carriers-delivery-partners" && (pathname === "/admin/logistics/carriers" || pathname.startsWith("/admin/logistics/carriers/"))) {
@@ -213,3 +227,4 @@ export const getActiveChildHref = (item, pathname) =>
   item?.children
     ?.filter((child) => navigationItemMatchesPath(child, pathname))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href ?? null;
+

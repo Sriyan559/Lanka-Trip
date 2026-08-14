@@ -84,7 +84,7 @@ export default function AdministrationCommandCenterPage() {
     <div className="flex flex-col min-h-screen bg-gray-50/40 p-4">
       {/* Title block */}
       <PageHeader
-        title="AD01 — Administration Command Center"
+        title="Administration Command Center"
         description="A central administration command center for system administration health, identities, organization, configuration, security controls, workflows, communications, governance, maintenance, and audit across the retail ecosystem."
         crumbs={['Admin', 'Administration', 'Command Center']}
         actions={headerActions}
