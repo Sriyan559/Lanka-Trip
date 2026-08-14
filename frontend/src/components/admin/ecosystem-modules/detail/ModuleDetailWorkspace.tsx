@@ -76,7 +76,7 @@ export function ModuleDetailWorkspace({ moduleKey }: { moduleKey: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
+  const searchParamsString = searchParams?.toString() ?? "";
 
   const [detail, setDetail] = useState<ModuleDetailType | null | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -84,13 +84,15 @@ export function ModuleDetailWorkspace({ moduleKey }: { moduleKey: string }) {
   const [notice, setNotice] = useState("");
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const screenState = searchParams.get("state") ?? "";
-  const readOnly = searchParams.get("access") === "read-only";
-  const activeTab = (searchParams.get("tab") as DetailTabKey) || "overview";
+  const screenState = searchParams?.get("state") ?? "";
+  const readOnly = searchParams?.get("access") === "read-only";
+  const activeTab = (searchParams?.get("tab") as DetailTabKey) || "overview";
+
   const returnTo = sanitizeInternalRedirect(
-    searchParams.get("returnTo"),
+    searchParams?.get("returnTo"),
     "/admin/ecosystem-modules",
   );
+
   const permissions = getModuleDetailPermissions(readOnly);
 
   const updateQuery = useCallback(

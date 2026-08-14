@@ -27,7 +27,7 @@ export function ReturnDetailView({ returnId }: ReturnDetailViewProps) {
   const [activeModal, setActiveModal] = useState<ReturnDetailModalType>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const requestedTab = searchParams.get("tab") || "overview";
+  const requestedTab = searchParams?.get("tab") || "overview";
   const activeTab = RETURN_DETAIL_TABS.some((tab) => tab.id === requestedTab) ? requestedTab : "overview";
 
   const loadCase = useCallback(async () => {
@@ -48,7 +48,8 @@ export function ReturnDetailView({ returnId }: ReturnDetailViewProps) {
   }, [loadCase]);
 
   const handleTabChange = (tabId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || "");
+
     params.set("tab", tabId);
     router.push(`/admin/marketplace/returns/${encodeURIComponent(returnId)}?${params.toString()}`);
   };

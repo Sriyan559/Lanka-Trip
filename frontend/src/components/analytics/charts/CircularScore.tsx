@@ -5,7 +5,7 @@ import React from "react";
 interface CircularScoreProps {
   score: number;
   maxScore?: number;
-  size?: number;
+  size?: number | "sm" | "md" | "lg";
   strokeWidth?: number;
   primaryColor?: string;
   backgroundColor?: string;
@@ -25,26 +25,37 @@ export function CircularScore({
   subtext,
   className = "",
 }: CircularScoreProps) {
-  const radius = (size - strokeWidth) / 2;
+  const numericSize =
+    typeof size === "number"
+      ? size
+      : size === "sm"
+      ? 64
+      : size === "md"
+      ? 80
+      : 96;
+  const radius = (numericSize - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const percentage = Math.min(Math.max(score / maxScore, 0), 1);
   const strokeDashoffset = circumference - percentage * circumference;
 
+
   return (
     <div className={`circular-score-wrapper flex flex-col items-center justify-center ${className}`}>
-      <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="transform -rotate-90">
+      <div className="relative flex items-center justify-center" style={{ width: numericSize, height: numericSize }}>
+        <svg width={numericSize} height={numericSize} className="transform -rotate-90">
+
           <circle
-            cx={size / 2}
-            cy={size / 2}
+            cx={numericSize / 2}
+            cy={numericSize / 2}
             r={radius}
             stroke={backgroundColor}
             strokeWidth={strokeWidth}
             fill="transparent"
           />
           <circle
-            cx={size / 2}
-            cy={size / 2}
+            cx={numericSize / 2}
+            cy={numericSize / 2}
+
             r={radius}
             stroke={primaryColor}
             strokeWidth={strokeWidth}

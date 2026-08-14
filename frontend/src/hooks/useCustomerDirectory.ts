@@ -48,20 +48,21 @@ export function useCustomerDirectory() {
 
   // Filters State
   const [filters, setFilters] = useState<CustomerFilterState>({
-    searchQuery: searchParams.get("q") || "",
-    segment: searchParams.get("segment") || "All",
-    customerType: searchParams.get("customerType") || "All",
-    region: searchParams.get("region") || "All",
-    salesChannel: searchParams.get("salesChannel") || "All",
-    loyaltyTier: searchParams.get("loyaltyTier") || "All",
-    verificationStatus: searchParams.get("verificationStatus") || "All",
-    consentStatus: searchParams.get("consentStatus") || "All",
-    riskLevel: searchParams.get("riskLevel") || "All",
-    owner: searchParams.get("owner") || "All",
-    updatedDate: searchParams.get("updatedDate") || "30D",
-    activeTab: searchParams.get("view") || "all",
-    quickChips: searchParams.get("chip") ? [searchParams.get("chip")!] : [],
+    searchQuery: searchParams?.get("q") || "",
+    segment: searchParams?.get("segment") || "All",
+    customerType: searchParams?.get("customerType") || "All",
+    region: searchParams?.get("region") || "All",
+    salesChannel: searchParams?.get("salesChannel") || "All",
+    loyaltyTier: searchParams?.get("loyaltyTier") || "All",
+    verificationStatus: searchParams?.get("verificationStatus") || "All",
+    consentStatus: searchParams?.get("consentStatus") || "All",
+    riskLevel: searchParams?.get("riskLevel") || "All",
+    owner: searchParams?.get("owner") || "All",
+    updatedDate: searchParams?.get("updatedDate") || "30D",
+    activeTab: searchParams?.get("view") || "all",
+    quickChips: searchParams?.get("chip") ? [searchParams?.get("chip")!] : [],
   });
+
 
   // Sorting
   const [sortColumn, setSortColumn] = useState<keyof CustomerRecord>("updatedAt");

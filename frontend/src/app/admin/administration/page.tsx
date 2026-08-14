@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { RefreshCw } from 'lucide-react';
 import { PageHeader } from '@/components/admin/layout/PageHeader';
 import { AdministrationContextStrip } from '@/components/admin/administration/AdministrationContextStrip';
 import { AdministrationKpiGrid } from '@/components/admin/administration/AdministrationKpiGrid';
@@ -18,6 +19,7 @@ import { GovernanceAndJobs } from '@/components/admin/administration/GovernanceA
 import { RiskAndTrends } from '@/components/admin/administration/RiskAndTrends';
 import { InputFeedsAndActivity } from '@/components/admin/administration/InputFeedsAndActivity';
 import { AdministrationOperationalRail } from '@/components/admin/administration/AdministrationOperationalRail';
+import { useAdministrationCommandCenter } from '@/hooks/useAdministrationCommandCenter';
 
 const initialFilters = {
   tenant: 'all',
@@ -36,6 +38,13 @@ export default function AdministrationCommandCenterPage() {
   const [filters, setFilters] = useState(initialFilters);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
 
+  // Build clean params for the API — exclude defaults
+  const apiParams = Object.fromEntries(
+    Object.entries(filters).filter(([, v]) => v && v !== 'all')
+  );
+
+  const { data, loading, error, lastUpdated, refresh } = useAdministrationCommandCenter(apiParams);
+
   const handleFilterChange = (key: keyof typeof initialFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -52,13 +61,24 @@ export default function AdministrationCommandCenterPage() {
   };
 
   const handleApplyFilters = () => {
-    // Functional placeholder to represent applying filters in frontend state
-    console.log('Applying Filters:', { filters, selectedChips });
+    refresh();
   };
 
-  // Render primary actions for PageHeader
+  const lastUpdatedLabel = lastUpdated
+    ? `Updated ${Math.round((Date.now() - lastUpdated.getTime()) / 1000)}s ago`
+    : 'Loading…';
+
   const headerActions = (
     <div className="flex items-center gap-2">
+      <span className="text-[10px] text-gray-400 font-medium">{lastUpdatedLabel}</span>
+      <button
+        type="button"
+        onClick={refresh}
+        className="p-1.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 rounded shadow-sm transition-colors"
+        title="Refresh dashboard"
+      >
+        <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+      </button>
       <Link
         href="/admin/administration"
         className="px-3.5 py-1.5 bg-[#741d35] hover:bg-[#5d172a] text-white text-[11px] font-bold rounded shadow transition-colors"
@@ -72,7 +92,7 @@ export default function AdministrationCommandCenterPage() {
         Create Administrator
       </Link>
       <Link
-        href="/admin/administration"
+        href="/admin/administration/security-authentication"
         className="px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-[11px] font-bold rounded shadow-sm transition-colors"
       >
         Review Security Risks
@@ -90,11 +110,25 @@ export default function AdministrationCommandCenterPage() {
         actions={headerActions}
       />
 
+      {/* Error banner */}
+      {error && (
+        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded flex items-center justify-between">
+          <span className="text-xs text-red-700 font-semibold">{error}</span>
+          <button
+            type="button"
+            onClick={refresh}
+            className="text-xs text-red-600 underline hover:text-red-800 font-bold"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Context Strip */}
-      <AdministrationContextStrip />
+      <AdministrationContextStrip overview={data?.overview} loading={loading} />
 
       {/* KPI Grid */}
-      <AdministrationKpiGrid />
+      <AdministrationKpiGrid kpis={data?.kpis} loading={loading} />
 
       {/* Tabs */}
       <AdministrationTabs activeTab={activeTab} onChangeTab={setActiveTab} />
@@ -115,34 +149,23 @@ export default function AdministrationCommandCenterPage() {
 
       {/* Two column layout: Main Content + Right operational rail */}
       <div className="flex flex-col lg:flex-row gap-4 items-start w-full">
-        {/* Main content - Left Column (flex-grow) */}
+        {/* Main content - Left Column */}
         <div className="flex-1 w-full lg:max-w-[calc(100%-316px)]">
           {activeTab === 'overview' ? (
             <>
-              {/* Tables */}
-              <AdministrationHealthOverview />
-              <AdministrativeIdentityTable />
-              
-              {/* Summary Cards Row */}
-              <SummaryCardsRow />
-              
-              {/* Platform Config panels */}
-              <PlatformConfigurationHealth />
-              
-              {/* Localization / Readiness */}
-              <LocalizationReadiness />
-              
-              {/* Security and Workflow widgets */}
-              <SecurityAndWorkflowPosture />
-              
-              {/* Jobs and governance */}
-              <GovernanceAndJobs />
-              
-              {/* Trends and Risks */}
-              <RiskAndTrends />
-              
-              {/* Input feeds and activities */}
-              <InputFeedsAndActivity />
+              <AdministrationHealthOverview overview={data?.overview} loading={loading} />
+              <AdministrativeIdentityTable
+                administrativeIdentities={data?.administrative_identities}
+                privilegedAdmins={data?.privileged_admins}
+                loading={loading}
+              />
+              <SummaryCardsRow overview={data?.overview} loading={loading} />
+              <PlatformConfigurationHealth platformConfigs={data?.platform_configs} loading={loading} />
+              <LocalizationReadiness localizationReadiness={data?.localization_readiness} loading={loading} />
+              <SecurityAndWorkflowPosture securityPosture={data?.security_posture} loading={loading} />
+              <GovernanceAndJobs governanceJobs={data?.governance_jobs} loading={loading} />
+              <RiskAndTrends charts={data?.charts} loading={loading} />
+              <InputFeedsAndActivity recentActivity={data?.recent_activity} loading={loading} />
             </>
           ) : (
             <div className="bg-white border border-gray-200 rounded p-8 text-center text-gray-500 font-semibold shadow-sm">
@@ -152,7 +175,11 @@ export default function AdministrationCommandCenterPage() {
         </div>
 
         {/* Operational Rail - Right Column */}
-        <AdministrationOperationalRail />
+        <AdministrationOperationalRail
+          overview={data?.overview}
+          serverInfo={data?.server_info}
+          loading={loading}
+        />
       </div>
     </div>
   );

@@ -19,7 +19,8 @@ export default function ContentDetailPage({
           Marketing Content & Creative Detail
         </h1>
         <p className="text-xs text-gray-500 mt-2">
-          Target Content ID: <code className="font-mono text-[#800020] font-bold">{params.contentId}</code>
+          Target Content ID: <code className="font-mono text-[#800020] font-bold">{params?.contentId || ""}</code>
+
         </p>
         <p className="text-xs text-gray-500 mt-1">
           Master creative asset management workspace covering variants, approval workflow, rights validity, channel readiness, and usage cross-references.

@@ -19,7 +19,8 @@ export default function AudienceDetailPage({
           Audience Detail Workspace
         </h1>
         <p className="text-xs text-gray-500 mt-2">
-          Target Audience ID: <code className="font-mono text-[#800020] font-bold">{params.audienceId}</code>
+          Target Audience ID: <code className="font-mono text-[#800020] font-bold">{params?.audienceId || ""}</code>
+
         </p>
         <p className="text-xs text-gray-500 mt-1">
           Detailed customer membership breakdown, segment rules, refresh history and channel activation logs.

@@ -37,7 +37,8 @@ const payloadFrom = (attribute: Partial<CatalogueAttribute>, groupId?: string | 
 
 export const AttributeManagementView: React.FC = () => {
   const params = useSearchParams(); const router = useRouter(); const pathname = usePathname();
-  const [filters, setFilters] = useState<AttributeFilterState>({ ...defaults, searchQuery: params.get("search") || "", statusTab: params.get("tab") || defaults.statusTab });
+  const [filters, setFilters] = useState<AttributeFilterState>({ ...defaults, searchQuery: params?.get("search") || "", statusTab: params?.get("tab") || defaults.statusTab });
+
   const [page, setPage] = useState(1); const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]); const [selected, setSelected] = useState<CatalogueAttribute | null>(null);
   const [activeKpi, setActiveKpi] = useState<string | null>(null); const [editing, setEditing] = useState<CatalogueAttribute | null>(null);
@@ -49,7 +50,8 @@ export const AttributeManagementView: React.FC = () => {
   const { data, loading, refreshing, error, refresh } = useAttributeManagement(query);
   const rows = data?.attributes.data || [];
 
-  useEffect(() => { const queryParams = new URLSearchParams(); if (filters.searchQuery) queryParams.set("search", filters.searchQuery); if (filters.statusTab !== defaults.statusTab) queryParams.set("tab", filters.statusTab); router.replace(queryParams.size ? `${pathname}?${queryParams}` : pathname, { scroll: false }); }, [filters.searchQuery, filters.statusTab, pathname, router]);
+  useEffect(() => { const queryParams = new URLSearchParams(); if (filters.searchQuery) queryParams.set("search", filters.searchQuery); if (filters.statusTab !== defaults.statusTab) queryParams.set("tab", filters.statusTab); const targetPath = pathname ?? ""; router.replace(queryParams.size ? `${targetPath}?${queryParams}` : targetPath, { scroll: false }); }, [filters.searchQuery, filters.statusTab, pathname, router]);
+
   useEffect(() => { setPage(1); }, [filters]);
   useEffect(() => { if (!selected || !rows.some(row => row.id === selected.id)) setSelected(rows[0] || null); }, [rows, selected]);
 

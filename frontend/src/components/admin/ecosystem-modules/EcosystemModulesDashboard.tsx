@@ -235,10 +235,12 @@ export function EcosystemModulesDashboard() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const queryString = searchParams.toString();
+  const queryString = searchParams?.toString() ?? "";
+
   const filters = useMemo(() => toFilters(new URLSearchParams(queryString)), [queryString]);
-  const screenState = searchParams.get("state") ?? "ready";
-  const permissions = getModulePermissions(searchParams.get("access") === "read-only");
+  const screenState = searchParams?.get("state") ?? "ready";
+  const permissions = getModulePermissions(searchParams?.get("access") === "read-only");
+
   const [search, setSearch] = useState(filters.search ?? "");
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [registry, setRegistry] = useState<EcosystemModulePage | null>(null);
@@ -346,7 +348,8 @@ export function EcosystemModulesDashboard() {
         </div>
       </header>
 
-      {searchParams.get("access") === "read-only" && <div className="mb-6 px-4 py-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[13px] flex items-center gap-2"><ShieldCheck size={16} />Read-only access: registration, comparison, export and release actions are disabled for this session.</div>}
+      {searchParams?.get("access") === "read-only" && <div className="mb-6 px-4 py-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[13px] flex items-center gap-2"><ShieldCheck size={16} />Read-only access: registration, comparison, export and release actions are disabled for this session.</div>}
+
       {notice && <div className="mb-6 px-4 py-3 bg-green-50 text-green-800 border border-green-200 rounded-lg text-[13px] flex items-center justify-between" role="status"><div className="flex items-center gap-2"><CheckCircle2 size={16} /><span>{notice}</span></div><button className="text-green-800 hover:text-green-900" type="button" aria-label="Dismiss confirmation" onClick={() => setNotice("")}><X size={14} /></button></div>}
       {dashboard?.freshness === "stale" && <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2"><CircleAlert size={16} />Showing the most recently generated portfolio aggregate from {dashboard.generatedAt}. A refresh is pending.</div>}
       {dashboard?.freshness === "partial" && <div className="mb-6 px-4 py-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-[13px] flex items-center gap-2"><CircleAlert size={16} />Partial registry data: availability and error-rate values may be temporarily unavailable for selected modules.</div>}
@@ -408,11 +411,12 @@ export function EcosystemModulesDashboard() {
                   <i className={`w-2 h-2 rounded-full ${dotColor}`} />{filter.label}
                 </button>;
               })}
-              <button className="ml-auto text-[11px] font-bold text-[#741d35] hover:underline" type="button" onClick={() => { setSearch(""); router.push(pathname, { scroll: false }); }}>Clear All</button>
+              <button className="ml-auto text-[11px] font-bold text-[#741d35] hover:underline" type="button" onClick={() => { setSearch(""); router.push(pathname ?? "", { scroll: false }); }}>Clear All</button>
             </div>
           </section>
 
-          {!registry.data.length ? <div className="py-12 flex flex-col items-center gap-4 bg-white rounded-xl border border-line shadow-sm"><EmptyState title="No modules match this registry view" /><button className="px-4 py-2 rounded-lg border border-line text-[12px] font-bold bg-white hover:bg-gray-50 transition-colors" type="button" onClick={() => router.push(pathname)}>Clear registry filters</button></div> : <ModuleRegistryTable registry={registry} filters={filters} returnTo={returnTo} onSort={updateSort} onPageChange={(page) => updateQuery({ page: String(page) }, false)} />}
+          {!registry.data.length ? <div className="py-12 flex flex-col items-center gap-4 bg-white rounded-xl border border-line shadow-sm"><EmptyState title="No modules match this registry view" /><button className="px-4 py-2 rounded-lg border border-line text-[12px] font-bold bg-white hover:bg-gray-50 transition-colors" type="button" onClick={() => router.push(pathname ?? "")}>Clear registry filters</button></div> : <ModuleRegistryTable registry={registry} filters={filters} returnTo={returnTo} onSort={updateSort} onPageChange={(page) => updateQuery({ page: String(page) }, false)} />}
+
 
           <PortfolioPanels onAction={(title, body) => setDialog({ title, body })} />
         </div>

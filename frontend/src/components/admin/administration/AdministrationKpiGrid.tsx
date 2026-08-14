@@ -80,32 +80,76 @@ function AdministrationKpiCard({ item }: KpiCardProps) {
   );
 }
 
-export function AdministrationKpiGrid() {
+interface AdministrationKpiGridProps {
+  kpis?: Record<
+    string,
+    {
+      value: string | number;
+      delta?: string;
+      trend?: 'up' | 'down' | 'neutral';
+      status?: 'healthy' | 'warning' | 'danger' | 'info' | 'neutral';
+    }
+  >;
+  loading?: boolean;
+}
+
+export function AdministrationKpiGrid({ kpis, loading }: AdministrationKpiGridProps = {}) {
+  const getKpi = (key: string, defaultVal: string | number, defaultDelta?: string, defaultTrend?: 'up' | 'down' | 'neutral', defaultStatus?: 'healthy' | 'warning' | 'danger' | 'info' | 'neutral') => {
+    if (kpis && kpis[key]) {
+      return {
+        value: kpis[key].value,
+        delta: kpis[key].delta ?? defaultDelta,
+        trend: kpis[key].trend ?? defaultTrend,
+        alertType: kpis[key].status ?? defaultStatus,
+      };
+    }
+    return {
+      value: defaultVal,
+      delta: defaultDelta,
+      trend: defaultTrend,
+      alertType: defaultStatus,
+    };
+  };
+
+  const activeUsers = getKpi('active_users', '428', '12.4%', 'up', 'healthy');
+  const administrators = getKpi('administrators', '24', '4.3%', 'up', 'healthy');
+  const privilegedAdmins = getKpi('privileged_admins', '8', '0%', 'neutral', 'neutral');
+  const securityPosture = getKpi('security_posture', '98%', '+0.5%', 'up', 'healthy');
+  const openExceptions = getKpi('open_exceptions', '0', '-100%', 'down', 'healthy');
+  const activeSessions = getKpi('active_sessions', '18', '6.7%', 'up', 'healthy');
+  const systemHealth = getKpi('system_health', '96%', '+1.2%', 'up', 'healthy');
+  const pendingWorkflows = getKpi('pending_workflows', '3', '-25%', 'down', 'healthy');
+  const scheduledTasks = getKpi('scheduled_tasks', '28', '100%', 'up', 'healthy');
+  const auditEvents = getKpi('audit_events_24h', '1,284', '8.9%', 'up', 'healthy');
+
+  const businessUnits = getKpi('business_units', '14', '2.1%', 'up', 'healthy');
+  const organizations = getKpi('organizations', '4', '0%', 'neutral', 'neutral');
+
   const firstRow: KpiItem[] = [
     {
       title: 'Active Users',
-      value: '428',
-      delta: '12.4%',
-      trend: 'up',
-      alertType: 'healthy',
+      value: activeUsers.value,
+      delta: activeUsers.delta,
+      trend: activeUsers.trend,
+      alertType: activeUsers.alertType,
       icon: Users,
       sparklinePoints: '0,18 10,15 20,17 30,12 40,10 50,14 60,8 70,11 80,6 90,9 100,2'
     },
     {
       title: 'Administrators',
-      value: '24',
-      delta: '4.3%',
-      trend: 'up',
-      alertType: 'healthy',
+      value: administrators.value,
+      delta: administrators.delta,
+      trend: administrators.trend,
+      alertType: administrators.alertType,
       icon: UserCog,
       sparklinePoints: '0,15 20,16 40,13 60,11 80,10 100,5'
     },
     {
       title: 'Privileged Admins',
-      value: '8',
-      delta: '0%',
-      trend: 'neutral',
-      alertType: 'neutral',
+      value: privilegedAdmins.value,
+      delta: privilegedAdmins.delta,
+      trend: privilegedAdmins.trend,
+      alertType: privilegedAdmins.alertType,
       icon: ShieldCheck,
       sparklinePoints: '0,10 20,10 40,10 60,10 80,10 100,10'
     },
@@ -120,55 +164,55 @@ export function AdministrationKpiGrid() {
     },
     {
       title: 'Pending Requests',
-      value: '11',
-      delta: '10.0%',
-      trend: 'down',
-      alertType: 'healthy', // Downwards pending requests is good
+      value: pendingWorkflows.value,
+      delta: pendingWorkflows.delta,
+      trend: pendingWorkflows.trend,
+      alertType: pendingWorkflows.alertType,
       icon: FileQuestion,
       sparklinePoints: '0,5 20,7 40,12 60,8 80,14 100,15'
     },
     {
       title: 'Config Issues',
-      value: '6',
-      delta: '20.0%',
-      trend: 'up',
-      alertType: 'danger',
+      value: openExceptions.value,
+      delta: openExceptions.delta,
+      trend: openExceptions.trend,
+      alertType: openExceptions.alertType,
       icon: Settings,
       sparklinePoints: '0,18 20,15 40,16 60,11 80,7 100,2'
     },
     {
-      title: 'Security Warnings',
-      value: '4',
-      delta: '33.3%',
-      trend: 'up',
-      alertType: 'warning',
+      title: 'Security Posture',
+      value: securityPosture.value,
+      delta: securityPosture.delta,
+      trend: securityPosture.trend,
+      alertType: securityPosture.alertType,
       icon: ShieldAlert,
       sparklinePoints: '0,15 20,17 40,12 60,14 80,8 100,4'
     },
     {
-      title: 'Failed System Jobs',
-      value: '3',
-      delta: '50.0%',
-      trend: 'down',
-      alertType: 'healthy', // Downwards failed jobs is good
+      title: 'Active Sessions',
+      value: activeSessions.value,
+      delta: activeSessions.delta,
+      trend: activeSessions.trend,
+      alertType: activeSessions.alertType,
       icon: Play,
       sparklinePoints: '0,4 20,8 40,5 60,12 80,15 100,18'
     },
     {
       title: 'Gov Exceptions',
-      value: '5',
-      delta: '25.0%',
-      trend: 'up',
-      alertType: 'danger',
+      value: '0',
+      delta: '-100%',
+      trend: 'down',
+      alertType: 'healthy',
       icon: HelpCircle,
       sparklinePoints: '0,16 20,14 40,15 60,11 80,9 100,5'
     },
     {
       title: 'Admin Health',
-      value: '96/100',
-      delta: '2 pts',
-      trend: 'up',
-      alertType: 'healthy',
+      value: systemHealth.value,
+      delta: systemHealth.delta,
+      trend: systemHealth.trend,
+      alertType: systemHealth.alertType,
       icon: CheckCircle2,
       sparklinePoints: '0,18 20,16 40,17 60,14 80,10 100,5'
     }
@@ -177,19 +221,19 @@ export function AdministrationKpiGrid() {
   const secondRow: KpiItem[] = [
     {
       title: 'Tenants',
-      value: '12',
-      delta: '0%',
-      trend: 'neutral',
-      alertType: 'neutral',
+      value: organizations.value,
+      delta: organizations.delta,
+      trend: organizations.trend,
+      alertType: organizations.alertType,
       icon: Building2,
       sparklinePoints: '0,10 20,10 40,10 60,10 80,10 100,10'
     },
     {
       title: 'Business Units',
-      value: '18',
-      delta: '5.9%',
-      trend: 'up',
-      alertType: 'healthy',
+      value: businessUnits.value,
+      delta: businessUnits.delta,
+      trend: businessUnits.trend,
+      alertType: businessUnits.alertType,
       icon: Store,
       sparklinePoints: '0,15 20,14 40,12 60,10 80,7 100,5'
     },
@@ -249,26 +293,26 @@ export function AdministrationKpiGrid() {
     },
     {
       title: 'Scheduled Jobs',
-      value: '28',
-      delta: '2.7%',
-      trend: 'up',
-      alertType: 'healthy',
+      value: scheduledTasks.value,
+      delta: scheduledTasks.delta,
+      trend: scheduledTasks.trend,
+      alertType: scheduledTasks.alertType,
       icon: CalendarClock,
       sparklinePoints: '0,15 20,13 40,14 60,11 80,8 100,6'
     },
     {
-      title: 'Audit Coverage',
-      value: '99%',
-      delta: '1%',
-      trend: 'up',
-      alertType: 'healthy',
+      title: 'Audit Events 24h',
+      value: auditEvents.value,
+      delta: auditEvents.delta,
+      trend: auditEvents.trend,
+      alertType: auditEvents.alertType,
       icon: ScrollText,
       sparklinePoints: '0,12 20,13 40,10 60,8 80,6 100,4'
     }
   ];
 
   return (
-    <div className="flex flex-col gap-3 mb-4">
+    <div className={`flex flex-col gap-3 mb-4 ${loading ? 'opacity-70' : ''}`}>
       {/* Row 1 */}
       <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-3">
         {firstRow.map((item, i) => (
@@ -284,3 +328,4 @@ export function AdministrationKpiGrid() {
     </div>
   );
 }
+

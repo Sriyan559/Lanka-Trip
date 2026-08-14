@@ -19,7 +19,8 @@ export default function JourneyDetailPage({
           Customer Journey Detail & Execution Flow
         </h1>
         <p className="text-xs text-gray-500 mt-2">
-          Target Journey ID: <code className="font-mono text-[#800020] font-bold">{params.journeyId}</code>
+          Target Journey ID: <code className="font-mono text-[#800020] font-bold">{params?.journeyId || ""}</code>
+
         </p>
         <p className="text-xs text-gray-500 mt-1">
           Detailed step execution parameters, customer movement logs, channel dispatch health, and conversion attribution.

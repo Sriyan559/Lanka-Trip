@@ -21,8 +21,18 @@ interface PrivilegedAdmin {
   status: string;
 }
 
-export function AdministrativeIdentityTable() {
-  const users: UserIdentity[] = [
+interface AdministrativeIdentityTableProps {
+  administrativeIdentities?: UserIdentity[];
+  privilegedAdmins?: PrivilegedAdmin[];
+  loading?: boolean;
+}
+
+export function AdministrativeIdentityTable({
+  administrativeIdentities,
+  privilegedAdmins: propPrivilegedAdmins,
+  loading = false,
+}: AdministrativeIdentityTableProps = {}) {
+  const defaultUsers: UserIdentity[] = [
     { email: 'elena.vance@slbeauty.com', type: 'Admin', tenant: 'SL Beauty', scope: 'Platform Admin', lastLogin: 'May 18, 09:08 AM', mfa: true, status: 'Active' },
     { email: 'anuradha@slbeauty.com', type: 'Admin', tenant: 'SL Beauty', scope: 'Business Unit Admin', lastLogin: 'May 18, 08:21 AM', mfa: true, status: 'Active' },
     { email: 'nimal.perera@slbeauty.com', type: 'Admin', tenant: 'SL Beauty', scope: 'Security Admin', lastLogin: 'May 18, 07:56 AM', mfa: true, status: 'Active' },
@@ -31,13 +41,17 @@ export function AdministrativeIdentityTable() {
     { email: 'security.team@slbeauty.com', type: 'Admin', tenant: 'SL Beauty', scope: 'Security Team', lastLogin: 'May 18, 07:30 AM', mfa: true, status: 'Active' }
   ];
 
-  const privilegedAdmins: PrivilegedAdmin[] = [
+  const defaultPrivileged: PrivilegedAdmin[] = [
     { email: 'elena.vance@slbeauty.com', role: 'Platform Admin', scope: 'Enterprise Wide', privilegeLevel: 'Full', lastLogin: 'May 18, 09:08 AM', reviewDue: 'Jun 17, 2026', risk: 'low', status: 'Active' },
     { email: 'anuradha@slbeauty.com', role: 'Operations Admin', scope: 'Enterprise Wide', privilegeLevel: 'High', lastLogin: 'May 18, 08:21 AM', reviewDue: 'Jun 17, 2026', risk: 'low', status: 'Active' },
     { email: 'nimal.perera@slbeauty.com', role: 'Security Admin', scope: 'Enterprise Wide', privilegeLevel: 'High', lastLogin: 'May 18, 07:56 AM', reviewDue: 'Jun 17, 2026', risk: 'low', status: 'Active' },
     { email: 'arun.silva@slbeauty.com', role: 'Business Unit Admin', scope: 'SL Beauty', privilegeLevel: 'Medium', lastLogin: 'May 18, 07:38 AM', reviewDue: 'Jun 17, 2026', risk: 'low', status: 'Active' },
     { email: 'security.team@slbeauty.com', role: 'Security Team', scope: 'Security Domain', privilegeLevel: 'High', lastLogin: 'May 18, 07:30 AM', reviewDue: 'Jun 17, 2026', risk: 'low', status: 'Active' }
   ];
+
+  const users = administrativeIdentities && administrativeIdentities.length > 0 ? administrativeIdentities : defaultUsers;
+  const privilegedAdmins = propPrivilegedAdmins && propPrivilegedAdmins.length > 0 ? propPrivilegedAdmins : defaultPrivileged;
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">

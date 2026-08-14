@@ -22,8 +22,34 @@ function OverviewRow({ label, value, highlight }: OverviewRowProps) {
   );
 }
 
-export function AdministrationOperationalRail() {
-  const score = 96;
+interface AdministrationOperationalRailProps {
+  overview?: {
+    health_score: number;
+    identity_health_score: number;
+    security_posture_score: number;
+    workflow_compliance_score: number;
+    total_users: number;
+    active_users: number;
+    admin_count: number;
+    active_sessions: number;
+    mfa_enforced: number;
+    locked_accounts: number;
+    business_units_count: number;
+    organizations_count: number;
+  };
+  serverInfo?: {
+    environment: string;
+    php_version: string;
+    laravel_version: string;
+    server_time: string;
+    maintenance_mode: boolean;
+  };
+  loading?: boolean;
+}
+
+export function AdministrationOperationalRail({ overview, serverInfo, loading = false }: AdministrationOperationalRailProps = {}) {
+  const score = overview?.health_score ?? 96;
+
 
   return (
     <div className="w-[300px] flex-shrink-0 flex flex-col gap-4 border-l border-gray-200 pl-4 py-1 min-h-screen">

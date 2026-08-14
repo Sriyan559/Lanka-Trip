@@ -63,7 +63,8 @@ export function ProductMasterFormWorkspace({
 }: ProductMasterFormWorkspaceProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const stepParam = searchParams.get("step") as ProductStepId | null;
+  const stepParam = searchParams?.get("step") as ProductStepId | null;
+
 
   // Form State
   const [formState, setFormState] = useState<ProductMasterFormState>(

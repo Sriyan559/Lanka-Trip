@@ -14,7 +14,8 @@ const money = (amount: string, currency: string) => `${currency} ${Number(amount
 function OrdersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const serialized = searchParams.toString();
+  const serialized = searchParams?.toString() || "";
+
   const [data, setData] = useState<MarketplaceOrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

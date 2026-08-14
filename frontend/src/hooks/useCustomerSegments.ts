@@ -26,15 +26,16 @@ export function useCustomerSegments(showToast: (msg: string, type?: "success" | 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Filter state
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [selectedType, setSelectedType] = useState(searchParams.get("type") || "All");
-  const [selectedStatus, setSelectedStatus] = useState(searchParams.get("status") || "All");
-  const [selectedMembership, setSelectedMembership] = useState(searchParams.get("membership") || "All");
-  const [selectedConsent, setSelectedConsent] = useState(searchParams.get("consent") || "All");
-  const [selectedRisk, setSelectedRisk] = useState(searchParams.get("risk") || "All");
-  const [selectedOwner, setSelectedOwner] = useState(searchParams.get("owner") || "All");
-  const [selectedQuickFilter, setSelectedQuickFilter] = useState(searchParams.get("quick") || "");
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview");
+  const [searchQuery, setSearchQuery] = useState(searchParams?.get("q") || "");
+  const [selectedType, setSelectedType] = useState(searchParams?.get("type") || "All");
+  const [selectedStatus, setSelectedStatus] = useState(searchParams?.get("status") || "All");
+  const [selectedMembership, setSelectedMembership] = useState(searchParams?.get("membership") || "All");
+  const [selectedConsent, setSelectedConsent] = useState(searchParams?.get("consent") || "All");
+  const [selectedRisk, setSelectedRisk] = useState(searchParams?.get("risk") || "All");
+  const [selectedOwner, setSelectedOwner] = useState(searchParams?.get("owner") || "All");
+  const [selectedQuickFilter, setSelectedQuickFilter] = useState(searchParams?.get("quick") || "");
+  const [activeTab, setActiveTab] = useState(searchParams?.get("tab") || "overview");
+
 
   // Selection & Pagination
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);

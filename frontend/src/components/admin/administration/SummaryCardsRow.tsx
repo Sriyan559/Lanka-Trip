@@ -1,6 +1,12 @@
 import React from 'react';
 
-export function SummaryCardsRow() {
+interface SummaryCardsRowProps {
+  overview?: any;
+  loading?: boolean;
+}
+
+export function SummaryCardsRow({ overview, loading }: SummaryCardsRowProps = {}) {
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
       {/* 1. Access Review Summary */}

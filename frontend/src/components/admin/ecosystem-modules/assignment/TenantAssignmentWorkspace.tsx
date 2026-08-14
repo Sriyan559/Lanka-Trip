@@ -924,7 +924,8 @@ export function TenantAssignmentWorkspace() {
           {/* Panel 1: Assignment Health Score */}
           <AnalyticsPanel number="" title="Assignment Health">
             <div className="space-y-3 py-1 flex flex-col items-center justify-center text-center">
-              <CircularScore score={TENANT_ASSIGNMENT_DATA.assignmentHealthKpi.score} maxScore={100} size="lg" />
+              <CircularScore score={TENANT_ASSIGNMENT_DATA.assignmentHealthKpi.score} maxScore={100} size={84} />
+
               <span className="text-xs font-bold text-emerald-700 mt-1">{TENANT_ASSIGNMENT_DATA.assignmentHealthKpi.label}</span>
               <p className="text-[10px] text-slate-500 leading-tight">
                 {TENANT_ASSIGNMENT_DATA.assignmentHealthKpi.subtext}

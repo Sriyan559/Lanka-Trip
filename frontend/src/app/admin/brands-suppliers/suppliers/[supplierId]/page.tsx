@@ -37,11 +37,13 @@ export default function SupplierDetailPage({ params }: { params: { supplierId: s
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const supplierId = params?.supplierId || "";
+
   const fetchDetail = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await brandsSuppliersApi.getSupplierDetail(params.supplierId);
+      const res = await brandsSuppliersApi.getSupplierDetail(supplierId);
       setData(res);
     } catch (err: any) {
       console.error("Error fetching supplier detail:", err);
@@ -53,7 +55,8 @@ export default function SupplierDetailPage({ params }: { params: { supplierId: s
 
   useEffect(() => {
     fetchDetail();
-  }, [params.supplierId]);
+  }, [supplierId]);
+
 
   if (loading) {
     return (

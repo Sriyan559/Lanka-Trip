@@ -13,7 +13,13 @@ interface CommHealthItem {
   issues: number;
 }
 
-export function LocalizationReadiness() {
+interface LocalizationReadinessProps {
+  localizationReadiness?: Array<{ locale: string; code: string; coverage: string; status: string; fallback: string }>;
+  loading?: boolean;
+}
+
+export function LocalizationReadiness({ localizationReadiness, loading = false }: LocalizationReadinessProps = {}) {
+
   const locItems: LocalizationItem[] = [
     { label: 'Supported Languages', count: 5, progress: 100 },
     { label: 'Countries', count: 6, progress: 100 },

@@ -36,7 +36,8 @@ export default function CampaignDetailPage({
   };
 
   // Derive display code (e.g. MKT-2026-0087 if generic parameter)
-  const displayCode = params.campaignId.startsWith("MKT") ? params.campaignId : "MKT-2026-0087";
+  const campaignId = params?.campaignId || "";
+  const displayCode = campaignId.startsWith("MKT") ? campaignId : "MKT-2026-0087";
 
   return (
     <div className="min-h-screen bg-[#faf8f8] p-2.5 sm:p-4 text-gray-900 font-sans">
@@ -47,7 +48,7 @@ export default function CampaignDetailPage({
           <CampaignDetailHeader
             header={{
               ...data.header,
-              id: params.campaignId,
+              id: campaignId,
               code: displayCode,
             }}
           />

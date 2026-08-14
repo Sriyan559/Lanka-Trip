@@ -27,11 +27,12 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const tabParam = searchParams.get("tab") || "overview";
+  const tabParam = searchParams?.get("tab") || "overview";
   const activeTab = tabParam.toLowerCase();
 
   const handleTabChange = (tabKey: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || "");
+
     params.set("tab", tabKey);
     router.push(`/admin/marketplace/orders/${encodeURIComponent(order.orderReference)}?${params.toString()}`);
   };

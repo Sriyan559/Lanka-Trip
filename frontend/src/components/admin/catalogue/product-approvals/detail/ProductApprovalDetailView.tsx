@@ -7,14 +7,17 @@ import Link from "next/link";
 import { productApprovalsApi } from "@/services/api/productApprovals";
 
 export function ProductApprovalDetailView() {
-  const { productId } = useParams();
+  const params = useParams();
+  const productId = (params?.productId || params?.id || "") as string;
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
     if (productId) {
-      productApprovalsApi.getApprovalById(productId as string).then(setData);
+      productApprovalsApi.getApprovalById(productId).then(setData);
     }
   }, [productId]);
+
+
 
   if (!data) return <div className="p-8 text-center text-muted">Loading approval details...</div>;
 

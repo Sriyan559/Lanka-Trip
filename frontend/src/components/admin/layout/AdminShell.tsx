@@ -8,7 +8,9 @@ import { Sidebar } from "./Sidebar";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname ?? "";
+
   const isMarketplaceWorkspace =
     pathname === "/admin/marketplace" ||
     pathname.startsWith("/admin/marketplace/returns") ||

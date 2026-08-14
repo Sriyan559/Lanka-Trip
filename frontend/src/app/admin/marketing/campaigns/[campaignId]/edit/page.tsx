@@ -11,7 +11,7 @@ export default function EditCampaignPage({
   return (
     <CampaignOrchestrationWorkspace
       mode="Edit"
-      campaignId={params.campaignId}
+      campaignId={params?.campaignId || ""}
     />
   );
 }

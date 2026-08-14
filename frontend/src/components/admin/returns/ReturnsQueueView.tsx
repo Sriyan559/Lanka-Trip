@@ -75,32 +75,35 @@ export function ReturnsQueueView() {
 
   // Extract filter state from URL search params
   const currentFilters: ReturnFilterParams = {
-    search: searchParams.get("search") || "",
-    returnStatus: searchParams.get("returnStatus") || "",
-    refundStatus: searchParams.get("refundStatus") || "",
-    inspectionStatus: searchParams.get("inspectionStatus") || "",
-    disputeStatus: searchParams.get("disputeStatus") || "",
-    returnType: searchParams.get("returnType") || "",
-    reasonCategory: searchParams.get("reasonCategory") || "",
-    supplier: searchParams.get("supplier") || "",
-    brand: searchParams.get("brand") || "",
-    productCategory: searchParams.get("productCategory") || "",
-    logisticsPartner: searchParams.get("logisticsPartner") || "",
-    riskLevel: searchParams.get("riskLevel") || "",
-    assignedOfficer: searchParams.get("assignedOfficer") || "",
-    openedDate: searchParams.get("openedDate") || "",
-    dueDate: searchParams.get("dueDate") || "",
-    quickFilter: searchParams.get("quickFilter") || "",
-    orderId: searchParams.get("orderId") || "",
-    page: parsePage(searchParams.get("page")),
-    pageSize: parsePageSize(searchParams.get("pageSize")),
-    sort: searchParams.get("sort") || "",
-    direction: searchParams.get("direction") === "desc" ? "desc" : "asc",
+    search: searchParams?.get("search") || "",
+    returnStatus: searchParams?.get("returnStatus") || "",
+    refundStatus: searchParams?.get("refundStatus") || "",
+    inspectionStatus: searchParams?.get("inspectionStatus") || "",
+    disputeStatus: searchParams?.get("disputeStatus") || "",
+    returnType: searchParams?.get("returnType") || "",
+    reasonCategory: searchParams?.get("reasonCategory") || "",
+    supplier: searchParams?.get("supplier") || "",
+    brand: searchParams?.get("brand") || "",
+    productCategory: searchParams?.get("productCategory") || "",
+    logisticsPartner: searchParams?.get("logisticsPartner") || "",
+    riskLevel: searchParams?.get("riskLevel") || "",
+    assignedOfficer: searchParams?.get("assignedOfficer") || "",
+    openedDate: searchParams?.get("openedDate") || "",
+    dueDate: searchParams?.get("dueDate") || "",
+    quickFilter: searchParams?.get("quickFilter") || "",
+    orderId: searchParams?.get("orderId") || "",
+    page: parsePage(searchParams?.get("page") ?? null),
+
+    pageSize: parsePageSize(searchParams?.get("pageSize") ?? null),
+
+    sort: searchParams?.get("sort") || "",
+    direction: searchParams?.get("direction") === "desc" ? "desc" : "asc",
   };
 
   const updateUrlFilters = useCallback(
     (newFilters: Partial<ReturnFilterParams>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
+
 
       Object.entries(newFilters).forEach(([k, v]) => {
         if (v !== undefined && v !== null && String(v).trim() !== "") {
@@ -136,14 +139,15 @@ export function ReturnsQueueView() {
       if (resCases.liabilitySummary) setLiabilitySummary(resCases.liabilitySummary);
       setSelectedIds([]);
 
-      const rawPage = searchParams.get("page");
-      const rawPageSize = searchParams.get("pageSize");
+      const rawPage = searchParams?.get("page") ?? null;
+      const rawPageSize = searchParams?.get("pageSize") ?? null;
       if (resCases.page !== currentFilters.page || (rawPage !== null && rawPage !== String(resCases.page)) || (rawPageSize !== null && rawPageSize !== String(resCases.pageSize))) {
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams(searchParams?.toString() || "");
         params.set("page", String(resCases.page));
         params.set("pageSize", String(resCases.pageSize));
         router.replace(`/admin/marketplace/returns?${params.toString()}`);
       }
+
     } catch (err) {
       if (requestId === requestSequence.current) {
         setLoadError(err instanceof Error ? err.message : "Unable to load return cases.");

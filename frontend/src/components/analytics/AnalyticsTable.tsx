@@ -24,6 +24,7 @@ interface AnalyticsTableProps<T = any> {
   isLoading?: boolean;
   emptyText?: string;
   className?: string;
+  itemsPerPage?: number;
 }
 
 export function AnalyticsTable<T extends Record<string, any>>({
@@ -35,7 +36,10 @@ export function AnalyticsTable<T extends Record<string, any>>({
   isLoading = false,
   emptyText = "No data available",
   className = "",
+  itemsPerPage,
 }: AnalyticsTableProps<T>) {
+  const displayData = itemsPerPage ? data.slice(0, itemsPerPage) : data;
+
   if (isLoading) {
     return (
       <div className="w-full animate-pulse py-4 space-y-2">
@@ -87,8 +91,9 @@ export function AnalyticsTable<T extends Record<string, any>>({
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-slate-800">
-          {data.map((row, rowIdx) => {
-            const isLast = rowIdx === data.length - 1;
+          {displayData.map((row, rowIdx) => {
+            const isLast = rowIdx === displayData.length - 1;
+
             const isTotalRow = highlightTotalRow && isLast;
 
             return (

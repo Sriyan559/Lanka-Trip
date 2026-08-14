@@ -55,19 +55,19 @@ export function useCustomerCommandCenter() {
 
   // Filter state
   const [filters, setFilters] = useState<CustomerFilterState>({
-    searchQuery: searchParams.get("q") || "",
-    segment: searchParams.get("segment") || "All",
-    customerType: searchParams.get("customerType") || "All",
-    region: searchParams.get("region") || "All",
-    salesChannel: searchParams.get("salesChannel") || "All",
-    loyaltyTier: searchParams.get("loyaltyTier") || "All",
-    verificationStatus: searchParams.get("verificationStatus") || "All",
-    consentStatus: searchParams.get("consentStatus") || "All",
-    riskLevel: searchParams.get("riskLevel") || "All",
-    owner: searchParams.get("owner") || "Any",
-    updatedDate: searchParams.get("updatedDate") || "All",
-    activeTab: searchParams.get("view") || "Overview",
-    quickChips: searchParams.get("chip") ? [searchParams.get("chip")!] : [],
+    searchQuery: searchParams?.get("q") || "",
+    segment: searchParams?.get("segment") || "All",
+    customerType: searchParams?.get("customerType") || "All",
+    region: searchParams?.get("region") || "All",
+    salesChannel: searchParams?.get("salesChannel") || "All",
+    loyaltyTier: searchParams?.get("loyaltyTier") || "All",
+    verificationStatus: searchParams?.get("verificationStatus") || "All",
+    consentStatus: searchParams?.get("consentStatus") || "All",
+    riskLevel: searchParams?.get("riskLevel") || "All",
+    owner: searchParams?.get("owner") || "Any",
+    updatedDate: searchParams?.get("updatedDate") || "All",
+    activeTab: searchParams?.get("view") || "Overview",
+    quickChips: searchParams?.get("chip") ? [searchParams?.get("chip")!] : [],
   });
 
   // Sorting
@@ -81,10 +81,11 @@ export function useCustomerCommandCenter() {
   // Sync tab change with URL
   const handleTabChange = (tabName: string) => {
     setFilters((prev) => ({ ...prev, activeTab: tabName }));
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || "");
     params.set("view", tabName);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
+
 
   // Toggle quick-filter chip
   const handleToggleQuickChip = (chip: string) => {

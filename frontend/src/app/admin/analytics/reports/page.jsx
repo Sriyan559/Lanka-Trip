@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { AnalyticsReportWorkspace } from "@/features/analytics/reports/AnalyticsReportWorkspace";
 
 function ReportsContent() {
-  const searchParams = useSearchParams();
-  const reportId = searchParams.get("reportId") || "order-performance";
+  const reportId = searchParams?.get("reportId") || "order-performance";
+
 
   return <AnalyticsReportWorkspace reportId={reportId} />;
 }

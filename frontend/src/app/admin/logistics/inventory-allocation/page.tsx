@@ -24,10 +24,10 @@ function InventoryAllocationContent() {
   const [notification, setNotification] = useState<string | null>(null);
 
   const currentFilters = {
-    search: searchParams.get("search") || "",
-    allocation_status: searchParams.get("allocation_status") || "all",
-    page: Number(searchParams.get("page")) || 1,
-    per_page: Number(searchParams.get("per_page")) || 15,
+    search: searchParams?.get("search") || "",
+    allocation_status: searchParams?.get("allocation_status") || "all",
+    page: Number(searchParams?.get("page")) || 1,
+    per_page: Number(searchParams?.get("per_page")) || 15,
   };
   const apiFilters={...currentFilters,allocation_status:currentFilters.allocation_status === "all" ? undefined : currentFilters.allocation_status};
   const {data,loading,error,refresh}=useInventoryAllocations(apiFilters);
@@ -40,8 +40,9 @@ function InventoryAllocationContent() {
 
   const updateFilters = useCallback(
     (newFilters: Record<string, any>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
       const merged = { ...currentFilters, ...newFilters };
+
 
       Object.entries(merged).forEach(([key, value]) => {
         if (value && value !== "all" && value !== "") {

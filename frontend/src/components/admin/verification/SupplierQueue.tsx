@@ -33,10 +33,11 @@ const mergedSuppliersList = verificationSuppliers.map((s) => {
 
 export function SupplierQueue() {
   const router = useRouter();
-  const path = usePathname();
+  const rawPath = usePathname();
+  const path = rawPath ?? "";
   const params = useSearchParams();
 
-  const [search, setSearch] = useState(params.get('search') ?? '');
+  const [search, setSearch] = useState(params?.get('search') ?? '');
 
   useEffect(() => {
     const timer = setTimeout(() => updateParam('search', search, true), 350);
@@ -45,23 +46,23 @@ export function SupplierQueue() {
   }, [search]);
 
   function updateParam(key: string, value: string, replace = false) {
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(params?.toString() || "");
     if (value && value !== 'All') next.set(key, value);
     else next.delete(key);
     next.delete('page');
     router[replace ? 'replace' : 'push'](`${path}${next.size ? `?${next}` : ''}`, { scroll: false });
   }
 
-  const page = Math.max(1, Number(params.get('page') ?? 1) || 1);
+  const page = Math.max(1, Number(params?.get('page') ?? 1) || 1);
 
   const filtered = useMemo(() => {
     return mergedSuppliersList.filter((s) => {
       const q = search.trim().toLowerCase();
       if (q && !`${s.name} ${s.publicReference}`.toLowerCase().includes(q)) return false;
-      if (params.get('status') && s.status !== params.get('status')) return false;
-      if (params.get('risk') && s.risk !== params.get('risk')) return false;
-      if (params.get('type') && s.type !== params.get('type')) return false;
-      if (params.get('assigned') && s.assigned !== params.get('assigned')) return false;
+      if (params?.get('status') && s.status !== params?.get('status')) return false;
+      if (params?.get('risk') && s.risk !== params?.get('risk')) return false;
+      if (params?.get('type') && s.type !== params?.get('type')) return false;
+      if (params?.get('assigned') && s.assigned !== params?.get('assigned')) return false;
       return true;
     });
   }, [search, params]);
@@ -71,12 +72,12 @@ export function SupplierQueue() {
   const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   function setPage(value: number) {
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(params?.toString() || "");
     next.set('page', String(value));
     router.push(`${path}?${next}`, { scroll: false });
   }
 
-  const returnTo = `${path}${params.size ? `?${params}` : ''}`;
+  const returnTo = `${path}${params?.size ? `?${params}` : ''}`;
 
   return (
     <div className="space-y-6">
@@ -92,7 +93,7 @@ export function SupplierQueue() {
         </label>
         <select
           aria-label="Verification status"
-          value={params.get('status') ?? 'All'}
+          value={params?.get('status') ?? 'All'}
           onChange={(e) => updateParam('status', e.target.value)}
         >
           <option value="All">Status: All</option>
@@ -105,7 +106,7 @@ export function SupplierQueue() {
         </select>
         <select
           aria-label="Supplier type"
-          value={params.get('type') ?? 'All'}
+          value={params?.get('type') ?? 'All'}
           onChange={(e) => updateParam('type', e.target.value)}
         >
           <option value="All">Type: All</option>
@@ -116,9 +117,10 @@ export function SupplierQueue() {
         </select>
         <select
           aria-label="Risk level"
-          value={params.get('risk') ?? 'All'}
+          value={params?.get('risk') ?? 'All'}
           onChange={(e) => updateParam('risk', e.target.value)}
         >
+
           <option value="All">Risk: All</option>
           <option>Low</option>
           <option>Medium</option>

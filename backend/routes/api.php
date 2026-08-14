@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminAdministrationController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\Admin\AdminIdentityController;
 use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Admin\AdminSupplierDashboardController;
 use App\Http\Controllers\Api\Admin\AdminVerificationComplianceController;
@@ -200,6 +202,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/suppliers/{id}/reviews', [SupplierReviewController::class, 'store'])->whereNumber('id');
 
     Route::middleware('admin')->group(function () {
+        // Administration Command Center & Health
+        Route::get('/admin/administration/command-center', [AdminAdministrationController::class, 'commandCenter']);
+        Route::get('/admin/administration/health', [AdminAdministrationController::class, 'health']);
+
+        // Users, Accounts & Identity Management
+        Route::get('/admin/administration/users', [AdminIdentityController::class, 'index']);
+        Route::get('/admin/administration/users/scorecard', [AdminIdentityController::class, 'scorecard']);
+        Route::get('/admin/administration/users/export', [AdminIdentityController::class, 'export']);
+        Route::post('/admin/administration/users', [AdminIdentityController::class, 'store']);
+        Route::get('/admin/administration/users/{id}', [AdminIdentityController::class, 'show'])->whereNumber('id');
+        Route::put('/admin/administration/users/{id}', [AdminIdentityController::class, 'update'])->whereNumber('id');
+        Route::patch('/admin/administration/users/{id}/status', [AdminIdentityController::class, 'updateStatus'])->whereNumber('id');
+        Route::post('/admin/administration/users/{id}/reset-password', [AdminIdentityController::class, 'resetPassword'])->whereNumber('id');
+
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/admin/dashboard/overview', AdminDashboardController::class);
         Route::get('/admin/marketplace/dashboard', [MarketplaceDashboardController::class, 'show']);

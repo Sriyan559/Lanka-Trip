@@ -21,7 +21,8 @@ const EMPTY_FILTERS: AdvancedFilterState = {search:"",productStatus:"All",approv
 const UNSUPPORTED = new Set(["brand","businessUnit","inventoryLinkage","batchEligibility","channelEligibility","assignedReviewer","riskLevel","productType","brandAuthorization","duplicateRisk","countryOfOrigin","dataCompleteness"]);
 
 export function ProductMasterManagementView() {
-  const router=useRouter();const searchParams=useSearchParams();const initialCategory=searchParams.get("categoryId");const [activeTab,setActiveTab]=useState("all");const [activeKpiFilter,setActiveKpiFilter]=useState<string|null>(null);const [activeChips,setActiveChips]=useState<string[]>([]);const [filters,setFilters]=useState<AdvancedFilterState>(()=>({...EMPTY_FILTERS,category:initialCategory||"All"}));const [selectedIds,setSelectedIds]=useState<string[]>([]);const [page,setPage]=useState(1);const [pageSize,setPageSize]=useState(25);const [sort,setSort]=useState("updatedAt-desc");
+  const router=useRouter();const searchParams=useSearchParams();const initialCategory=searchParams?.get("categoryId");const [activeTab,setActiveTab]=useState("all");const [activeKpiFilter,setActiveKpiFilter]=useState<string|null>(null);const [activeChips,setActiveChips]=useState<string[]>([]);const [filters,setFilters]=useState<AdvancedFilterState>(()=>({...EMPTY_FILTERS,category:initialCategory||"All"}));const [selectedIds,setSelectedIds]=useState<string[]>([]);const [page,setPage]=useState(1);const [pageSize,setPageSize]=useState(25);const [sort,setSort]=useState("updatedAt-desc");
+
   const [isImportModalOpen,setIsImportModalOpen]=useState(false);const [isSaveViewModalOpen,setIsSaveViewModalOpen]=useState(false);const [isMoreFiltersOpen,setIsMoreFiltersOpen]=useState(false);
   const query=useMemo(()=>({...filters,tab:activeTab,page,pageSize,sort}),[filters,activeTab,page,pageSize,sort]);
   const {data,loading,refreshing,error,refresh}=useProductMasterManagement(query);

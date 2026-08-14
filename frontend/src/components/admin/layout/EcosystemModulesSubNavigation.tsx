@@ -113,7 +113,9 @@ interface EcosystemModulesSubNavigationProps {
 }
 
 export function EcosystemModulesSubNavigation({ onNavigate }: EcosystemModulesSubNavigationProps) {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname ?? "";
+
 
   return (
     <div

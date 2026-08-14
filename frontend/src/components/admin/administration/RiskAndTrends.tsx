@@ -11,7 +11,16 @@ interface RiskRow {
   critical: number;
 }
 
-export function RiskAndTrends() {
+interface RiskAndTrendsProps {
+  charts?: {
+    activity_trend_30d?: Array<{ date: string; logins: number; adminActions: number; securityEvents: number }>;
+    domain_distribution?: Array<{ domain: string; value: number }>;
+  };
+  loading?: boolean;
+}
+
+export function RiskAndTrends({ charts, loading = false }: RiskAndTrendsProps = {}) {
+
   const risks: RiskRow[] = [
     { domain: 'Identity & Access', low: 8, medium: 5, high: 2, critical: 0 },
     { domain: 'Configuration', low: 6, medium: 3, high: 1, critical: 0 },

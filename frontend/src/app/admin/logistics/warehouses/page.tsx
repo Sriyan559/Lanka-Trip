@@ -24,11 +24,18 @@ function WarehousesContent() {
   const [notification, setNotification] = useState<string | null>(null);
 
   const currentFilters = {
-    search: searchParams.get("search") || "",
-    type: searchParams.get("type") || "all",
-    status: searchParams.get("status") || "all",
+    search: searchParams?.get("search") || "",
+    type: searchParams?.get("type") || "all",
+    status: searchParams?.get("status") || "all",
   };
-  const { data, loading, error, refresh } = useWarehouses(currentFilters);
+
+  const apiFilters = {
+    search: currentFilters.search || undefined,
+    type: currentFilters.type !== "all" ? currentFilters.type : undefined,
+    status: currentFilters.status !== "all" ? currentFilters.status : undefined,
+  };
+
+  const { data, loading, error, refresh } = useWarehouses(apiFilters);
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -37,7 +44,7 @@ function WarehousesContent() {
 
   const updateFilters = useCallback(
     (newFilters: Record<string, any>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
       const merged = { ...currentFilters, ...newFilters };
 
       Object.entries(merged).forEach(([key, value]) => {

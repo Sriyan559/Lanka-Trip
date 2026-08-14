@@ -18,7 +18,9 @@ import { initials } from '@/lib/utils';
 import { EcosystemModulesSubNavigation } from './EcosystemModulesSubNavigation';
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname ?? "";
+
   const router = useRouter();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,13 +65,14 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                   <span
                     className="nav-link-rich disabled"
                     aria-disabled="true"
-                    title={`${item.label} — ${item.badge ?? 'Not Available'}`}
+                    title={`${item.label} — ${(item as any).badge ?? 'Not Available'}`}
                   >
                     <Icon size={18} className="nav-icon" />
                     <span>{item.label}</span>
-                    {item.badge && (
-                      <span className="nav-coming-soon">{item.badge}</span>
+                    {(item as any).badge && (
+                      <span className="nav-coming-soon">{(item as any).badge}</span>
                     )}
+
                   </span>
                 </div>
               );

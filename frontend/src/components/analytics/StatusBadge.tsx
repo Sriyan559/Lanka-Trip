@@ -4,7 +4,7 @@ import React from "react";
 
 interface StatusBadgeProps {
   status: "connected" | "success" | "warning" | "error" | "info" | "neutral" | string;
-  label: string;
+  label?: string;
   className?: string;
 }
 
@@ -30,7 +30,8 @@ export function StatusBadge({ status, label, className = "" }: StatusBadgeProps)
       )}
       {status === "warning" && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
       {status === "error" && <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />}
-      <span>{label}</span>
+      <span>{label || status}</span>
     </span>
   );
 }
+

@@ -15,20 +15,36 @@ interface ActivityRow {
   result: string;
 }
 
-export function InputFeedsAndActivity() {
+interface InputFeedsAndActivityProps {
+  recentActivity?: Array<{ id: number | string; description: string; causer: string; timestamp: string; type: string }>;
+  loading?: boolean;
+}
+
+export function InputFeedsAndActivity({ recentActivity, loading = false }: InputFeedsAndActivityProps = {}) {
   const feeds: InputFeedRow[] = [
     { name: 'Product Image Sync', lastRun: 'May 18, 08:45 AM', errorRate: '0.8%', records: '12,542' },
     { name: 'Inventory Feed', lastRun: 'May 18, 08:30 AM', errorRate: '1.2%', records: '31,768' },
     { name: 'Pricing Update', lastRun: 'May 18, 08:15 AM', errorRate: '0.3%', records: '8,941' }
   ];
 
-  const activities: ActivityRow[] = [
+  const defaultActivities: ActivityRow[] = [
     { time: 'May 18, 09:15 AM', actor: 'elena.vance@slbeauty.com', action: 'Resolved configuration issue', target: 'SAML SSO certificate', result: 'Success' },
     { time: 'May 18, 09:02 AM', actor: 'nimal.perera@slbeauty.com', action: 'Granted admin access', target: 'nimal.perera@slbeauty.com', result: 'Success' },
     { time: 'May 18, 08:47 AM', actor: 'priya.kumar@slbeauty.com', action: 'Updated platform setting', target: 'API rate limit', result: 'Success' },
     { time: 'May 18, 08:30 AM', actor: 'nimal.perera@slbeauty.com', action: 'Approved workflow', target: 'Price Change Approval', result: 'Success' },
     { time: 'May 18, 08:05 AM', actor: 'security.team@slbeauty.com', action: 'Added notification template', target: 'Order Confirmation', result: 'Success' }
   ];
+
+  const activities: ActivityRow[] = recentActivity && recentActivity.length > 0
+    ? recentActivity.map(act => ({
+        time: act.timestamp,
+        actor: act.causer,
+        action: act.description,
+        target: act.type,
+        result: 'Success',
+      }))
+    : defaultActivities;
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">

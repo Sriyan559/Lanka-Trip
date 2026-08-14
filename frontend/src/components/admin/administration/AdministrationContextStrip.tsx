@@ -1,4 +1,18 @@
 import React from 'react';
+
+interface AdministrationContextStripProps {
+  overview?: {
+    health_score: number;
+    security_posture_score: number;
+    active_sessions: number;
+    mfa_enforced: number;
+    locked_accounts: number;
+    last_updated: string;
+    environment?: string;
+  };
+  loading?: boolean;
+}
+
 import { RefreshCw } from 'lucide-react';
 
 interface ContextStripItemProps {
@@ -22,7 +36,8 @@ function ContextStripItem({ label, value, isStatus, statusType = 'healthy' }: Co
   );
 }
 
-export function AdministrationContextStrip() {
+export function AdministrationContextStrip({ overview, loading }: AdministrationContextStripProps = {}) {
+
   return (
     <div className="flex flex-wrap items-center justify-between bg-white border border-gray-200 p-3 mb-4 rounded shadow-sm gap-y-3">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3">

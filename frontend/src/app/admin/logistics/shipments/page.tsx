@@ -37,10 +37,10 @@ function ShipmentManagementContent() {
   const [activeTab, setActiveTab] = useState("Overview");
 
   const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-    page: Number(searchParams.get("page")) || 1,
-    per_page: Number(searchParams.get("per_page")) || 15,
+    search: searchParams?.get("search") || "",
+    status: searchParams?.get("status") || "all",
+    page: Number(searchParams?.get("page")) || 1,
+    per_page: Number(searchParams?.get("per_page")) || 15,
   };
 
   const apiFilters = {
@@ -53,7 +53,7 @@ function ShipmentManagementContent() {
   const { dashboard, shipmentsData, loading, error, lastUpdated, refresh } = useLogisticsDashboard(apiFilters);
 
   React.useEffect(() => {
-    if (searchParams.get("open") !== "first" || !shipmentsData?.data) return;
+    if (searchParams?.get("open") !== "first" || !shipmentsData?.data) return;
     const firstShipment = shipmentsData.data[0];
     if (firstShipment?.shipment_number) {
       router.replace(`/admin/logistics/shipments/${encodeURIComponent(firstShipment.shipment_number)}`);
@@ -67,7 +67,7 @@ function ShipmentManagementContent() {
 
   const updateUrlFilters = useCallback(
     (newFilters: Record<string, any>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
       const merged = { ...currentFilters, ...newFilters };
 
       Object.entries(merged).forEach(([key, value]) => {

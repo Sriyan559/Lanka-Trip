@@ -20,7 +20,13 @@ interface ExceptionItem {
   trend: 'up' | 'down' | 'neutral';
 }
 
-export function GovernanceAndJobs() {
+interface GovernanceAndJobsProps {
+  governanceJobs?: Array<{ job: string; frequency: string; lastRun: string; status: string }>;
+  loading?: boolean;
+}
+
+export function GovernanceAndJobs({ governanceJobs, loading = false }: GovernanceAndJobsProps = {}) {
+
   const govJobs: GovJob[] = [
     { type: 'Data Profiling', status: 'Completed', lastRun: 'May 18, 08:15 AM', nextRun: 'May 19, 08:00 AM' },
     { type: 'Data Lineage Sync', status: 'Completed', lastRun: 'May 18, 08:30 AM', nextRun: 'May 19, 08:30 AM' },

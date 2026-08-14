@@ -12,7 +12,13 @@ interface HealthDomain {
   status: string;
 }
 
-export function AdministrationHealthOverview() {
+interface AdministrationHealthOverviewProps {
+  overview?: any;
+  loading?: boolean;
+}
+
+export function AdministrationHealthOverview({ overview, loading }: AdministrationHealthOverviewProps = {}) {
+
   const domains: HealthDomain[] = [
     { domain: 'Identity & Users', score: 98, openIssues: 3, critical: 0, warning: 2, pending: 1, owner: 'Elena Vance', trend: 'up', status: 'Excellent' },
     { domain: 'Roles & Permissions', score: 97, openIssues: 4, critical: 1, warning: 2, pending: 1, owner: 'Priya Kumar', trend: 'up', status: 'Excellent' },

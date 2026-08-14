@@ -7,7 +7,13 @@ interface QueueItem {
   age: string;
 }
 
-export function SecurityAndWorkflowPosture() {
+interface SecurityAndWorkflowPostureProps {
+  securityPosture?: Array<{ control: string; type: string; compliance: string; violations: number; status: string }>;
+  loading?: boolean;
+}
+
+export function SecurityAndWorkflowPosture({ securityPosture, loading = false }: SecurityAndWorkflowPostureProps = {}) {
+
   const queue: QueueItem[] = [
     { type: 'Create Administrator', user: 'Elena Vance', priority: 'high', age: '2h 15m' },
     { type: 'Grant Elevated Access', user: 'Arun Silva', priority: 'high', age: '3h 42m' },

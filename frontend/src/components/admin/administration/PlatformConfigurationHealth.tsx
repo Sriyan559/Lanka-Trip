@@ -16,7 +16,13 @@ interface ConfigExceptionRow {
   detected: string;
 }
 
-export function PlatformConfigurationHealth() {
+interface PlatformConfigurationHealthProps {
+  platformConfigs?: Array<{ config: string; domain: string; state: string; drift: string; sync: string }>;
+  loading?: boolean;
+}
+
+export function PlatformConfigurationHealth({ platformConfigs, loading = false }: PlatformConfigurationHealthProps = {}) {
+
   const healthData: ConfigHealthRow[] = [
     { domain: 'Mobile', current: 94, last7d: 94, trend: 'up', status: 'Excellent' },
     { domain: 'Marketplace', current: 92, last7d: 92, trend: 'up', status: 'Excellent' },

@@ -38,11 +38,12 @@ function FulfilmentOrdersContent() {
   const [activeTab, setActiveTab] = useState("Overview");
 
   const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-    page: Number(searchParams.get("page")) || 1,
-    per_page: Number(searchParams.get("per_page")) || 15,
+    search: searchParams?.get("search") || "",
+    status: searchParams?.get("status") || "all",
+    page: Number(searchParams?.get("page")) || 1,
+    per_page: Number(searchParams?.get("per_page")) || 15,
   };
+
 
   const apiFilters = {
     search: currentFilters.search || undefined,
@@ -62,8 +63,9 @@ function FulfilmentOrdersContent() {
 
   const updateUrlFilters = useCallback(
     (newFilters: Record<string, any>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
       const merged = { ...currentFilters, ...newFilters };
+
 
       Object.entries(merged).forEach(([key, value]) => {
         if (value && value !== "all" && value !== "") {

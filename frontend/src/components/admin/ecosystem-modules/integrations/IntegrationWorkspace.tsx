@@ -49,7 +49,8 @@ export function IntegrationWorkspace() {
     { header: "Time", accessorKey: "time", align: "left", renderCell: (row) => <span className="text-slate-400 text-[10px]">{row.time}</span> },
     { header: "Activity", accessorKey: "activity", align: "left", renderCell: (row) => <span className="font-semibold text-slate-800">{row.activity}</span> },
     { header: "Integration", accessorKey: "integration", align: "left", renderCell: (row) => <span className="text-slate-600">{row.integration}</span> },
-    { header: "Severity", accessorKey: "severity", align: "center", renderCell: (row) => <span className={row.severity === 'Critical' ? 'text-rose-600 font-bold' : row.severity === 'Warning' ? 'text-amber-600 font-bold' : 'text-slate-600'}>{row.severity}</span> },
+    { header: "Severity", accessorKey: "severity", align: "center", renderCell: (row) => <span className={(row.severity as string) === 'Critical' || (row.severity as string) === 'High' ? 'text-rose-600 font-bold' : (row.severity as string) === 'Warning' || (row.severity as string) === 'Medium' ? 'text-amber-600 font-bold' : 'text-slate-600'}>{row.severity}</span> },
+
     { header: "Status", accessorKey: "status", align: "center", renderCell: (row) => <StatusBadge status={row.status} /> },
     { header: "Owner", accessorKey: "owner", align: "right", renderCell: (row) => <span className="text-slate-500 text-[10px]">{row.owner}</span> },
   ];

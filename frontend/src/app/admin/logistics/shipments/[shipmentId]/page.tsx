@@ -54,7 +54,8 @@ function LG08ShipmentDetailContent() {
   const params = useParams();
   const router = useRouter();
 
-  const shipmentIdParam = (params.shipmentId || params.id) as string;
+  const shipmentIdParam = (params?.shipmentId || params?.id || "") as string;
+
 
   const [shipment, setShipment] = useState<ShipmentDetail | null>(null);
   const [loading, setLoading] = useState(true);

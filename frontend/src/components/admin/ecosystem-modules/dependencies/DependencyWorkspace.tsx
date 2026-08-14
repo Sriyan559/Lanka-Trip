@@ -33,12 +33,14 @@ export function DependencyWorkspace() {
     from: "Pricing Engine (Capability)",
     to: "Payment Gateway (External)",
     type: "External Service Dependency",
-    relationship: "Required" as const,
+    relationship: "Required" as any,
     direction: "Outbound",
-    criticality: "High" as const,
+
+    criticality: "High" as any,
     version: "2.1.3 → 2.1.5",
     environment: "Production",
-    status: "Warning" as const,
+    status: "Warning" as any,
+
     compatibility: "Partial",
     lastValidated: "May 14, 2026, 10:15 AM",
   });
@@ -735,7 +737,8 @@ export function DependencyWorkspace() {
             <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-xs md:col-span-1 flex flex-col justify-between">
               <div>
                 <h4 className="text-xs font-bold text-slate-800 mb-2">Ownership &amp; Accountability</h4>
-                <AnalyticsTable data={DEPENDENCY_DATA.ownership} columns={ownershipCols} itemsPerPage={5} />
+                <AnalyticsTable data={DEPENDENCY_DATA.ownership} columns={ownershipCols} />
+
               </div>
             </div>
 
