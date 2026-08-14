@@ -1,4 +1,4 @@
-import { ModuleHealthWorkspace } from "@/components/admin/ecosystem-modules/health-adoption/ModuleHealthWorkspace";
+import { LiveHealthAdoptionWorkspace } from "@/components/admin/ecosystem-modules/LiveReleaseHealthWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function HealthAdoptionPage() {
-  return <ModuleHealthWorkspace />;
+  return <LiveHealthAdoptionWorkspace />;
 }

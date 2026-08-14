@@ -1,4 +1,4 @@
-import { SectorPackWorkspace } from "@/components/admin/ecosystem-modules/sector-packs/SectorPackWorkspace";
+import { LiveSectorPackRegistry } from "@/components/admin/ecosystem-modules/sector-packs/LiveSectorPackWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function SectorPacksPage() {
-  return <SectorPackWorkspace />;
+  return <LiveSectorPackRegistry />;
 }

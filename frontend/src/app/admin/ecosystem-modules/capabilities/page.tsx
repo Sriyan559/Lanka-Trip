@@ -1,4 +1,4 @@
-import { CapabilityAssignmentWorkspace } from "@/components/admin/ecosystem-modules/capabilities/CapabilityAssignmentWorkspace";
+import { AssignmentWorkspace } from "@/components/admin/ecosystem-modules/assignment/AssignmentWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function CapabilityAssignmentPage() {
-  return <CapabilityAssignmentWorkspace />;
+  return <AssignmentWorkspace kind="capabilities" />;
 }

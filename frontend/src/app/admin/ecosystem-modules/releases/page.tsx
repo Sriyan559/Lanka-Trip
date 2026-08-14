@@ -1,4 +1,4 @@
-import { ReleaseWorkspace } from "@/components/admin/ecosystem-modules/releases/ReleaseWorkspace";
+import { LiveReleaseWorkspace } from "@/components/admin/ecosystem-modules/LiveReleaseHealthWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function ReleasesPage() {
-  return <ReleaseWorkspace />;
+  return <LiveReleaseWorkspace />;
 }

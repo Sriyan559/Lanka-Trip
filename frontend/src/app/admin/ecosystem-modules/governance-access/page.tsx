@@ -1,4 +1,4 @@
-import { GovernanceAccessWorkspace } from "@/components/admin/ecosystem-modules/governance-access/GovernanceAccessWorkspace";
+import { LiveGovernanceWorkspace } from "@/components/admin/ecosystem-modules/LiveControlCenterWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function GovernanceAccessPage() {
-  return <GovernanceAccessWorkspace />;
+  return <LiveGovernanceWorkspace />;
 }

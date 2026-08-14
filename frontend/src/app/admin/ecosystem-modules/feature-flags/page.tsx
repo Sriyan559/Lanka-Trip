@@ -1,4 +1,4 @@
-import { FeatureFlagWorkspace } from "@/components/admin/ecosystem-modules/feature-flags/FeatureFlagWorkspace";
+import { LiveFeatureFlagWorkspace } from "@/components/admin/ecosystem-modules/LiveControlsWorkspace";
 import "../ecosystem.css";
 
 export const metadata = {
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function FeatureFlagsPage() {
-  return <FeatureFlagWorkspace />;
+  return <LiveFeatureFlagWorkspace />;
 }
