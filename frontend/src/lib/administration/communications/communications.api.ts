@@ -5,10 +5,22 @@ import { DEFAULT_COMMUNICATIONS_DATA } from './communications.constants';
  * Service API for Communications, Notifications & Template Management (AD09)
  * Namespace: /api/admin/administration/communications/...
  */
+import { apiClient } from '@/services/api/apiClient';
+
 export async function fetchCommunicationsData(): Promise<CommunicationsFullData> {
-  await new Promise((resolve) => setTimeout(resolve, 80));
+  try {
+    const res = await apiClient<CommunicationsFullData>('/api/admin/administration/communications');
+
+    if (res && res.kpis) {
+
+      return res;
+    }
+  } catch (err) {
+    console.warn('Backend API unavailable, using default data structure:', err);
+  }
   return DEFAULT_COMMUNICATIONS_DATA;
 }
+
 
 export async function createNotificationTemplate(name: string, channel: string): Promise<{ success: boolean; templateRef: string }> {
   await new Promise((resolve) => setTimeout(resolve, 150));

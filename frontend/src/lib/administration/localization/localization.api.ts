@@ -5,10 +5,21 @@ import { DEFAULT_LOCALIZATION_DATA } from './localization.constants';
  * Service API for Localization, Languages, Currency & Regional Settings (AD08)
  * Namespace: /api/admin/administration/localization/...
  */
+import { apiClient } from '@/services/api/apiClient';
+
 export async function fetchLocalizationData(): Promise<LocalizationFullData> {
-  await new Promise((resolve) => setTimeout(resolve, 80));
+  try {
+    const res = await apiClient<LocalizationFullData>('/api/admin/administration/localization-regional');
+
+    if (res && res.currencies) {
+      return res;
+    }
+  } catch (err) {
+    console.warn('Backend API unavailable, using default data structure:', err);
+  }
   return DEFAULT_LOCALIZATION_DATA;
 }
+
 
 export async function addLocale(localeCode: string, name: string): Promise<{ success: boolean; localeId: string }> {
   await new Promise((resolve) => setTimeout(resolve, 150));

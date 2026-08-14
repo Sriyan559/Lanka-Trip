@@ -127,5 +127,26 @@ export const mockEcosystemModuleDashboard: EcosystemModuleDashboard = {
   generatedAt: "Jul 27, 2026, 10:32 AM",
   source: "Module registry aggregate",
   freshness: "fresh",
+  alerts: [
+    { id: 1, severity: "warning", type: "Security", message: "Security review pending for AI Recommendations", status: "open", created_at: "2026-07-25T10:00:00Z", module_key: "ai_recommendations", module_name: "AI Recommendations Engine" }
+  ],
+  risks: [
+    { severity: "High", count: 2 },
+    { severity: "Medium", count: 5 },
+    { severity: "Low", count: 12 }
+  ],
+  distributions: {
+    category: [
+      { name: "Core", value: 4 },
+      { name: "AI", value: 3 },
+      { name: "Integration", value: 5 }
+    ]
+  },
+  permissions: {
+    canRegister: true,
+    canConfigure: true,
+    canExport: true
+  }
 };
+
 

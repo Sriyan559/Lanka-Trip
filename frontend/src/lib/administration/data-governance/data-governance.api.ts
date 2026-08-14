@@ -5,10 +5,22 @@ import { DEFAULT_DATA_GOVERNANCE_DATA } from './data-governance.constants';
  * Service API for Data Governance, Retention, Privacy & Administrative Data Controls (AD12)
  * Namespace: /api/admin/administration/data-governance/...
  */
+import { apiClient } from '@/services/api/apiClient';
+
 export async function fetchDataGovernanceData(): Promise<DataGovernanceFullData> {
-  await new Promise((resolve) => setTimeout(resolve, 80));
+  try {
+    const res = await apiClient<DataGovernanceFullData>('/api/admin/administration/data-governance');
+
+    if (res && res.kpis) {
+
+      return res;
+    }
+  } catch (err) {
+    console.warn('Backend API unavailable, using default data structure:', err);
+  }
   return DEFAULT_DATA_GOVERNANCE_DATA;
 }
+
 
 export async function registerDataAsset(name: string, domain: string): Promise<{ success: boolean; assetRef: string }> {
   await new Promise((resolve) => setTimeout(resolve, 150));

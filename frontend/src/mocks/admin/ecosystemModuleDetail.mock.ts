@@ -79,14 +79,16 @@ function buildOverviewMetrics(m: EcosystemModule) {
   const tier = (value: number) => (value >= 85 ? "success" : value >= 60 ? "warning" : "danger") as StatusTone;
 
   return [
-    { id: "health", label: "Module Health Score", value: `${m.healthScore}/100`, tone: tier(m.healthScore) },
+    { id: "health", label: "Module Health Score", value: `${m.healthScore}/100`, tone: tier(m.healthScore ?? 0) },
+
     { id: "release-readiness", label: "Release Readiness", value: `${releasePct}%`, tone: tier(releasePct) },
     { id: "config-completeness", label: "Configuration Completeness", value: `${configPct}%`, tone: tier(configPct) },
     { id: "integration-readiness", label: "Integration Readiness", value: `${integrationPct}%`, tone: tier(integrationPct) },
     { id: "dependency-health", label: "Dependency Health", value: `${dependencyPct}%`, tone: tier(dependencyPct) },
     { id: "security-readiness", label: "Security Readiness", value: `${securityPct}%`, tone: tier(securityPct) },
     { id: "compliance-readiness", label: "Compliance Readiness", value: `${compliancePct}%`, tone: tier(compliancePct) },
-    { id: "adoption-rate", label: "Adoption Rate", value: `${m.adoptionRate}%`, tone: (m.adoptionRate >= 70 ? "success" : m.adoptionRate >= 40 ? "warning" : "neutral") as StatusTone },
+    { id: "adoption-rate", label: "Adoption Rate", value: `${m.adoptionRate}%`, tone: ((m.adoptionRate ?? 0) >= 70 ? "success" : (m.adoptionRate ?? 0) >= 40 ? "warning" : "neutral") as StatusTone },
+
     { id: "availability", label: "Availability", value: m.availability === null ? "-" : `${m.availability}%`, tone: ((m.availability ?? 0) >= 99 ? "success" : (m.availability ?? 0) >= 97 ? "warning" : "danger") as StatusTone },
     { id: "error-rate", label: "Error Rate", value: m.errorRate === null ? "-" : `${m.errorRate}%`, tone: ((m.errorRate ?? 0) <= 1 ? "success" : (m.errorRate ?? 0) <= 2 ? "warning" : "danger") as StatusTone },
     { id: "active-users", label: "Monthly Active Users", value: m.activeUsers.toLocaleString(), tone: "neutral" as StatusTone },
@@ -99,7 +101,15 @@ function buildOverviewMetrics(m: EcosystemModule) {
 
 function buildGeneric(m: EcosystemModule): EcosystemModuleDetail {
   const base = m.moduleKey.replace(/-/g, "_");
-  const dateOnly = m.lastUpdated.split(",")[0];
+  const techOwner = m.technicalOwner ?? "Platform Team";
+  const primOwner = m.primaryOwner ?? "Executive Sponsor";
+  const lastUpd = m.lastUpdated ?? "2026-08-01, 10:00 AM";
+
+  const nxtUpdate = m.nextUpdate ?? "Q3 2026";
+  const lstRelease = m.lastRelease ?? "Not released";
+  const envVal = m.environment ?? "Production";
+  const dateOnly = lastUpd.split(",")[0];
+
   const attention = m.dependencyHealth === "Attention Required" || m.dependencyHealth === "Blocked";
   const configurationProgress = percentFor(m.configurationStatus, configCompletionTable);
   const integrationProgress = percentFor(m.integrationReadiness, integrationTable);
@@ -111,25 +121,25 @@ function buildGeneric(m: EcosystemModule): EcosystemModuleDetail {
   ];
 
   const configParameters: ConfigParameterRow[] = [
-    { id: `${m.id}-cfg-1`, configKey: `${m.moduleKey}.environment`, envVariable: `${base.toUpperCase()}_ENVIRONMENT`, category: "Runtime", environment: "ENV", currentValue: m.environment, secret: false, required: true, validationStatus: "Pass", source: ".env", lastUpdated: dateOnly, updatedBy: m.technicalOwner },
+    { id: `${m.id}-cfg-1`, configKey: `${m.moduleKey}.environment`, envVariable: `${base.toUpperCase()}_ENVIRONMENT`, category: "Runtime", environment: "ENV", currentValue: envVal, secret: false, required: true, validationStatus: "Pass", source: ".env", lastUpdated: dateOnly, updatedBy: techOwner },
     { id: `${m.id}-cfg-2`, configKey: `${m.moduleKey}.timeout_seconds`, envVariable: `${base.toUpperCase()}_TIMEOUT_SECONDS`, category: "Reliability", environment: "ENV", currentValue: "30", secret: false, required: true, validationStatus: "Pass", source: "Config service", lastUpdated: dateOnly, updatedBy: "System" },
     { id: `${m.id}-cfg-3`, configKey: `${m.moduleKey}.provider_api_key`, envVariable: `${base.toUpperCase()}_PROVIDER_API_KEY`, category: "Secret", environment: "ENV", currentValue: "Secret Reference", secret: true, required: true, validationStatus: m.securityReview === "Approved" ? "Pass" : "Review Pending", source: "Secrets manager", lastUpdated: dateOnly, updatedBy: "Secrets manager" },
   ];
 
   const versionsReleases: VersionReleaseRow[] = [
-    { id: `${m.id}-ver-1`, version: m.currentVersion, releaseType: "Minor", status: "Live", releasedOn: m.lastRelease === "-" ? "Not released" : m.lastRelease, releasedBy: m.technicalOwner, notes: "Current production build." },
-    { id: `${m.id}-ver-2`, version: m.targetVersion, releaseType: m.releaseStatus === "Candidate" ? "Candidate" : "Minor", status: m.releaseStatus, releasedOn: m.nextUpdate, releasedBy: m.technicalOwner, notes: "Next planned release." },
+    { id: `${m.id}-ver-1`, version: m.currentVersion, releaseType: "Minor", status: "Live", releasedOn: lstRelease === "-" ? "Not released" : lstRelease, releasedBy: techOwner, notes: "Current production build." },
+    { id: `${m.id}-ver-2`, version: m.targetVersion, releaseType: m.releaseStatus === "Candidate" ? "Candidate" : "Minor", status: m.releaseStatus, releasedOn: nxtUpdate, releasedBy: techOwner, notes: "Next planned release." },
   ];
 
   const environments: EnvironmentRow[] = [
-    { id: `${m.id}-env-1`, name: "Production", status: m.environment === "Production" ? m.operationalStatus : "Not Deployed", endpoint: `${m.moduleKey}.slbeauty.internal`, lastDeployed: dateOnly, deployedBy: m.technicalOwner, driftStatus: "None" },
-    { id: `${m.id}-env-2`, name: "Staging", status: "Operational", endpoint: `${m.moduleKey}.staging.slbeauty.internal`, lastDeployed: dateOnly, deployedBy: m.technicalOwner, driftStatus: attention ? "1 variable" : "None" },
-    { id: `${m.id}-env-3`, name: "Development", status: "Operational", endpoint: `${m.moduleKey}.dev.slbeauty.internal`, lastDeployed: dateOnly, deployedBy: m.technicalOwner, driftStatus: "None" },
+    { id: `${m.id}-env-1`, name: "Production", status: envVal === "Production" ? m.operationalStatus : "Not Deployed", endpoint: `${m.moduleKey}.slbeauty.internal`, lastDeployed: dateOnly, deployedBy: techOwner, driftStatus: "None" },
+    { id: `${m.id}-env-2`, name: "Staging", status: "Operational", endpoint: `${m.moduleKey}.staging.slbeauty.internal`, lastDeployed: dateOnly, deployedBy: techOwner, driftStatus: attention ? "1 variable" : "None" },
+    { id: `${m.id}-env-3`, name: "Development", status: "Operational", endpoint: `${m.moduleKey}.dev.slbeauty.internal`, lastDeployed: dateOnly, deployedBy: techOwner, driftStatus: "None" },
   ];
 
   const dependencies: DependencyRow[] = [
     { id: `${m.id}-dep-1`, name: "Platform Auth Service", type: "Internal Service", direction: "Upstream", health: "Healthy", criticality: "High", owner: "AI Platform Engineering" },
-    { id: `${m.id}-dep-2`, name: `${m.category} Data Pipeline`, type: "Internal Service", direction: "Upstream", health: attention ? "Attention Required" : "Healthy", criticality: "Medium", owner: m.technicalOwner },
+    { id: `${m.id}-dep-2`, name: `${m.category} Data Pipeline`, type: "Internal Service", direction: "Upstream", health: attention ? "Attention Required" : "Healthy", criticality: "Medium", owner: techOwner },
     { id: `${m.id}-dep-3`, name: "Notification Service", type: "Internal Service", direction: "Downstream", health: "Healthy", criticality: "Low", owner: "Platform Engineering" },
   ];
 
@@ -139,27 +149,27 @@ function buildGeneric(m: EcosystemModule): EcosystemModuleDetail {
   ];
 
   const countryReadiness: CountryReadinessRow[] = [
-    { id: `${m.id}-country-1`, country: "Sri Lanka", isoCode: "LK", availability: m.countriesEnabled > 0 ? "Enabled" : "Planning", businessApproval: "Approved", legalReview: "Approved", privacyReview: "Approved", languages: "English / Sinhala", currency: "LKR", environment: m.environment, effectiveDate: m.lastRelease === "-" ? "Not scheduled" : m.lastRelease },
+    { id: `${m.id}-country-1`, country: "Sri Lanka", isoCode: "LK", availability: m.countriesEnabled > 0 ? "Enabled" : "Planning", businessApproval: "Approved", legalReview: "Approved", privacyReview: "Approved", languages: "English / Sinhala", currency: "LKR", environment: envVal, effectiveDate: lstRelease === "-" ? "Not scheduled" : lstRelease },
     { id: `${m.id}-country-2`, country: "Canada", isoCode: "CA", availability: "Planning", businessApproval: "Pending", legalReview: "Pending", privacyReview: "Pending", languages: "English", currency: "CAD", environment: "Not Scheduled", effectiveDate: "None" },
   ];
 
   const accessRoles: AccessRoleRow[] = [
-    { id: `${m.id}-role-1`, role: m.technicalOwner, permissionScope: "Full Access", environment: m.lifecycle === "Pilot" ? "Pilot" : "All", view: "Yes", configure: "Yes", release: "Review", enableProduction: "No", manageFlags: "Yes", viewAudit: "Yes", lastUpdated: dateOnly },
+    { id: `${m.id}-role-1`, role: techOwner, permissionScope: "Full Access", environment: m.lifecycle === "Pilot" ? "Pilot" : "All", view: "Yes", configure: "Yes", release: "Review", enableProduction: "No", manageFlags: "Yes", viewAudit: "Yes", lastUpdated: dateOnly },
     { id: `${m.id}-role-2`, role: "Security Team", permissionScope: "Review Access", environment: "All", view: "Yes", configure: "No", release: "Review Required", enableProduction: "No", manageFlags: "No", viewAudit: "Yes", lastUpdated: dateOnly },
     { id: `${m.id}-role-3`, role: "Business Stakeholder", permissionScope: "Read Access", environment: "Dashboard", view: "Yes", configure: "No", release: "No", enableProduction: "No", manageFlags: "No", viewAudit: "Review", lastUpdated: dateOnly },
   ];
 
   const securityFindings: SecurityFindingRow[] = openFindings === 0 ? [] : [
-    { id: `${m.id}-finding-1`, title: `${m.dependencyHealth === "Blocked" ? "Blocked dependency" : "Integration"} review required`, severity: m.riskLevel === "High" ? "High" : "Medium", status: "Open", discovered: dateOnly, owner: m.technicalOwner },
+    { id: `${m.id}-finding-1`, title: `${m.dependencyHealth === "Blocked" ? "Blocked dependency" : "Integration"} review required`, severity: m.riskLevel === "High" ? "High" : "Medium", status: "Open", discovered: dateOnly, owner: techOwner },
   ];
 
   const alerts: ModuleAlertRow[] = openFindings === 0 ? [] : [
-    { id: `${m.id}-alert-1`, message: `${m.moduleName} security review pending`, tone: "warning", due: m.nextUpdate },
+    { id: `${m.id}-alert-1`, message: `${m.moduleName} security review pending`, tone: "warning", due: nxtUpdate },
   ];
 
   const auditHistory: AuditHistoryEntry[] = [
-    { id: `${m.id}-audit-1`, timestamp: m.lastUpdated, actor: m.technicalOwner, action: "Module record updated", detail: `Registry values refreshed for ${m.moduleName}.` },
-    { id: `${m.id}-audit-2`, timestamp: m.lastRelease === "-" ? m.lastUpdated : `${m.lastRelease}, 9:00 AM`, actor: m.primaryOwner, action: "Module registered", detail: `${m.moduleName} added to the ecosystem module registry.` },
+    { id: `${m.id}-audit-1`, timestamp: lastUpd, actor: techOwner, action: "Module record updated", detail: `Registry values refreshed for ${m.moduleName}.` },
+    { id: `${m.id}-audit-2`, timestamp: lstRelease === "-" ? lastUpd : `${lstRelease}, 9:00 AM`, actor: primOwner, action: "Module registered", detail: `${m.moduleName} added to the ecosystem module registry.` },
   ];
 
   return {
@@ -168,9 +178,11 @@ function buildGeneric(m: EcosystemModule): EcosystemModuleDetail {
     statusDomains: buildStatusDomains(m),
     overviewMetrics: buildOverviewMetrics(m),
     lifecycleStages: buildLifecycleStages(m.lifecycle),
-    governance: { businessOwner: m.primaryOwner, technicalOwner: m.technicalOwner, lastReview: m.lastRelease !== "-" ? m.lastRelease : dateOnly, approvalChain: `${m.primaryOwner} \u2192 CTO` },
-    currentRelease: { currentVersion: m.currentVersion, targetVersion: m.targetVersion, releaseStatus: m.releaseStatus, nextRelease: m.nextUpdate, rollbackPlan: m.releaseStatus === "Candidate" ? "Drafted" : m.releaseStatus === "Blocked" ? "Required" : m.releaseStatus === "Released" ? "Not Required" : "Not Started" },
-    environmentSummary: { productionEnablement: m.productionEnabled ? "Enabled" : m.lifecycle === "Pilot" ? "Controlled Pilot" : "Not Enabled", countriesEnabledSummary: m.countriesEnabled > 0 ? `${m.region} \u2014 ${m.countriesEnabled} enabled` : "Not configured", primaryRegion: regionMap[m.region] ?? "aws-ap-south-1", environmentHealth: m.operationalStatus === "Degraded" ? "Degraded" : "Healthy" },
+    governance: { businessOwner: primOwner, technicalOwner: techOwner, lastReview: lstRelease !== "-" ? lstRelease : dateOnly, approvalChain: `${primOwner} \u2192 CTO` },
+
+    currentRelease: { currentVersion: m.currentVersion, targetVersion: m.targetVersion, releaseStatus: m.releaseStatus, nextRelease: nxtUpdate, rollbackPlan: m.releaseStatus === "Candidate" ? "Drafted" : m.releaseStatus === "Blocked" ? "Required" : m.releaseStatus === "Released" ? "Not Required" : "Not Started" },
+    environmentSummary: { productionEnablement: m.productionEnabled ? "Enabled" : m.lifecycle === "Pilot" ? "Controlled Pilot" : "Not Enabled", countriesEnabledSummary: m.countriesEnabled > 0 ? `${m.region} \u2014 ${m.countriesEnabled} enabled` : "Not configured", primaryRegion: regionMap[m.region ?? ""] ?? "aws-ap-south-1", environmentHealth: m.operationalStatus === "Degraded" ? "Degraded" : "Healthy" },
+
     configSummary: { secretsSafeCompletion: Math.max(configurationProgress - 10, 5), parameterCoverage: Math.min(configurationProgress + 8, 100), configurationProgress },
     integrationSummary: { servicesTotalCompletion: integrationProgress, parameterCoverage: Math.min(integrationProgress + 8, 100), integrationProgress },
     dependencySummary: { criticalDependencies: attention ? 3 : 1, requiredDependencies: attention ? 7 : 4, healthStatus: m.dependencyHealth, impactRisk: m.riskLevel },
@@ -188,14 +200,15 @@ function buildGeneric(m: EcosystemModule): EcosystemModuleDetail {
       requestVolume: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => ({ day, value: Math.round((m.monthlyTransactions / 30) * (0.8 + index * 0.05)) })),
       averageLatency: attention ? "1.1s" : "0.4s", latencyTrend: "-1% vs prev 7 days",
       uptime: m.availability === null ? "-" : `${m.availability}%`, uptimeTrend: "+0.1% vs prev 7 days",
-      recommendationSuccess: `${Math.max(m.healthScore - 5, 40)}%`, recommendationTrend: "+0.8% vs prev 7 days",
+      recommendationSuccess: `${Math.max((m.healthScore ?? 50) - 5, 40)}%`, recommendationTrend: "+0.8% vs prev 7 days",
       errorTrend: m.errorRate === null ? "-" : `${m.errorRate}%`, errorTrendChange: "-0.1% vs prev 7 days",
     },
-    adoptionInsights: { monthlyActiveUsers: m.activeUsers, activeUsersTrend: "+2% vs prev month", monthlyConversations: m.monthlyTransactions, conversationsTrend: "+1% vs prev month", adoptionRate: m.adoptionRate, adoptionTrend: "+1% vs prev month", adoptionByCohort: [{ label: "Sri Lanka", value: m.adoptionRate }, { label: "Other markets", value: Math.max(m.adoptionRate - 20, 0) }] },
+    adoptionInsights: { monthlyActiveUsers: m.activeUsers, activeUsersTrend: "+2% vs prev month", monthlyConversations: m.monthlyTransactions, conversationsTrend: "+1% vs prev month", adoptionRate: m.adoptionRate ?? 0, adoptionTrend: "+1% vs prev month", adoptionByCohort: [{ label: "Sri Lanka", value: m.adoptionRate ?? 0 }, { label: "Other markets", value: Math.max((m.adoptionRate ?? 0) - 20, 0) }] },
     alerts,
     auditHistory,
-    recommendedAction: { message: attention ? `Resolve the ${m.dependencyHealth.toLowerCase()} dependency and re-run integration checks before the next release window.` : `Keep ${m.moduleName} on its current release cadence and monitor portfolio health weekly.`, owner: m.technicalOwner, due: m.nextUpdate },
-    releaseSummary: { currentVersion: m.currentVersion, targetVersion: m.targetVersion, releaseStatus: m.releaseStatus, targetDate: m.nextUpdate, approvalStatus: m.releaseStatus === "Candidate" ? "Pending" : m.releaseStatus === "Released" ? "Approved" : "Not Started", rollbackPlan: m.releaseStatus === "Candidate" ? "Drafted" : "Not Required" },
+    recommendedAction: { message: attention ? `Resolve the ${m.dependencyHealth.toLowerCase()} dependency and re-run integration checks before the next release window.` : `Keep ${m.moduleName} on its current release cadence and monitor portfolio health weekly.`, owner: techOwner, due: nxtUpdate },
+    releaseSummary: { currentVersion: m.currentVersion, targetVersion: m.targetVersion, releaseStatus: m.releaseStatus, targetDate: nxtUpdate, approvalStatus: m.releaseStatus === "Candidate" ? "Pending" : m.releaseStatus === "Released" ? "Approved" : "Not Started", rollbackPlan: m.releaseStatus === "Candidate" ? "Drafted" : "Not Required" },
+
     productionEnablementStatus: "Not Requested",
     suspensionStatus: "Active",
     retirementStatus: "Active",

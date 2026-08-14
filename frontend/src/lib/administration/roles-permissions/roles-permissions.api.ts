@@ -5,11 +5,22 @@ import { DEFAULT_ROLES_PERMISSIONS_DATA } from './roles-permissions.constants';
  * Service API for Roles, Permissions & Access Profiles (AD04)
  * Namespace: /api/admin/administration/roles-permissions/...
  */
+import { apiClient } from '@/services/api/apiClient';
+
 export async function fetchRolesPermissionsData(): Promise<RolesPermissionsFullData> {
-  // Simulate standard network latency
-  await new Promise((resolve) => setTimeout(resolve, 80));
+  try {
+    const res = await apiClient<RolesPermissionsFullData>('/api/admin/administration/roles-permissions');
+
+    if (res && res.roles) {
+
+      return res;
+    }
+  } catch (err) {
+    console.warn('Backend API unavailable, using default data structure:', err);
+  }
   return DEFAULT_ROLES_PERMISSIONS_DATA;
 }
+
 
 export async function createRole(roleData: Partial<RoleRegistryItem>): Promise<{ success: boolean; roleId: string }> {
   await new Promise((resolve) => setTimeout(resolve, 150));

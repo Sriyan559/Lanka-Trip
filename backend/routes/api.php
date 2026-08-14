@@ -3,7 +3,19 @@
 use App\Http\Controllers\Api\Admin\AdminAdministrationController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminIdentityController;
+use App\Http\Controllers\Api\Admin\AdminRolesPermissionsController;
+use App\Http\Controllers\Api\Admin\AdminTenantOrgController;
+use App\Http\Controllers\Api\Admin\AdminBuChannelsController;
+use App\Http\Controllers\Api\Admin\AdminSystemConfigController;
+use App\Http\Controllers\Api\Admin\AdminLocalizationController;
+use App\Http\Controllers\Api\Admin\AdminCommunicationsController;
+use App\Http\Controllers\Api\Admin\AdminSecurityController;
+use App\Http\Controllers\Api\Admin\AdminWorkflowsController;
+use App\Http\Controllers\Api\Admin\AdminDataGovernanceController;
+use App\Http\Controllers\Api\Admin\AdminMaintenanceController;
+use App\Http\Controllers\Api\Admin\AdminReportsAuditController;
 use App\Http\Controllers\Api\Admin\AdminReportController;
+
 use App\Http\Controllers\Api\Admin\AdminSupplierDashboardController;
 use App\Http\Controllers\Api\Admin\AdminVerificationComplianceController;
 use App\Http\Controllers\Api\Admin\AdminCustomerDashboardController;
@@ -222,6 +234,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/administration/users/{id}', [AdminIdentityController::class, 'update'])->whereNumber('id');
         Route::patch('/admin/administration/users/{id}/status', [AdminIdentityController::class, 'updateStatus'])->whereNumber('id');
         Route::post('/admin/administration/users/{id}/reset-password', [AdminIdentityController::class, 'resetPassword'])->whereNumber('id');
+
+        // AD04-AD14 Administration Sub-module Endpoints
+        Route::get('/admin/administration/roles-permissions', [AdminRolesPermissionsController::class, 'index']);
+        Route::get('/admin/administration/tenant-organization', [AdminTenantOrgController::class, 'index']);
+        Route::get('/admin/administration/business-units-channels', [AdminBuChannelsController::class, 'index']);
+        Route::get('/admin/administration/system-configuration', [AdminSystemConfigController::class, 'index']);
+        Route::get('/admin/administration/localization-regional', [AdminLocalizationController::class, 'index']);
+        Route::get('/admin/administration/communications', [AdminCommunicationsController::class, 'index']);
+        Route::get('/admin/administration/security-authentication', [AdminSecurityController::class, 'index']);
+        Route::get('/admin/administration/workflows', [AdminWorkflowsController::class, 'index']);
+        Route::get('/admin/administration/data-governance', [AdminDataGovernanceController::class, 'index']);
+        Route::get('/admin/administration/maintenance-diagnostics', [AdminMaintenanceController::class, 'index']);
+        Route::get('/admin/administration/reports-audit', [AdminReportsAuditController::class, 'index']);
+
 
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/admin/dashboard/overview', AdminDashboardController::class);

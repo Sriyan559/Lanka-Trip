@@ -251,7 +251,7 @@ export function RolesPermissionsOverviewTab({
               </h3>
               <div className="flex items-center justify-between gap-2 py-1">
                 {/* Donut Chart */}
-                <div className="relative w-[95px] h-[95px] shrink-0 flex items-center justify-center">
+                <div className="relative w-[115px] h-[115px] shrink-0 flex items-center justify-center">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -263,9 +263,9 @@ export function RolesPermissionsOverviewTab({
                         ]}
                         cx="50%"
                         cy="50%"
-                        innerRadius={28}
-                        outerRadius={44}
-                        paddingAngle={2}
+                        innerRadius={34}
+                        outerRadius={52}
+                        paddingAngle={2.5}
                         dataKey="value"
                         stroke="none"
                       >
@@ -281,10 +281,12 @@ export function RolesPermissionsOverviewTab({
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-base font-bold text-gray-900 leading-none">
+                    <span className="text-lg font-black text-gray-900 leading-none">
                       {sodConflicts.total}
                     </span>
-                    <span className="text-[8px] text-gray-500 font-medium">Conflicts</span>
+                    <span className="text-[8px] text-gray-400 uppercase font-bold tracking-wider mt-0.5">
+                      Conflicts
+                    </span>
                   </div>
                 </div>
 
@@ -604,12 +606,12 @@ export function RolesPermissionsOverviewTab({
         {/* ========================================================================= */}
         <div className="flex flex-row items-stretch gap-2.5 w-full">
           {/* Widget 3.1: Role Privilege Distribution */}
-          <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between min-w-[160px] h-[145px]">
-            <h4 className="text-[11px] font-bold text-[#741d35] tracking-tight mb-1 truncate">
+          <div className="flex-1 bg-white border border-gray-200 rounded p-2.5 shadow-2xs flex flex-col justify-between min-w-[160px] h-[160px]">
+            <h4 className="text-xs font-bold text-[#741d35] tracking-tight mb-1 truncate">
               Role Privilege Distribution
             </h4>
-            <div className="flex items-center gap-1.5 my-auto">
-              <div className="relative w-[55px] h-[55px] shrink-0">
+            <div className="flex items-center gap-2 my-auto">
+              <div className="relative w-[82px] h-[82px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -621,8 +623,8 @@ export function RolesPermissionsOverviewTab({
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={16}
-                      outerRadius={26}
+                      innerRadius={24}
+                      outerRadius={38}
                       paddingAngle={2}
                       dataKey="value"
                       stroke="none"
@@ -638,37 +640,37 @@ export function RolesPermissionsOverviewTab({
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-gray-900 leading-none">344</span>
-                  <span className="text-[6.5px] text-gray-400">Total</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-xs font-black text-gray-900 leading-none">344</span>
+                  <span className="text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">Total</span>
                 </div>
               </div>
-              <div className="flex-1 flex flex-col gap-0.5 text-[8.5px] leading-tight">
+              <div className="flex-1 flex flex-col gap-1 text-[10px] leading-tight">
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#dc2626] shrink-0" />
-                    <span>Critical</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#dc2626] shrink-0" />
+                    <span className="truncate">Critical</span>
                   </div>
                   <span className="font-bold text-gray-900">10 (3%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] shrink-0" />
-                    <span>High</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#ea580c] shrink-0" />
+                    <span className="truncate">High</span>
                   </div>
                   <span className="font-bold text-gray-900">78 (23%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#eab308] shrink-0" />
-                    <span>Medium</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#eab308] shrink-0" />
+                    <span className="truncate">Medium</span>
                   </div>
                   <span className="font-bold text-gray-900">168 (49%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] shrink-0" />
-                    <span>Low</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#10b981] shrink-0" />
+                    <span className="truncate">Low</span>
                   </div>
                   <span className="font-bold text-gray-900">88 (25%)</span>
                 </div>
@@ -677,12 +679,12 @@ export function RolesPermissionsOverviewTab({
           </div>
 
           {/* Widget 3.2: Roles by Risk Level */}
-          <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between min-w-[160px] h-[145px]">
-            <h4 className="text-[11px] font-bold text-[#741d35] tracking-tight mb-1 truncate">
+          <div className="flex-1 bg-white border border-gray-200 rounded p-2.5 shadow-2xs flex flex-col justify-between min-w-[160px] h-[160px]">
+            <h4 className="text-xs font-bold text-[#741d35] tracking-tight mb-1 truncate">
               Roles by Risk Level
             </h4>
-            <div className="flex items-center gap-1.5 my-auto">
-              <div className="relative w-[55px] h-[55px] shrink-0">
+            <div className="flex items-center gap-2 my-auto">
+              <div className="relative w-[82px] h-[82px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -693,8 +695,8 @@ export function RolesPermissionsOverviewTab({
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={16}
-                      outerRadius={26}
+                      innerRadius={24}
+                      outerRadius={38}
                       paddingAngle={2}
                       dataKey="value"
                       stroke="none"
@@ -709,30 +711,30 @@ export function RolesPermissionsOverviewTab({
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-gray-900 leading-none">344</span>
-                  <span className="text-[6.5px] text-gray-400">Total</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-xs font-black text-gray-900 leading-none">344</span>
+                  <span className="text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">Total</span>
                 </div>
               </div>
-              <div className="flex-1 flex flex-col gap-0.5 text-[8.5px] leading-tight">
+              <div className="flex-1 flex flex-col gap-1 text-[10px] leading-tight">
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#dc2626] shrink-0" />
-                    <span>High</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#dc2626] shrink-0" />
+                    <span className="truncate">High</span>
                   </div>
                   <span className="font-bold text-gray-900">46 (13%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] shrink-0" />
-                    <span>Medium</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#f59e0b] shrink-0" />
+                    <span className="truncate">Medium</span>
                   </div>
                   <span className="font-bold text-gray-900">124 (36%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] shrink-0" />
-                    <span>Low</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[#10b981] shrink-0" />
+                    <span className="truncate">Low</span>
                   </div>
                   <span className="font-bold text-gray-900">174 (51%)</span>
                 </div>
@@ -741,12 +743,12 @@ export function RolesPermissionsOverviewTab({
           </div>
 
           {/* Widget 3.3: Roles by Lifecycle Status */}
-          <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between min-w-[160px] h-[145px]">
-            <h4 className="text-[11px] font-bold text-[#741d35] tracking-tight mb-1 truncate">
+          <div className="flex-1 bg-white border border-gray-200 rounded p-2.5 shadow-2xs flex flex-col justify-between min-w-[160px] h-[160px]">
+            <h4 className="text-xs font-bold text-[#741d35] tracking-tight mb-1 truncate">
               Roles by Lifecycle Status
             </h4>
-            <div className="flex items-center gap-1.5 my-auto">
-              <div className="relative w-[55px] h-[55px] shrink-0">
+            <div className="flex items-center gap-2 my-auto">
+              <div className="relative w-[82px] h-[82px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -759,8 +761,8 @@ export function RolesPermissionsOverviewTab({
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={16}
-                      outerRadius={26}
+                      innerRadius={24}
+                      outerRadius={38}
                       paddingAngle={2}
                       dataKey="value"
                       stroke="none"
@@ -777,44 +779,44 @@ export function RolesPermissionsOverviewTab({
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-gray-900 leading-none">344</span>
-                  <span className="text-[6.5px] text-gray-400">Total</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-xs font-black text-gray-900 leading-none">344</span>
+                  <span className="text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">Total</span>
                 </div>
               </div>
-              <div className="flex-1 flex flex-col gap-0.5 text-[8px] leading-tight">
+              <div className="flex-1 flex flex-col gap-0.5 text-[9.5px] leading-tight">
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] shrink-0" />
-                    <span>Active</span>
+                    <span className="truncate">Active</span>
                   </div>
                   <span className="font-bold text-gray-900">286 (83%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#06b6d4] shrink-0" />
-                    <span>Conditional</span>
+                    <span className="truncate">Conditional</span>
                   </div>
                   <span className="font-bold text-gray-900">22 (6%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] shrink-0" />
-                    <span>Deprecated</span>
+                    <span className="truncate">Deprecated</span>
                   </div>
                   <span className="font-bold text-gray-900">14 (4%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444] shrink-0" />
-                    <span>Suspended</span>
+                    <span className="truncate">Suspended</span>
                   </div>
                   <span className="font-bold text-gray-900">12 (4%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#94a3b8] shrink-0" />
-                    <span>Retired</span>
+                    <span className="truncate">Retired</span>
                   </div>
                   <span className="font-bold text-gray-900">10 (3%)</span>
                 </div>
@@ -823,12 +825,12 @@ export function RolesPermissionsOverviewTab({
           </div>
 
           {/* Widget 3.4: Assignment Source Distribution */}
-          <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between min-w-[160px] h-[145px]">
-            <h4 className="text-[11px] font-bold text-[#741d35] tracking-tight mb-1 truncate">
+          <div className="flex-1 bg-white border border-gray-200 rounded p-2.5 shadow-2xs flex flex-col justify-between min-w-[160px] h-[160px]">
+            <h4 className="text-xs font-bold text-[#741d35] tracking-tight mb-1 truncate">
               Assignment Source Distribution
             </h4>
-            <div className="flex items-center gap-1.5 my-auto">
-              <div className="relative w-[55px] h-[55px] shrink-0">
+            <div className="flex items-center gap-2 my-auto">
+              <div className="relative w-[82px] h-[82px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -840,8 +842,8 @@ export function RolesPermissionsOverviewTab({
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={16}
-                      outerRadius={26}
+                      innerRadius={24}
+                      outerRadius={38}
                       paddingAngle={2}
                       dataKey="value"
                       stroke="none"
@@ -857,20 +859,21 @@ export function RolesPermissionsOverviewTab({
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[9px] font-bold text-gray-900 leading-none">1,358</span>
-                  <span className="text-[6.5px] text-gray-400">Users</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-[11px] font-black text-gray-900 leading-none">1,358</span>
+                  <span className="text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">Users</span>
                 </div>
               </div>
-              <div className="flex-1 flex flex-col gap-0.5 text-[8px] leading-tight">
+              <div className="flex-1 flex flex-col gap-1 text-[9.5px] leading-tight">
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1 truncate">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] shrink-0" />
                     <span className="truncate">Direct</span>
                   </div>
                   <span className="font-bold text-gray-900 whitespace-nowrap">412 (32%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
+
                   <div className="flex items-center gap-1 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#8b5cf6] shrink-0" />
                     <span className="truncate">Group/Membership</span>
@@ -969,12 +972,12 @@ export function RolesPermissionsOverviewTab({
           </div>
 
           {/* Widget 3.6: Role Ownership Coverage */}
-          <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between min-w-[160px] h-[145px]">
-            <h4 className="text-[11px] font-bold text-[#741d35] tracking-tight mb-1 truncate">
+          <div className="flex-1 bg-white border border-gray-200 rounded p-2.5 shadow-2xs flex flex-col justify-between min-w-[160px] h-[160px]">
+            <h4 className="text-xs font-bold text-[#741d35] tracking-tight mb-1 truncate">
               Role Ownership Coverage
             </h4>
-            <div className="flex items-center gap-1.5 my-auto">
-              <div className="relative w-[55px] h-[55px] shrink-0">
+            <div className="flex items-center gap-2 my-auto">
+              <div className="relative w-[82px] h-[82px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -984,8 +987,8 @@ export function RolesPermissionsOverviewTab({
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={16}
-                      outerRadius={26}
+                      innerRadius={24}
+                      outerRadius={38}
                       dataKey="value"
                       stroke="none"
                     >
@@ -994,23 +997,23 @@ export function RolesPermissionsOverviewTab({
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-gray-900 leading-none">78%</span>
-                  <span className="text-[6px] text-gray-500 font-medium">With Owner</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-xs font-black text-gray-900 leading-none">78%</span>
+                  <span className="text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">With Owner</span>
                 </div>
               </div>
-              <div className="flex-1 flex flex-col gap-1 text-[8.5px] leading-tight">
+              <div className="flex-1 flex flex-col gap-1 text-[10px] leading-tight">
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-xs bg-[#10b981] shrink-0" />
-                    <span>With Owner</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-xs bg-[#10b981] shrink-0" />
+                    <span className="truncate">With Owner</span>
                   </div>
                   <span className="font-bold text-gray-900">268 (78%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-xs bg-[#cbd5e1] shrink-0" />
-                    <span>No Owner</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-xs bg-[#cbd5e1] shrink-0" />
+                    <span className="truncate">No Owner</span>
                   </div>
                   <span className="font-bold text-gray-900">76 (22%)</span>
                 </div>
@@ -1019,12 +1022,12 @@ export function RolesPermissionsOverviewTab({
           </div>
 
           {/* Widget 3.7: Role to Access Profile Coverage */}
-          <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between min-w-[160px] h-[145px]">
-            <h4 className="text-[11px] font-bold text-[#741d35] tracking-tight mb-1 truncate">
+          <div className="flex-1 bg-white border border-gray-200 rounded p-2.5 shadow-2xs flex flex-col justify-between min-w-[160px] h-[160px]">
+            <h4 className="text-xs font-bold text-[#741d35] tracking-tight mb-1 truncate">
               Role to Access Profile Coverage
             </h4>
-            <div className="flex items-center gap-1.5 my-auto">
-              <div className="relative w-[55px] h-[55px] shrink-0">
+            <div className="flex items-center gap-2 my-auto">
+              <div className="relative w-[82px] h-[82px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -1034,8 +1037,8 @@ export function RolesPermissionsOverviewTab({
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={16}
-                      outerRadius={26}
+                      innerRadius={24}
+                      outerRadius={38}
                       dataKey="value"
                       stroke="none"
                     >
@@ -1044,29 +1047,30 @@ export function RolesPermissionsOverviewTab({
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-gray-900 leading-none">92%</span>
-                  <span className="text-[6px] text-gray-500 font-medium">Covered</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-xs font-black text-gray-900 leading-none">92%</span>
+                  <span className="text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">Covered</span>
                 </div>
               </div>
-              <div className="flex-1 flex flex-col gap-1 text-[8.5px] leading-tight">
+              <div className="flex-1 flex flex-col gap-1 text-[10px] leading-tight">
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-xs bg-[#10b981] shrink-0" />
-                    <span>Covered</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-xs bg-[#10b981] shrink-0" />
+                    <span className="truncate">Covered</span>
                   </div>
                   <span className="font-bold text-gray-900">316 (92%)</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-xs bg-[#cbd5e1] shrink-0" />
-                    <span>Unlinked</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2 h-2 rounded-xs bg-[#cbd5e1] shrink-0" />
+                    <span className="truncate">Unlinked</span>
                   </div>
                   <span className="font-bold text-gray-900">28 (8%)</span>
                 </div>
               </div>
             </div>
           </div>
+
 
           {/* Widget 3.8: Average Time to Review */}
           <div className="flex-1 bg-white border border-gray-200 rounded p-2 shadow-2xs flex flex-col justify-between items-center text-center min-w-[145px] h-[145px]">
