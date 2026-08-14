@@ -157,7 +157,7 @@ export function AdministrationOperationalRail() {
             <ArrowUpRight size={12} />
             <span>Review Workflow Exceptions</span>
           </Link>
-          <Link href="/admin/administration" className="flex items-center gap-2 text-[10px] font-bold text-[#741d35] hover:underline py-1 border-b border-gray-50">
+          <Link href="/admin/administration/maintenance-diagnostics" className="flex items-center gap-2 text-[10px] font-bold text-[#741d35] hover:underline py-1 border-b border-gray-50">
             <Play size={12} />
             <span>Review Failed Jobs</span>
           </Link>

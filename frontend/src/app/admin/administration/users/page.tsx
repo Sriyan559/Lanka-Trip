@@ -103,7 +103,7 @@ export default function UsersAndIdentityManagementPage() {
     <div className="flex flex-col min-h-screen bg-gray-50/40 p-4">
       {/* Header Block */}
       <PageHeader
-        title="AD02 — Users, Accounts & Identity Management"
+        title="Users, Accounts & Identity Management"
         description="A central administration workspace for user lifecycle management, administrative assignments, account access lifecycle, restrictions, reviews, and identity governance."
         crumbs={['Administration', 'Users & Identity']}
         actions={headerActions}
