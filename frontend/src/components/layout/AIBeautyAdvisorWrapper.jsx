@@ -65,7 +65,7 @@ export default function AIBeautyAdvisorWrapper() {
     setIsOpen(false);
   };
 
-  if (pathname === '/ai-advisor') return null;
+  if (pathname === '/' || pathname === '/ai-advisor') return null;
 
   return (
     <>

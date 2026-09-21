@@ -1,82 +1,71 @@
-import Header             from '@/components/layout/Header';
-import Footer             from '@/components/layout/Footer';
-import HomeCategoryCarousel from '@/components/home/HomeCategoryCarousel';
-import HeroSlider         from '@/components/home/HeroSlider';
-import FeaturedCards      from '@/components/home/FeaturedCards';
-import BeautyFeatureSections from '@/components/home/BeautyFeatureSections';
-import TrendingProducts   from '@/components/home/TrendingProducts';
-import CategoryGridSection from '@/components/home/CategoryGridSection';
-import HomePromoVideo     from '@/components/home/HomePromoVideo';
-import HomePromotionalCarousels from '@/components/home/HomePromotionalCarousels';
-import BeautyProductShowcases from '@/components/home/BeautyProductShowcases';
-import HomeDiscoverySections from '@/components/home/HomeDiscoverySections';
-import AIBeautyDiagnosticsSection from '@/components/home/AIBeautyDiagnosticsSection';
-import AfterMonsoonSections from '@/components/home/AfterMonsoonSections';
-import { SL_BEAUTY_DISPLAY_CONFIG } from '@/lib/slBeautyConfig';
+import React from 'react';
+import LankaHeader from '@/components/layout/LankaHeader';
+import LankaHero from '@/components/home/LankaHero';
+import TripPlannerForm from '@/components/home/TripPlannerForm';
+import ServiceCategories from '@/components/home/ServiceCategories';
+import PopularDestinations from '@/components/home/PopularDestinations';
+import ItineraryPreview from '@/components/home/ItineraryPreview';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
+import LankaFooter from '@/components/layout/LankaFooter';
+import { getHomePageData } from '@/services/homeService';
 
 export const metadata = {
-  title: `${SL_BEAUTY_DISPLAY_CONFIG.displayName} — Sri Lanka Beauty Marketplace`,
-  description: SL_BEAUTY_DISPLAY_CONFIG.description,
+  title: 'LankaTrip Planner — Build Your Perfect Sri Lanka Itinerary',
+  description:
+    'Discover amazing places, book trusted local services, and create unforgettable travel experiences across Sri Lanka.',
+  keywords: [
+    'Sri Lanka travel',
+    'Sri Lanka itinerary',
+    'trip planner',
+    'Sri Lanka tourism',
+    'Sigiriya',
+    'Ella',
+    'Kandy',
+    'Yala safari',
+    'Galle Fort',
+    'Colombo',
+  ],
+  openGraph: {
+    title: 'LankaTrip Planner — Build Your Perfect Sri Lanka Itinerary',
+    description:
+      'Discover amazing places, book trusted local services, and create unforgettable travel experiences across Sri Lanka.',
+    type: 'website',
+  },
 };
 
-// Edit every label, image, and destination for the category showcase in this one object.
-const BEAUTY_CATEGORY_SECTION = {
-  id: 'beauty-categories',
-  title: 'Shop Beauty Categories',
-  viewAllLabel: 'View All',
-  viewAllUrl: '/categories',
-  promoTitle: 'Find Your Beauty Routine',
-  promoSubtitle: 'Browse skincare, makeup, haircare, fragrance, bath and body, wellness, beauty tools, and luxury beauty',
-  promoBg: 'linear-gradient(135deg, #b62f59 0%, #e66b9a 100%)',
-  promoImage: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=700&q=80',
-  promoHref: '/products',
-  promoButtonLabel: 'Shop Now',
-  items: [
-    ['makeup', 'Makeup', 'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=320&q=80'],
-    ['skincare', 'Skincare', 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=320&q=80'],
-    ['fragrance', 'Fragrance', 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=320&q=80'],
-    ['hair-care', 'Haircare', 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=320&q=80'],
-    ['bath-body', 'Bath & Body', 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=320&q=80'],
-    ['tools-brushes', 'Beauty Tools', 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=320&q=80'],
-    ['wellness', 'Wellness', '/images/categories/wellness.jpg'],
-    ['luxury-beauty', 'Luxury Beauty', 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=320&q=80'],
-  ].map(([slug, label, image]) => ({ slug, label, image, href: `/categories/${slug}`, imageAlt: `${label} beauty category` })),
-};
+export default async function HomePage() {
+  const homeData = await getHomePageData();
 
-export default function HomePage() {
   return (
-    <>
-      <Header />
-      <main className="max-w-screen-xl mx-auto px-3 py-3 sm:px-4 sm:py-4">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 selection:bg-teal-600 selection:text-white">
+      {/* 1. Header / Navigation */}
+      <LankaHeader />
 
-        {/* ── Full-width beauty hero slider ─────────────────── */}
-        <div className="w-full">
-          <HeroSlider />
-        </div>
+      <main className="flex-1 w-full">
+        {/* 2. Hero Banner */}
+        <LankaHero />
 
-        <HomeCategoryCarousel />
+        {/* 3. Floating Trip Planner Form */}
+        <TripPlannerForm
+          options={homeData.plannerOptions}
+          defaults={homeData.plannerDefaults}
+        />
 
-        {/* ── Featured service cards ─────────────────────────── */}
-        <FeaturedCards />
+        {/* 4. Service Category Cards */}
+        <ServiceCategories categories={homeData.serviceCategories} />
 
-        {/* ── Custom detailed section targets ─────────────────── */}
-        <BeautyFeatureSections />
+        {/* 5. Popular Destinations */}
+        <PopularDestinations destinations={homeData.popularDestinations} />
 
-        {/* ── Trending products grid ─────────────────────────── */}
-        <TrendingProducts />
+        {/* 6. Itinerary Preview (7-Day Preview + Sri Lanka Map) */}
+        <ItineraryPreview itinerary={homeData.sampleItinerary} />
 
-        <BeautyProductShowcases />
-
-        <HomeDiscoverySections afterStories={<AIBeautyDiagnosticsSection />} />
-
-        {/* ── Beauty product category sections, using public SL Beauty display data ── */}
-        <CategoryGridSection section={BEAUTY_CATEGORY_SECTION} />
-        <HomePromoVideo />
-        <HomePromotionalCarousels />
-        <AfterMonsoonSections />
-
+        {/* 7. Testimonials */}
+        <TestimonialsSection testimonials={homeData.testimonials} />
       </main>
-      <Footer />
-    </>
+
+      {/* 8. Footer */}
+      <LankaFooter footerData={homeData.footer} />
+    </div>
   );
 }
